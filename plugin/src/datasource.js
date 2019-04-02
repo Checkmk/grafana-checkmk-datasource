@@ -77,9 +77,25 @@ export class GenericDatasource {
         return this.doRequest({
             url: `${this.url}&action=get_all_hosts`,
             method: 'GET',
-        }).then(response => {
-            if (response.status === 200) {
-                return { status: 'success', message: 'Data source is working', title: 'Success' };
+        }).then((response) => {
+            if(response.status !== 200) {
+                return {
+                    status: 'error',
+                    message: 'Could not connect to provided URL',
+                    title: 'Error'
+                };
+            } else if (!response.data.result) {
+                return {
+                    status: 'error',
+                    message: response.data,
+                    title: 'Error'
+                };
+            } else {
+                return {
+                    status: 'success',
+                    message: 'Data source is working',
+                    title: 'Success'
+                };
             }
         });
     }
