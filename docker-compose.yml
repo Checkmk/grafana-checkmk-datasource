@@ -9,7 +9,7 @@ services:
   grafana:
     image: "grafana/grafana"
     volumes:
-      - "./plugin:/var/lib/grafana/plugins/check_mk:ro"
+      - "./plugin:/var/lib/grafana/plugins/checkmk-datasource:ro"
     ports:
      - "3000:3000"
     links:

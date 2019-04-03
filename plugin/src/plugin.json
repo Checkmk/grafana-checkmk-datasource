@@ -4,7 +4,7 @@
   "type": "datasource",
 
   "partials": {
-    "config": "public/app/plugins/datasource/simplejson/partials/config.html"
+    "config": "public/app/plugins/datasource/checkmk-datasource/partials/config.html"
   },
 
   "metrics": true,
