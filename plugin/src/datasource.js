@@ -7,9 +7,25 @@
  * annotationQuery(options) // used by dashboards to get annotations (optional)
  */
 
+
+//TODO: remove hardcoded site and hostname
+const SITE = 'cmk';
+const HOSTNAME = '192.168.1.11';
+
 //TODO: move utilities
 const buildUrlWithParams = (url, params) => url + Object.keys(params)
     .reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
+
+const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
+
+const parseMetricResponse = (data) => {
+    return Object.keys(data)
+        .map((key) => Object.keys(data[key].metrics)
+            //TODO: make this map to correct graph_index
+            .map((metric, metricIndex) => ({text: data[key].metrics[metric].title, value: `${SITE}:${HOSTNAME}:${key}:${metricIndex}`}))
+        )
+        .reduce((all, items) => all.concat(items), []);
+};
 
 export class GenericDatasource {
     // backendSrv, templateSrv are injected - do not rename
@@ -30,25 +46,26 @@ export class GenericDatasource {
     }
 
     query(options) {
-        const data = `request=${JSON.stringify(
-            {
-                'specification': [
-                    'template',
-                    {
-                        'service_description': 'Memory',
-                        'site': 'cmk',
-                        'graph_index': 4,
-                        'host_name': '192.168.1.11'
-                    }
-                ],
-                'data_range': {
-                    'time_range': [
-                        options.range.from.unix(),
-                        options.range.to.unix()
-                    ]
+        //TODO: correct multi target handling
+        const [site, host_name, service_description, graph_index] = options.targets[0].target.split(':');
+
+        const data = buildRequestBody({
+            specification: [
+                'template',
+                {
+                    service_description,
+                    site,
+                    graph_index: +graph_index,
+                    host_name
                 }
+            ],
+            data_range: {
+                time_range: [
+                    options.range.from.unix(),
+                    options.range.to.unix()
+                ]
             }
-        )}`;
+        });
 
         return this.doRequest({
             url: `${this.url}&action=get_graph`,
@@ -101,33 +118,15 @@ export class GenericDatasource {
     }
 
     metricFindQuery(/* query */) {
-        const data = `request=${JSON.stringify(
-            {
-                'specification': [
-                    'template',
-                    {
-                        'service_description': 'Memory',
-                        'site': 'cmk',
-                        'graph_index': 4,
-                        'host_name': '192.168.1.11'
-                    }
-                ],
-                'data_range': {
-                    'time_range': [
-                        1553683195,
-                        1553693195
-                    ]
-                }
-            }
-        )}`;
+        const data = {hostname: HOSTNAME};
 
         return this.doRequest({
-            url: `${this.url}&action=get_hosts`,
-            data,
+            url: `${this.url}&action=get_metrics_of_host`,
+            data: buildRequestBody(data),
             method: 'POST',
         })
-            .then(() => {
-                return [{text: 'Memory', value: 'Memory'}, {text: 'testB', value: 'b'}];
+            .then((response) => {
+                return parseMetricResponse(response.data.result);
             });
     }
 
