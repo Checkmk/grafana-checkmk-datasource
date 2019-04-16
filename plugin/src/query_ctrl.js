@@ -10,7 +10,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         this.target.site = this.target.site || this.datasource.getDefaultSite();
         this.target.host = this.target.host || '';
         this.target.service = this.target.service || '';
-        this.target.metric = this.target.metric || '';
+        this.target.metric = this.target.metric != null ? this.target.metric : '';
     }
 
     getSiteOptions() {
