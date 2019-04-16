@@ -7,6 +7,7 @@
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.site"
             id="dropdown-site"
+            allow-custom="true"
             lookup-text="true"
             get-options="ctrl.getSiteOptions($query)"
             on-change="ctrl.onSiteChange()">
@@ -37,7 +38,6 @@
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.service"
             id="dropdown-service"
-            allow-custom="true"
             lookup-text="true"
             get-options="ctrl.getServiceOptions($query)"
             on-change="ctrl.onServiceChange()">
@@ -52,7 +52,6 @@
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.metric"
             id="dropdown-metric"
-            allow-custom="true"
             lookup-text="true"
             get-options="ctrl.getMetricOptions($query)"
             on-change="ctrl.onMetricChange()">
