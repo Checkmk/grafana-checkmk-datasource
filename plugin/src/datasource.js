@@ -15,6 +15,19 @@ const buildUrlWithParams = (url, params) => url + Object.keys(params)
 
 const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
 
+const formatCurveData = (startTime, step) => (curveData) => {
+    const datapoints = curveData.rrddata
+        .map((d, i) => {
+            return [d, (startTime + i * step) * 1000];
+        })
+        .filter((f) => f[0]);
+
+    return {
+        target: curveData.title,
+        datapoints
+    };
+};
+
 export class GenericDatasource {
     // backendSrv, templateSrv are injected - do not rename
     constructor(instanceSettings, $q, backendSrv, templateSrv) {
@@ -67,24 +80,16 @@ export class GenericDatasource {
             method: 'POST'
         })
             .then((response) => {
-                const datapoints = response.data.result.curves[0].rrddata
-                    .map((d, i) => {
-                        return [d, (response.data.result.start_time + i * response.data.result.step) * 1000];
-                    })
-                    .filter((f) => f[0]);
-
-                return {
-                    target: response.data.result.curves[0].title,
-                    datapoints
-                };
+                const {start_time, step, curves} = response.data.result;
+                return curves.map(formatCurveData(start_time, step));
             });
     }
 
     query(options) {
-        return Promise.all(options.targets.map((target) => this.queryTarget(target, options)))
-            .then((data) => {
-                return {data};
-            });
+        const targets = options.targets.filter(({hide}) => !hide);
+        return Promise.all(targets.map((target) => this.queryTarget(target, options)))
+            .then((data) => data.reduce((all, d) => all.concat(d), []))
+            .then((data) => ({data}));
     }
 
     testDatasource() {
