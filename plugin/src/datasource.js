@@ -7,25 +7,13 @@
  * annotationQuery(options) // used by dashboards to get annotations (optional)
  */
 
-
-//TODO: remove hardcoded site and hostname
-const SITE = 'cmk';
-const HOSTNAME = '192.168.1.11';
+const DEFAULT_SITE = 'cmk';
 
 //TODO: move utilities
 const buildUrlWithParams = (url, params) => url + Object.keys(params)
     .reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
 
 const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
-
-const parseMetricResponse = (data) => {
-    return Object.keys(data)
-        .map((key) => Object.keys(data[key].metrics)
-            //TODO: make this map to correct graph_index
-            .map((metric, metricIndex) => ({text: data[key].metrics[metric].title, value: `${SITE}:${HOSTNAME}:${key}:${metricIndex}`}))
-        )
-        .reduce((all, items) => all.concat(items), []);
-};
 
 export class GenericDatasource {
     // backendSrv, templateSrv are injected - do not rename
@@ -45,18 +33,26 @@ export class GenericDatasource {
         this.headers = {'Content-Type': 'application/x-www-form-urlencoded'};
     }
 
+    //TODO: multi target handling
     query(options) {
-        //TODO: correct multi target handling
-        const [site, host_name, service_description, graph_index] = options.targets[0].target.split(':');
+        const [target] = options.targets;
+        if(!target || !target.site || !target.host || !target.service) {
+            return Promise.resolve({data: []});
+        }
+
+        const site = target.site;
+        const host_name = target.host;
+        const service_description = target.service;
+        const graph_index = +(target.metric || 0);
 
         const data = buildRequestBody({
             specification: [
                 'template',
                 {
-                    service_description,
                     site,
-                    graph_index: +graph_index,
-                    host_name
+                    host_name,
+                    service_description,
+                    graph_index
                 }
             ],
             data_range: {
@@ -117,17 +113,71 @@ export class GenericDatasource {
         });
     }
 
-    metricFindQuery(/* query */) {
-        const data = {hostname: HOSTNAME};
+    annotationQuery() {
+        throw new Error('Annotation Support not implemented.');
+    }
 
+    metricFindQuery() {
+        throw new Error('Template Variable Support not implemented.');
+    }
+
+
+    getDefaultSite() {
+        return DEFAULT_SITE;
+    }
+
+    sitesQuery() {
+        return [{text: `${this.getDefaultSite()} (default)`, value: this.getDefaultSite()}];
+    }
+
+    hostsQuery(query) {
+        if(!query.site ) {
+            return Promise.resolve([]);
+        }
+        return this.doRequest({
+            url: `${this.url}&action=get_all_hosts`,
+            method: 'GET',
+        })
+            .then((response) => Object.keys(response.data.result)
+                .map((hostname) => ({text: hostname, value: hostname}))
+            );
+    }
+
+    servicesQuery(query) {
+        if(!query.site || !query.host) {
+            return Promise.resolve([]);
+        }
         return this.doRequest({
             url: `${this.url}&action=get_metrics_of_host`,
+            data: buildRequestBody({hostname: query.host}),
+            method: 'POST',
+        })
+            .then((response) => Object.keys(response.data.result)
+                .map((key) => ({text: key, value: key}))
+            );
+    }
+
+    metricsQuery(query) {
+        if(!query.site || !query.host || !query.service) {
+            return Promise.resolve([]);
+        }
+        const data = {
+            specification: [
+                'template',
+                {
+                    site: query.site,
+                    service_description: query.service,
+                    host_name: query.host
+                }
+            ]
+        };
+
+        return this.doRequest({
+            url: `${this.url}&action=get_graph_recipes`,
             data: buildRequestBody(data),
             method: 'POST',
         })
-            .then((response) => {
-                return parseMetricResponse(response.data.result);
-            });
+            .then((response) => response.data.result.map((metric, index) => ({text: metric.title, value: index})));
     }
 
     doRequest(options) {
