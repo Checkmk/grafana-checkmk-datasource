@@ -33,9 +33,7 @@ export class GenericDatasource {
         this.headers = {'Content-Type': 'application/x-www-form-urlencoded'};
     }
 
-    //TODO: multi target handling
-    query(options) {
-        const [target] = options.targets;
+    queryTarget(target, {range}) {
         if(!target || !target.site || !target.host || !target.service) {
             return Promise.resolve({data: []});
         }
@@ -57,8 +55,8 @@ export class GenericDatasource {
             ],
             data_range: {
                 time_range: [
-                    options.range.from.unix(),
-                    options.range.to.unix()
+                    range.from.unix(),
+                    range.to.unix()
                 ]
             }
         });
@@ -75,14 +73,17 @@ export class GenericDatasource {
                     })
                     .filter((f) => f[0]);
 
-                const res = {
+                return {
                     target: response.data.result.curves[0].title,
                     datapoints
                 };
+            });
+    }
 
-                response.data = [res];
-
-                return response;
+    query(options) {
+        return Promise.all(options.targets.map((target) => this.queryTarget(target, options)))
+            .then((data) => {
+                return {data};
             });
     }
 
