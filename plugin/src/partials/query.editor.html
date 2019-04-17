@@ -6,10 +6,11 @@
       </label>
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.site"
+            placeholder="select site"
             id="dropdown-site"
             allow-custom="true"
             lookup-text="true"
-            get-options="ctrl.getSiteOptions($query)"
+            get-options="ctrl.getSiteOptions()"
             on-change="ctrl.onSiteChange()">
         </gf-form-dropdown>
       </div>
@@ -21,9 +22,10 @@
       </label>
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.host"
+            placeholder="select host"
             id="dropdown-host"
             lookup-text="true"
-            get-options="ctrl.getHostOptions($query)"
+            get-options="ctrl.getHostOptions()"
             on-change="ctrl.onHostChange()">
         </gf-form-dropdown>
       </div>
@@ -37,9 +39,10 @@
       </label>
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.service"
+            placeholder="select service"
             id="dropdown-service"
             lookup-text="true"
-            get-options="ctrl.getServiceOptions($query)"
+            get-options="ctrl.getServiceOptions()"
             on-change="ctrl.onServiceChange()">
         </gf-form-dropdown>
       </div>
@@ -51,9 +54,10 @@
       </label>
       <div class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.metric"
+            placeholder="select graph"
             id="dropdown-metric"
             lookup-text="true"
-            get-options="ctrl.getMetricOptions($query)"
+            get-options="ctrl.getMetricOptions()"
             on-change="ctrl.onMetricChange()">
         </gf-form-dropdown>
       </div>
