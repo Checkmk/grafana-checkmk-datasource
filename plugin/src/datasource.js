@@ -7,7 +7,7 @@
  * annotationQuery(options) // used by dashboards to get annotations (optional)
  */
 
-const DEFAULT_SITE = 'cmk';
+const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 //TODO: move utilities
 const buildUrlWithParams = (url, params) => url + Object.keys(params)
@@ -37,21 +37,19 @@ export class GenericDatasource {
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
 
-        this.url = buildUrlWithParams(instanceSettings.jsonData.url, {
-            _username: instanceSettings.jsonData.username,
-            _secret: instanceSettings.jsonData.secret,
-            output_format: 'json'
-        });
+        this.rawUrl = instanceSettings.jsonData.url;
+        this._username = instanceSettings.jsonData.username;
+        this._secret = instanceSettings.jsonData.secret;
 
         this.headers = {'Content-Type': 'application/x-www-form-urlencoded'};
     }
 
     queryTarget(target, {range}) {
-        if(!target || !target.site || !target.host || !target.service) {
+        if(!target || !target.host || !target.service) {
             return Promise.resolve({data: []});
         }
 
-        const site = target.site;
+        const site = target.site || null;
         const host_name = target.host;
         const service_description = target.service;
         const graph_index = +(target.metric || 0);
@@ -75,7 +73,7 @@ export class GenericDatasource {
         });
 
         return this.doRequest({
-            url: `${this.url}&action=get_graph`,
+            params: {action: 'get_graph'},
             data,
             method: 'POST'
         })
@@ -93,8 +91,16 @@ export class GenericDatasource {
     }
 
     testDatasource() {
+        if(!urlValidationRegex.test(this.rawUrl)) {
+            return {
+                status: 'error',
+                message: 'Invalid URL format. Please make sure to include protocol and trailing slash. Example: https://checkmk.server/site/',
+                title: 'Error'
+            };
+        }
+
         return this.doRequest({
-            url: `${this.url}&action=get_all_hosts`,
+            params: {action: 'get_all_hosts'},
             method: 'GET',
         })
             .then((response) => {
@@ -121,7 +127,7 @@ export class GenericDatasource {
             .catch(() => {
                 return {
                     status: 'error',
-                    message: 'Could not read API response, make sure the URL is pointing to a webapi.py',
+                    message: 'Could not read API response, make sure the URL you provided is correct.',
                     title: 'Error'
                 };
             });
@@ -135,21 +141,13 @@ export class GenericDatasource {
         throw new Error('Template Variable Support not implemented.');
     }
 
-
-    getDefaultSite() {
-        return DEFAULT_SITE;
-    }
-
     sitesQuery() {
-        return [{text: `${this.getDefaultSite()} (default)`, value: this.getDefaultSite()}];
+        return [{text: 'All Sites', value: ''}];
     }
 
-    hostsQuery(query) {
-        if(!query.site ) {
-            return Promise.resolve([]);
-        }
+    hostsQuery() {
         return this.doRequest({
-            url: `${this.url}&action=get_all_hosts`,
+            params: {action: 'get_all_hosts'},
             method: 'GET',
         })
             .then((response) => Object.keys(response.data.result)
@@ -158,11 +156,11 @@ export class GenericDatasource {
     }
 
     servicesQuery(query) {
-        if(!query.site || !query.host) {
+        if(!query.host) {
             return Promise.resolve([]);
         }
         return this.doRequest({
-            url: `${this.url}&action=get_metrics_of_host`,
+            params: {action: 'get_metrics_of_host'},
             data: buildRequestBody({hostname: query.host}),
             method: 'POST',
         })
@@ -172,14 +170,14 @@ export class GenericDatasource {
     }
 
     metricsQuery(query) {
-        if(!query.site || !query.host || !query.service) {
+        if(!query.host || !query.service) {
             return Promise.resolve([]);
         }
         const data = {
             specification: [
                 'template',
                 {
-                    site: query.site,
+                    site: query.site || null,
                     service_description: query.service,
                     host_name: query.host
                 }
@@ -187,7 +185,7 @@ export class GenericDatasource {
         };
 
         return this.doRequest({
-            url: `${this.url}&action=get_graph_recipes`,
+            params: {action: 'get_graph_recipes'},
             data: buildRequestBody(data),
             method: 'POST',
         })
@@ -195,7 +193,16 @@ export class GenericDatasource {
     }
 
     doRequest(options) {
+        options.url = buildUrlWithParams(`${this.rawUrl}check_mk/webapi.py`, Object.assign({
+            _username: this._username,
+            _secret: this._secret,
+            output_format: 'json',
+        }, options.params));
+
+        delete options.params;
+
         options.headers = this.headers;
+
         return this.backendSrv.datasourceRequest(options);
     }
 }

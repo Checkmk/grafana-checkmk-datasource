@@ -6,8 +6,8 @@ TODO: Check_MK Version requirements
 
 ## Plugin Configuration
 #### URL:
-URL of the API Endpoint used.\
-Example: http://checkmk.server/cmk/check_mk/webapi.py
+URL of the Check_MK Server used.\
+Example: http://checkmk.server/site/
 
 #### Username:
 User to be used for API calls. In most cases this will be 'automation'.
