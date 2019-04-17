@@ -45,14 +45,18 @@ export class GenericDatasource {
     }
 
     queryTarget(target, {range}) {
-        if(!target || !target.host || !target.service) {
+        if(!target || !target.host || !target.service || target.metric === '') {
             return Promise.resolve({data: []});
         }
 
         const site = target.site || null;
         const host_name = target.host;
         const service_description = target.service;
-        const graph_index = +(target.metric || 0);
+        const graph_index = +target.metric;
+
+        if(isNaN(graph_index)) {
+            return Promise.resolve({data: []});
+        }
 
         const data = buildRequestBody({
             specification: [
@@ -78,6 +82,10 @@ export class GenericDatasource {
             method: 'POST'
         })
             .then((response) => {
+                if(response.data.result_code !== 0) {
+                    throw new Error('Error while fetching data');
+                }
+
                 const {start_time, step, curves} = response.data.result;
                 return curves.map(formatCurveData(start_time, step));
             });
@@ -189,7 +197,13 @@ export class GenericDatasource {
             data: buildRequestBody(data),
             method: 'POST',
         })
-            .then((response) => response.data.result.map((metric, index) => ({text: metric.title, value: index})));
+            .then((response) => {
+                if(!response.data.result.length) {
+                    return [{text: 'no graphs available', value: '-'}];
+                }
+
+                return response.data.result.map((metric, index) => ({text: metric.title, value: index}));
+            });
     }
 
     doRequest(options) {

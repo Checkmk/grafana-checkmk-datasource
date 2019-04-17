@@ -68,14 +68,18 @@ var GenericDatasource = exports.GenericDatasource = function () {
         value: function queryTarget(target, _ref) {
             var range = _ref.range;
 
-            if (!target || !target.host || !target.service) {
+            if (!target || !target.host || !target.service || target.metric === '') {
                 return Promise.resolve({ data: [] });
             }
 
             var site = target.site || null;
             var host_name = target.host;
             var service_description = target.service;
-            var graph_index = +(target.metric || 0);
+            var graph_index = +target.metric;
+
+            if (isNaN(graph_index)) {
+                return Promise.resolve({ data: [] });
+            }
 
             var data = buildRequestBody({
                 specification: ['template', {
@@ -94,6 +98,10 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 data: data,
                 method: 'POST'
             }).then(function (response) {
+                if (response.data.result_code !== 0) {
+                    throw new Error('Error while fetching data');
+                }
+
                 var _response$data$result = response.data.result,
                     start_time = _response$data$result.start_time,
                     step = _response$data$result.step,
@@ -225,6 +233,10 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 data: buildRequestBody(data),
                 method: 'POST'
             }).then(function (response) {
+                if (!response.data.result.length) {
+                    return [{ text: 'no graphs available', value: '-' }];
+                }
+
                 return response.data.result.map(function (metric, index) {
                     return { text: metric.title, value: index };
                 });
