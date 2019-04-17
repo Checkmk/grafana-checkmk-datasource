@@ -1,0 +1,62 @@
+<query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
+  <div class="gf-form">
+    <div class="gf-form-inline width-22">
+      <label class="gf-form-label width-5" for="dropdown-site">
+        Site
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.site"
+            id="dropdown-site"
+            allow-custom="true"
+            lookup-text="true"
+            get-options="ctrl.getSiteOptions($query)"
+            on-change="ctrl.onSiteChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+
+    <div class="gf-form-inline width-22">
+      <label class="gf-form-label width-5" for="dropdown-host">
+        Host
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.host"
+            id="dropdown-host"
+            lookup-text="true"
+            get-options="ctrl.getHostOptions($query)"
+            on-change="ctrl.onHostChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <div class="gf-form">
+    <div ng-show="ctrl.target.host" class="gf-form-inline width-22">
+      <label class="gf-form-label width-5" for="dropdown-service">
+        Service
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.service"
+            id="dropdown-service"
+            lookup-text="true"
+            get-options="ctrl.getServiceOptions($query)"
+            on-change="ctrl.onServiceChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+
+    <div ng-show="ctrl.target.service" class="gf-form-inline width-22">
+      <label class="gf-form-label width-5" for="dropdown-metric">
+        Graph
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.metric"
+            id="dropdown-metric"
+            lookup-text="true"
+            get-options="ctrl.getMetricOptions($query)"
+            on-change="ctrl.onMetricChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+  </div>
+</query-editor-row>
