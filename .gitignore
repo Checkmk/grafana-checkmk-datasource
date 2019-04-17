@@ -1,3 +1,20 @@
-.DS_STORE
-.vagrant
-checkmkconfig
+node_modules
+npm-debug.log
+
+# locally required config files
+public/css/*.min.css
+
+# Editor junk
+*.sublime-workspace
+*.swp
+.idea/
+*.iml
+
+/data/*
+/bin/*
+
+conf/custom.ini
+fig.yml
+profile.cov
+grafana
+.notouch
