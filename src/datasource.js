@@ -29,6 +29,8 @@ export class GenericDatasource {
         this._secret = instanceSettings.jsonData.secret;
 
         this.headers = {'Content-Type': 'application/x-www-form-urlencoded'};
+
+        this.lastErrors = {};
     }
 
     queryTarget(target, {range}) {
@@ -71,6 +73,8 @@ export class GenericDatasource {
             }
         });
 
+        delete this.lastErrors[target.refId];
+
         return this.doRequest({
             params: {action: 'get_graph'},
             data,
@@ -78,7 +82,7 @@ export class GenericDatasource {
         })
             .then((response) => {
                 if(response.data.result_code !== 0) {
-                    throw new Error('Error while fetching data');
+                    throw new Error(`${response.data.result}`);
                 }
 
                 const {start_time, step, curves} = response.data.result;
@@ -89,7 +93,14 @@ export class GenericDatasource {
                 }
 
                 return curves.map(formatCurveData(start_time, step));
+            })
+            .catch((err) => {
+                this.lastErrors[target.refId] = err.message;
             });
+    }
+
+    getLastError(refId) {
+        return this.lastErrors[refId];
     }
 
     query(options) {

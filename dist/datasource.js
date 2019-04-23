@@ -51,11 +51,15 @@ var GenericDatasource = exports.GenericDatasource = function () {
         this._secret = instanceSettings.jsonData.secret;
 
         this.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+
+        this.lastErrors = {};
     }
 
     _createClass(GenericDatasource, [{
         key: 'queryTarget',
         value: function queryTarget(target, _ref) {
+            var _this = this;
+
             var range = _ref.range;
 
             if (!target || !target.host || !target.service || target.metric === '' && target.graph === '') {
@@ -98,13 +102,15 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 }
             });
 
+            delete this.lastErrors[target.refId];
+
             return this.doRequest({
                 params: { action: 'get_graph' },
                 data: data,
                 method: 'POST'
             }).then(function (response) {
                 if (response.data.result_code !== 0) {
-                    throw new Error('Error while fetching data');
+                    throw new Error('' + response.data.result);
                 }
 
                 var _response$data$result = response.data.result,
@@ -119,19 +125,26 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 }
 
                 return curves.map((0, _data.formatCurveData)(start_time, step));
+            }).catch(function (err) {
+                _this.lastErrors[target.refId] = err.message;
             });
+        }
+    }, {
+        key: 'getLastError',
+        value: function getLastError(refId) {
+            return this.lastErrors[refId];
         }
     }, {
         key: 'query',
         value: function query(options) {
-            var _this = this;
+            var _this2 = this;
 
             var targets = options.targets.filter(function (_ref2) {
                 var hide = _ref2.hide;
                 return !hide;
             });
             return Promise.all(targets.map(function (target) {
-                return _this.queryTarget(target, options);
+                return _this2.queryTarget(target, options);
             })).then(function (data) {
                 return data.reduce(function (all, d) {
                     return all.concat(d);

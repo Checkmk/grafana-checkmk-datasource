@@ -66,6 +66,11 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
             return [{ text: 'predefined graph', value: 'graph' }, { text: 'single metric', value: 'metric' }];
         }
     }, {
+        key: 'getLastError',
+        value: function getLastError() {
+            return this.datasource.getLastError(this.target.refId);
+        }
+    }, {
         key: 'toggleEditorMode',
         value: function toggleEditorMode() {
             this.target.rawQuery = !this.target.rawQuery;

@@ -39,6 +39,10 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         return [{text: 'predefined graph', value: 'graph'}, {text: 'single metric', value: 'metric'}];
     }
 
+    getLastError() {
+        return this.datasource.getLastError(this.target.refId);
+    }
+
     toggleEditorMode() {
         this.target.rawQuery = !this.target.rawQuery;
     }
