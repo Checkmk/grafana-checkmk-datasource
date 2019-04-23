@@ -280,7 +280,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                     return all.findIndex(function (x) {
                         return x.text === f.text;
                     }) === i;
-                }) // metrics are not necessary unique to one graph, filtering here to make reults unique
+                }) // metrics are not necessary unique to one graph, filtering here to make results unique
                 .sort(sortByText);
             });
         }
