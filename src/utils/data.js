@@ -9,6 +9,6 @@ const formatCurveData = (startTime, step) => (curveData) => {
     };
 };
 
-export default {
+export {
     formatCurveData
 };

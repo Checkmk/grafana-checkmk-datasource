@@ -18,7 +18,5 @@ var formatCurveData = function formatCurveData(startTime, step) {
     };
 };
 
-exports.default = {
-    formatCurveData: formatCurveData
-};
+exports.formatCurveData = formatCurveData;
 //# sourceMappingURL=data.js.map

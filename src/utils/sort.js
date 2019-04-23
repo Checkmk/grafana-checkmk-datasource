@@ -1,3 +1,5 @@
-export default {
-    sortByText: (a, b) => a.text > b.text ? 1 : -1
+const sortByText = (a, b) => a.text > b.text ? 1 : -1;
+
+export {
+    sortByText
 };

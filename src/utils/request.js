@@ -5,7 +5,7 @@ const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
 
 const getResult = (response) => response.data.result;
 
-export default {
+export {
     buildUrlWithParams,
     buildRequestBody,
     getResult,

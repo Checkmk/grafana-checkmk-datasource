@@ -17,9 +17,7 @@ var getResult = function getResult(response) {
     return response.data.result;
 };
 
-exports.default = {
-    buildUrlWithParams: buildUrlWithParams,
-    buildRequestBody: buildRequestBody,
-    getResult: getResult
-};
+exports.buildUrlWithParams = buildUrlWithParams;
+exports.buildRequestBody = buildRequestBody;
+exports.getResult = getResult;
 //# sourceMappingURL=request.js.map
