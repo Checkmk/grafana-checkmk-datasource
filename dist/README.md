@@ -2,7 +2,7 @@
 This is a Grafana datasource for Check_MK metrics.
 
 ## Requirements
-TODO: Check_MK Version requirements
+Minimal Check_MK Version is `1.5.0p16`.
 
 ## Plugin Configuration
 #### URL:
@@ -26,5 +26,33 @@ After you set a site, you will be able to select a host from the automatically g
 #### Service
 After you set a host, you will be able to select a service from the automatically generated list.
 
+#### Mode
+After you set a service, you can select to either use predefined graphs or query a specific metric.
+
 #### Metric
-After you set a service, you will be able to select a metric from the automatically generated list. A metric might contain more than one series.
+In metric mode, only one series will be displayed.
+
+#### Graph
+In graph mode more more than one series might be displayed, depending on the selected graph
+
+
+## Plugin Development
+This section is only relevant if you intend to modify this plugin.
+
+#### Dependencies
+In order to build this plugin you need npm and yarn installed on your machine.
+
+#### Building
+First install dependencies:
+```
+yarn install
+```
+Then execute a build:
+```
+npm run build
+```
+On building, the code will be automatically be linted, transpiled and moved to `dist/`.
+
+You can directly link the `dist/` folder into a running grafana installation, as the plugin will be evaluated at grafana runtime.
+
+For more grafana specific information please refer to https://grafana.com/docs/plugins/developing/datasources/

@@ -2,7 +2,7 @@
 This is a Grafana datasource for Check_MK metrics.
 
 ## Requirements
-TODO: Check_MK Version requirements
+Minimal Check_MK Version is `1.5.0p16`.
 
 ## Plugin Configuration
 #### URL:
@@ -32,7 +32,7 @@ After you set a service, you can select to either use predefined graphs or query
 #### Metric
 In metric mode, only one series will be displayed.
 
-###Graph
+#### Graph
 In graph mode more more than one series might be displayed, depending on the selected graph
 
 
