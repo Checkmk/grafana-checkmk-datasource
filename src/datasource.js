@@ -1,3 +1,5 @@
+import ERROR from './errors';
+
 /*
  * Grafana requires these methods:
  *
@@ -117,11 +119,7 @@ export class GenericDatasource {
 
     testDatasource() {
         if(!urlValidationRegex.test(this.rawUrl)) {
-            return {
-                status: 'error',
-                message: 'Invalid URL format. Please make sure to include protocol and trailing slash. Example: https://checkmk.server/site/',
-                title: 'Error'
-            };
+            return ERROR.FORMAT;
         }
 
         return this.doRequest({
@@ -130,17 +128,9 @@ export class GenericDatasource {
         })
             .then((response) => {
                 if(response.status !== 200) {
-                    return {
-                        status: 'error',
-                        message: 'Could not connect to provided URL',
-                        title: 'Error'
-                    };
+                    return ERROR.STATUS;
                 } else if (!response.data.result) {
-                    return {
-                        status: 'error',
-                        message: response.data,
-                        title: 'Error'
-                    };
+                    return ERROR.OTHER(response.data);
                 } else {
                     return {
                         status: 'success',
@@ -149,13 +139,7 @@ export class GenericDatasource {
                     };
                 }
             })
-            .catch(() => {
-                return {
-                    status: 'error',
-                    message: 'Could not read API response, make sure the URL you provided is correct.',
-                    title: 'Error'
-                };
-            });
+            .catch(({cancelled}) => cancelled ? ERROR.CANCEL : ERROR.READ);
     }
 
     annotationQuery() {

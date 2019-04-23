@@ -3,10 +3,17 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.GenericDatasource = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _errors = require('./errors');
+
+var _errors2 = _interopRequireDefault(_errors);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -165,11 +172,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
         key: 'testDatasource',
         value: function testDatasource() {
             if (!urlValidationRegex.test(this.rawUrl)) {
-                return {
-                    status: 'error',
-                    message: 'Invalid URL format. Please make sure to include protocol and trailing slash. Example: https://checkmk.server/site/',
-                    title: 'Error'
-                };
+                return _errors2.default.FORMAT;
             }
 
             return this.doRequest({
@@ -177,17 +180,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 method: 'GET'
             }).then(function (response) {
                 if (response.status !== 200) {
-                    return {
-                        status: 'error',
-                        message: 'Could not connect to provided URL',
-                        title: 'Error'
-                    };
+                    return _errors2.default.STATUS;
                 } else if (!response.data.result) {
-                    return {
-                        status: 'error',
-                        message: response.data,
-                        title: 'Error'
-                    };
+                    return _errors2.default.OTHER(response.data);
                 } else {
                     return {
                         status: 'success',
@@ -195,12 +190,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
                         title: 'Success'
                     };
                 }
-            }).catch(function () {
-                return {
-                    status: 'error',
-                    message: 'Could not read API response, make sure the URL you provided is correct.',
-                    title: 'Error'
-                };
+            }).catch(function (_ref3) {
+                var cancelled = _ref3.cancelled;
+                return cancelled ? _errors2.default.CANCEL : _errors2.default.READ;
             });
         }
     }, {
@@ -220,10 +212,10 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 params: { action: 'get_user_sites' },
                 method: 'GET'
             }).then(getResult).then(function (result) {
-                return result.map(function (_ref3) {
-                    var _ref4 = _slicedToArray(_ref3, 2),
-                        value = _ref4[0],
-                        text = _ref4[1];
+                return result.map(function (_ref4) {
+                    var _ref5 = _slicedToArray(_ref4, 2),
+                        value = _ref5[0],
+                        text = _ref5[1];
 
                     return { text: text, value: value };
                 }).sort(sortByText);
