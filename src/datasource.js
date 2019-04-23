@@ -1,4 +1,7 @@
-import ERROR from './errors';
+import ERROR from './utils/errors';
+import {buildUrlWithParams, buildRequestBody, getResult} from './utils/request';
+import {sortByText} from './utils/sort';
+import {formatCurveData} from './utils/data';
 
 /*
  * Grafana requires these methods:
@@ -11,27 +14,6 @@ import ERROR from './errors';
 
 const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
-
-//TODO: move utilities
-const buildUrlWithParams = (url, params) => url + Object.keys(params)
-    .reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
-
-const sortByText = (a, b) => a.text > b.text ? 1 : -1;
-
-const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
-
-const getResult = (response) => response.data.result;
-
-const formatCurveData = (startTime, step) => (curveData) => {
-    const datapoints = curveData.rrddata
-        .map((d, i) => [d, (startTime + i * step) * 1000])
-        .filter((f) => f[0]);
-
-    return {
-        target: curveData.title,
-        datapoints
-    };
-};
 
 export class GenericDatasource {
     // backendSrv, templateSrv are injected - do not rename

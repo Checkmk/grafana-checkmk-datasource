@@ -9,9 +9,15 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _errors = require('./errors');
+var _errors = require('./utils/errors');
 
 var _errors2 = _interopRequireDefault(_errors);
+
+var _request = require('./utils/request');
+
+var _sort = require('./utils/sort');
+
+var _data = require('./utils/data');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -28,40 +34,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var metricDivider = '.';
 var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
-
-//TODO: move utilities
-var buildUrlWithParams = function buildUrlWithParams(url, params) {
-    return url + Object.keys(params).reduce(function (string, param) {
-        return '' + string + (string ? '&' : '?') + param + '=' + params[param];
-    }, '');
-};
-
-var sortByText = function sortByText(a, b) {
-    return a.text > b.text ? 1 : -1;
-};
-
-var buildRequestBody = function buildRequestBody(data) {
-    return 'request=' + JSON.stringify(data);
-};
-
-var getResult = function getResult(response) {
-    return response.data.result;
-};
-
-var formatCurveData = function formatCurveData(startTime, step) {
-    return function (curveData) {
-        var datapoints = curveData.rrddata.map(function (d, i) {
-            return [d, (startTime + i * step) * 1000];
-        }).filter(function (f) {
-            return f[0];
-        });
-
-        return {
-            target: curveData.title,
-            datapoints: datapoints
-        };
-    };
-};
 
 var GenericDatasource = exports.GenericDatasource = function () {
     // backendSrv, templateSrv are injected - do not rename
@@ -114,7 +86,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 return Promise.resolve({ data: [] });
             }
 
-            var data = buildRequestBody({
+            var data = (0, _request.buildRequestBody)({
                 specification: ['template', {
                     site: site,
                     host_name: host_name,
@@ -143,10 +115,10 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
                 if (metric_index != null) {
                     // filter for one specific metric
-                    return [formatCurveData(start_time, step)(curves[metric_index])];
+                    return [(0, _data.formatCurveData)(start_time, step)(curves[metric_index])];
                 }
 
-                return curves.map(formatCurveData(start_time, step));
+                return curves.map((0, _data.formatCurveData)(start_time, step));
             });
         }
     }, {
@@ -211,14 +183,14 @@ var GenericDatasource = exports.GenericDatasource = function () {
             return this.doRequest({
                 params: { action: 'get_user_sites' },
                 method: 'GET'
-            }).then(getResult).then(function (result) {
+            }).then(_request.getResult).then(function (result) {
                 return result.map(function (_ref4) {
                     var _ref5 = _slicedToArray(_ref4, 2),
                         value = _ref5[0],
                         text = _ref5[1];
 
                     return { text: text, value: value };
-                }).sort(sortByText);
+                }).sort(_sort.sortByText);
             }).then(function (sites) {
                 return [{ text: 'All Sites', value: '' }].concat(sites);
             });
@@ -237,10 +209,10 @@ var GenericDatasource = exports.GenericDatasource = function () {
             return this.doRequest({
                 params: params,
                 method: 'GET'
-            }).then(getResult).then(function (result) {
+            }).then(_request.getResult).then(function (result) {
                 return result.map(function (hostname) {
                     return { text: hostname, value: hostname };
-                }).sort(sortByText);
+                }).sort(_sort.sortByText);
             });
         }
     }, {
@@ -251,12 +223,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
             }
             return this.doRequest({
                 params: { action: 'get_metrics_of_host' },
-                data: buildRequestBody({ hostname: query.host }),
+                data: (0, _request.buildRequestBody)({ hostname: query.host }),
                 method: 'POST'
-            }).then(getResult).then(function (result) {
+            }).then(_request.getResult).then(function (result) {
                 return Object.keys(result).map(function (key) {
                     return { text: key, value: key };
-                }).sort(sortByText);
+                }).sort(_sort.sortByText);
             });
         }
     }, {
@@ -272,7 +244,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
             return this.doRequest({
                 params: { action: 'get_graph_recipes' },
-                data: buildRequestBody(data),
+                data: (0, _request.buildRequestBody)(data),
                 method: 'POST'
             });
         }
@@ -283,7 +255,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 return Promise.resolve([]);
             }
 
-            return this.serviceOptionsQuery(query).then(getResult).then(function (result) {
+            return this.serviceOptionsQuery(query).then(_request.getResult).then(function (result) {
                 if (!result.length) {
                     return [{ text: 'no metrics available', value: '-' }];
                 }
@@ -299,7 +271,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                         return x.text === f.text;
                     }) === i;
                 }) // metrics are not necessary unique to one graph, filtering here to make results unique
-                .sort(sortByText);
+                .sort(_sort.sortByText);
             });
         }
     }, {
@@ -316,13 +288,13 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
                 return response.data.result.map(function (graph, index) {
                     return { text: graph.title, value: index };
-                }).sort(sortByText);
+                }).sort(_sort.sortByText);
             });
         }
     }, {
         key: 'doRequest',
         value: function doRequest(options) {
-            options.url = buildUrlWithParams(this.rawUrl + 'check_mk/webapi.py', Object.assign({
+            options.url = (0, _request.buildUrlWithParams)(this.rawUrl + 'check_mk/webapi.py', Object.assign({
                 _username: this._username,
                 _secret: this._secret,
                 output_format: 'json'
