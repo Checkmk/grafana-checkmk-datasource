@@ -19,6 +19,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * annotationQuery(options) // used by dashboards to get annotations (optional)
  */
 
+var metricDivider = '.';
 var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 //TODO: move utilities
@@ -34,6 +35,10 @@ var sortByText = function sortByText(a, b) {
 
 var buildRequestBody = function buildRequestBody(data) {
     return 'request=' + JSON.stringify(data);
+};
+
+var getResult = function getResult(response) {
+    return response.data.result;
 };
 
 var formatCurveData = function formatCurveData(startTime, step) {
@@ -86,7 +91,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             var metric_index = void 0;
 
             if (target.mode === 'metric') {
-                var _target$metric$split$ = target.metric.split('-').map(function (i) {
+                var _target$metric$split$ = target.metric.split(metricDivider).map(function (i) {
                     return +i;
                 });
 
@@ -168,7 +173,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             }
 
             return this.doRequest({
-                params: { action: 'get_all_hosts' },
+                params: { action: 'get_host_names' },
                 method: 'GET'
             }).then(function (response) {
                 if (response.status !== 200) {
@@ -211,16 +216,37 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }, {
         key: 'sitesQuery',
         value: function sitesQuery() {
-            return [{ text: 'All Sites', value: '' }];
+            return this.doRequest({
+                params: { action: 'get_user_sites' },
+                method: 'GET'
+            }).then(getResult).then(function (result) {
+                return result.map(function (_ref3) {
+                    var _ref4 = _slicedToArray(_ref3, 2),
+                        value = _ref4[0],
+                        text = _ref4[1];
+
+                    return { text: text, value: value };
+                }).sort(sortByText);
+            }).then(function (sites) {
+                return [{ text: 'All Sites', value: '' }].concat(sites);
+            });
         }
     }, {
         key: 'hostsQuery',
-        value: function hostsQuery() {
+        value: function hostsQuery(query) {
+            var params = {
+                action: 'get_host_names'
+            };
+
+            if (query.site) {
+                params.site_id = query.site;
+            }
+
             return this.doRequest({
-                params: { action: 'get_all_hosts' },
+                params: params,
                 method: 'GET'
-            }).then(function (response) {
-                return Object.keys(response.data.result).map(function (hostname) {
+            }).then(getResult).then(function (result) {
+                return result.map(function (hostname) {
                     return { text: hostname, value: hostname };
                 }).sort(sortByText);
             });
@@ -235,8 +261,8 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 params: { action: 'get_metrics_of_host' },
                 data: buildRequestBody({ hostname: query.host }),
                 method: 'POST'
-            }).then(function (response) {
-                return Object.keys(response.data.result).map(function (key) {
+            }).then(getResult).then(function (result) {
+                return Object.keys(result).map(function (key) {
                     return { text: key, value: key };
                 }).sort(sortByText);
             });
@@ -265,14 +291,14 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 return Promise.resolve([]);
             }
 
-            return this.serviceOptionsQuery(query).then(function (response) {
-                if (!response.data.result.length) {
+            return this.serviceOptionsQuery(query).then(getResult).then(function (result) {
+                if (!result.length) {
                     return [{ text: 'no metrics available', value: '-' }];
                 }
 
-                return response.data.result.map(function (graph, graphIndex) {
+                return result.map(function (graph, graphIndex) {
                     return graph.metrics.map(function (metric, metricIndex) {
-                        return { text: metric.title, value: graphIndex + '-' + metricIndex };
+                        return { text: metric.title, value: '' + graphIndex + metricDivider + metricIndex };
                     });
                 }).reduce(function (all, metrics) {
                     return all.concat(metrics);

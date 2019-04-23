@@ -7,6 +7,7 @@
  * annotationQuery(options) // used by dashboards to get annotations (optional)
  */
 
+const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 //TODO: move utilities
@@ -17,11 +18,11 @@ const sortByText = (a, b) => a.text > b.text ? 1 : -1;
 
 const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
 
+const getResult = (response) => response.data.result;
+
 const formatCurveData = (startTime, step) => (curveData) => {
     const datapoints = curveData.rrddata
-        .map((d, i) => {
-            return [d, (startTime + i * step) * 1000];
-        })
+        .map((d, i) => [d, (startTime + i * step) * 1000])
         .filter((f) => f[0]);
 
     return {
@@ -59,7 +60,7 @@ export class GenericDatasource {
         let metric_index;
 
         if(target.mode === 'metric') {
-            [graph_index, metric_index] = target.metric.split('-').map((i) => +i);
+            [graph_index, metric_index] = target.metric.split(metricDivider).map((i) => +i);
         } else {
             graph_index = +target.graph;
         }
@@ -124,7 +125,7 @@ export class GenericDatasource {
         }
 
         return this.doRequest({
-            params: {action: 'get_all_hosts'},
+            params: {action: 'get_host_names'},
             method: 'GET',
         })
             .then((response) => {
@@ -166,15 +167,32 @@ export class GenericDatasource {
     }
 
     sitesQuery() {
-        return [{text: 'All Sites', value: ''}];
-    }
-
-    hostsQuery() {
         return this.doRequest({
-            params: {action: 'get_all_hosts'},
+            params: {action: 'get_user_sites'},
             method: 'GET',
         })
-            .then((response) => Object.keys(response.data.result)
+            .then(getResult)
+            .then((result) => result
+                .map(([value, text]) => ({text, value}))
+                .sort(sortByText)
+            ).then((sites) => [{text: 'All Sites', value: ''}].concat(sites));
+    }
+
+    hostsQuery(query) {
+        const params = {
+            action: 'get_host_names'
+        };
+
+        if(query.site) {
+            params.site_id = query.site;
+        }
+
+        return this.doRequest({
+            params,
+            method: 'GET',
+        })
+            .then(getResult)
+            .then((result) => result
                 .map((hostname) => ({text: hostname, value: hostname}))
                 .sort(sortByText)
             );
@@ -189,7 +207,8 @@ export class GenericDatasource {
             data: buildRequestBody({hostname: query.host}),
             method: 'POST',
         })
-            .then((response) => Object.keys(response.data.result)
+            .then(getResult)
+            .then((result) => Object.keys(result)
                 .map((key) => ({text: key, value: key}))
                 .sort(sortByText)
             );
@@ -220,14 +239,15 @@ export class GenericDatasource {
         }
 
         return this.serviceOptionsQuery(query)
-            .then((response) => {
-                if(!response.data.result.length) {
+            .then(getResult)
+            .then((result) => {
+                if(!result.length) {
                     return [{text: 'no metrics available', value: '-'}];
                 }
 
-                return response.data.result
+                return result
                     .map((graph, graphIndex) => graph.metrics
-                        .map((metric, metricIndex) => ({text: metric.title, value: `${graphIndex}-${metricIndex}`}))
+                        .map((metric, metricIndex) => ({text: metric.title, value: `${graphIndex}${metricDivider}${metricIndex}`}))
                     )
                     .reduce((all, metrics) => all.concat(metrics), [])
                     .filter((f, i, all) => all.findIndex((x) => x.text === f.text) === i) // metrics are not necessary unique to one graph, filtering here to make results unique
