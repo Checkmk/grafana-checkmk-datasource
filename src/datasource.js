@@ -13,6 +13,8 @@ const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 const buildUrlWithParams = (url, params) => url + Object.keys(params)
     .reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
 
+const sortByText = (a, b) => a.text > b.text ? 1 : -1;
+
 const buildRequestBody = (data) => `request=${JSON.stringify(data)}`;
 
 const formatCurveData = (startTime, step) => (curveData) => {
@@ -45,14 +47,22 @@ export class GenericDatasource {
     }
 
     queryTarget(target, {range}) {
-        if(!target || !target.host || !target.service || target.metric === '') {
+        if(!target || !target.host || !target.service || (target.metric === '' && target.graph === '')) {
             return Promise.resolve({data: []});
         }
 
         const site = target.site || null;
         const host_name = target.host;
         const service_description = target.service;
-        const graph_index = +target.metric;
+
+        let graph_index;
+        let metric_index;
+
+        if(target.mode === 'metric') {
+            [graph_index, metric_index] = target.metric.split('-').map((i) => +i);
+        } else {
+            graph_index = +target.graph;
+        }
 
         if(isNaN(graph_index)) {
             return Promise.resolve({data: []});
@@ -87,6 +97,12 @@ export class GenericDatasource {
                 }
 
                 const {start_time, step, curves} = response.data.result;
+
+                if(metric_index != null) {
+                    // filter for one specific metric
+                    return [formatCurveData(start_time, step)(curves[metric_index])];
+                }
+
                 return curves.map(formatCurveData(start_time, step));
             });
     }
@@ -160,6 +176,7 @@ export class GenericDatasource {
         })
             .then((response) => Object.keys(response.data.result)
                 .map((hostname) => ({text: hostname, value: hostname}))
+                .sort(sortByText)
             );
     }
 
@@ -174,13 +191,11 @@ export class GenericDatasource {
         })
             .then((response) => Object.keys(response.data.result)
                 .map((key) => ({text: key, value: key}))
+                .sort(sortByText)
             );
     }
 
-    metricsQuery(query) {
-        if(!query.host || !query.service) {
-            return Promise.resolve([]);
-        }
+    serviceOptionsQuery(query) {
         const data = {
             specification: [
                 'template',
@@ -196,13 +211,44 @@ export class GenericDatasource {
             params: {action: 'get_graph_recipes'},
             data: buildRequestBody(data),
             method: 'POST',
-        })
+        });
+    }
+
+    metricsQuery(query) {
+        if(!query.host || !query.service) {
+            return Promise.resolve([]);
+        }
+
+        return this.serviceOptionsQuery(query)
+            .then((response) => {
+                if(!response.data.result.length) {
+                    return [{text: 'no metrics available', value: '-'}];
+                }
+
+                return response.data.result
+                    .map((graph, graphIndex) => graph.metrics
+                        .map((metric, metricIndex) => ({text: metric.title, value: `${graphIndex}-${metricIndex}`}))
+                    )
+                    .reduce((all, metrics) => all.concat(metrics), [])
+                    .filter((f, i, all) => all.findIndex((x) => x.text === f.text) === i) // metrics are not necessary unique to one graph, filtering here to make results unique
+                    .sort(sortByText);
+            });
+    }
+
+    graphsQuery(query) {
+        if(!query.host || !query.service) {
+            return Promise.resolve([]);
+        }
+
+        return this.serviceOptionsQuery(query)
             .then((response) => {
                 if(!response.data.result.length) {
                     return [{text: 'no graphs available', value: '-'}];
                 }
 
-                return response.data.result.map((metric, index) => ({text: metric.title, value: index}));
+                return response.data.result
+                    .map((graph, index) => ({text: graph.title, value: index}))
+                    .sort(sortByText);
             });
     }
 

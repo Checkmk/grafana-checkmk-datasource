@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -24,6 +26,10 @@ var buildUrlWithParams = function buildUrlWithParams(url, params) {
     return url + Object.keys(params).reduce(function (string, param) {
         return '' + string + (string ? '&' : '?') + param + '=' + params[param];
     }, '');
+};
+
+var sortByText = function sortByText(a, b) {
+    return a.text > b.text ? 1 : -1;
 };
 
 var buildRequestBody = function buildRequestBody(data) {
@@ -68,14 +74,29 @@ var GenericDatasource = exports.GenericDatasource = function () {
         value: function queryTarget(target, _ref) {
             var range = _ref.range;
 
-            if (!target || !target.host || !target.service || target.metric === '') {
+            if (!target || !target.host || !target.service || target.metric === '' && target.graph === '') {
                 return Promise.resolve({ data: [] });
             }
 
             var site = target.site || null;
             var host_name = target.host;
             var service_description = target.service;
-            var graph_index = +target.metric;
+
+            var graph_index = void 0;
+            var metric_index = void 0;
+
+            if (target.mode === 'metric') {
+                var _target$metric$split$ = target.metric.split('-').map(function (i) {
+                    return +i;
+                });
+
+                var _target$metric$split$2 = _slicedToArray(_target$metric$split$, 2);
+
+                graph_index = _target$metric$split$2[0];
+                metric_index = _target$metric$split$2[1];
+            } else {
+                graph_index = +target.graph;
+            }
 
             if (isNaN(graph_index)) {
                 return Promise.resolve({ data: [] });
@@ -106,6 +127,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
                     start_time = _response$data$result.start_time,
                     step = _response$data$result.step,
                     curves = _response$data$result.curves;
+
+
+                if (metric_index != null) {
+                    // filter for one specific metric
+                    return [formatCurveData(start_time, step)(curves[metric_index])];
+                }
 
                 return curves.map(formatCurveData(start_time, step));
             });
@@ -195,7 +222,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             }).then(function (response) {
                 return Object.keys(response.data.result).map(function (hostname) {
                     return { text: hostname, value: hostname };
-                });
+                }).sort(sortByText);
             });
         }
     }, {
@@ -211,15 +238,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
             }).then(function (response) {
                 return Object.keys(response.data.result).map(function (key) {
                     return { text: key, value: key };
-                });
+                }).sort(sortByText);
             });
         }
     }, {
-        key: 'metricsQuery',
-        value: function metricsQuery(query) {
-            if (!query.host || !query.service) {
-                return Promise.resolve([]);
-            }
+        key: 'serviceOptionsQuery',
+        value: function serviceOptionsQuery(query) {
             var data = {
                 specification: ['template', {
                     site: query.site || null,
@@ -232,14 +256,49 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 params: { action: 'get_graph_recipes' },
                 data: buildRequestBody(data),
                 method: 'POST'
-            }).then(function (response) {
+            });
+        }
+    }, {
+        key: 'metricsQuery',
+        value: function metricsQuery(query) {
+            if (!query.host || !query.service) {
+                return Promise.resolve([]);
+            }
+
+            return this.serviceOptionsQuery(query).then(function (response) {
+                if (!response.data.result.length) {
+                    return [{ text: 'no metrics available', value: '-' }];
+                }
+
+                return response.data.result.map(function (graph, graphIndex) {
+                    return graph.metrics.map(function (metric, metricIndex) {
+                        return { text: metric.title, value: graphIndex + '-' + metricIndex };
+                    });
+                }).reduce(function (all, metrics) {
+                    return all.concat(metrics);
+                }, []).filter(function (f, i, all) {
+                    return all.findIndex(function (x) {
+                        return x.text === f.text;
+                    }) === i;
+                }) // metrics are not necessary unique to one graph, filtering here to make reults unique
+                .sort(sortByText);
+            });
+        }
+    }, {
+        key: 'graphsQuery',
+        value: function graphsQuery(query) {
+            if (!query.host || !query.service) {
+                return Promise.resolve([]);
+            }
+
+            return this.serviceOptionsQuery(query).then(function (response) {
                 if (!response.data.result.length) {
                     return [{ text: 'no graphs available', value: '-' }];
                 }
 
-                return response.data.result.map(function (metric, index) {
-                    return { text: metric.title, value: index };
-                });
+                return response.data.result.map(function (graph, index) {
+                    return { text: graph.title, value: index };
+                }).sort(sortByText);
             });
         }
     }, {

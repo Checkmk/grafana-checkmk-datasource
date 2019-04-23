@@ -29,7 +29,9 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         _this.target.site = _this.target.site || '';
         _this.target.host = _this.target.host || '';
         _this.target.service = _this.target.service || '';
+        _this.target.mode = _this.target.mode || 'graph';
         _this.target.metric = _this.target.metric != null ? _this.target.metric : '';
+        _this.target.graph = _this.target.graph != null ? _this.target.graph : '';
         return _this;
     }
 
@@ -54,6 +56,16 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
             return this.datasource.metricsQuery(this.target);
         }
     }, {
+        key: 'getGraphOptions',
+        value: function getGraphOptions() {
+            return this.datasource.graphsQuery(this.target);
+        }
+    }, {
+        key: 'getModeOptions',
+        value: function getModeOptions() {
+            return [{ text: 'predefined graph', value: 'graph' }, { text: 'single metric', value: 'metric' }];
+        }
+    }, {
         key: 'toggleEditorMode',
         value: function toggleEditorMode() {
             this.target.rawQuery = !this.target.rawQuery;
@@ -69,6 +81,7 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
             this.target.host = '';
             this.target.service = '';
             this.target.metric = '';
+            this.target.graph = '';
             this.onChangeInternal();
         }
     }, {
@@ -76,17 +89,29 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         value: function onHostChange() {
             this.target.service = '';
             this.target.metric = '';
+            this.target.graph = '';
             this.onChangeInternal();
         }
     }, {
         key: 'onServiceChange',
         value: function onServiceChange() {
             this.target.metric = '';
+            this.target.graph = '';
             this.onChangeInternal();
         }
     }, {
         key: 'onMetricChange',
         value: function onMetricChange() {
+            this.onChangeInternal();
+        }
+    }, {
+        key: 'onGraphChange',
+        value: function onGraphChange() {
+            this.onChangeInternal();
+        }
+    }, {
+        key: 'onModeChange',
+        value: function onModeChange() {
             this.onChangeInternal();
         }
     }]);

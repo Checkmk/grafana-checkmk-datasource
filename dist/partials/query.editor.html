@@ -49,12 +49,42 @@
     </div>
 
     <div ng-show="ctrl.target.service" class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-metric">
+      <label class="gf-form-label width-5" for="dropdown-mode">
+        Mode
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.mode"
+            placeholder="select mode"
+            id="dropdown-mode"
+            lookup-text="true"
+            get-options="ctrl.getModeOptions()"
+            on-change="ctrl.onModeChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+
+    <div ng-show="ctrl.target.service && ctrl.target.mode === 'graph'" class="gf-form-inline width-22">
+      <label class="gf-form-label width-5" for="dropdown-graph">
         Graph
       </label>
       <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.metric"
+        <gf-form-dropdown model="ctrl.target.graph"
             placeholder="select graph"
+            id="dropdown-graph"
+            lookup-text="true"
+            get-options="ctrl.getGraphOptions()"
+            on-change="ctrl.onGraphChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+
+    <div ng-show="ctrl.target.service && ctrl.target.mode === 'metric'" class="gf-form-inline width-22">
+      <label class="gf-form-label width-5" for="dropdown-metric">
+        Metric
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.metric"
+            placeholder="select metric"
             id="dropdown-metric"
             lookup-text="true"
             get-options="ctrl.getMetricOptions()"
