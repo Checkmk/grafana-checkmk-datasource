@@ -53,6 +53,30 @@ npm run build
 ```
 On building, the code will be automatically be linted, transpiled and moved to `dist/`.
 
-You can directly link the `dist/` folder into a running grafana installation, as the plugin will be evaluated at grafana runtime.
+### Development Setup
+The following guideline can be used to setup a Check_MK & Grafana development environment.
+It used docker to run Check_MK and grafana.
+
+#### Setup Check_MK
+Using image `checkmk/check-mk-enterprise:1.5.0p16`:\
+`docker run -d -p 8080:50000 checkmk/check-mk-enterprise:1.5.0p16`\
+Make sure to note the password for `cmkadmin`.
+
+Next open the Check_MK GUI and login with the `cmkadmin` user.\
+Add a host and discover some services, in order to be able to request some data later.\
+You will also need to get the automation user credentials under `WATO > Users > automation`.
+
+#### Setup Grafana
+First checkout the grafana datasource repository to some local folder.\
+Using image `grafana/grafana`:\
+`docker run -d -p 3000:3000 -v /local/path/to/grafana-checkmk-datasource/dist:/var/lib/grafana/plugins/checkmk-datasource grafana/grafana`\
+This will directly link the `dist/` folder into grafana, and a simple rebuild will update the plugin, as it is evaluated at grafana runtime.
+
+Login to Grafana with `admin:admin` at `http://localhost:3000/`\
+Configure the Check_MK datasource by using `http://localhost:8080/cmk/` as URL, and the automation user for authentication.
+
+Add a Dashboard and configure your first graph using Check_MK as datasource.
+
+
 
 For more grafana specific information please refer to https://grafana.com/docs/plugins/developing/datasources/
