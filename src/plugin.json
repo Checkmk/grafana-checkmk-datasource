@@ -24,8 +24,8 @@
       {"name": "GitHub", "url": "https://github.com/-"},
       {"name": "MIT License", "url": "https://github.com/-/blob/master/LICENSE"}
     ],
-    "version": "0.1.0",
-    "updated": "2019-03-21"
+    "version": "1.0.0",
+    "updated": "2019-04-24"
   },
 
   "dependencies": {

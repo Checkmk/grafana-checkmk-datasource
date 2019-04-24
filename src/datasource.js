@@ -20,7 +20,6 @@ export class GenericDatasource {
     constructor(instanceSettings, $q, backendSrv, templateSrv) {
         this.type = instanceSettings.type;
         this.name = instanceSettings.name;
-        this.q = $q;
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
 
