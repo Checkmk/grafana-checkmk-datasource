@@ -21,8 +21,7 @@
       "large": "img/checkmk_logo.png"
     },
     "links": [
-      {"name": "GitHub", "url": "https://github.com/-"},
-      {"name": "MIT License", "url": "https://github.com/-/blob/master/LICENSE"}
+      {"name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource"}
     ],
     "version": "1.0.0",
     "updated": "2019-04-24"

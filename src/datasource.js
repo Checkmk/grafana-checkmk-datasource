@@ -17,7 +17,7 @@ const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 export class GenericDatasource {
     // backendSrv, templateSrv are injected - do not rename
-    constructor(instanceSettings, $q, backendSrv, templateSrv) {
+    constructor(instanceSettings, backendSrv, templateSrv) {
         this.type = instanceSettings.type;
         this.name = instanceSettings.name;
         this.backendSrv = backendSrv;

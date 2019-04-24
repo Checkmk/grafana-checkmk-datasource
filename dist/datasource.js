@@ -37,12 +37,11 @@ var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 var GenericDatasource = exports.GenericDatasource = function () {
     // backendSrv, templateSrv are injected - do not rename
-    function GenericDatasource(instanceSettings, $q, backendSrv, templateSrv) {
+    function GenericDatasource(instanceSettings, backendSrv, templateSrv) {
         _classCallCheck(this, GenericDatasource);
 
         this.type = instanceSettings.type;
         this.name = instanceSettings.name;
-        this.q = $q;
         this.backendSrv = backendSrv;
         this.templateSrv = templateSrv;
 
