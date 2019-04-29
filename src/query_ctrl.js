@@ -81,6 +81,8 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     }
 
     onModeChange() {
+        this.target.metric = '';
+        this.target.graph = '';
         this.onChangeInternal();
     }
 }

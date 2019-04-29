@@ -117,6 +117,8 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
     }, {
         key: 'onModeChange',
         value: function onModeChange() {
+            this.target.metric = '';
+            this.target.graph = '';
             this.onChangeInternal();
         }
     }]);
