@@ -15,6 +15,21 @@ import {formatCurveData} from './utils/data';
 const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
+// TODO: move this to utils
+const getHostTags = (target) => {
+    const hostTags = {};
+
+    for(let i = 0; i <= 2; i++) {
+        if(target[`filter${i}value`] != null && target[`filter${i}value`] != '') {
+            hostTags[`host_tag_${i}_grp`] = target[`filter${i}group`];
+            hostTags[`host_tag_${i}_op`] = target[`filter${i}op`];
+            hostTags[`host_tag_${i}_val`] = target[`filter${i}value`];
+        }
+    }
+
+    return hostTags;
+};
+
 export class GenericDatasource {
     // backendSrv, templateSrv are injected - do not rename
     constructor(instanceSettings, backendSrv, templateSrv) {
@@ -78,8 +93,7 @@ export class GenericDatasource {
 
         return this.doRequest({
             params: {action: 'get_graph'},
-            data,
-            method: 'POST'
+            data
         })
             .then((response) => {
                 if(response.data.result_code !== 0) {
@@ -161,8 +175,7 @@ export class GenericDatasource {
         }
 
         return this.doRequest({
-            params: {action: 'get_host_names'},
-            method: 'GET',
+            params: {action: 'get_host_names'}
         })
             .then((response) => {
                 if(response.status !== 200) {
@@ -190,8 +203,7 @@ export class GenericDatasource {
 
     sitesQuery() {
         return this.doRequest({
-            params: {action: 'get_user_sites'},
-            method: 'GET',
+            params: {action: 'get_user_sites'}
         })
             .then(getResult)
             .then((result) => result
@@ -209,10 +221,7 @@ export class GenericDatasource {
             params.site_id = query.site;
         }
 
-        return this.doRequest({
-            params,
-            method: 'GET',
-        })
+        return this.doRequest({params})
             .then(getResult)
             .then((result) => result
                 .map((hostname) => ({text: hostname, value: hostname}))
@@ -226,8 +235,7 @@ export class GenericDatasource {
         }
         return this.doRequest({
             params: {action: 'get_metrics_of_host'},
-            data: buildRequestBody({hostname: query.host}),
-            method: 'POST',
+            data: buildRequestBody({hostname: query.host})
         })
             .then(getResult)
             .then((result) => Object.keys(result)
@@ -250,9 +258,30 @@ export class GenericDatasource {
 
         return this.doRequest({
             params: {action: 'get_graph_recipes'},
-            data: buildRequestBody(data),
-            method: 'POST',
+            data: buildRequestBody(data)
         });
+    }
+
+    filterGroupQuery() {
+        return this.doRequest({params: {action: 'get_hosttags'}})
+            .then(getResult)
+            .then((result) => result.tag_groups
+                .map(({id, title}) => ({text: title, value: id}))
+                .sort(sortByText)
+            );
+    }
+
+    filterValueQuery(query, index) {
+        if(!query[`filter${index}group`]) {
+            return Promise.resolve([]);
+        }
+        return this.doRequest({params: {action: 'get_hosttags'}})
+            .then(getResult)
+            .then((result) => result.tag_groups
+                .find(({id}) => id === query[`filter${index}group`]).tags
+                .map(({id, title}) => ({text: title, value: id}))
+                .sort(sortByText)
+            );
     }
 
     metricsQuery(query) {
@@ -335,6 +364,7 @@ export class GenericDatasource {
 
         delete options.params;
 
+        options.method = options.data == null ? 'GET' : 'POST';
         options.headers = this.headers;
 
         return this.backendSrv.datasourceRequest(options);
