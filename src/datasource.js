@@ -100,6 +100,50 @@ export class GenericDatasource {
             });
     }
 
+    queryCombinedTarget(target, range) {
+        const context = {
+            site: target.site,
+            host_tags: getHostTags(target)
+        };
+
+        const data = buildRequestBody({
+            specification: [
+                'combined',
+                {
+                    context,
+                    graph_template: target.combinedgraph,
+                    presentation: target.presentation,
+                    single_infos: ['host'],
+                    datasource: 'services'
+                }
+            ],
+            data_range: {
+                time_range: [
+                    range.from.unix(),
+                    range.to.unix()
+                ]
+            }
+        });
+
+        delete this.lastErrors[target.refId];
+
+        return this.doRequest({
+            params: {action: 'get_graph'},
+            data
+        })
+            .then((response) => {
+                if(response.data.result_code !== 0) {
+                    throw new Error(`${response.data.result}`);
+                }
+
+                const {start_time, step, curves} = response.data.result;
+                return curves.map(formatCurveData(start_time, step));
+            })
+            .catch((err) => {
+                this.lastErrors[target.refId] = err.message;
+            });
+    }
+
     getLastError(refId) {
         return this.lastErrors[refId];
     }
@@ -246,6 +290,38 @@ export class GenericDatasource {
 
                 return response.data.result
                     .map((graph, index) => ({text: graph.title, value: index}))
+                    .sort(sortByText);
+            });
+    }
+
+    combinedGraphsQuery(query) {
+        // TODO: use service and host filtering
+
+        if(!query.presentation) {
+            return Promise.resolve([]);
+        }
+
+        const data = {
+            context: {
+                site: query.site || null,
+                host_tags: getHostTags(query)
+            },
+            datasource: 'services',
+            presentation: query.presentation,
+            single_infos: ['host']
+        };
+
+        return this.doRequest({
+            params: {action: 'get_combined_graph_identifications'},
+            data: buildRequestBody(data)
+        })
+            .then((response) => {
+                if(!response.data.result.length) {
+                    return [{text: 'no graphs available', value: '-'}];
+                }
+
+                return response.data.result
+                    .map(({title, identification}) => ({text: title, value: identification[1].graph_template}))
                     .sort(sortByText);
             });
     }
