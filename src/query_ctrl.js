@@ -13,6 +13,8 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         this.target.mode = this.target.mode || 'graph';
         this.target.metric = this.target.metric != null ? this.target.metric : '';
         this.target.graph = this.target.graph != null ? this.target.graph : '';
+        this.target.presentation = this.target.presentation != null ? this.target.presentation : '';
+        this.target.combinedgraph = this.target.combinedgraph != null ? this.target.combinedgraph : '';
     }
 
     getSiteOptions() {
@@ -35,8 +37,27 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
         return this.datasource.graphsQuery(this.target);
     }
 
+    getCombinedGraphOptions() {
+        return this.datasource.combinedGraphsQuery(this.target);
+    }
+
+    getPresentationOptions() {
+        return [
+            {value: 'lines',   text: 'Lines'},
+            {value: 'stacked', text: 'Stacked'},
+            {value: 'sum',     text: 'Sum'},
+            {value: 'average', text: 'Average'},
+            {value: 'min',     text: 'Minimum'},
+            {value: 'max',     text: 'Maximum'}
+        ];
+    }
+
     getModeOptions() {
-        return [{text: 'predefined graph', value: 'graph'}, {text: 'single metric', value: 'metric'}];
+        return [
+            {text: 'predefined graph', value: 'graph'},
+            {text: 'single metric', value: 'metric'},
+            {text: 'combined graph', value: 'combined'}
+        ];
     }
 
     getLastError() {

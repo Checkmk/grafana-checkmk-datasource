@@ -33,7 +33,7 @@ export class GenericDatasource {
     }
 
     queryTarget(target, {range}) {
-        if(!target || !target.host || !target.service || (target.metric === '' && target.graph === '')) {
+        if(!target || (target.combinedgraph === '' && (!target.host || !target.service || (target.metric === '' && target.graph === '')))) {
             return Promise.resolve({data: []});
         }
 
@@ -44,7 +44,9 @@ export class GenericDatasource {
         let graph_index;
         let metric_index;
 
-        if(target.mode === 'metric') {
+        if(target.mode === 'combined') {
+            return this.queryCombinedTarget(target, range);
+        } else if(target.mode === 'metric') {
             [graph_index, metric_index] = target.metric.split(metricDivider).map((i) => +i);
         } else {
             graph_index = +target.graph;
