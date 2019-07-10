@@ -92,6 +92,37 @@
         </gf-form-dropdown>
       </div>
     </div>
+
+    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-presentation">
+        Aggregation
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.presentation"
+            placeholder="select type"
+            id="dropdown-presentation"
+            lookup-text="true"
+            get-options="ctrl.getPresentationOptions()"
+            on-change="ctrl.onPresentationChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+
+    <div ng-show="ctrl.target.presentation" class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-combinedgraph">
+        Graph
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.combinedgraph"
+            placeholder="select graph"
+            id="dropdown-combinedgraph"
+            lookup-text="true"
+            get-options="ctrl.getCombinedGraphOptions()"
+            on-change="ctrl.onCombinedGraphChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+  </div>
   </div>
 
   <div ng-show="ctrl.getLastError()" class="gf-form">
