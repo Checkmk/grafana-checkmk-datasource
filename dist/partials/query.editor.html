@@ -1,55 +1,7 @@
 <query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
   <div class="gf-form">
     <div class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-site">
-        Site
-      </label>
-      <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.site"
-            placeholder="select site"
-            id="dropdown-site"
-            allow-custom="true"
-            lookup-text="true"
-            get-options="ctrl.getSiteOptions()"
-            on-change="ctrl.onSiteChange()">
-        </gf-form-dropdown>
-      </div>
-    </div>
-
-    <div class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-host">
-        Host
-      </label>
-      <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.host"
-            placeholder="select host"
-            id="dropdown-host"
-            lookup-text="true"
-            get-options="ctrl.getHostOptions()"
-            on-change="ctrl.onHostChange()">
-        </gf-form-dropdown>
-      </div>
-    </div>
-  </div>
-
-  <div class="gf-form">
-    <div ng-show="ctrl.target.host" class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-service">
-        Service
-      </label>
-      <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.service"
-            placeholder="select service"
-            id="dropdown-service"
-            lookup-text="true"
-            get-options="ctrl.getServiceOptions()"
-            on-change="ctrl.onServiceChange()">
-        </gf-form-dropdown>
-      </div>
-    </div>
-
-    <div ng-show="ctrl.target.service" class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-mode">
+      <label class="gf-form-label width-6" for="dropdown-mode">
         Mode
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -63,8 +15,197 @@
       </div>
     </div>
 
+    <div class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-site">
+        Site
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.site"
+            placeholder="select site"
+            id="dropdown-site"
+            allow-custom="true"
+            lookup-text="true"
+            get-options="ctrl.getSiteOptions()"
+            on-change="ctrl.onSiteChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <div class="gf-form">
+    <div class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-hostregex">
+        Host <span ng-show="ctrl.target.mode === 'combined'">*</span>
+      </label>
+
+      <div ng-show="!ctrl.target.usehostregex" class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.host"
+            placeholder="use select host"
+            id="dropdown-host"
+            lookup-text="true"
+            get-options="ctrl.getHostOptions()"
+            on-change="ctrl.onHostChange()">
+        </gf-form-dropdown>
+      </div>
+
+      <input ng-show="ctrl.target.usehostregex" type="text" class="gf-form-input width-15" ng-model="ctrl.target.hostregex" ng-change="ctrl.onHostRegexChange()" ng-model-onblur />
+    </div>
+
+    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-7">
+      <editor-checkbox text="use Regex" model="ctrl.target.usehostregex" class="gf-form-checkbox" style="width:auto;background: none;border: none;" />
+    </div>
+
+    <div ng-show="ctrl.target.usehostregex && !ctrl.isHostRegexValid()" class="gf-form">
+      <div class="alert-error alert" style="padding:4px 10px; margin:3px">
+        <div class="alert-body">
+          <div class="alert-title">invalid regex</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="ctrl.target.host || ctrl.target.mode === 'combined'" class="gf-form">
+    <div class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-service">
+        Service <span ng-show="ctrl.target.mode === 'combined'">*</span>
+      </label>
+
+      <div ng-show="!ctrl.target.useserviceregex" class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.service"
+            placeholder="select service"
+            id="dropdown-service"
+            lookup-text="true"
+            get-options="ctrl.getServiceOptions()"
+            on-change="ctrl.onServiceChange()">
+        </gf-form-dropdown>
+      </div>
+
+      <input ng-show="ctrl.target.useserviceregex" type="text" class="gf-form-input width-15" ng-model="ctrl.target.serviceregex" ng-change="ctrl.onServiceRegexChange()" ng-model-onblur />
+    </div>
+    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-7">
+      <editor-checkbox text="use Regex" model="ctrl.target.useserviceregex" class="gf-form-checkbox" style="width:auto;background: none;border: none;" />
+    </div>
+
+    <div ng-show="ctrl.target.useserviceregex && !ctrl.isServiceRegexValid()" class="gf-form">
+      <div class="alert-error alert" style="padding:4px 10px; margin:3px">
+        <div class="alert-body">
+          <div class="alert-title">invalid regex</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="ctrl.target.mode === 'combined'">
+    <div class="gf-form">
+      <label class="gf-form-label width-6">
+        Tag 1 *
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.filter0group"
+            placeholder="select tag group"
+            id="dropdown-filter0group"
+            lookup-text="true"
+            get-options="ctrl.getFilterGroupOptions()"
+            on-change="ctrl.onFilterGroupChange(0)">
+        </gf-form-dropdown>
+      </div>
+      <div ng-show="ctrl.target.filter0group" class="gf-form-inline">
+        <div class="gf-form-select-wrapper width-6">
+          <gf-form-dropdown model="ctrl.target.filter0op"
+              id="dropdown-filter0op"
+              get-options="ctrl.getFilterOperationOptions()"
+              on-change="ctrl.onFilterChange()">
+          </gf-form-dropdown>
+        </div>
+        <div class="gf-form-select-wrapper width-15">
+          <gf-form-dropdown model="ctrl.target.filter0value"
+              placeholder="select tag value"
+              id="dropdown-filter0value"
+              lookup-text="true"
+              get-options="ctrl.getFilterValueOptions(0)"
+              on-change="ctrl.onFilterChange()">
+          </gf-form-dropdown>
+        </div>
+        <button class="query-editor-row__action" ng-click="ctrl.resetFilter(0)">
+          <i class="fa fa-fw fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div ng-show="ctrl.target.filter0value" class="gf-form">
+      <label class="gf-form-label width-6">
+        Tag 2 *
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.filter1group"
+            placeholder="select tag group"
+            id="dropdown-filter1group"
+            lookup-text="true"
+            get-options="ctrl.getFilterGroupOptions()"
+            on-change="ctrl.onFilterGroupChange(1)">
+        </gf-form-dropdown>
+      </div>
+      <div ng-show="ctrl.target.filter1group" class="gf-form-inline">
+        <div class="gf-form-select-wrapper width-6">
+          <gf-form-dropdown model="ctrl.target.filter1op"
+              id="dropdown-filter1op"
+              get-options="ctrl.getFilterOperationOptions()"
+              on-change="ctrl.onFilterChange()">
+          </gf-form-dropdown>
+        </div>
+        <div class="gf-form-select-wrapper width-15">
+          <gf-form-dropdown model="ctrl.target.filter1value"
+              placeholder="select tag value"
+              id="dropdown-filter1value"
+              lookup-text="true"
+              get-options="ctrl.getFilterValueOptions(1)"
+              on-change="ctrl.onFilterChange()">
+          </gf-form-dropdown>
+        </div>
+        <button class="query-editor-row__action" ng-click="ctrl.resetFilter(1)">
+          <i class="fa fa-fw fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div ng-show="ctrl.target.filter1value" class="gf-form">
+      <label class="gf-form-label width-6">
+        Tag 3 *
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.filter2group"
+            placeholder="select tag group"
+            id="dropdown-filter2group"
+            lookup-text="true"
+            get-options="ctrl.getFilterGroupOptions()"
+            on-change="ctrl.onFilterGroupChange(2)">
+        </gf-form-dropdown>
+      </div>
+      <div ng-show="ctrl.target.filter2group" class="gf-form-inline">
+        <div class="gf-form-select-wrapper width-6">
+          <gf-form-dropdown model="ctrl.target.filter2op"
+              id="dropdown-filter2op"
+              get-options="ctrl.getFilterOperationOptions()"
+              on-change="ctrl.onFilterChange()">
+          </gf-form-dropdown>
+        </div>
+        <div class="gf-form-select-wrapper width-15">
+          <gf-form-dropdown model="ctrl.target.filter2value"
+              placeholder="select tag value"
+              id="dropdown-filter2value"
+              lookup-text="true"
+              get-options="ctrl.getFilterValueOptions(2)"
+              on-change="ctrl.onFilterChange()">
+          </gf-form-dropdown>
+        </div>
+        <button class="query-editor-row__action" ng-click="ctrl.resetFilter(2)">
+          <i class="fa fa-fw fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="gf-form">
     <div ng-show="ctrl.target.service && ctrl.target.mode === 'graph'" class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-graph">
+      <label class="gf-form-label width-6" for="dropdown-graph">
         Graph
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -79,7 +220,7 @@
     </div>
 
     <div ng-show="ctrl.target.service && ctrl.target.mode === 'metric'" class="gf-form-inline width-22">
-      <label class="gf-form-label width-5" for="dropdown-metric">
+      <label class="gf-form-label width-6" for="dropdown-metric">
         Metric
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -92,6 +233,40 @@
         </gf-form-dropdown>
       </div>
     </div>
+
+    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-presentation">
+        Aggregation
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.presentation"
+            placeholder="select type"
+            id="dropdown-presentation"
+            lookup-text="true"
+            get-options="ctrl.getPresentationOptions()"
+            on-change="ctrl.onPresentationChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+
+    <div ng-show="ctrl.target.presentation" class="gf-form-inline width-22">
+      <label class="gf-form-label width-6" for="dropdown-combinedgraph">
+        Graph
+      </label>
+      <div class="gf-form-select-wrapper width-15">
+        <gf-form-dropdown model="ctrl.target.combinedgraph"
+            placeholder="select graph"
+            id="dropdown-combinedgraph"
+            lookup-text="true"
+            get-options="ctrl.getCombinedGraphOptions()"
+            on-change="ctrl.onCombinedGraphChange()">
+        </gf-form-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <div ng-show="ctrl.target.mode === 'combined'">
+    * = optional
   </div>
 
   <div ng-show="ctrl.getLastError()" class="gf-form">

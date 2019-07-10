@@ -26,12 +26,29 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         var _this = _possibleConstructorReturn(this, (GenericDatasourceQueryCtrl.__proto__ || Object.getPrototypeOf(GenericDatasourceQueryCtrl)).call(this, $scope, $injector));
 
         _this.scope = $scope;
+
         _this.target.site = _this.target.site || '';
         _this.target.host = _this.target.host || '';
+        _this.target.hostregex = _this.target.hostregex || '';
         _this.target.service = _this.target.service || '';
+        _this.target.serviceregex = _this.target.serviceregex || '';
         _this.target.mode = _this.target.mode || 'graph';
         _this.target.metric = _this.target.metric != null ? _this.target.metric : '';
         _this.target.graph = _this.target.graph != null ? _this.target.graph : '';
+        _this.target.presentation = _this.target.presentation != null ? _this.target.presentation : '';
+        _this.target.combinedgraph = _this.target.combinedgraph != null ? _this.target.combinedgraph : '';
+
+        _this.target.filter0group = _this.target.filter0group || '';
+        _this.target.filter1group = _this.target.filter1group || '';
+        _this.target.filter2group = _this.target.filter2group || '';
+
+        _this.target.filter0op = _this.target.filter0op || 'is';
+        _this.target.filter1op = _this.target.filter1op || 'is';
+        _this.target.filter2op = _this.target.filter2op || 'is';
+
+        _this.target.filter0value = _this.target.filter0value || '';
+        _this.target.filter1value = _this.target.filter1value || '';
+        _this.target.filter2value = _this.target.filter2value || '';
         return _this;
     }
 
@@ -61,9 +78,34 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
             return this.datasource.graphsQuery(this.target);
         }
     }, {
+        key: 'getCombinedGraphOptions',
+        value: function getCombinedGraphOptions() {
+            return this.datasource.combinedGraphsQuery(this.target);
+        }
+    }, {
+        key: 'getFilterGroupOptions',
+        value: function getFilterGroupOptions() {
+            return this.datasource.filterGroupQuery(this.target);
+        }
+    }, {
+        key: 'getFilterOperationOptions',
+        value: function getFilterOperationOptions() {
+            return [{ value: 'is', text: 'is' }, { value: 'isnot', text: 'is not' }];
+        }
+    }, {
+        key: 'getFilterValueOptions',
+        value: function getFilterValueOptions(index) {
+            return this.datasource.filterValueQuery(this.target, index);
+        }
+    }, {
+        key: 'getPresentationOptions',
+        value: function getPresentationOptions() {
+            return [{ value: 'lines', text: 'Lines' }, { value: 'stacked', text: 'Stacked' }, { value: 'sum', text: 'Sum' }, { value: 'average', text: 'Average' }, { value: 'min', text: 'Minimum' }, { value: 'max', text: 'Maximum' }];
+        }
+    }, {
         key: 'getModeOptions',
         value: function getModeOptions() {
-            return [{ text: 'predefined graph', value: 'graph' }, { text: 'single metric', value: 'metric' }];
+            return [{ text: 'predefined graph', value: 'graph' }, { text: 'single metric', value: 'metric' }, { text: 'combined graph', value: 'combined' }];
         }
     }, {
         key: 'getLastError',
@@ -76,50 +118,133 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
             this.target.rawQuery = !this.target.rawQuery;
         }
     }, {
-        key: 'onChangeInternal',
-        value: function onChangeInternal() {
-            this.panelCtrl.refresh(); // Asks the panel to refresh data.
+        key: 'isHostRegexValid',
+        value: function isHostRegexValid() {
+            try {
+                new RegExp(this.target.hostregex);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+    }, {
+        key: 'isServiceRegexValid',
+        value: function isServiceRegexValid() {
+            try {
+                new RegExp(this.target.serviceregex);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+    }, {
+        key: 'resetGraph',
+        value: function resetGraph() {
+            this.target.metric = '';
+            this.target.graph = '';
+            this.target.combinedgraph = '';
+            this.target.presentation = '';
+
+            return this;
+        }
+    }, {
+        key: 'resetFilter',
+        value: function resetFilter(index) {
+            this.target['filter' + index + 'group'] = '';
+            this.target['filter' + index + 'op'] = 'is';
+            this.target['filter' + index + 'value'] = '';
+
+            return this;
+        }
+    }, {
+        key: 'resetFilters',
+        value: function resetFilters() {
+            this.resetFilter(0).resetFilter(1).resetFilter(2);
+
+            return this;
+        }
+    }, {
+        key: 'resetService',
+        value: function resetService() {
+            this.target.service = '';
+            return this.resetGraph();
+        }
+    }, {
+        key: 'resetHost',
+        value: function resetHost() {
+            this.target.host = '';
+            return this.resetService();
         }
     }, {
         key: 'onSiteChange',
         value: function onSiteChange() {
-            this.target.host = '';
-            this.target.service = '';
-            this.target.metric = '';
-            this.target.graph = '';
-            this.onChangeInternal();
+            this.resetHost().update();
         }
     }, {
         key: 'onHostChange',
         value: function onHostChange() {
-            this.target.service = '';
-            this.target.metric = '';
-            this.target.graph = '';
-            this.onChangeInternal();
+            this.resetService().update();
+        }
+    }, {
+        key: 'onHostRegexChange',
+        value: function onHostRegexChange() {
+            this.checkHostRegex().resetService().update();
         }
     }, {
         key: 'onServiceChange',
         value: function onServiceChange() {
-            this.target.metric = '';
-            this.target.graph = '';
-            this.onChangeInternal();
+            this.resetGraph().update();
+        }
+    }, {
+        key: 'onServiceRegexChange',
+        value: function onServiceRegexChange() {
+            this.checkServiceRegex();
+            this.resetGraph();
+            this.update();
         }
     }, {
         key: 'onMetricChange',
         value: function onMetricChange() {
-            this.onChangeInternal();
+            this.update();
+        }
+    }, {
+        key: 'onFilterGroupChange',
+        value: function onFilterGroupChange(index) {
+            this.target['filter' + index + 'op'] = 'is';
+            this.target['filter' + index + 'value'] = '';
+            this.update();
+        }
+    }, {
+        key: 'onFilterChange',
+        value: function onFilterChange() {
+            this.update();
+        }
+    }, {
+        key: 'onPresentationChange',
+        value: function onPresentationChange() {
+            this.update();
         }
     }, {
         key: 'onGraphChange',
         value: function onGraphChange() {
-            this.onChangeInternal();
+            this.update();
+        }
+    }, {
+        key: 'onCombinedGraphChange',
+        value: function onCombinedGraphChange() {
+            this.update();
         }
     }, {
         key: 'onModeChange',
         value: function onModeChange() {
-            this.target.metric = '';
-            this.target.graph = '';
-            this.onChangeInternal();
+            this.target.usehostregex = false;
+            this.target.useserviceregex = false;
+            this.resetGraph().resetFilters().update();
+        }
+    }, {
+        key: 'update',
+        value: function update() {
+            this.panelCtrl.refresh(); // Asks the panel to refresh data.
         }
     }]);
 

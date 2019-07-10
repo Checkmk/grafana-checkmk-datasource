@@ -35,6 +35,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var metricDivider = '.';
 var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
+// TODO: move this to utils
+var getHostTags = function getHostTags(target) {
+    var hostTags = {};
+
+    for (var i = 0; i <= 2; i++) {
+        if (target['filter' + i + 'value'] != null && target['filter' + i + 'value'] != '') {
+            hostTags['host_tag_' + i + '_grp'] = target['filter' + i + 'group'];
+            hostTags['host_tag_' + i + '_op'] = target['filter' + i + 'op'];
+            hostTags['host_tag_' + i + '_val'] = target['filter' + i + 'value'];
+        }
+    }
+
+    return hostTags;
+};
+
 var GenericDatasource = exports.GenericDatasource = function () {
     // backendSrv, templateSrv are injected - do not rename
     function GenericDatasource(instanceSettings, backendSrv, templateSrv) {
@@ -61,7 +76,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
             var range = _ref.range;
 
-            if (!target || !target.host || !target.service || target.metric === '' && target.graph === '') {
+            if (!target || target.combinedgraph === '' && (!target.host || !target.service || target.metric === '' && target.graph === '')) {
                 return Promise.resolve({ data: [] });
             }
 
@@ -72,7 +87,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
             var graph_index = void 0;
             var metric_index = void 0;
 
-            if (target.mode === 'metric') {
+            if (target.mode === 'combined') {
+                return this.queryCombinedTarget(target, range);
+            } else if (target.mode === 'metric') {
                 var _target$metric$split$ = target.metric.split(metricDivider).map(function (i) {
                     return +i;
                 });
@@ -105,8 +122,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
             return this.doRequest({
                 params: { action: 'get_graph' },
-                data: data,
-                method: 'POST'
+                data: data
             }).then(function (response) {
                 if (response.data.result_code !== 0) {
                     throw new Error('' + response.data.result);
@@ -129,6 +145,49 @@ var GenericDatasource = exports.GenericDatasource = function () {
             });
         }
     }, {
+        key: 'queryCombinedTarget',
+        value: function queryCombinedTarget(target, range) {
+            var _this2 = this;
+
+            var context = {
+                site: target.site,
+                host_tags: getHostTags(target)
+            };
+
+            var data = (0, _request.buildRequestBody)({
+                specification: ['combined', {
+                    context: context,
+                    graph_template: target.combinedgraph,
+                    presentation: target.presentation,
+                    single_infos: ['host'],
+                    datasource: 'services'
+                }],
+                data_range: {
+                    time_range: [range.from.unix(), range.to.unix()]
+                }
+            });
+
+            delete this.lastErrors[target.refId];
+
+            return this.doRequest({
+                params: { action: 'get_graph' },
+                data: data
+            }).then(function (response) {
+                if (response.data.result_code !== 0) {
+                    throw new Error('' + response.data.result);
+                }
+
+                var _response$data$result2 = response.data.result,
+                    start_time = _response$data$result2.start_time,
+                    step = _response$data$result2.step,
+                    curves = _response$data$result2.curves;
+
+                return curves.map((0, _data.formatCurveData)(start_time, step));
+            }).catch(function (err) {
+                _this2.lastErrors[target.refId] = err.message;
+            });
+        }
+    }, {
         key: 'getLastError',
         value: function getLastError(refId) {
             return this.lastErrors[refId];
@@ -136,14 +195,14 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }, {
         key: 'query',
         value: function query(options) {
-            var _this2 = this;
+            var _this3 = this;
 
             var targets = options.targets.filter(function (_ref2) {
                 var hide = _ref2.hide;
                 return !hide;
             });
             return Promise.all(targets.map(function (target) {
-                return _this2.queryTarget(target, options);
+                return _this3.queryTarget(target, options);
             })).then(function (data) {
                 return data.reduce(function (all, d) {
                     return all.concat(d);
@@ -160,8 +219,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             }
 
             return this.doRequest({
-                params: { action: 'get_host_names' },
-                method: 'GET'
+                params: { action: 'get_host_names' }
             }).then(function (response) {
                 if (response.status !== 200) {
                     return _errors2.default.STATUS;
@@ -193,8 +251,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
         key: 'sitesQuery',
         value: function sitesQuery() {
             return this.doRequest({
-                params: { action: 'get_user_sites' },
-                method: 'GET'
+                params: { action: 'get_user_sites' }
             }).then(_request.getResult).then(function (result) {
                 return result.map(function (_ref4) {
                     var _ref5 = _slicedToArray(_ref4, 2),
@@ -218,10 +275,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 params.site_id = query.site;
             }
 
-            return this.doRequest({
-                params: params,
-                method: 'GET'
-            }).then(_request.getResult).then(function (result) {
+            return this.doRequest({ params: params }).then(_request.getResult).then(function (result) {
                 return result.map(function (hostname) {
                     return { text: hostname, value: hostname };
                 }).sort(_sort.sortByText);
@@ -235,8 +289,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             }
             return this.doRequest({
                 params: { action: 'get_metrics_of_host' },
-                data: (0, _request.buildRequestBody)({ hostname: query.host }),
-                method: 'POST'
+                data: (0, _request.buildRequestBody)({ hostname: query.host })
             }).then(_request.getResult).then(function (result) {
                 return Object.keys(result).map(function (key) {
                     return { text: key, value: key };
@@ -256,8 +309,35 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
             return this.doRequest({
                 params: { action: 'get_graph_recipes' },
-                data: (0, _request.buildRequestBody)(data),
-                method: 'POST'
+                data: (0, _request.buildRequestBody)(data)
+            });
+        }
+    }, {
+        key: 'filterGroupQuery',
+        value: function filterGroupQuery() {
+            return this.doRequest({ params: { action: 'get_hosttags' } }).then(_request.getResult).then(function (result) {
+                return result.tag_groups.map(function (_ref6) {
+                    var id = _ref6.id,
+                        title = _ref6.title;
+                    return { text: title, value: id };
+                }).sort(_sort.sortByText);
+            });
+        }
+    }, {
+        key: 'filterValueQuery',
+        value: function filterValueQuery(query, index) {
+            if (!query['filter' + index + 'group']) {
+                return Promise.resolve([]);
+            }
+            return this.doRequest({ params: { action: 'get_hosttags' } }).then(_request.getResult).then(function (result) {
+                return result.tag_groups.find(function (_ref7) {
+                    var id = _ref7.id;
+                    return id === query['filter' + index + 'group'];
+                }).tags.map(function (_ref8) {
+                    var id = _ref8.id,
+                        title = _ref8.title;
+                    return { text: title, value: id };
+                }).sort(_sort.sortByText);
             });
         }
     }, {
@@ -304,6 +384,40 @@ var GenericDatasource = exports.GenericDatasource = function () {
             });
         }
     }, {
+        key: 'combinedGraphsQuery',
+        value: function combinedGraphsQuery(query) {
+            // TODO: use service and host filtering
+
+            if (!query.presentation) {
+                return Promise.resolve([]);
+            }
+
+            var data = {
+                context: {
+                    site: query.site || null,
+                    host_tags: getHostTags(query)
+                },
+                datasource: 'services',
+                presentation: query.presentation,
+                single_infos: ['host']
+            };
+
+            return this.doRequest({
+                params: { action: 'get_combined_graph_identifications' },
+                data: (0, _request.buildRequestBody)(data)
+            }).then(function (response) {
+                if (!response.data.result.length) {
+                    return [{ text: 'no graphs available', value: '-' }];
+                }
+
+                return response.data.result.map(function (_ref9) {
+                    var title = _ref9.title,
+                        identification = _ref9.identification;
+                    return { text: title, value: identification[1].graph_template };
+                }).sort(_sort.sortByText);
+            });
+        }
+    }, {
         key: 'doRequest',
         value: function doRequest(options) {
             options.url = (0, _request.buildUrlWithParams)(this.rawUrl + 'check_mk/webapi.py', Object.assign({
@@ -314,6 +428,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
             delete options.params;
 
+            options.method = options.data == null ? 'GET' : 'POST';
             options.headers = this.headers;
 
             return this.backendSrv.datasourceRequest(options);
