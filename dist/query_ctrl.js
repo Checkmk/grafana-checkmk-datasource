@@ -17,6 +17,15 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var isValidRegex = function isValidRegex(regexString) {
+    try {
+        new RegExp(regexString);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
 var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (_QueryCtrl) {
     _inherits(GenericDatasourceQueryCtrl, _QueryCtrl);
 
@@ -120,22 +129,12 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
     }, {
         key: 'isHostRegexValid',
         value: function isHostRegexValid() {
-            try {
-                new RegExp(this.target.hostregex);
-                return true;
-            } catch (e) {
-                return false;
-            }
+            return isValidRegex(this.target.hostregex);
         }
     }, {
         key: 'isServiceRegexValid',
         value: function isServiceRegexValid() {
-            try {
-                new RegExp(this.target.serviceregex);
-                return true;
-            } catch (e) {
-                return false;
-            }
+            return isValidRegex(this.target.serviceregex);
         }
     }, {
         key: 'resetGraph',
@@ -188,7 +187,7 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
     }, {
         key: 'onHostRegexChange',
         value: function onHostRegexChange() {
-            this.checkHostRegex().resetService().update();
+            this.resetService().update();
         }
     }, {
         key: 'onServiceChange',
@@ -198,9 +197,7 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
     }, {
         key: 'onServiceRegexChange',
         value: function onServiceRegexChange() {
-            this.checkServiceRegex();
-            this.resetGraph();
-            this.update();
+            this.resetGraph().update();
         }
     }, {
         key: 'onMetricChange',
@@ -238,7 +235,6 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         key: 'onModeChange',
         value: function onModeChange() {
             this.target.usehostregex = false;
-            this.target.useserviceregex = false;
             this.resetGraph().resetFilters().update();
         }
     }, {

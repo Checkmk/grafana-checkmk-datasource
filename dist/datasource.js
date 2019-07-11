@@ -35,19 +35,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var metricDivider = '.';
 var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
-// TODO: move this to utils
-var getHostTags = function getHostTags(target) {
-    var hostTags = {};
+var getContext = function getContext(target) {
+    var context = {
+        site: target.site,
+        host_tags: (0, _data.getHostTags)(target)
+    };
 
-    for (var i = 0; i <= 2; i++) {
-        if (target['filter' + i + 'value'] != null && target['filter' + i + 'value'] != '') {
-            hostTags['host_tag_' + i + '_grp'] = target['filter' + i + 'group'];
-            hostTags['host_tag_' + i + '_op'] = target['filter' + i + 'op'];
-            hostTags['host_tag_' + i + '_val'] = target['filter' + i + 'value'];
-        }
+    if (target.usehostregex && target.hostregex) {
+        context.hostregex = { host_regex: target.hostregex };
     }
 
-    return hostTags;
+    if (target.serviceregex) {
+        context.serviceregex = { service_regex: target.serviceregex };
+    }
+
+    return context;
 };
 
 var GenericDatasource = exports.GenericDatasource = function () {
@@ -149,14 +151,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
         value: function queryCombinedTarget(target, range) {
             var _this2 = this;
 
-            var context = {
-                site: target.site,
-                host_tags: getHostTags(target)
-            };
-
-            var data = (0, _request.buildRequestBody)({
+            var data = {
                 specification: ['combined', {
-                    context: context,
+                    context: getContext(target),
                     graph_template: target.combinedgraph,
                     presentation: target.presentation,
                     single_infos: ['host'],
@@ -165,13 +162,17 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 data_range: {
                     time_range: [range.from.unix(), range.to.unix()]
                 }
-            });
+            };
+
+            if (!target.usehostregex) {
+                data.specification[1].host_name = target.host;
+            }
 
             delete this.lastErrors[target.refId];
 
             return this.doRequest({
                 params: { action: 'get_graph' },
-                data: data
+                data: (0, _request.buildRequestBody)(data)
             }).then(function (response) {
                 if (response.data.result_code !== 0) {
                     throw new Error('' + response.data.result);
@@ -386,17 +387,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }, {
         key: 'combinedGraphsQuery',
         value: function combinedGraphsQuery(query) {
-            // TODO: use service and host filtering
-
             if (!query.presentation) {
                 return Promise.resolve([]);
             }
 
             var data = {
-                context: {
-                    site: query.site || null,
-                    host_tags: getHostTags(query)
-                },
+                context: getContext(query),
                 datasource: 'services',
                 presentation: query.presentation,
                 single_infos: ['host']

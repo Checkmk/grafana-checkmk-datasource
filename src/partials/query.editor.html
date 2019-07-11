@@ -1,7 +1,7 @@
 <query-editor-row query-ctrl="ctrl" class="generic-datasource-query-row" has-text-edit-mode="true">
   <div class="gf-form">
-    <div class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-mode">
+    <div class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-mode">
         Mode
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -15,8 +15,8 @@
       </div>
     </div>
 
-    <div class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-site">
+    <div class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-site">
         Site
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -33,9 +33,11 @@
   </div>
 
   <div class="gf-form">
-    <div class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-hostregex">
-        Host <span ng-show="ctrl.target.mode === 'combined'">*</span>
+    <div class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-hostregex">
+        Host
+        <span ng-show="ctrl.target.usehostregex">Regex</span>
+        <span ng-show="ctrl.target.mode === 'combined'">*</span>
       </label>
 
       <div ng-show="!ctrl.target.usehostregex" class="gf-form-select-wrapper width-15">
@@ -65,12 +67,13 @@
   </div>
 
   <div ng-show="ctrl.target.host || ctrl.target.mode === 'combined'" class="gf-form">
-    <div class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-service">
-        Service <span ng-show="ctrl.target.mode === 'combined'">*</span>
+    <div class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-service">
+        Service
+        <span ng-show="ctrl.target.mode === 'combined'">Regex *</span>
       </label>
 
-      <div ng-show="!ctrl.target.useserviceregex" class="gf-form-select-wrapper width-15">
+      <div ng-show="!ctrl.target.mode === 'combined'" class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.service"
             placeholder="select service"
             id="dropdown-service"
@@ -80,13 +83,10 @@
         </gf-form-dropdown>
       </div>
 
-      <input ng-show="ctrl.target.useserviceregex" type="text" class="gf-form-input width-15" ng-model="ctrl.target.serviceregex" ng-change="ctrl.onServiceRegexChange()" ng-model-onblur />
-    </div>
-    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-7">
-      <editor-checkbox text="use Regex" model="ctrl.target.useserviceregex" class="gf-form-checkbox" style="width:auto;background: none;border: none;" />
+      <input ng-show="ctrl.target.mode === 'combined'" type="text" class="gf-form-input width-15" ng-model="ctrl.target.serviceregex" ng-change="ctrl.onServiceRegexChange()" ng-model-onblur />
     </div>
 
-    <div ng-show="ctrl.target.useserviceregex && !ctrl.isServiceRegexValid()" class="gf-form">
+    <div ng-show="ctrl.target.mode === 'combined' && !ctrl.isServiceRegexValid()" class="gf-form">
       <div class="alert-error alert" style="padding:4px 10px; margin:3px">
         <div class="alert-body">
           <div class="alert-title">invalid regex</div>
@@ -97,7 +97,7 @@
 
   <div ng-show="ctrl.target.mode === 'combined'">
     <div class="gf-form">
-      <label class="gf-form-label width-6">
+      <label class="gf-form-label width-8">
         Tag 1 *
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -132,7 +132,7 @@
       </div>
     </div>
     <div ng-show="ctrl.target.filter0value" class="gf-form">
-      <label class="gf-form-label width-6">
+      <label class="gf-form-label width-8">
         Tag 2 *
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -167,7 +167,7 @@
       </div>
     </div>
     <div ng-show="ctrl.target.filter1value" class="gf-form">
-      <label class="gf-form-label width-6">
+      <label class="gf-form-label width-8">
         Tag 3 *
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -204,8 +204,8 @@
   </div>
 
   <div class="gf-form">
-    <div ng-show="ctrl.target.service && ctrl.target.mode === 'graph'" class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-graph">
+    <div ng-show="ctrl.target.service && ctrl.target.mode === 'graph'" class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-graph">
         Graph
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -219,8 +219,8 @@
       </div>
     </div>
 
-    <div ng-show="ctrl.target.service && ctrl.target.mode === 'metric'" class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-metric">
+    <div ng-show="ctrl.target.service && ctrl.target.mode === 'metric'" class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-metric">
         Metric
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -234,8 +234,8 @@
       </div>
     </div>
 
-    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-presentation">
+    <div ng-show="ctrl.target.mode === 'combined'" class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-presentation">
         Aggregation
       </label>
       <div class="gf-form-select-wrapper width-15">
@@ -249,8 +249,8 @@
       </div>
     </div>
 
-    <div ng-show="ctrl.target.presentation" class="gf-form-inline width-22">
-      <label class="gf-form-label width-6" for="dropdown-combinedgraph">
+    <div ng-show="ctrl.target.presentation" class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-combinedgraph">
         Graph
       </label>
       <div class="gf-form-select-wrapper width-15">

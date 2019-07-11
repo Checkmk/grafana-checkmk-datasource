@@ -1,7 +1,7 @@
 import ERROR from './utils/errors';
 import {buildUrlWithParams, buildRequestBody, getResult} from './utils/request';
 import {sortByText} from './utils/sort';
-import {formatCurveData} from './utils/data';
+import {formatCurveData, getHostTags} from './utils/data';
 
 /*
  * Grafana requires these methods:
@@ -15,19 +15,21 @@ import {formatCurveData} from './utils/data';
 const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
-// TODO: move this to utils
-const getHostTags = (target) => {
-    const hostTags = {};
+const getContext = (target) => {
+    const context = {
+        site: target.site,
+        host_tags: getHostTags(target)
+    };
 
-    for(let i = 0; i <= 2; i++) {
-        if(target[`filter${i}value`] != null && target[`filter${i}value`] != '') {
-            hostTags[`host_tag_${i}_grp`] = target[`filter${i}group`];
-            hostTags[`host_tag_${i}_op`] = target[`filter${i}op`];
-            hostTags[`host_tag_${i}_val`] = target[`filter${i}value`];
-        }
+    if(target.usehostregex && target.hostregex) {
+        context.hostregex = {host_regex: target.hostregex};
     }
 
-    return hostTags;
+    if(target.serviceregex) {
+        context.serviceregex = {service_regex: target.serviceregex};
+    }
+
+    return context;
 };
 
 export class GenericDatasource {
@@ -115,16 +117,11 @@ export class GenericDatasource {
     }
 
     queryCombinedTarget(target, range) {
-        const context = {
-            site: target.site,
-            host_tags: getHostTags(target)
-        };
-
-        const data = buildRequestBody({
+        const data = {
             specification: [
                 'combined',
                 {
-                    context,
+                    context: getContext(target),
                     graph_template: target.combinedgraph,
                     presentation: target.presentation,
                     single_infos: ['host'],
@@ -137,13 +134,17 @@ export class GenericDatasource {
                     range.to.unix()
                 ]
             }
-        });
+        };
+
+        if(!target.usehostregex) {
+            data.specification[1].host_name = target.host;
+        }
 
         delete this.lastErrors[target.refId];
 
         return this.doRequest({
             params: {action: 'get_graph'},
-            data
+            data: buildRequestBody(data)
         })
             .then((response) => {
                 if(response.data.result_code !== 0) {
@@ -324,17 +325,12 @@ export class GenericDatasource {
     }
 
     combinedGraphsQuery(query) {
-        // TODO: use service and host filtering
-
         if(!query.presentation) {
             return Promise.resolve([]);
         }
 
         const data = {
-            context: {
-                site: query.site || null,
-                host_tags: getHostTags(query)
-            },
+            context: getContext(query),
             datasource: 'services',
             presentation: query.presentation,
             single_infos: ['host']

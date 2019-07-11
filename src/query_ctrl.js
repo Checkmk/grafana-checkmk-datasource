@@ -1,6 +1,16 @@
 import {QueryCtrl} from 'app/plugins/sdk';
 import './css/query-editor.css!';
 
+// TODO: move to utils
+const isValidRegex = (regexString) => {
+    try {
+        new RegExp(regexString);
+        return true;
+    } catch(e) {
+        return false;
+    }
+};
+
 export class GenericDatasourceQueryCtrl extends QueryCtrl {
 
     constructor($scope, $injector)  {
@@ -99,21 +109,11 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     }
 
     isHostRegexValid() {
-        try {
-            new RegExp(this.target.hostregex);
-            return true;
-        } catch(e) {
-            return false;
-        }
+        return isValidRegex(this.target.hostregex);
     }
 
     isServiceRegexValid() {
-        try {
-            new RegExp(this.target.serviceregex);
-            return true;
-        } catch(e) {
-            return false;
-        }
+        return isValidRegex(this.target.serviceregex);
     }
 
     resetGraph() {
@@ -162,8 +162,7 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     }
 
     onHostRegexChange() {
-        this.checkHostRegex()
-            .resetService()
+        this.resetService()
             .update();
     }
 
@@ -173,9 +172,8 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     }
 
     onServiceRegexChange() {
-        this.checkServiceRegex();
-        this.resetGraph();
-        this.update();
+        this.resetGraph()
+            .update();
     }
 
     onMetricChange() {
@@ -206,7 +204,6 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
 
     onModeChange() {
         this.target.usehostregex = false;
-        this.target.useserviceregex = false;
         this.resetGraph()
             .resetFilters()
             .update();
