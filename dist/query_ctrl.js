@@ -17,6 +17,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+// TODO: move to utils
 var isValidRegex = function isValidRegex(regexString) {
     try {
         new RegExp(regexString);
@@ -149,9 +150,16 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
     }, {
         key: 'resetFilter',
         value: function resetFilter(index) {
-            this.target['filter' + index + 'group'] = '';
-            this.target['filter' + index + 'op'] = 'is';
-            this.target['filter' + index + 'value'] = '';
+            while (index < 2) {
+                // move filters down by one
+                this.target['filter' + index + 'group'] = this.target['filter' + (index + 1) + 'group'];
+                this.target['filter' + index + 'op'] = this.target['filter' + (index + 1) + 'op'];
+                this.target['filter' + index + 'value'] = this.target['filter' + (index + 1) + 'value'];
+                index++;
+            }
+            this.target.filter2group = '';
+            this.target.filter2op = 'is';
+            this.target.filter2value = '';
 
             return this;
         }
