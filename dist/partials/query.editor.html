@@ -73,7 +73,7 @@
         <span ng-show="ctrl.target.mode === 'combined'">Regex *</span>
       </label>
 
-      <div ng-show="!ctrl.target.mode === 'combined'" class="gf-form-select-wrapper width-15">
+      <div ng-show="ctrl.target.mode !== 'combined'" class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.target.service"
             placeholder="select service"
             id="dropdown-service"
