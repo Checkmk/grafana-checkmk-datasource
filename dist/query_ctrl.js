@@ -243,7 +243,7 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         key: 'onModeChange',
         value: function onModeChange() {
             this.target.usehostregex = false;
-            this.resetGraph().resetFilters().update();
+            this.resetHost().resetGraph().resetFilters().update();
         }
     }, {
         key: 'update',

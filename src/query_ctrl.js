@@ -211,7 +211,8 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
 
     onModeChange() {
         this.target.usehostregex = false;
-        this.resetGraph()
+        this.resetHost()
+            .resetGraph()
             .resetFilters()
             .update();
     }
