@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.GenericDatasourceQueryCtrl = undefined;
+exports.CheckmkDatasourceQueryCtrl = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -27,13 +27,13 @@ var isValidRegex = function isValidRegex(regexString) {
     }
 };
 
-var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (_QueryCtrl) {
-    _inherits(GenericDatasourceQueryCtrl, _QueryCtrl);
+var CheckmkDatasourceQueryCtrl = exports.CheckmkDatasourceQueryCtrl = function (_QueryCtrl) {
+    _inherits(CheckmkDatasourceQueryCtrl, _QueryCtrl);
 
-    function GenericDatasourceQueryCtrl($scope, $injector) {
-        _classCallCheck(this, GenericDatasourceQueryCtrl);
+    function CheckmkDatasourceQueryCtrl($scope, $injector) {
+        _classCallCheck(this, CheckmkDatasourceQueryCtrl);
 
-        var _this = _possibleConstructorReturn(this, (GenericDatasourceQueryCtrl.__proto__ || Object.getPrototypeOf(GenericDatasourceQueryCtrl)).call(this, $scope, $injector));
+        var _this = _possibleConstructorReturn(this, (CheckmkDatasourceQueryCtrl.__proto__ || Object.getPrototypeOf(CheckmkDatasourceQueryCtrl)).call(this, $scope, $injector));
 
         _this.scope = $scope;
 
@@ -62,7 +62,7 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         return _this;
     }
 
-    _createClass(GenericDatasourceQueryCtrl, [{
+    _createClass(CheckmkDatasourceQueryCtrl, [{
         key: 'getSiteOptions',
         value: function getSiteOptions() {
             return this.datasource.sitesQuery(this.target);
@@ -252,8 +252,8 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
         }
     }]);
 
-    return GenericDatasourceQueryCtrl;
+    return CheckmkDatasourceQueryCtrl;
 }(_sdk.QueryCtrl);
 
-GenericDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';
+CheckmkDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';
 //# sourceMappingURL=query_ctrl.js.map

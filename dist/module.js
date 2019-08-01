@@ -13,21 +13,21 @@ var _annotations_ctrl = require('./annotations_ctrl');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var GenericConfigCtrl = function GenericConfigCtrl() {
-    _classCallCheck(this, GenericConfigCtrl);
+var CheckmkConfigCtrl = function CheckmkConfigCtrl() {
+    _classCallCheck(this, CheckmkConfigCtrl);
 };
 
-GenericConfigCtrl.templateUrl = 'partials/config.html';
+CheckmkConfigCtrl.templateUrl = 'partials/config.html';
 
-var GenericQueryOptionsCtrl = function GenericQueryOptionsCtrl() {
-    _classCallCheck(this, GenericQueryOptionsCtrl);
+var CheckmkQueryOptionsCtrl = function CheckmkQueryOptionsCtrl() {
+    _classCallCheck(this, CheckmkQueryOptionsCtrl);
 };
 
-GenericQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
+CheckmkQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
 
-exports.Datasource = _datasource.GenericDatasource;
-exports.QueryCtrl = _query_ctrl.GenericDatasourceQueryCtrl;
-exports.ConfigCtrl = GenericConfigCtrl;
-exports.QueryOptionsCtrl = GenericQueryOptionsCtrl;
-exports.AnnotationsQueryCtrl = _annotations_ctrl.GenericAnnotationsQueryCtrl;
+exports.Datasource = _datasource.CheckmkDatasource;
+exports.QueryCtrl = _query_ctrl.CheckmkDatasourceQueryCtrl;
+exports.ConfigCtrl = CheckmkConfigCtrl;
+exports.QueryOptionsCtrl = CheckmkQueryOptionsCtrl;
+exports.AnnotationsQueryCtrl = _annotations_ctrl.CheckmkAnnotationsQueryCtrl;
 //# sourceMappingURL=module.js.map

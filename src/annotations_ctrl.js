@@ -1,4 +1,4 @@
-export class GenericAnnotationsQueryCtrl {
+export class CheckmkAnnotationsQueryCtrl {
     constructor(/*timeSrv, dashboardSrv*/) {
         this.target = this.target || {};
         this.target.site = this.target.site || '';
@@ -48,4 +48,4 @@ export class GenericAnnotationsQueryCtrl {
     }
 }
 
-GenericAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
+CheckmkAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';

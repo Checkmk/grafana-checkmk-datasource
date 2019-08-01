@@ -11,7 +11,7 @@ const isValidRegex = (regexString) => {
     }
 };
 
-export class GenericDatasourceQueryCtrl extends QueryCtrl {
+export class CheckmkDatasourceQueryCtrl extends QueryCtrl {
 
     constructor($scope, $injector)  {
         super($scope, $injector);
@@ -222,4 +222,4 @@ export class GenericDatasourceQueryCtrl extends QueryCtrl {
     }
 }
 
-GenericDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';
+CheckmkDatasourceQueryCtrl.templateUrl = 'partials/query.editor.html';

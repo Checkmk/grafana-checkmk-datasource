@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-exports.GenericDatasource = undefined;
+exports.CheckmkDatasource = undefined;
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -53,10 +53,10 @@ var getContext = function getContext(target) {
     return context;
 };
 
-var GenericDatasource = exports.GenericDatasource = function () {
+var CheckmkDatasource = exports.CheckmkDatasource = function () {
     // backendSrv, templateSrv are injected - do not rename
-    function GenericDatasource(instanceSettings, backendSrv, templateSrv) {
-        _classCallCheck(this, GenericDatasource);
+    function CheckmkDatasource(instanceSettings, backendSrv, templateSrv) {
+        _classCallCheck(this, CheckmkDatasource);
 
         this.type = instanceSettings.type;
         this.name = instanceSettings.name;
@@ -72,7 +72,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
         this.lastErrors = {};
     }
 
-    _createClass(GenericDatasource, [{
+    _createClass(CheckmkDatasource, [{
         key: 'queryTarget',
         value: function queryTarget(target, _ref) {
             var _this = this;
@@ -242,11 +242,13 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }, {
         key: 'annotationQuery',
         value: function annotationQuery(options) {
+            var query = options.annotation.queries[0];
+
             var data = {
                 specification: ['template', {
-                    site: options.annotation.queries[0].site,
-                    host_name: options.annotation.queries[0].host,
-                    service_description: options.annotation.queries[0].service
+                    site: query.site,
+                    host_name: query.host,
+                    service_description: query.service
                 }]
             };
 
@@ -254,6 +256,10 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 params: { action: 'get_graph_annotations' },
                 data: (0, _request.buildRequestBody)(data)
             }).then(function (result) {
+                if (!result.data.result.availability_timeline.length) {
+                    return [];
+                }
+
                 var items = result.data.result.availability_timeline[0].timeline.filter(function (_ref4) {
                     var _ref5 = _slicedToArray(_ref4, 2),
                         state = _ref5[1];
@@ -272,7 +278,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                         annotation: options,
                         title: 'State "' + item.state + '"',
                         time: item.from * 1000,
-                        text: 'Host "' + item.host_name + '", Service "' + item.service_description + '" <a href="">test</a>'
+                        text: 'Host "' + item.host_name + '", Service "' + item.service_description + '"'
                     };
                 });
             });
@@ -467,6 +473,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
         }
     }]);
 
-    return GenericDatasource;
+    return CheckmkDatasource;
 }();
 //# sourceMappingURL=datasource.js.map

@@ -8,9 +8,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var GenericAnnotationsQueryCtrl = exports.GenericAnnotationsQueryCtrl = function () {
-    function GenericAnnotationsQueryCtrl() /*timeSrv, dashboardSrv*/{
-        _classCallCheck(this, GenericAnnotationsQueryCtrl);
+var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function () {
+    function CheckmkAnnotationsQueryCtrl() /*timeSrv, dashboardSrv*/{
+        _classCallCheck(this, CheckmkAnnotationsQueryCtrl);
 
         this.target = this.target || {};
         this.target.site = this.target.site || '';
@@ -20,7 +20,7 @@ var GenericAnnotationsQueryCtrl = exports.GenericAnnotationsQueryCtrl = function
         this.annotation.queries = this.annotation.queries || [];
     }
 
-    _createClass(GenericAnnotationsQueryCtrl, [{
+    _createClass(CheckmkAnnotationsQueryCtrl, [{
         key: 'getLastError',
         value: function getLastError() {
             return null;
@@ -56,7 +56,6 @@ var GenericAnnotationsQueryCtrl = exports.GenericAnnotationsQueryCtrl = function
     }, {
         key: 'onServiceChange',
         value: function onServiceChange() {
-            // do nothing for now
             this.update();
         }
     }, {
@@ -70,8 +69,8 @@ var GenericAnnotationsQueryCtrl = exports.GenericAnnotationsQueryCtrl = function
         }
     }]);
 
-    return GenericAnnotationsQueryCtrl;
+    return CheckmkAnnotationsQueryCtrl;
 }();
 
-GenericAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
+CheckmkAnnotationsQueryCtrl.templateUrl = 'partials/annotations.editor.html';
 //# sourceMappingURL=annotations_ctrl.js.map

@@ -33,7 +33,7 @@ const getContext = (target) => {
     return context;
 };
 
-export class GenericDatasource {
+export class CheckmkDatasource {
     // backendSrv, templateSrv are injected - do not rename
     constructor(instanceSettings, backendSrv, templateSrv) {
         this.type = instanceSettings.type;

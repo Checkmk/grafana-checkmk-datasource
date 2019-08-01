@@ -1,17 +1,17 @@
-import {GenericDatasource} from './datasource';
-import {GenericDatasourceQueryCtrl} from './query_ctrl';
-import {GenericAnnotationsQueryCtrl} from './annotations_ctrl';
+import {CheckmkDatasource} from './datasource';
+import {CheckmkDatasourceQueryCtrl} from './query_ctrl';
+import {CheckmkAnnotationsQueryCtrl} from './annotations_ctrl';
 
-class GenericConfigCtrl {}
-GenericConfigCtrl.templateUrl = 'partials/config.html';
+class CheckmkConfigCtrl {}
+CheckmkConfigCtrl.templateUrl = 'partials/config.html';
 
-class GenericQueryOptionsCtrl {}
-GenericQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
+class CheckmkQueryOptionsCtrl {}
+CheckmkQueryOptionsCtrl.templateUrl = 'partials/query.options.html';
 
 export {
-    GenericDatasource as Datasource,
-    GenericDatasourceQueryCtrl as QueryCtrl,
-    GenericConfigCtrl as ConfigCtrl,
-    GenericQueryOptionsCtrl as QueryOptionsCtrl,
-    GenericAnnotationsQueryCtrl as AnnotationsQueryCtrl
+    CheckmkDatasource as Datasource,
+    CheckmkDatasourceQueryCtrl as QueryCtrl,
+    CheckmkConfigCtrl as ConfigCtrl,
+    CheckmkQueryOptionsCtrl as QueryOptionsCtrl,
+    CheckmkAnnotationsQueryCtrl as AnnotationsQueryCtrl
 };
