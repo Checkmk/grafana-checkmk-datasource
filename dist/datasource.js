@@ -34,6 +34,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var metricDivider = '.';
 var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
+var ignoreAnnotationTypes = ['ok', 'unmonitored'];
 
 var getContext = function getContext(target) {
     var context = {
@@ -240,8 +241,41 @@ var GenericDatasource = exports.GenericDatasource = function () {
         }
     }, {
         key: 'annotationQuery',
-        value: function annotationQuery() {
-            throw new Error('Annotation Support not implemented.');
+        value: function annotationQuery(options) {
+            var data = {
+                specification: ['template', {
+                    site: options.annotation.queries[0].site,
+                    host_name: options.annotation.queries[0].host,
+                    service_description: options.annotation.queries[0].service
+                }]
+            };
+
+            return this.doRequest({
+                params: { action: 'get_graph_annotations' },
+                data: (0, _request.buildRequestBody)(data)
+            }).then(function (result) {
+                var items = result.data.result.availability_timeline[0].timeline.filter(function (_ref4) {
+                    var _ref5 = _slicedToArray(_ref4, 2),
+                        state = _ref5[1];
+
+                    return !ignoreAnnotationTypes.includes(state);
+                }).map(function (_ref6) {
+                    var _ref7 = _slicedToArray(_ref6, 2),
+                        item = _ref7[0],
+                        state = _ref7[1];
+
+                    return Object.assign(item, { state: state });
+                });
+
+                return items.map(function (item) {
+                    return {
+                        annotation: options,
+                        title: 'State "' + item.state + '"',
+                        time: item.from * 1000,
+                        text: 'Host "' + item.host_name + '", Service "' + item.service_description + '" <a href="">test</a>'
+                    };
+                });
+            });
         }
     }, {
         key: 'metricFindQuery',
@@ -250,19 +284,21 @@ var GenericDatasource = exports.GenericDatasource = function () {
         }
     }, {
         key: 'sitesQuery',
-        value: function sitesQuery() {
+        value: function sitesQuery(query) {
+            var disableAll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
             return this.doRequest({
                 params: { action: 'get_user_sites' }
             }).then(_request.getResult).then(function (result) {
-                return result.map(function (_ref4) {
-                    var _ref5 = _slicedToArray(_ref4, 2),
-                        value = _ref5[0],
-                        text = _ref5[1];
+                return result.map(function (_ref8) {
+                    var _ref9 = _slicedToArray(_ref8, 2),
+                        value = _ref9[0],
+                        text = _ref9[1];
 
                     return { text: text, value: value };
                 }).sort(_sort.sortByText);
             }).then(function (sites) {
-                return [{ text: 'All Sites', value: '' }].concat(sites);
+                return disableAll ? sites : [{ text: 'All Sites', value: '' }].concat(sites);
             });
         }
     }, {
@@ -317,9 +353,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
         key: 'filterGroupQuery',
         value: function filterGroupQuery() {
             return this.doRequest({ params: { action: 'get_hosttags' } }).then(_request.getResult).then(function (result) {
-                return result.tag_groups.map(function (_ref6) {
-                    var id = _ref6.id,
-                        title = _ref6.title;
+                return result.tag_groups.map(function (_ref10) {
+                    var id = _ref10.id,
+                        title = _ref10.title;
                     return { text: title, value: id };
                 }).sort(_sort.sortByText);
             });
@@ -331,12 +367,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 return Promise.resolve([]);
             }
             return this.doRequest({ params: { action: 'get_hosttags' } }).then(_request.getResult).then(function (result) {
-                return result.tag_groups.find(function (_ref7) {
-                    var id = _ref7.id;
+                return result.tag_groups.find(function (_ref11) {
+                    var id = _ref11.id;
                     return id === query['filter' + index + 'group'];
-                }).tags.map(function (_ref8) {
-                    var id = _ref8.id,
-                        title = _ref8.title;
+                }).tags.map(function (_ref12) {
+                    var id = _ref12.id,
+                        title = _ref12.title;
                     return { text: title, value: id };
                 }).sort(_sort.sortByText);
             });
@@ -406,9 +442,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
                     return [{ text: 'no graphs available', value: '-' }];
                 }
 
-                return response.data.result.map(function (_ref9) {
-                    var title = _ref9.title,
-                        identification = _ref9.identification;
+                return response.data.result.map(function (_ref13) {
+                    var title = _ref13.title,
+                        identification = _ref13.identification;
                     return { text: title, value: identification[1].graph_template };
                 }).sort(_sort.sortByText);
             });

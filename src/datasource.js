@@ -14,6 +14,7 @@ import {formatCurveData, getHostTags} from './utils/data';
 
 const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
+const ignoreAnnotationTypes = ['ok', 'unmonitored'];
 
 const getContext = (target) => {
     const context = {
@@ -194,15 +195,46 @@ export class GenericDatasource {
             .catch(({cancelled}) => cancelled ? ERROR.CANCEL : ERROR.READ);
     }
 
-    annotationQuery() {
-        throw new Error('Annotation Support not implemented.');
+    annotationQuery(options) {
+        const query = options.annotation.queries[0];
+
+        const data = {
+            specification: [
+                'template',
+                {
+                    site: query.site,
+                    host_name: query.host,
+                    service_description: query.service
+                }
+            ]
+        };
+
+        return this.doRequest({
+            params: {action: 'get_graph_annotations'},
+            data: buildRequestBody(data)
+        }).then((result) => {
+            if(!result.data.result.availability_timeline.length) {
+                return [];
+            }
+
+            const items = result.data.result.availability_timeline[0].timeline
+                .filter(([, state]) => !ignoreAnnotationTypes.includes(state))
+                .map(([item, state]) => Object.assign(item, {state}));
+
+            return items.map((item) => ({
+                annotation: options,
+                title: `State "${item.state}"`,
+                time: item.from * 1000,
+                text: `Host "${item.host_name}", Service "${item.service_description}"`
+            }));
+        });
     }
 
     metricFindQuery() {
         throw new Error('Template Variable Support not implemented.');
     }
 
-    sitesQuery() {
+    sitesQuery(query, disableAll = false) {
         return this.doRequest({
             params: {action: 'get_user_sites'}
         })
@@ -210,7 +242,7 @@ export class GenericDatasource {
             .then((result) => result
                 .map(([value, text]) => ({text, value}))
                 .sort(sortByText)
-            ).then((sites) => [{text: 'All Sites', value: ''}].concat(sites));
+            ).then((sites) => disableAll ? sites : [{text: 'All Sites', value: ''}].concat(sites));
     }
 
     hostsQuery(query) {
