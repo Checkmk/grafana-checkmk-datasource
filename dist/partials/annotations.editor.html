@@ -1,5 +1,6 @@
-<div>
-  <div class="gf-form">
+<div class="gf-form-inline">
+  <div>
+    <div class="gf-form">
 
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-site">
@@ -16,9 +17,9 @@
         </gf-form-dropdown>
       </div>
     </div>
-  </div>
+    </div>
 
-  <div ng-show="ctrl.target.site" class="gf-form">
+    <div ng-show="ctrl.target.site" class="gf-form">
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-host">
         Host
@@ -34,9 +35,9 @@
         </gf-form-dropdown>
       </div>
     </div>
-  </div>
+    </div>
 
-  <div ng-show="ctrl.target.host" class="gf-form">
+    <div ng-show="ctrl.target.host" class="gf-form">
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-service">
         Service
@@ -52,14 +53,28 @@
         </gf-form-dropdown>
       </div>
     </div>
+    </div>
   </div>
+  <div>
+    <h6>Show these annotations:</h6>
+    <editor-checkbox change="target.onShowAnnotationChange()" text="ok" model="ctrl.target.show.ok" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="warn" model="ctrl.target.show.warn" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="crit" model="ctrl.target.show.crit" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="unknown" model="ctrl.target.show.unknown" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="flapping" model="ctrl.target.show.flapping" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="host down" model="ctrl.target.show.host_down" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="downtime" model="ctrl.target.show.in_downtime" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="out of notification period" model="ctrl.target.show.outof_notification_period" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="out of service period" model="ctrl.target.show.outof_service_period" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="target.onShowAnnotationChange()" text="unmonitored" model="ctrl.target.show.unmonitored" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+  </div>
+</div>
 
-  <div ng-show="ctrl.getLastError()" class="gf-form">
-    <div class="alert-error alert">
-      <div class="alert-icon"><i class="fa fa-exclamation-triangle"></i></div>
-      <div class="alert-body">
-        <div class="alert-title">{{ctrl.getLastError()}}</div>
-      </div>
+<div ng-show="ctrl.getLastError()" class="gf-form">
+  <div class="alert-error alert">
+    <div class="alert-icon"><i class="fa fa-exclamation-triangle"></i></div>
+    <div class="alert-body">
+      <div class="alert-title">{{ctrl.getLastError()}}</div>
     </div>
   </div>
 </div>

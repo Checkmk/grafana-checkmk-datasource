@@ -34,7 +34,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var metricDivider = '.';
 var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
-var ignoreAnnotationTypes = ['ok', 'unmonitored'];
 
 var getContext = function getContext(target) {
     var context = {
@@ -242,7 +241,8 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
     }, {
         key: 'annotationQuery',
         value: function annotationQuery(options) {
-            var query = options.annotation.queries[0];
+            var _options$annotation$q = _slicedToArray(options.annotation.queries, 1),
+                query = _options$annotation$q[0];
 
             var data = {
                 specification: ['template', {
@@ -264,7 +264,7 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                     var _ref5 = _slicedToArray(_ref4, 2),
                         state = _ref5[1];
 
-                    return !ignoreAnnotationTypes.includes(state);
+                    return query.showAnnotations.includes(state);
                 }).map(function (_ref6) {
                     var _ref7 = _slicedToArray(_ref6, 2),
                         item = _ref7[0],

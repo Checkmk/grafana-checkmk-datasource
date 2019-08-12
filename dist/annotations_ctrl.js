@@ -8,6 +8,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var showAnnotationsOptions = ['ok', 'warn', 'crit', 'unknown', 'flapping', 'host_down', 'in_downtime', 'outof_notification_period', 'outof_service_period', 'unmonitored'];
+
 var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function () {
     function CheckmkAnnotationsQueryCtrl() /*timeSrv, dashboardSrv*/{
         _classCallCheck(this, CheckmkAnnotationsQueryCtrl);
@@ -16,6 +18,11 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
         this.target.site = this.target.site || '';
         this.target.host = this.target.host || '';
         this.target.service = this.target.service || '';
+
+        this.target.show = showAnnotationsOptions.reduce(function (all, option) {
+            all[option] = all[option] != null ? all[option] : true;
+            return all;
+        }, this.target.show || {});
 
         this.annotation.queries = this.annotation.queries || [];
     }
@@ -59,12 +66,22 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
             this.update();
         }
     }, {
+        key: 'onShowAnnotationChange',
+        value: function onShowAnnotationChange() {
+            this.update();
+        }
+    }, {
         key: 'update',
         value: function update() {
+            var _this = this;
+
             this.annotation.queries = [{
                 site: this.target.site,
                 host: this.target.host,
-                service: this.target.service
+                service: this.target.service,
+                showAnnotations: showAnnotationsOptions.filter(function (annotationType) {
+                    return _this.target.show[annotationType];
+                })
             }];
         }
     }]);

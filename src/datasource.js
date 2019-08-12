@@ -14,7 +14,6 @@ import {formatCurveData, getHostTags} from './utils/data';
 
 const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
-const ignoreAnnotationTypes = ['ok', 'unmonitored'];
 
 const getContext = (target) => {
     const context = {
@@ -196,7 +195,7 @@ export class CheckmkDatasource {
     }
 
     annotationQuery(options) {
-        const query = options.annotation.queries[0];
+        const [query] = options.annotation.queries;
 
         const data = {
             specification: [
@@ -218,7 +217,7 @@ export class CheckmkDatasource {
             }
 
             const items = result.data.result.availability_timeline[0].timeline
-                .filter(([, state]) => !ignoreAnnotationTypes.includes(state))
+                .filter(([, state]) => query.showAnnotations.includes(state))
                 .map(([item, state]) => Object.assign(item, {state}));
 
             return items.map((item) => ({
