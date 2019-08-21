@@ -256,6 +256,9 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                 params: { action: 'get_graph_annotations' },
                 data: (0, _request.buildRequestBody)(data)
             }).then(function (result) {
+                if (!result.data.result.availability_timeline) {
+                    throw new Error('Annotations are not supported by this Checkmk version.');
+                }
                 if (!result.data.result.availability_timeline.length) {
                     return [];
                 }

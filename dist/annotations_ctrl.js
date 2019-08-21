@@ -10,19 +10,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var showAnnotationsOptions = ['ok', 'warn', 'crit', 'unknown', 'flapping', 'host_down', 'in_downtime', 'outof_notification_period', 'outof_service_period', 'unmonitored'];
 
+var queryToConfig = function queryToConfig(query) {
+    if (!query) {
+        return {};
+    }
+
+    var show = showAnnotationsOptions.reduce(function (all, option) {
+        all[option] = query.showAnnotations.includes(option);
+        return all;
+    }, {});
+
+    return {
+        site: query.site,
+        host: query.host,
+        service: query.service,
+        show: show
+    };
+};
+
 var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function () {
     function CheckmkAnnotationsQueryCtrl() /*timeSrv, dashboardSrv*/{
         _classCallCheck(this, CheckmkAnnotationsQueryCtrl);
 
-        this.target = this.target || {};
-        this.target.site = this.target.site || '';
-        this.target.host = this.target.host || '';
-        this.target.service = this.target.service || '';
+        console.log('1', JSON.parse(JSON.stringify(this)));
+        this.config = queryToConfig(this.annotation.queries[0]);
 
-        this.target.show = showAnnotationsOptions.reduce(function (all, option) {
-            all[option] = all[option] != null ? all[option] : true;
-            return all;
-        }, this.target.show || {});
+        console.log('2', JSON.parse(JSON.stringify(this)));
 
         this.annotation.queries = this.annotation.queries || [];
     }
@@ -35,29 +48,29 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
     }, {
         key: 'getSiteOptions',
         value: function getSiteOptions() {
-            return this.datasource.sitesQuery(this.target, true);
+            return this.datasource.sitesQuery(this.config, true);
         }
     }, {
         key: 'getHostOptions',
         value: function getHostOptions() {
-            return this.datasource.hostsQuery(this.target);
+            return this.datasource.hostsQuery(this.config);
         }
     }, {
         key: 'getServiceOptions',
         value: function getServiceOptions() {
-            return this.datasource.servicesQuery(this.target);
+            return this.datasource.servicesQuery(this.config);
         }
     }, {
         key: 'onSiteChange',
         value: function onSiteChange() {
-            this.target.host = '';
-            this.target.service = '';
+            this.config.host = '';
+            this.config.service = '';
             this.update();
         }
     }, {
         key: 'onHostChange',
         value: function onHostChange() {
-            this.target.service = '';
+            this.config.service = '';
             this.update();
         }
     }, {
@@ -69,6 +82,7 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
         key: 'onShowAnnotationChange',
         value: function onShowAnnotationChange() {
             this.update();
+            console.log('3', JSON.parse(JSON.stringify(this)));
         }
     }, {
         key: 'update',
@@ -76,11 +90,11 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
             var _this = this;
 
             this.annotation.queries = [{
-                site: this.target.site,
-                host: this.target.host,
-                service: this.target.service,
+                site: this.config.site,
+                host: this.config.host,
+                service: this.config.service,
                 showAnnotations: showAnnotationsOptions.filter(function (annotationType) {
-                    return _this.target.show[annotationType];
+                    return _this.config.show[annotationType];
                 })
             }];
         }

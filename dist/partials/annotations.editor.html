@@ -7,7 +7,7 @@
         Site
       </label>
       <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.site"
+        <gf-form-dropdown model="ctrl.config.site"
             placeholder="select site"
             id="dropdown-site"
             allow-custom="true"
@@ -19,14 +19,14 @@
     </div>
     </div>
 
-    <div ng-show="ctrl.target.site" class="gf-form">
+    <div ng-show="ctrl.config.site" class="gf-form">
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-host">
         Host
       </label>
 
       <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.host"
+        <gf-form-dropdown model="ctrl.config.host"
             placeholder="use select host"
             id="dropdown-host"
             lookup-text="true"
@@ -37,14 +37,14 @@
     </div>
     </div>
 
-    <div ng-show="ctrl.target.host" class="gf-form">
+    <div ng-show="ctrl.config.host" class="gf-form">
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-service">
         Service
       </label>
 
       <div class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.service"
+        <gf-form-dropdown model="ctrl.config.service"
             placeholder="select service"
             id="dropdown-service"
             lookup-text="true"
@@ -57,16 +57,16 @@
   </div>
   <div>
     <h6>Show these annotations:</h6>
-    <editor-checkbox change="target.onShowAnnotationChange()" text="ok" model="ctrl.target.show.ok" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="warn" model="ctrl.target.show.warn" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="crit" model="ctrl.target.show.crit" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="unknown" model="ctrl.target.show.unknown" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="flapping" model="ctrl.target.show.flapping" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="host down" model="ctrl.target.show.host_down" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="downtime" model="ctrl.target.show.in_downtime" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="out of notification period" model="ctrl.target.show.outof_notification_period" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="out of service period" model="ctrl.target.show.outof_service_period" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
-    <editor-checkbox change="target.onShowAnnotationChange()" text="unmonitored" model="ctrl.target.show.unmonitored" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="ok" model="ctrl.config.show.ok" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="warn" model="ctrl.config.show.warn" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="crit" model="ctrl.config.show.crit" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="unknown" model="ctrl.config.show.unknown" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="flapping" model="ctrl.config.show.flapping" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="host down" model="ctrl.config.show.host_down" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="downtime" model="ctrl.config.show.in_downtime" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="out of notification period" model="ctrl.config.show.outof_notification_period" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="out of service period" model="ctrl.config.show.outof_service_period" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
+    <editor-checkbox change="ctrl.onShowAnnotationChange()" text="unmonitored" model="ctrl.config.show.unmonitored" class="gf-form-checkbox" style="width:auto;background: none;border: none;justify-content:left;" />
   </div>
 </div>
 

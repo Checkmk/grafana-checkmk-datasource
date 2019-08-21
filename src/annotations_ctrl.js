@@ -11,19 +11,28 @@ const showAnnotationsOptions = [
     'unmonitored'
 ];
 
+const queryToConfig = (query) => {
+    if(!query) {
+        return {};
+    }
+
+    const show = showAnnotationsOptions.reduce((all, option) => {
+        all[option] = query.showAnnotations.includes(option);
+        return all;
+    }, {});
+
+    return {
+        site: query.site,
+        host: query.host,
+        service: query.service,
+        show
+    };
+};
+
 export class CheckmkAnnotationsQueryCtrl {
     constructor(/*timeSrv, dashboardSrv*/) {
-        this.target = this.target || {};
-        this.target.site = this.target.site || '';
-        this.target.host = this.target.host || '';
-        this.target.service = this.target.service || '';
-
-        this.target.show = showAnnotationsOptions.reduce((all, option) => {
-            all[option] = all[option] != null ? all[option] : true;
-            return all;
-        }, this.target.show || {});
-
         this.annotation.queries = this.annotation.queries || [];
+        this.config = queryToConfig(this.annotation.queries[0]);
     }
 
     getLastError() {
@@ -31,25 +40,25 @@ export class CheckmkAnnotationsQueryCtrl {
     }
 
     getSiteOptions() {
-        return this.datasource.sitesQuery(this.target, true);
+        return this.datasource.sitesQuery(this.config, true);
     }
 
     getHostOptions() {
-        return this.datasource.hostsQuery(this.target);
+        return this.datasource.hostsQuery(this.config);
     }
 
     getServiceOptions() {
-        return this.datasource.servicesQuery(this.target);
+        return this.datasource.servicesQuery(this.config);
     }
 
     onSiteChange() {
-        this.target.host = '';
-        this.target.service = '';
+        this.config.host = '';
+        this.config.service = '';
         this.update();
     }
 
     onHostChange() {
-        this.target.service = '';
+        this.config.service = '';
         this.update();
     }
 
@@ -63,10 +72,10 @@ export class CheckmkAnnotationsQueryCtrl {
 
     update() {
         this.annotation.queries = [{
-            site: this.target.site,
-            host: this.target.host,
-            service: this.target.service,
-            showAnnotations: showAnnotationsOptions.filter((annotationType) => this.target.show[annotationType])
+            site: this.config.site,
+            host: this.config.host,
+            service: this.config.service,
+            showAnnotations: showAnnotationsOptions.filter((annotationType) => this.config.show[annotationType])
         }];
     }
 }

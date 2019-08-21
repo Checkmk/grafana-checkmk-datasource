@@ -212,6 +212,9 @@ export class CheckmkDatasource {
             params: {action: 'get_graph_annotations'},
             data: buildRequestBody(data)
         }).then((result) => {
+            if(!result.data.result.availability_timeline) {
+                throw new Error('Annotations are not supported by this Checkmk version.');
+            }
             if(!result.data.result.availability_timeline.length) {
                 return [];
             }
