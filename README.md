@@ -2,7 +2,7 @@
 This is a Grafana datasource for Check_MK metrics.
 
 ## Requirements
-Minimal Check_MK Version is `1.5.0p16`.
+Minimal Check_MK Version is `1.5.0p16`. The Grafana datsource requires the Checkmk Enterprise Edition or Checkmk Managed Services Edition.
 
 ## Plugin Configuration
 #### URL:
