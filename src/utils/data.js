@@ -12,13 +12,21 @@ const getHostTags = (target) => {
     return hostTags;
 };
 
-const formatCurveData = (startTime, step) => (curveData) => {
-    const datapoints = curveData.rrddata
+const formatCurveData = (startTime, step, formatString, {site, host, service}) => ({rrddata, title}) => {
+    const datapoints = rrddata
         .map((d, i) => [d, (startTime + i * step) * 1000])
         .filter((f) => f[0]);
 
+    formatString = formatString || '$title';
+
+    const target = formatString
+        .replace('$title', title)
+        .replace('$site', site || '')
+        .replace('$host', host || '')
+        .replace('$service', service || '');
+
     return {
-        target: curveData.title,
+        target,
         datapoints
     };
 };

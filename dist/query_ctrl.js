@@ -47,6 +47,7 @@ var CheckmkDatasourceQueryCtrl = exports.CheckmkDatasourceQueryCtrl = function (
         _this.target.graph = _this.target.graph != null ? _this.target.graph : '';
         _this.target.presentation = _this.target.presentation != null ? _this.target.presentation : '';
         _this.target.combinedgraph = _this.target.combinedgraph != null ? _this.target.combinedgraph : '';
+        _this.target.format = _this.target.format || '$title';
 
         _this.target.filter0group = _this.target.filter0group || '';
         _this.target.filter1group = _this.target.filter1group || '';
@@ -237,6 +238,12 @@ var CheckmkDatasourceQueryCtrl = exports.CheckmkDatasourceQueryCtrl = function (
     }, {
         key: 'onCombinedGraphChange',
         value: function onCombinedGraphChange() {
+            this.update();
+        }
+    }, {
+        key: 'onFormatChange',
+        value: function onFormatChange() {
+            this.target.format = this.target.format || '$title';
             this.update();
         }
     }, {

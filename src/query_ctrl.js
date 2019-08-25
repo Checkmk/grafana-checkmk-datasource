@@ -28,6 +28,7 @@ export class CheckmkDatasourceQueryCtrl extends QueryCtrl {
         this.target.graph = this.target.graph != null ? this.target.graph : '';
         this.target.presentation = this.target.presentation != null ? this.target.presentation : '';
         this.target.combinedgraph = this.target.combinedgraph != null ? this.target.combinedgraph : '';
+        this.target.format = this.target.format || '$title';
 
         this.target.filter0group = this.target.filter0group || '';
         this.target.filter1group = this.target.filter1group || '';
@@ -206,6 +207,11 @@ export class CheckmkDatasourceQueryCtrl extends QueryCtrl {
     }
 
     onCombinedGraphChange() {
+        this.update();
+    }
+
+    onFormatChange() {
+        this.target.format = this.target.format || '$title';
         this.update();
     }
 

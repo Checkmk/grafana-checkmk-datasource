@@ -135,13 +135,14 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                     step = _response$data$result.step,
                     curves = _response$data$result.curves;
 
+                var format = (0, _data.formatCurveData)(start_time, step, target.format, target);
 
                 if (metric_index != null) {
                     // filter for one specific metric
-                    return [(0, _data.formatCurveData)(start_time, step)(curves[metric_index])];
+                    return [format(curves[metric_index])];
                 }
 
-                return curves.map((0, _data.formatCurveData)(start_time, step));
+                return curves.map(format);
             }).catch(function (err) {
                 _this.lastErrors[target.refId] = err.message;
             });
@@ -183,7 +184,7 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                     step = _response$data$result2.step,
                     curves = _response$data$result2.curves;
 
-                return curves.map((0, _data.formatCurveData)(start_time, step));
+                return curves.map((0, _data.formatCurveData)(start_time, step, target.format, target));
             }).catch(function (err) {
                 _this2.lastErrors[target.refId] = err.message;
             });

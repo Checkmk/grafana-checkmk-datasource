@@ -32,12 +32,8 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
     function CheckmkAnnotationsQueryCtrl() /*timeSrv, dashboardSrv*/{
         _classCallCheck(this, CheckmkAnnotationsQueryCtrl);
 
-        console.log('1', JSON.parse(JSON.stringify(this)));
-        this.config = queryToConfig(this.annotation.queries[0]);
-
-        console.log('2', JSON.parse(JSON.stringify(this)));
-
         this.annotation.queries = this.annotation.queries || [];
+        this.config = queryToConfig(this.annotation.queries[0]);
     }
 
     _createClass(CheckmkAnnotationsQueryCtrl, [{
@@ -82,7 +78,6 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
         key: 'onShowAnnotationChange',
         value: function onShowAnnotationChange() {
             this.update();
-            console.log('3', JSON.parse(JSON.stringify(this)));
         }
     }, {
         key: 'update',

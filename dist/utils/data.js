@@ -17,16 +17,26 @@ var getHostTags = function getHostTags(target) {
     return hostTags;
 };
 
-var formatCurveData = function formatCurveData(startTime, step) {
-    return function (curveData) {
-        var datapoints = curveData.rrddata.map(function (d, i) {
+var formatCurveData = function formatCurveData(startTime, step, formatString, _ref) {
+    var site = _ref.site,
+        host = _ref.host,
+        service = _ref.service;
+    return function (_ref2) {
+        var rrddata = _ref2.rrddata,
+            title = _ref2.title;
+
+        var datapoints = rrddata.map(function (d, i) {
             return [d, (startTime + i * step) * 1000];
         }).filter(function (f) {
             return f[0];
         });
 
+        formatString = formatString || '$title';
+
+        var target = formatString.replace('$title', title).replace('$site', site || '').replace('$host', host || '').replace('$service', service || '');
+
         return {
-            target: curveData.title,
+            target: target,
             datapoints: datapoints
         };
     };

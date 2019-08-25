@@ -103,13 +103,14 @@ export class CheckmkDatasource {
                 }
 
                 const {start_time, step, curves} = response.data.result;
+                const format = formatCurveData(start_time, step, target.format, target);
 
                 if(metric_index != null) {
                     // filter for one specific metric
-                    return [formatCurveData(start_time, step)(curves[metric_index])];
+                    return [format(curves[metric_index])];
                 }
 
-                return curves.map(formatCurveData(start_time, step));
+                return curves.map(format);
             })
             .catch((err) => {
                 this.lastErrors[target.refId] = err.message;
@@ -152,7 +153,7 @@ export class CheckmkDatasource {
                 }
 
                 const {start_time, step, curves} = response.data.result;
-                return curves.map(formatCurveData(start_time, step));
+                return curves.map(formatCurveData(start_time, step, target.format, target));
             })
             .catch((err) => {
                 this.lastErrors[target.refId] = err.message;

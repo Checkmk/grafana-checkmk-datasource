@@ -31,6 +31,13 @@
         </gf-form-dropdown>
       </div>
     </div>
+
+    <div class="gf-form-inline width-24">
+      <label class="gf-form-label width-8" for="dropdown-site">
+        Label Format
+      </label>
+      <input type="text" class="gf-form-input width-15" ng-model="ctrl.target.format" ng-change="ctrl.onFormatChange()" ng-model-onblur />
+    </div>
   </div>
 
   <h5 style="margin:0;padding:0.75em;" ng-show="ctrl.target.mode === 'combined'">
