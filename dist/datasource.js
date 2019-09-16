@@ -246,36 +246,42 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                 query = _options$annotation$q[0];
 
             var data = {
-                specification: ['template', {
+                context: {
                     site: query.site,
-                    host_name: query.host,
-                    service_description: query.service
-                }]
+                    host: query.host,
+                    service: query.service
+                },
+                start_time: options.range.from.unix(),
+                end_time: options.range.to.unix()
             };
 
             return this.doRequest({
                 params: { action: 'get_graph_annotations' },
                 data: (0, _request.buildRequestBody)(data)
             }).then(function (result) {
-                if (!result.data.result.availability_timeline) {
+                if (!result.data.result.availability_timelines) {
                     throw new Error('Annotations are not supported by this Checkmk version.');
                 }
-                if (!result.data.result.availability_timeline.length) {
+                if (!result.data.result.availability_timelines.length) {
                     return [];
                 }
 
-                var items = result.data.result.availability_timeline[0].timeline.filter(function (_ref4) {
-                    var _ref5 = _slicedToArray(_ref4, 2),
-                        state = _ref5[1];
+                var items = result.data.result.availability_timelines.map(function (tl) {
+                    return tl.timeline.filter(function (_ref4) {
+                        var _ref5 = _slicedToArray(_ref4, 2),
+                            state = _ref5[1];
 
-                    return query.showAnnotations.includes(state);
-                }).map(function (_ref6) {
-                    var _ref7 = _slicedToArray(_ref6, 2),
-                        item = _ref7[0],
-                        state = _ref7[1];
+                        return query.showAnnotations.includes(state);
+                    }).map(function (_ref6) {
+                        var _ref7 = _slicedToArray(_ref6, 2),
+                            item = _ref7[0],
+                            state = _ref7[1];
 
-                    return Object.assign(item, { state: state });
-                });
+                        return Object.assign(item, { state: state });
+                    });
+                }).reduce(function (all, a) {
+                    return all.concat(a);
+                }, []);
 
                 return items.map(function (item) {
                     return {

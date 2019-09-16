@@ -199,30 +199,32 @@ export class CheckmkDatasource {
         const [query] = options.annotation.queries;
 
         const data = {
-            specification: [
-                'template',
-                {
-                    site: query.site,
-                    host_name: query.host,
-                    service_description: query.service
-                }
-            ]
+            context: {
+                site: query.site,
+                host: query.host,
+                service: query.service
+            },
+            start_time: options.range.from.unix(),
+            end_time: options.range.to.unix()
         };
 
         return this.doRequest({
             params: {action: 'get_graph_annotations'},
             data: buildRequestBody(data)
         }).then((result) => {
-            if(!result.data.result.availability_timeline) {
+            if(!result.data.result.availability_timelines) {
                 throw new Error('Annotations are not supported by this Checkmk version.');
             }
-            if(!result.data.result.availability_timeline.length) {
+            if(!result.data.result.availability_timelines.length) {
                 return [];
             }
 
-            const items = result.data.result.availability_timeline[0].timeline
-                .filter(([, state]) => query.showAnnotations.includes(state))
-                .map(([item, state]) => Object.assign(item, {state}));
+            const items = result.data.result.availability_timelines
+                .map((tl) => tl.timeline
+                    .filter(([, state]) => query.showAnnotations.includes(state))
+                    .map(([item, state]) => Object.assign(item, {state}))
+                )
+                .reduce((all, a) => all.concat(a), []);
 
             return items.map((item) => ({
                 annotation: options,
@@ -245,7 +247,8 @@ export class CheckmkDatasource {
             .then((result) => result
                 .map(([value, text]) => ({text, value}))
                 .sort(sortByText)
-            ).then((sites) => disableAll ? sites : [{text: 'All Sites', value: ''}].concat(sites));
+            )
+            .then((sites) => disableAll ? sites : [{text: 'All Sites', value: ''}].concat(sites));
     }
 
     hostsQuery(query) {
