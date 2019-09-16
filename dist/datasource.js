@@ -242,6 +242,8 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
     }, {
         key: 'annotationQuery',
         value: function annotationQuery(options) {
+            var _this4 = this;
+
             var _options$annotation$q = _slicedToArray(options.annotation.queries, 1),
                 query = _options$annotation$q[0];
 
@@ -283,12 +285,42 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                     return all.concat(a);
                 }, []);
 
+                var baseLink = _this4.rawUrl + 'check_mk/view.py';
+
                 return items.map(function (item) {
+                    var hostLink = (0, _request.buildUrlWithParams)(baseLink, {
+                        host: item.host_name,
+                        site: item.site,
+                        view_name: 'hoststatus'
+                    });
+                    var serviceLink = (0, _request.buildUrlWithParams)(baseLink, {
+                        host: item.host_name,
+                        site: item.site,
+                        service: item.service_description,
+                        view_name: 'service'
+                    });
+                    var stateLink = (0, _request.buildUrlWithParams)(baseLink, {
+                        host: item.host_name,
+                        site: item.site,
+                        service: item.service_description,
+                        view_name: 'service',
+                        mode: 'availability',
+                        av_mode: 'timeline'
+                    });
+                    var tableData = [['Host', '<a href="' + hostLink + '" target="_blank">' + item.host_name + '</a>'], ['Service Description', '<a href="' + serviceLink + '" target="_blank">' + item.service_description + '</a>'], ['State', '<a href="' + stateLink + '" target="_blank">' + item.state + '</a>'], ['In Downtime', item.in_downtime ? 'Yes' : 'No']];
+
+                    var text = '<table>' + tableData.map(function (tr) {
+                        return tr.map(function (td) {
+                            return '<td>' + td + '</td>';
+                        }).join('');
+                    }).map(function (tr) {
+                        return '<tr>' + tr + '</tr>';
+                    }).join('') + '</table>';
+
                     return {
                         annotation: options,
-                        title: 'State "' + item.state + '"',
                         time: item.from * 1000,
-                        text: 'Host "' + item.host_name + '", Service "' + item.service_description + '"'
+                        text: text
                     };
                 });
             });

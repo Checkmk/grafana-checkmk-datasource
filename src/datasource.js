@@ -226,12 +226,48 @@ export class CheckmkDatasource {
                 )
                 .reduce((all, a) => all.concat(a), []);
 
-            return items.map((item) => ({
-                annotation: options,
-                title: `State "${item.state}"`,
-                time: item.from * 1000,
-                text: `Host "${item.host_name}", Service "${item.service_description}"`
-            }));
+            const baseLink = `${this.rawUrl}check_mk/view.py`;
+
+            return items.map((item) => {
+                const hostLink = buildUrlWithParams(baseLink, {
+                    host: item.host_name,
+                    site: item.site,
+                    view_name: 'hoststatus'
+                });
+                const serviceLink = buildUrlWithParams(baseLink, {
+                    host: item.host_name,
+                    site: item.site,
+                    service: item.service_description,
+                    view_name: 'service'
+                });
+                const stateLink = buildUrlWithParams(baseLink, {
+                    host: item.host_name,
+                    site: item.site,
+                    service: item.service_description,
+                    view_name: 'service',
+                    mode: 'availability',
+                    av_mode: 'timeline'
+                });
+                const tableData = [
+                    ['Host', `<a href="${hostLink}" target="_blank">${item.host_name}</a>`],
+                    ['Service Description', `<a href="${serviceLink}" target="_blank">${item.service_description}</a>`],
+                    ['State', `<a href="${stateLink}" target="_blank">${item.state}</a>`],
+                    ['In Downtime', item.in_downtime ? 'Yes' : 'No']
+                ];
+
+                const text = `<table>${
+                    tableData
+                        .map((tr) => tr.map((td) => `<td>${td}</td>`).join(''))
+                        .map((tr) => `<tr>${tr}</tr>`)
+                        .join('')
+                }</table>`;
+
+                return {
+                    annotation: options,
+                    time: item.from * 1000,
+                    text
+                };
+            });
         });
     }
 
