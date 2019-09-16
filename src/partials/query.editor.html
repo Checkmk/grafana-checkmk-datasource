@@ -33,8 +33,9 @@
     </div>
 
     <div class="gf-form-inline width-24">
-      <label class="gf-form-label width-8" for="dropdown-site">
+      <label class="gf-form-label width-9" for="dropdown-site">
         Label Format
+        <i class="grafana-tip fa fa-question-circle" bs-tooltip="'Available Placeholders: $title, $site, $host, $service'" data-original-title="" title=""></i>
       </label>
       <input type="text" class="gf-form-input width-15" ng-model="ctrl.target.format" ng-change="ctrl.onFormatChange()" ng-model-onblur />
     </div>
