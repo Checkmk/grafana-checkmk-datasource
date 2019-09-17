@@ -23,7 +23,11 @@ var queryToConfig = function queryToConfig(query) {
     return {
         site: query.site,
         host: query.host,
+        hostregex: query.hostregex,
+        usehostregex: query.usehostregex,
         service: query.service,
+        serviceregex: query.serviceregex,
+        useserviceregex: query.usehostregex || query.useserviceregex,
         show: show
     };
 };
@@ -54,24 +58,43 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
     }, {
         key: 'getServiceOptions',
         value: function getServiceOptions() {
-            return this.datasource.servicesQuery(this.config);
+            return this.datasource.servicesQuery(this.config, false);
         }
     }, {
         key: 'onSiteChange',
         value: function onSiteChange() {
             this.config.host = '';
+            this.config.hostregex = '';
+            this.config.usehostregex = false;
             this.config.service = '';
+            this.config.serviceregex = '';
+            this.config.useserviceregex = false;
             this.update();
         }
     }, {
         key: 'onHostChange',
         value: function onHostChange() {
             this.config.service = '';
+            this.config.hostregex = '';
+            this.update();
+        }
+    }, {
+        key: 'onHostRegexChange',
+        value: function onHostRegexChange() {
+            this.config.service = '';
+            this.config.host = '';
             this.update();
         }
     }, {
         key: 'onServiceChange',
         value: function onServiceChange() {
+            this.config.serviceregex = '';
+            this.update();
+        }
+    }, {
+        key: 'onServiceRegexChange',
+        value: function onServiceRegexChange() {
+            this.config.service = '';
             this.update();
         }
     }, {
@@ -87,7 +110,11 @@ var CheckmkAnnotationsQueryCtrl = exports.CheckmkAnnotationsQueryCtrl = function
             this.annotation.queries = [{
                 site: this.config.site,
                 host: this.config.host,
+                hostregex: this.config.hostregex,
+                usehostregex: this.config.usehostregex,
                 service: this.config.service,
+                serviceregex: this.config.serviceregex,
+                useserviceregex: this.config.usehostregex || this.config.useserviceregex,
                 showAnnotations: showAnnotationsOptions.filter(function (annotationType) {
                     return _this.config.show[annotationType];
                 })

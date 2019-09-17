@@ -247,12 +247,19 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
             var _options$annotation$q = _slicedToArray(options.annotation.queries, 1),
                 query = _options$annotation$q[0];
 
+            var context = {
+                site: query.site,
+                serviceregex: { service_regex: query.useserviceregex ? query.serviceregex : query.service || '.*' }
+            };
+
+            if (query.usehostregex) {
+                context.hostregex = { host_regex: query.hostregex };
+            } else {
+                context.host = query.host;
+            }
+
             var data = {
-                context: {
-                    site: query.site,
-                    host: query.host,
-                    service: query.service
-                },
+                context: context,
                 start_time: options.range.from.unix(),
                 end_time: options.range.to.unix()
             };
@@ -369,6 +376,8 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
     }, {
         key: 'servicesQuery',
         value: function servicesQuery(query) {
+            var disableAll = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
             if (!query.host) {
                 return Promise.resolve([]);
             }
@@ -379,6 +388,8 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                 return Object.keys(result).map(function (key) {
                     return { text: key, value: key };
                 }).sort(_sort.sortByText);
+            }).then(function (services) {
+                return disableAll ? services : [{ text: 'All Services', value: '' }].concat(services);
             });
         }
     }, {

@@ -23,9 +23,10 @@
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-host">
         Host
+        <span ng-show="ctrl.config.usehostregex">Regex</span>
       </label>
 
-      <div class="gf-form-select-wrapper width-15">
+      <div ng-show="!ctrl.config.usehostregex" class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.config.host"
             placeholder="use select host"
             id="dropdown-host"
@@ -34,16 +35,21 @@
             on-change="ctrl.onHostChange()">
         </gf-form-dropdown>
       </div>
+
+      <input ng-show="ctrl.config.usehostregex" type="text" class="gf-form-input width-15" ng-model="ctrl.config.hostregex" ng-change="ctrl.onHostRegexChange()" ng-model-onblur />
+
+      <editor-checkbox text="use Regex" model="ctrl.config.usehostregex" class="gf-form-checkbox" style="width:auto;background: none;border: none;" />
     </div>
     </div>
 
-    <div ng-show="ctrl.config.host" class="gf-form">
+    <div ng-show="ctrl.config.host || ctrl.config.usehostregex" class="gf-form">
     <div class="gf-form-inline width-24">
       <label class="gf-form-label width-8" for="dropdown-service">
         Service
+        <span ng-show="ctrl.config.usehostregex || ctrl.config.useserviceregex">Regex</span>
       </label>
 
-      <div class="gf-form-select-wrapper width-15">
+      <div ng-show="!ctrl.config.usehostregex && !ctrl.config.useserviceregex" class="gf-form-select-wrapper width-15">
         <gf-form-dropdown model="ctrl.config.service"
             placeholder="select service"
             id="dropdown-service"
@@ -52,6 +58,10 @@
             on-change="ctrl.onServiceChange()">
         </gf-form-dropdown>
       </div>
+
+      <input ng-show="ctrl.config.usehostregex || ctrl.config.useserviceregex" type="text" class="gf-form-input width-15" ng-model="ctrl.config.serviceregex" ng-change="ctrl.onServiceRegexChange()" ng-model-onblur />
+
+      <editor-checkbox ng-show="!ctrl.config.usehostregex" text="use Regex" model="ctrl.config.useserviceregex" class="gf-form-checkbox" style="width:auto;background: none;border: none;" />
     </div>
     </div>
   </div>

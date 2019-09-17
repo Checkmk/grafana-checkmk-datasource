@@ -198,12 +198,19 @@ export class CheckmkDatasource {
     annotationQuery(options) {
         const [query] = options.annotation.queries;
 
+        const context = {
+            site: query.site,
+            serviceregex: {service_regex: query.useserviceregex ? query.serviceregex : query.service || '.*'}
+        };
+
+        if(query.usehostregex) {
+            context.hostregex = {host_regex: query.hostregex};
+        } else {
+            context.host = query.host;
+        }
+
         const data = {
-            context: {
-                site: query.site,
-                host: query.host,
-                service: query.service
-            },
+            context,
             start_time: options.range.from.unix(),
             end_time: options.range.to.unix()
         };
@@ -304,7 +311,7 @@ export class CheckmkDatasource {
             );
     }
 
-    servicesQuery(query) {
+    servicesQuery(query, disableAll = false) {
         if(!query.host) {
             return Promise.resolve([]);
         }
@@ -316,7 +323,8 @@ export class CheckmkDatasource {
             .then((result) => Object.keys(result)
                 .map((key) => ({text: key, value: key}))
                 .sort(sortByText)
-            );
+            )
+            .then((services) => disableAll ? services : [{text: 'All Services', value: ''}].concat(services));
     }
 
     serviceOptionsQuery(query) {

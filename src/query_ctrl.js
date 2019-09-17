@@ -1,15 +1,6 @@
 import {QueryCtrl} from 'app/plugins/sdk';
+import {isValidRegex} from './utils/regex';
 import './css/query-editor.css!';
-
-// TODO: move to utils
-const isValidRegex = (regexString) => {
-    try {
-        new RegExp(regexString);
-        return true;
-    } catch(e) {
-        return false;
-    }
-};
 
 export class CheckmkDatasourceQueryCtrl extends QueryCtrl {
 
@@ -52,7 +43,7 @@ export class CheckmkDatasourceQueryCtrl extends QueryCtrl {
     }
 
     getServiceOptions() {
-        return this.datasource.servicesQuery(this.target);
+        return this.datasource.servicesQuery(this.target, true);
     }
 
     getMetricOptions() {
