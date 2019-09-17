@@ -311,7 +311,7 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
 
                     var text = '<table>' + tableData.map(function (tr) {
                         return tr.map(function (td) {
-                            return '<td>' + td + '</td>';
+                            return '<td>&nbsp;' + td + '&nbsp;</td>';
                         }).join('');
                     }).map(function (tr) {
                         return '<tr>' + tr + '</tr>';

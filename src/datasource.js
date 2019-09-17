@@ -257,7 +257,7 @@ export class CheckmkDatasource {
 
                 const text = `<table>${
                     tableData
-                        .map((tr) => tr.map((td) => `<td>${td}</td>`).join(''))
+                        .map((tr) => tr.map((td) => `<td>&nbsp;${td}&nbsp;</td>`).join(''))
                         .map((tr) => `<tr>${tr}</tr>`)
                         .join('')
                 }</table>`;
