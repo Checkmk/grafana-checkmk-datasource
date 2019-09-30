@@ -2,7 +2,7 @@
 This is a Grafana datasource for Checkmk metrics.
 
 ## Requirements
-Minimal Checkmk Version is `1.6.0p1`.
+Minimal Checkmk Version is `1.6.0p2`. The Grafana datsource requires the Checkmk Enterprise Edition or Checkmk Managed Services Edition.
 
 ## Plugin Configuration
 #### URL:
@@ -67,8 +67,8 @@ The following guideline can be used to setup a Checkmk & Grafana development env
 It used docker to run Checkmk and grafana.
 
 #### Setup Checkmk
-Using image `checkmk/check-mk-enterprise:1.6.0p1`:\
-`docker run -d -p 8080:50000 checkmk/check-mk-enterprise:1.6.0p1`\
+Using image `checkmk/check-mk-enterprise:1.6.0p2`:\
+`docker run -d -p 8080:50000 checkmk/check-mk-enterprise:1.6.0p2`\
 Make sure to note the password for `cmkadmin`.
 
 Next open the Checkmk GUI and login with the `cmkadmin` user.\

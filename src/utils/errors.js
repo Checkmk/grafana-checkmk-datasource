@@ -1,4 +1,4 @@
-const requiredVersion = '1.6.0p1';
+const requiredVersion = '1.6.0p2';
 
 const error = (message) => ({
     status: 'error',

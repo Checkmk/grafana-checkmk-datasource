@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-var requiredVersion = '1.6.0p1';
+var requiredVersion = '1.6.0p2';
 
 var error = function error(message) {
     return {
