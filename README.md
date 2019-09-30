@@ -2,7 +2,7 @@
 This is a Grafana datasource for Checkmk metrics.
 
 ## Requirements
-Minimal Checkmk Version is `1.5.0p16`.
+Minimal Checkmk Version is `1.6.0p1`.
 
 ## Plugin Configuration
 #### URL:
@@ -17,23 +17,32 @@ Secret for the API User. Save & Test will check if the User can be authenticated
 
 ## Query Configuration
 
-#### Site
-This will default to 'cmk', but can be overwritten by simply entering any site.
-
-#### Host
-After you set a site, you will be able to select a host from the automatically generated list.
-
-#### Service
-After you set a host, you will be able to select a service from the automatically generated list.
-
 #### Mode
-After you set a service, you can select to either use predefined graphs or query a specific metric.
+You can switch between modes for querying predefined graphs, single metrics or a combined graph where you can filter hosts and services by using a Regex.
 
-#### Metric
-In metric mode, only one series will be displayed.
+#### Site
+This will default to 'all sites', but can be overwritten by simply entering any site.
 
-#### Graph
-In graph mode more more than one series might be displayed, depending on the selected graph
+#### Label Format
+The default label format '$title' can be changed to any static title or use the following placeholders: '$title', '$site', '$host', '$service'
+
+#### Host Filter
+You will be able to select a host from the automatically generated list. When using 'combined graph' mode you can also enter a regex to be applied.
+
+#### Service Filter
+You will be able to select a service from the automatically generated list. When using 'combined graph' mode you have to enter a regex as services between hosts can be different.
+
+#### Tag Filter ('combined graph' only)
+When using 'combined graph' mode you can also filter by Tags.
+
+#### Metric ('single metric' only)
+Only one series will be displayed.
+
+#### Graph ('predefined graph' only)
+One series might be displayed, depending on the selected graph
+
+#### Aggregation ('combined graph' only)
+You can choose between different aggregation types to combine the results of the chosen filters.
 
 
 ## Plugin Development
@@ -49,7 +58,7 @@ yarn install
 ```
 Then execute a build:
 ```
-npm run build
+yarn run build
 ```
 On building, the code will be automatically be linted, transpiled and moved to `dist/`.
 
@@ -58,8 +67,8 @@ The following guideline can be used to setup a Checkmk & Grafana development env
 It used docker to run Checkmk and grafana.
 
 #### Setup Checkmk
-Using image `checkmk/check-mk-enterprise:1.5.0p16`:\
-`docker run -d -p 8080:50000 checkmk/check-mk-enterprise:1.5.0p16`\
+Using image `checkmk/check-mk-enterprise:1.6.0p1`:\
+`docker run -d -p 8080:50000 checkmk/check-mk-enterprise:1.6.0p1`\
 Make sure to note the password for `cmkadmin`.
 
 Next open the Checkmk GUI and login with the `cmkadmin` user.\
