@@ -1,5 +1,5 @@
 {
-  "name": "CheckMK",
+  "name": "Checkmk",
   "id": "checkmk-datasource",
   "type": "datasource",
 
@@ -11,7 +11,7 @@
   "annotations": true,
 
   "info": {
-    "description": "CheckMK Datasource",
+    "description": "Checkmk Datasource",
     "author": {
       "name": "Christian B. Mueller",
       "url": "https://www.cbmueller.de"
