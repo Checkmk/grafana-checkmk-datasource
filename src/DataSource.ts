@@ -8,12 +8,30 @@ import {
   MutableDataFrame,
   FieldType,
 } from '@grafana/data';
+import { getBackendSrv } from '@grafana/runtime';
 
 import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
 
+const error = (message: string) => ({
+  status: 'error',
+  title: 'Error',
+  message,
+});
+
+const buildUrlWithParams = (url: string, params: any) =>
+  url + Object.keys(params).reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
+
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+  rawUrl: string;
+  _username: string;
+  _secret: string;
+
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
+
+    this.rawUrl = instanceSettings.jsonData.url || '';
+    this._username = instanceSettings.jsonData.username || '';
+    this._secret = instanceSettings.jsonData.secret || '';
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -37,10 +55,52 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async testDatasource() {
-    // Implement a health check for your data source.
-    return {
-      status: 'success',
-      message: 'Success',
-    };
+    const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
+    if (!urlValidationRegex.test(this.rawUrl)) {
+      return error(
+        'Invalid URL format. Please make sure to include protocol and trailing slash. Example: https://checkmk.server/site/'
+      );
+    }
+    return this.doRequest({ params: { action: 'get_host_names' }, refId: 'testDatasource' }).then(response => {
+      if (response.status !== 200) {
+        return error('Could not connect to provided URL');
+      } else if (!response.data.result) {
+        return error(response.data);
+      } else {
+        return {
+          status: 'success',
+          message: 'Data source is working',
+          title: 'Success',
+        };
+      }
+    });
+  }
+
+  doRequest(options: MyQuery) {
+    const result = getBackendSrv()
+      .datasourceRequest({
+        method: options.data == null ? 'GET' : 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        url: buildUrlWithParams(
+          `${this.rawUrl}check_mk/webapi.py`,
+          Object.assign(
+            {
+              _username: this._username,
+              _secret: this._secret,
+              output_format: 'json',
+            },
+            options.params
+          )
+        ),
+      })
+      .catch(({ cancelled }) =>
+        cancelled
+          ? error(
+              `API request was cancelled. This has either happened because no 'Access-Control-Allow-Origin' header is present, or because of a ssl protocol error. Make sure you are running at least Checkmk version 2.0.`
+            )
+          : error('Could not read API response, make sure the URL you provided is correct.')
+      );
+
+    return result;
   }
 }

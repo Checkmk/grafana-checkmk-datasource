@@ -10,37 +10,46 @@ interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> 
 interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {
-  onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
-      path: event.target.value,
+      url: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  };
+
+  onUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      username: event.target.value,
     };
     onOptionsChange({ ...options, jsonData });
   };
 
   // Secure field (only sent to the backend)
-  onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onSecretChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
       secureJsonData: {
-        apiKey: event.target.value,
+        secret: event.target.value,
       },
     });
   };
 
-  onResetAPIKey = () => {
+  onResetSecret = () => {
     const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
       secureJsonFields: {
         ...options.secureJsonFields,
-        apiKey: false,
+        secret: false,
       },
       secureJsonData: {
         ...options.secureJsonData,
-        apiKey: '',
+        secret: '',
       },
     });
   };
@@ -54,26 +63,43 @@ export class ConfigEditor extends PureComponent<Props, State> {
       <div className="gf-form-group">
         <div className="gf-form">
           <FormField
-            label="Path"
+            label="URL"
             labelWidth={6}
             inputWidth={20}
-            onChange={this.onPathChange}
-            value={jsonData.path || ''}
-            placeholder="json field returned to frontend"
+            onChange={this.onUrlChange}
+            value={jsonData.url || ''}
+            placeholder="enter url"
+            required
           />
         </div>
 
+        <br />
+        <br />
+        <h3 className="page-heading">Authentication</h3>
+        <div className="gf-form-inline">
+          <div className="gf-form">
+            <FormField
+              label="username"
+              labelWidth={6}
+              inputWidth={20}
+              onChange={this.onUsernameChange}
+              value={jsonData.username || ''}
+              placeholder="enter username"
+              required
+            />
+          </div>
+        </div>
         <div className="gf-form-inline">
           <div className="gf-form">
             <SecretFormField
-              isConfigured={(secureJsonFields && secureJsonFields.apiKey) as boolean}
-              value={secureJsonData.apiKey || ''}
-              label="API Key"
-              placeholder="secure json field (backend only)"
+              isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
+              value={secureJsonData.secret || ''}
+              label="Secret"
+              placeholder="enter secret"
               labelWidth={6}
               inputWidth={20}
-              onReset={this.onResetAPIKey}
-              onChange={this.onAPIKeyChange}
+              onReset={this.onResetSecret}
+              onChange={this.onSecretChange}
             />
           </div>
         </div>
