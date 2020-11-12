@@ -17,23 +17,27 @@ export class QueryEditor extends PureComponent<Props> {
   };
 
   onSiteIdChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = this.props;
+    const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, params: { ...query.params, site_id: event.target.value } });
+    onRunQuery();
   };
 
   onHostnameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = this.props;
+    const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, params: { ...query.params, hostname: event.target.value } });
+    onRunQuery();
   };
 
   onServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = this.props;
+    const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, params: { ...query.params, service: event.target.value } });
+    onRunQuery();
   };
 
   onMetricChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = this.props;
+    const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, params: { ...query.params, metric: event.target.value } });
+    onRunQuery();
   };
 
   onConstantChange = (event: ChangeEvent<HTMLInputElement>) => {

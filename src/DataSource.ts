@@ -21,6 +21,8 @@ const error = (message: string) => ({
 const buildUrlWithParams = (url: string, params: any) =>
   url + Object.keys(params).reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
 
+const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
+
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   rawUrl: string;
   _username: string;
@@ -39,6 +41,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const from = range!.from.valueOf();
     const to = range!.to.valueOf();
 
+      let ret = this.sitesQuery(options.targets[0]);
+      console.log(ret);
     // Return a constant for each query.
     const data = options.targets.map(target => {
       const query = defaults(target, defaultQuery);
@@ -53,6 +57,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     return { data };
   }
+    sitesQuery(options: MyQuery) {
+        return this.doRequest({...options, params:{...options.params,  action: "get_user_sites"}}).then((response) => response.data.result);
+    }
 
   async testDatasource() {
     const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
