@@ -16,6 +16,26 @@ export class QueryEditor extends PureComponent<Props> {
     onChange({ ...query, queryText: event.target.value });
   };
 
+  onSiteIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = this.props;
+    onChange({ ...query, params: { ...query.params, site_id: event.target.value } });
+  };
+
+  onHostnameChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = this.props;
+    onChange({ ...query, params: { ...query.params, hostname: event.target.value } });
+  };
+
+  onServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = this.props;
+    onChange({ ...query, params: { ...query.params, service: event.target.value } });
+  };
+
+  onMetricChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = this.props;
+    onChange({ ...query, params: { ...query.params, metric: event.target.value } });
+  };
+
   onConstantChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, constant: parseFloat(event.target.value) });
@@ -25,25 +45,48 @@ export class QueryEditor extends PureComponent<Props> {
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
-    const { queryText, constant } = query;
+    const { params } = query;
 
     return (
-      <div className="gf-form">
+      <div className="gf-form-group">
         <FormField
-          width={4}
-          value={constant}
-          onChange={this.onConstantChange}
-          label="Constant"
-          type="number"
-          step="0.1"
+          labelWidth={6}
+          inputWidth={20}
+          value={params.site_id || ''}
+          onChange={this.onSiteIdChange}
+          label="Site"
         />
+        <br />
         <FormField
-          labelWidth={8}
-          value={queryText || ''}
-          onChange={this.onQueryTextChange}
-          label="Query Text"
-          tooltip="Not used yet"
+          labelWidth={6}
+          inputWidth={20}
+          value={params.hostname || ''}
+          onChange={this.onHostnameChange}
+          label="Hostname"
         />
+        <br />
+        <FormField
+          labelWidth={6}
+          inputWidth={20}
+          value={params.service || ''}
+          onChange={this.onServiceChange}
+          label="Service"
+        />
+        <br />
+        <FormField
+          labelWidth={6}
+          inputWidth={20}
+          value={params.metric || ''}
+          onChange={this.onMetricChange}
+          label="Metric"
+        />
+        {/* <FormField
+            labelWidth={8}
+            value={queryText || ''}
+            onChange={this.onQueryTextChange}
+            label="Query Text"
+            tooltip="Not used yet"
+            /> */}
       </div>
     );
   }
