@@ -1,9 +1,9 @@
 import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { MyDataSourceOptions, MySecureJsonData } from './types';
+import { MyDataSourceOptions } from './types';
 
-const { SecretFormField, FormField } = LegacyForms;
+const { FormField } = LegacyForms;
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
 
@@ -28,36 +28,18 @@ export class ConfigEditor extends PureComponent<Props, State> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  // Secure field (only sent to the backend)
   onSecretChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
-    onOptionsChange({
-      ...options,
-      secureJsonData: {
-        secret: event.target.value,
-      },
-    });
-  };
-
-  onResetSecret = () => {
-    const { onOptionsChange, options } = this.props;
-    onOptionsChange({
-      ...options,
-      secureJsonFields: {
-        ...options.secureJsonFields,
-        secret: false,
-      },
-      secureJsonData: {
-        ...options.secureJsonData,
-        secret: '',
-      },
-    });
+    const jsonData = {
+      ...options.jsonData,
+      secret: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
   };
 
   render() {
     const { options } = this.props;
-    const { jsonData, secureJsonFields } = options;
-    const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
+    const { jsonData } = options;
 
     return (
       <div className="gf-form-group">
@@ -91,15 +73,14 @@ export class ConfigEditor extends PureComponent<Props, State> {
         </div>
         <div className="gf-form-inline">
           <div className="gf-form">
-            <SecretFormField
-              isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
-              value={secureJsonData.secret || ''}
+            <FormField
               label="Secret"
-              placeholder="enter secret"
               labelWidth={6}
               inputWidth={20}
-              onReset={this.onResetSecret}
               onChange={this.onSecretChange}
+              value={jsonData.secret || ''}
+              placeholder="enter secret"
+              type="password"
             />
           </div>
         </div>

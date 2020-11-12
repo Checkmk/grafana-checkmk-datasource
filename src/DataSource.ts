@@ -31,7 +31,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     this.rawUrl = instanceSettings.jsonData.url || '';
     this._username = instanceSettings.jsonData.username || '';
-    this._secret = instanceSettings.jsonData.secret || '';
+    this._secret = instanceSettings.jsonData.secret || 'undefined';
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -76,8 +76,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     });
   }
 
-  doRequest(options: MyQuery) {
-    const result = getBackendSrv()
+  async doRequest(options: MyQuery) {
+    const result = await getBackendSrv()
       .datasourceRequest({
         method: options.data == null ? 'GET' : 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
