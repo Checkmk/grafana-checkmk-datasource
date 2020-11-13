@@ -1,4 +1,4 @@
-import defaults from 'lodash/defaults';
+import { defaults, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -23,6 +23,26 @@ const buildUrlWithParams = (url: string, params: any) =>
 
 const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
+function buildMetricDataFrame(response: any, query: MyQuery) {
+  if (response.data.result_code !== 0) {
+    throw new Error(`${response.data.result}`);
+  }
+  const { start_time, step, curves } = response.data.result;
+
+  const frame = new MutableDataFrame({
+    refId: query.refId,
+    fields: [{ name: 'Time', type: FieldType.time }].concat(
+      curves.map((x: any) => {
+        return { name: x.title, type: FieldType.number };
+      })
+    ),
+  });
+  zip(...curves.map((x: any) => x.rrddata)).forEach((d: any, i: number) =>
+    frame.appendRow([(start_time + i * step) * 1000, ...d])
+  );
+  return frame;
+}
+
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   rawUrl: string;
   _username: string;
@@ -38,28 +58,45 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = range!.from.valueOf();
-    const to = range!.to.valueOf();
+    const from = range!.from.unix();
+    const to = range!.to.unix();
 
-      let ret = this.sitesQuery(options.targets[0]);
-      console.log(ret);
-    // Return a constant for each query.
-    const data = options.targets.map(target => {
-      const query = defaults(target, defaultQuery);
-      return new MutableDataFrame({
-        refId: query.refId,
-        fields: [
-          { name: 'Time', values: [from, to], type: FieldType.time },
-          { name: 'Value', values: [query.constant, query.constant], type: FieldType.number },
-        ],
-      });
+    const recipe = buildRequestBody({
+      specification: [
+        'template',
+        {
+          site: 'heute',
+          host_name: 'heute',
+          service_description: 'CPU load',
+          graph_index: 0,
+        },
+      ],
+      data_range: {
+        time_range: [from, to],
+      },
     });
+    let ret = await this.sitesQuery(options.targets[0]);
+    console.log(ret);
+    let datasource = this; // defined to be reachable on the next closure
 
-    return { data };
+    const promises = options.targets.map(target => {
+      const query = defaults(target, defaultQuery);
+
+      return datasource.getGraphQuery(recipe, query);
+    });
+    return Promise.all(promises).then(data => ({ data }));
   }
-    sitesQuery(options: MyQuery) {
-        return this.doRequest({...options, params:{...options.params,  action: "get_user_sites"}}).then((response) => response.data.result);
-    }
+
+  sitesQuery(options: MyQuery) {
+    return this.doRequest({ ...options, params: { action: 'get_user_sites' } }).then(function(response) {
+      return response.data.result;
+    });
+  }
+  getGraphQuery(data: string, query: MyQuery) {
+    return this.doRequest({ ...query, params: { action: 'get_graph' }, data: data }).then(response =>
+      buildMetricDataFrame(response, query)
+    );
+  }
 
   async testDatasource() {
     const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
@@ -99,6 +136,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             options.params
           )
         ),
+        data: options.data,
       })
       .catch(({ cancelled }) =>
         cancelled
