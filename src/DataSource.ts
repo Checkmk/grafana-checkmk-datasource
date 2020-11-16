@@ -44,16 +44,11 @@ function buildMetricDataFrame(response: any, query: MyQuery) {
 }
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
-  rawUrl: string;
-  _username: string;
-  _secret: string;
+  url: string;
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
-
-    this.rawUrl = instanceSettings.jsonData.url || '';
-    this._username = instanceSettings.jsonData.username || '';
-    this._secret = instanceSettings.jsonData.secret || 'undefined';
+    this.url = instanceSettings.url!;
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -99,12 +94,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async testDatasource() {
-    const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
-    if (!urlValidationRegex.test(this.rawUrl)) {
-      return error(
-        'Invalid URL format. Please make sure to include protocol and trailing slash. Example: https://checkmk.server/site/'
-      );
-    }
     return this.doRequest({ params: { action: 'get_host_names' }, refId: 'testDatasource' }).then(response => {
       if (response.status !== 200) {
         return error('Could not connect to provided URL');
@@ -125,17 +114,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       .datasourceRequest({
         method: options.data == null ? 'GET' : 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        url: buildUrlWithParams(
-          `${this.rawUrl}check_mk/webapi.py`,
-          Object.assign(
-            {
-              _username: this._username,
-              _secret: this._secret,
-              output_format: 'json',
-            },
-            options.params
-          )
-        ),
+        url: buildUrlWithParams(`${this.url}/cmk/check_mk/webapi.py`, options.params),
         data: options.data,
       })
       .catch(({ cancelled }) =>

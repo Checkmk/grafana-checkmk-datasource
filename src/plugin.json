@@ -9,16 +9,12 @@
       "name": "Tribe29 GmbH",
       "url": "https://github.com/tribe29/"
     },
-    "keywords": [
-      "checkmk"
-    ],
+    "keywords": ["checkmk"],
     "logos": {
       "small": "img/checkmk_logo.png",
       "large": "img/checkmk_logo.png"
     },
-    "links": [
-      {"name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource"}
-    ],
+    "links": [{ "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" }],
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
@@ -26,5 +22,25 @@
   "dependencies": {
     "grafanaVersion": "6.5.x",
     "plugins": []
-  }
+  },
+  "routes": [
+    {
+      "path": "cmk",
+      "url": "{{ .JsonData.url }}",
+      "urlParams": [
+        {
+          "name": "_username",
+          "content": "{{ .JsonData.username }}"
+        },
+        {
+          "name": "_secret",
+          "content": "{{ .SecureJsonData.secret }}"
+        },
+        {
+          "name": "output_format",
+          "content": "json"
+        }
+      ]
+    }
+  ]
 }
