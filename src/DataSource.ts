@@ -62,7 +62,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         {
           site: 'heute',
           host_name: 'heute',
-          service_description: 'CPU load',
+          service_description: 'CPU utilization',
           graph_index: 0,
         },
       ],
@@ -70,8 +70,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         time_range: [from, to],
       },
     });
-    let ret = await this.sitesQuery(options.targets[0]);
-    console.log(ret);
     let datasource = this; // defined to be reachable on the next closure
 
     const promises = options.targets.map(target => {
@@ -82,10 +80,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Promise.all(promises).then(data => ({ data }));
   }
 
-  sitesQuery(options: MyQuery) {
-    return this.doRequest({ ...options, params: { action: 'get_user_sites' } }).then(function(response) {
-      return response.data.result;
-    });
+  sitesQuery() {
+    return this.doRequest({ refId: 'query_editor', params: { action: 'get_user_sites' } })
+      .then(response => response.data.result)
+      .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
   }
   getGraphQuery(data: string, query: MyQuery) {
     return this.doRequest({ ...query, params: { action: 'get_graph' }, data: data }).then(response =>

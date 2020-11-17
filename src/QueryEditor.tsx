@@ -1,14 +1,28 @@
 import defaults from 'lodash/defaults';
 
-import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms } from '@grafana/ui';
-import { QueryEditorProps } from '@grafana/data';
+import React, { ChangeEvent, PureComponent, useState } from 'react';
+import { LegacyForms, Select } from '@grafana/ui';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 
 const { FormField } = LegacyForms;
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+
+const SiteSelect = (options: any) => {
+  const [value, setValue] = useState<SelectableValue<string>>();
+
+  return (
+    <Select
+      options={options}
+      value={value}
+      onChange={v => {
+        setValue(v);
+      }}
+    />
+  );
+};
 
 export class QueryEditor extends PureComponent<Props> {
   onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -50,16 +64,11 @@ export class QueryEditor extends PureComponent<Props> {
   render() {
     const query = defaults(this.props.query, defaultQuery);
     const { params } = query;
+    const options = this.props.datasource.sitesQuery().then(op => SiteSelect(op));
 
     return (
       <div className="gf-form-group">
-        <FormField
-          labelWidth={6}
-          inputWidth={20}
-          value={params.site_id || ''}
-          onChange={this.onSiteIdChange}
-          label="Site"
-        />
+        {options}
         <br />
         <FormField
           labelWidth={6}
