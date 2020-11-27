@@ -15,7 +15,7 @@ const getHostTags = (target) => {
 const formatCurveData = (startTime, step, formatString, {site, host, service}) => ({rrddata, title}) => {
     const datapoints = rrddata
         .map((d, i) => [d, (startTime + i * step) * 1000])
-        .filter((f) => f[0]);
+        .filter((f) => f[0] || f[0] === 0 );
 
     formatString = formatString || '$title';
 

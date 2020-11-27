@@ -28,7 +28,7 @@ var formatCurveData = function formatCurveData(startTime, step, formatString, _r
         var datapoints = rrddata.map(function (d, i) {
             return [d, (startTime + i * step) * 1000];
         }).filter(function (f) {
-            return f[0];
+            return f[0] || f[0] === 0;
         });
 
         formatString = formatString || '$title';
