@@ -7,6 +7,7 @@ import {
   DataSourceInstanceSettings,
   MutableDataFrame,
   FieldType,
+  SelectableValue,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
@@ -74,17 +75,19 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     const promises = options.targets.map(target => {
       const query = defaults(target, defaultQuery);
+      console.log(query);
 
       return datasource.getGraphQuery(recipe, query);
     });
     return Promise.all(promises).then(data => ({ data }));
   }
 
-  sitesQuery() {
+  sitesQuery(): Promise<Array<SelectableValue<string>>> {
     return this.doRequest({ refId: 'query_editor', params: { action: 'get_user_sites' } })
       .then(response => response.data.result)
       .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
   }
+
   getGraphQuery(data: string, query: MyQuery) {
     return this.doRequest({ ...query, params: { action: 'get_graph' }, data: data }).then(response =>
       buildMetricDataFrame(response, query)

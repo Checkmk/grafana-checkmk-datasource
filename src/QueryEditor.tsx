@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
-import React, { ChangeEvent, PureComponent, useState } from 'react';
-import { LegacyForms, Select } from '@grafana/ui';
+import React, { ChangeEvent, PureComponent } from 'react';
+import { LegacyForms, AsyncSelect } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
@@ -10,29 +10,15 @@ const { FormField } = LegacyForms;
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
-const SiteSelect = (options: any) => {
-  const [value, setValue] = useState<SelectableValue<string>>();
-
-  return (
-    <Select
-      options={options}
-      value={value}
-      onChange={v => {
-        setValue(v);
-      }}
-    />
-  );
-};
-
 export class QueryEditor extends PureComponent<Props> {
   onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query } = this.props;
     onChange({ ...query, queryText: event.target.value });
   };
 
-  onSiteIdChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onSiteIdChange = ({ value }: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, params: { ...query.params, site_id: event.target.value } });
+    onChange({ ...query, params: { ...query.params, siteId: value } });
     onRunQuery();
   };
 
@@ -64,11 +50,18 @@ export class QueryEditor extends PureComponent<Props> {
   render() {
     const query = defaults(this.props.query, defaultQuery);
     const { params } = query;
-    const options = this.props.datasource.sitesQuery().then(op => SiteSelect(op));
 
     return (
       <div className="gf-form-group">
-        {options}
+        <AsyncSelect
+          width={32}
+          loadOptions={() =>
+            this.props.datasource.sitesQuery().then(sites => [{ label: 'All Sites', value: '' }, ...sites])
+          }
+          defaultOptions
+          onChange={this.onSiteIdChange}
+          placeholder="Select Site"
+        />
         <br />
         <FormField
           labelWidth={6}
@@ -93,13 +86,6 @@ export class QueryEditor extends PureComponent<Props> {
           onChange={this.onMetricChange}
           label="Metric"
         />
-        {/* <FormField
-            labelWidth={8}
-            value={queryText || ''}
-            onChange={this.onQueryTextChange}
-            label="Query Text"
-            tooltip="Not used yet"
-            /> */}
       </div>
     );
   }
