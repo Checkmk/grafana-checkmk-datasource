@@ -40,13 +40,6 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
-  onConstantChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, constant: parseFloat(event.target.value) });
-    // executes the query
-    onRunQuery();
-  };
-
   render() {
     const query = defaults(this.props.query, defaultQuery);
     const { params } = query;
