@@ -33,9 +33,7 @@ function buildMetricDataFrame(response: any, query: MyQuery) {
   const frame = new MutableDataFrame({
     refId: query.refId,
     fields: [{ name: 'Time', type: FieldType.time }].concat(
-      curves.map((x: any) => {
-        return { name: x.title, type: FieldType.number };
-      })
+      curves.map((x: any) => ({ name: x.title, type: FieldType.number }))
     ),
   });
   zip(...curves.map((x: any) => x.rrddata)).forEach((d: any, i: number) =>
