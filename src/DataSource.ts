@@ -54,12 +54,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const { range } = options;
     const from = range!.from.unix();
     const to = range!.to.unix();
-
-    let datasource = this; // defined to be reachable on the next closure
+    const datasource = this; // defined to be reachable on the next closure
 
     const promises = options.targets.map(target => {
       const query = defaults(target, defaultQuery);
-      console.log(query);
       return datasource.getGraphQuery([from, to], query);
     });
     return Promise.all(promises).then(data => ({ data }));
@@ -72,12 +70,17 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   hostsQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    return this.doRequest({ refId: 'query_editor', params: { action: 'get_host_names' } })
+    console.log(query.params);
+    return this.doRequest({ refId: 'query_editor', params: { ...query.params, action: 'get_host_names' } })
       .then(response => response.data.result.sort())
       .then(result => result.map((hostname: string) => ({ label: hostname, value: hostname })));
   }
 
   getGraphQuery(range: number[], query: MyQuery) {
+    if (!query.params.hostname) {
+      return Promise.resolve([]);
+    }
+
     const recipe = buildRequestBody({
       specification: [
         'template',

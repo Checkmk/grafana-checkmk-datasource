@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
 import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms, Select, AsyncSelect } from '@grafana/ui';
+import { LegacyForms, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
@@ -10,6 +10,7 @@ const { FormField } = LegacyForms;
 
 export interface QueryData {
   sites: Array<SelectableValue<string>>;
+  hostnames: Array<SelectableValue<string>>;
 }
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
@@ -17,12 +18,13 @@ type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [{ label: 'All Sites', value: '' }] };
+    this.state = { sites: [], hostnames: [] };
   }
 
   async componentDidMount() {
     const sites = await this.props.datasource.sitesQuery().then(sites => [{ label: 'All Sites', value: '' }, ...sites]);
-    this.setState({ sites: sites });
+    const hostnames = await this.props.datasource.hostsQuery(this.props.query);
+    this.setState({ sites, hostnames });
   }
 
   onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -30,10 +32,14 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     onChange({ ...query, queryText: event.target.value });
   };
 
-  onSiteIdChange = ({ value }: SelectableValue<string>) => {
-    const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, params: { ...query.params, siteId: value } });
-    onRunQuery();
+  onSiteIdChange = async ({ value }: SelectableValue<string>) => {
+    const { onChange, query } = this.props;
+    const new_query = { ...query, params: { ...query.params, site_id: value } };
+    onChange(new_query);
+    const state: any = {
+      hostnames: await this.props.datasource.hostsQuery(new_query),
+    };
+    this.setState(state);
   };
 
   onHostnameChange = ({ value }: SelectableValue<string>) => {
@@ -56,7 +62,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
-    console.log(this);
     const { params } = query;
 
     return (
@@ -65,15 +70,15 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
           width={32}
           options={this.state.sites}
           onChange={this.onSiteIdChange}
-          value={params.siteId}
+          value={params.site_id}
           placeholder="Select Site"
         />
         <br />
-        <AsyncSelect
+        <Select
           width={32}
-          loadOptions={() => this.props.datasource.hostsQuery(query)}
-          defaultOptions
+          options={this.state.hostnames}
           onChange={this.onHostnameChange}
+          value={params.hostname}
           placeholder="Select Host"
         />
         <br />
