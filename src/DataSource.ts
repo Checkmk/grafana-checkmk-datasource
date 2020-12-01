@@ -75,8 +75,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   hostsQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
     return this.doRequest({ refId: 'query_editor', params: { action: 'get_host_names' } })
-      .then(response => response.data.result)
-      .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
+      .then(response => response.data.result.sort())
+      .then(result => result.map((hostname: string) => ({ label: hostname, value: hostname })));
   }
 
   getGraphQuery(range: number[], query: MyQuery) {
@@ -85,7 +85,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         'template',
         {
           site: query.params.siteId || '',
-          host_name: 'heute',
+          host_name: query.params.hostname || '',
           service_description: 'CPU utilization',
           graph_index: 0,
         },

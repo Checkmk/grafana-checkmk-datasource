@@ -22,9 +22,9 @@ export class QueryEditor extends PureComponent<Props> {
     onRunQuery();
   };
 
-  onHostnameChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onHostnameChange = ({ value }: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, params: { ...query.params, hostname: event.target.value } });
+    onChange({ ...query, params: { ...query.params, hostname: value } });
     onRunQuery();
   };
 
@@ -56,12 +56,12 @@ export class QueryEditor extends PureComponent<Props> {
           placeholder="Select Site"
         />
         <br />
-        <FormField
-          labelWidth={6}
-          inputWidth={20}
-          value={params.hostname || ''}
+        <AsyncSelect
+          width={32}
+          loadOptions={() => this.props.datasource.hostsQuery(query)}
+          defaultOptions
           onChange={this.onHostnameChange}
-          label="Hostname"
+          placeholder="Select Host"
         />
         <br />
         <FormField
