@@ -57,27 +57,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const from = range!.from.unix();
     const to = range!.to.unix();
 
-    const recipe = buildRequestBody({
-      specification: [
-        'template',
-        {
-          site: 'heute',
-          host_name: 'heute',
-          service_description: 'CPU utilization',
-          graph_index: 0,
-        },
-      ],
-      data_range: {
-        time_range: [from, to],
-      },
-    });
     let datasource = this; // defined to be reachable on the next closure
 
     const promises = options.targets.map(target => {
       const query = defaults(target, defaultQuery);
       console.log(query);
-
-      return datasource.getGraphQuery(recipe, query);
+      return datasource.getGraphQuery([from, to], query);
     });
     return Promise.all(promises).then(data => ({ data }));
   }
@@ -88,8 +73,28 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
   }
 
-  getGraphQuery(data: string, query: MyQuery) {
-    return this.doRequest({ ...query, params: { action: 'get_graph' }, data: data }).then(response =>
+  hostsQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+    return this.doRequest({ refId: 'query_editor', params: { action: 'get_host_names' } })
+      .then(response => response.data.result)
+      .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
+  }
+
+  getGraphQuery(range: number[], query: MyQuery) {
+    const recipe = buildRequestBody({
+      specification: [
+        'template',
+        {
+          site: query.params.siteId || '',
+          host_name: 'heute',
+          service_description: 'CPU utilization',
+          graph_index: 0,
+        },
+      ],
+      data_range: {
+        time_range: range,
+      },
+    });
+    return this.doRequest({ ...query, params: { action: 'get_graph' }, data: recipe }).then(response =>
       buildMetricDataFrame(response, query)
     );
   }
