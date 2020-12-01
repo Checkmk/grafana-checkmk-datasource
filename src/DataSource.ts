@@ -1,4 +1,4 @@
-import { defaults, zip } from 'lodash';
+import { defaults, zip, isEmpty } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -69,11 +69,20 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
   }
 
-  hostsQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    console.log(query.params);
-    return this.doRequest({ refId: 'query_editor', params: { ...query.params, action: 'get_host_names' } })
+  hostsQuery(site: string): Promise<Array<SelectableValue<string>>> {
+    return this.doRequest({ refId: 'query_editor', params: { site_id: site, action: 'get_host_names' } })
       .then(response => response.data.result.sort())
       .then(result => result.map((hostname: string) => ({ label: hostname, value: hostname })));
+  }
+
+  servicesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+    return this.doRequest({ refId: 'query_editor', params: { ...query.params, action: 'get_metrics_of_host' } })
+      .then(response =>
+        Object.keys(response.data.result)
+          .filter(key => !isEmpty(response.data.result[key].metrics))
+          .sort()
+      )
+      .then(result => result.map((service: string) => ({ label: service, value: service })));
   }
 
   getGraphQuery(range: number[], query: MyQuery) {
@@ -86,8 +95,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         'template',
         {
           site: query.params.siteId || '',
-          host_name: query.params.hostname || '',
-          service_description: 'CPU utilization',
+          host_name: query.params.hostname,
+          service_description: query.params.service,
           graph_index: 0,
         },
       ],
