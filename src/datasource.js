@@ -25,6 +25,10 @@ const getContext = (target) => {
         context.hostregex = {host_regex: target.hostregex};
     }
 
+    if(!target.usehostregex && target.host) {
+        context.host = {host: target.host};
+    }
+
     if(target.serviceregex) {
         context.serviceregex = {service_regex: target.serviceregex};
     }
