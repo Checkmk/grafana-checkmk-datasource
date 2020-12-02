@@ -17,7 +17,7 @@ const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 const getContext = (target) => {
     const context = {
-        site: target.site,
+        siteopt: {site: target.site},
         host_tags: getHostTags(target)
     };
 

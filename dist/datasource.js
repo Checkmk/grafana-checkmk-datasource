@@ -37,7 +37,7 @@ var urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
 var getContext = function getContext(target) {
     var context = {
-        site: target.site,
+        siteopt: { site: target.site },
         host_tags: (0, _data.getHostTags)(target)
     };
 
