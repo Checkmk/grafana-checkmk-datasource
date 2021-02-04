@@ -2,6 +2,7 @@ import ERROR from './utils/errors';
 import {buildUrlWithParams, buildRequestBody, getResult} from './utils/request';
 import {sortByText} from './utils/sort';
 import {formatCurveData, getHostTags} from './utils/data';
+import { getTemplateSrv } from '@grafana/runtime';
 
 /*
  * Grafana requires these methods:
@@ -12,6 +13,7 @@ import {formatCurveData, getHostTags} from './utils/data';
  * annotationQuery(options) // used by dashboards to get annotations (optional)
  */
 
+ 
 const metricDivider = '.';
 const urlValidationRegex = /^https?:\/\/[^/]*\/[^/]*\/$/;
 
@@ -53,20 +55,21 @@ export class CheckmkDatasource {
         this.lastErrors = {};
     }
 
-    queryTarget(target, {range}) {
+    queryTarget(target, {scopedVars,range}) {
         if(!target || (target.combinedgraph === '' && (!target.host || !target.service || (target.metric === '' && target.graph === '')))) {
             return Promise.resolve({data: []});
         }
 
         const site = target.site || null;
-        const host_name = target.host;
+        const host_name = getTemplateSrv().replace(target.host,scopedVars);
+
         const service_description = target.service;
 
         let graph_index;
         let metric_index;
 
         if(target.mode === 'combined') {
-            return this.queryCombinedTarget(target, range);
+            return this.queryCombinedTarget(target, {scopedVars,range});
         } else if(target.mode === 'metric') {
             [graph_index, metric_index] = target.metric.split(metricDivider).map((i) => +i);
         } else {
@@ -121,7 +124,10 @@ export class CheckmkDatasource {
             });
     }
 
-    queryCombinedTarget(target, range) {
+    queryCombinedTarget(target, {scopedVars,range}) {
+        let host_name = getTemplateSrv().replace(target.host,scopedVars);
+        target.host = host_name;
+
         const data = {
             specification: [
                 'combined',
@@ -282,10 +288,15 @@ export class CheckmkDatasource {
         });
     }
 
-    metricFindQuery() {
-        throw new Error('Template Variable Support not implemented.');
+    metricFindQuery(query) {
+        if(query == 'host') {
+            return this.hostsQuery({site: ''});
+        }
+        
+        return [ { 'text' : query, 'value': query} ];
     }
 
+    
     sitesQuery(query, disableAll = false) {
         return this.doRequest({
             params: {action: 'get_user_sites'}

@@ -19,6 +19,8 @@ var _sort = require('./utils/sort');
 
 var _data = require('./utils/data');
 
+var _runtime = require('@grafana/runtime');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -80,21 +82,23 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
         value: function queryTarget(target, _ref) {
             var _this = this;
 
-            var range = _ref.range;
+            var scopedVars = _ref.scopedVars,
+                range = _ref.range;
 
             if (!target || target.combinedgraph === '' && (!target.host || !target.service || target.metric === '' && target.graph === '')) {
                 return Promise.resolve({ data: [] });
             }
 
             var site = target.site || null;
-            var host_name = target.host;
+            var host_name = (0, _runtime.getTemplateSrv)().replace(target.host, scopedVars);
+
             var service_description = target.service;
 
             var graph_index = void 0;
             var metric_index = void 0;
 
             if (target.mode === 'combined') {
-                return this.queryCombinedTarget(target, range);
+                return this.queryCombinedTarget(target, { scopedVars: scopedVars, range: range });
             } else if (target.mode === 'metric') {
                 var _target$metric$split$ = target.metric.split(metricDivider).map(function (i) {
                     return +i;
@@ -153,8 +157,14 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
         }
     }, {
         key: 'queryCombinedTarget',
-        value: function queryCombinedTarget(target, range) {
+        value: function queryCombinedTarget(target, _ref2) {
             var _this2 = this;
+
+            var scopedVars = _ref2.scopedVars,
+                range = _ref2.range;
+
+            var host_name = (0, _runtime.getTemplateSrv)().replace(target.host, scopedVars);
+            target.host = host_name;
 
             var data = {
                 specification: ['combined', {
@@ -203,8 +213,8 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
         value: function query(options) {
             var _this3 = this;
 
-            var targets = options.targets.filter(function (_ref2) {
-                var hide = _ref2.hide;
+            var targets = options.targets.filter(function (_ref3) {
+                var hide = _ref3.hide;
                 return !hide;
             });
             return Promise.all(targets.map(function (target) {
@@ -238,8 +248,8 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                         title: 'Success'
                     };
                 }
-            }).catch(function (_ref3) {
-                var cancelled = _ref3.cancelled;
+            }).catch(function (_ref4) {
+                var cancelled = _ref4.cancelled;
                 return cancelled ? _errors2.default.CANCEL : _errors2.default.READ;
             });
         }
@@ -280,15 +290,15 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                 }
 
                 var items = result.data.result.availability_timelines.map(function (tl) {
-                    return tl.timeline.filter(function (_ref4) {
-                        var _ref5 = _slicedToArray(_ref4, 2),
-                            state = _ref5[1];
+                    return tl.timeline.filter(function (_ref5) {
+                        var _ref6 = _slicedToArray(_ref5, 2),
+                            state = _ref6[1];
 
                         return query.showAnnotations.includes(state);
-                    }).map(function (_ref6) {
-                        var _ref7 = _slicedToArray(_ref6, 2),
-                            item = _ref7[0],
-                            state = _ref7[1];
+                    }).map(function (_ref7) {
+                        var _ref8 = _slicedToArray(_ref7, 2),
+                            item = _ref8[0],
+                            state = _ref8[1];
 
                         return Object.assign(item, { state: state });
                     });
@@ -338,8 +348,12 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
         }
     }, {
         key: 'metricFindQuery',
-        value: function metricFindQuery() {
-            throw new Error('Template Variable Support not implemented.');
+        value: function metricFindQuery(query) {
+            if (query == 'host') {
+                return this.hostsQuery({ site: '' });
+            }
+
+            return [{ 'text': query, 'value': query }];
         }
     }, {
         key: 'sitesQuery',
@@ -349,10 +363,10 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
             return this.doRequest({
                 params: { action: 'get_user_sites' }
             }).then(_request.getResult).then(function (result) {
-                return result.map(function (_ref8) {
-                    var _ref9 = _slicedToArray(_ref8, 2),
-                        value = _ref9[0],
-                        text = _ref9[1];
+                return result.map(function (_ref9) {
+                    var _ref10 = _slicedToArray(_ref9, 2),
+                        value = _ref10[0],
+                        text = _ref10[1];
 
                     return { text: text, value: value };
                 }).sort(_sort.sortByText);
@@ -416,9 +430,9 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
         key: 'filterGroupQuery',
         value: function filterGroupQuery() {
             return this.doRequest({ params: { action: 'get_hosttags' } }).then(_request.getResult).then(function (result) {
-                return result.tag_groups.map(function (_ref10) {
-                    var id = _ref10.id,
-                        title = _ref10.title;
+                return result.tag_groups.map(function (_ref11) {
+                    var id = _ref11.id,
+                        title = _ref11.title;
                     return { text: title, value: id };
                 }).sort(_sort.sortByText);
             });
@@ -430,12 +444,12 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                 return Promise.resolve([]);
             }
             return this.doRequest({ params: { action: 'get_hosttags' } }).then(_request.getResult).then(function (result) {
-                return result.tag_groups.find(function (_ref11) {
-                    var id = _ref11.id;
+                return result.tag_groups.find(function (_ref12) {
+                    var id = _ref12.id;
                     return id === query['filter' + index + 'group'];
-                }).tags.map(function (_ref12) {
-                    var id = _ref12.id,
-                        title = _ref12.title;
+                }).tags.map(function (_ref13) {
+                    var id = _ref13.id,
+                        title = _ref13.title;
                     return { text: title, value: id };
                 }).sort(_sort.sortByText);
             });
@@ -505,9 +519,9 @@ var CheckmkDatasource = exports.CheckmkDatasource = function () {
                     return [{ text: 'no graphs available', value: '-' }];
                 }
 
-                return response.data.result.map(function (_ref13) {
-                    var title = _ref13.title,
-                        identification = _ref13.identification;
+                return response.data.result.map(function (_ref14) {
+                    var title = _ref14.title,
+                        identification = _ref14.identification;
                     return { text: title, value: identification[1].graph_template };
                 }).sort(_sort.sortByText);
             });

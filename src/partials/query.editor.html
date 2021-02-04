@@ -53,14 +53,8 @@
         <span ng-show="ctrl.target.mode === 'combined'">*</span>
       </label>
 
-      <div ng-show="!ctrl.target.usehostregex" class="gf-form-select-wrapper width-15">
-        <gf-form-dropdown model="ctrl.target.host"
-            placeholder="use select host"
-            id="dropdown-host"
-            lookup-text="true"
-            get-options="ctrl.getHostOptions()"
-            on-change="ctrl.onHostChange()">
-        </gf-form-dropdown>
+      <div ng-show="!ctrl.target.usehostregex" class="gf-form-inline width-15">
+        <input type="text" ng-model="ctrl.target.host" id="dropdown-host">
       </div>
 
       <input ng-show="ctrl.target.usehostregex" type="text" class="gf-form-input width-15" ng-model="ctrl.target.hostregex" ng-change="ctrl.onHostRegexChange()" ng-model-onblur />
