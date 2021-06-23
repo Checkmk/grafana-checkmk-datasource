@@ -2,7 +2,8 @@
 This is a Grafana datasource for Checkmk metrics.
 
 ## Requirements
-Minimal Checkmk Version is `1.6.0p2`. The Grafana datsource requires the Checkmk Enterprise Edition or Checkmk Managed Services Edition.
+Minimal Checkmk Version of the Checkmk Enterprise Edition or Checkmk Managed Services Edition is `1.6.0p2`. 
+Minimal Checkmk Version of the Checkmk Raw Edition is `2.0.0`. 
 
 ## Plugin Configuration
 #### URL:
