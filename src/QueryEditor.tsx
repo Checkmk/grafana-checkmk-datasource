@@ -20,7 +20,7 @@ type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [], hostnames: [], services: [] };
+    this.state = { sites: [], hostnames: [], services: [], graphs: [] };
   }
 
   async componentDidMount() {
@@ -28,7 +28,19 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       .sitesQuery()
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery('');
-    this.setState({ sites, hostnames });
+    const { query } = this.props;
+    if (query.params.hostname && query.params.service) {
+      this.setState({
+        sites: sites,
+        hostnames: hostnames,
+        services: await this.props.datasource.servicesQuery({...query,
+          params: { hostname: query.params.hostname, site_id: query.params.site_id || '' },
+        }),
+        graphs: await this.props.datasource.graphsListQuery(query),
+      });
+    } else {
+      this.setState({ sites, hostnames });
+    }
   }
 
   onQueryTextChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -104,7 +116,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
           width={32}
           options={this.state.services}
           onChange={this.onServiceChange}
-          value={params.service || ''}
+          value={params.service}
           placeholder="Select service"
         />
         <br />
@@ -112,7 +124,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
           width={32}
           options={this.state.graphs}
           onChange={this.onGraphChange}
-          value={params.service || ''}
+          value={params.graph_index}
           placeholder="Select graph"
         />
         <br />
