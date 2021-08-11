@@ -19,8 +19,7 @@ const error = (message: string) => ({
   message,
 });
 
-const buildUrlWithParams = (url: string, params: any) =>
-  url + Object.keys(params).reduce((string, param) => `${string}${string ? '&' : '?'}${param}=${params[param]}`, '');
+const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
 
 const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
@@ -63,26 +62,54 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  sitesQuery(): Promise<Array<SelectableValue<string>>> {
-    return this.doRequest({ refId: 'query_editor', params: { action: 'get_user_sites' } })
-      .then((response) => response.data.result)
-      .then((result) => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
+  async sitesQuery(): Promise<Array<SelectableValue<string>>> {
+    const response = await this.doRequest({ refId: 'query_editor', params: { action: 'get_user_sites' } });
+    const result = response.data.result;
+    return result.map(([value, text]: [string, string]) => ({ label: text, value: value }));
   }
 
-  hostsQuery(site: string): Promise<Array<SelectableValue<string>>> {
-    return this.doRequest({ refId: 'query_editor', params: { site_id: site, action: 'get_host_names' } })
-      .then((response) => response.data.result.sort())
-      .then((result) => result.map((hostname: string) => ({ label: hostname, value: hostname })));
+  async hostsQuery(site: string): Promise<Array<SelectableValue<string>>> {
+    const response = await this.doRequest({
+      refId: 'query_editor',
+      params: { site_id: site, action: 'get_host_names' },
+    });
+    const result = response.data.result.sort();
+    return result.map((hostname: string) => ({ label: hostname, value: hostname }));
   }
 
-  servicesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    return this.doRequest({ refId: 'query_editor', params: { ...query.params, action: 'get_metrics_of_host' } })
-      .then((response) =>
-        Object.keys(response.data.result)
-          .filter((key) => !isEmpty(response.data.result[key].metrics))
-          .sort()
-      )
-      .then((result) => result.map((service: string) => ({ label: service, value: service })));
+  async servicesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+    const response = await this.doRequest({
+      refId: 'query_editor',
+      params: { ...query.params, action: 'get_metrics_of_host' },
+    });
+    const result = Object.keys(response.data.result)
+      .filter((key) => !isEmpty(response.data.result[key].metrics))
+      .sort();
+    return result.map((service: string) => ({ label: service, value: service }));
+  }
+
+  async graphRecipesQuery(query: MyQuery): Promise<Array<any>> {
+    const template = buildRequestBody({
+      specification: [
+        'template',
+        {
+          site: query.params.siteId || '',
+          host_name: query.params.hostname,
+          service_description: query.params.service,
+        },
+      ],
+    });
+    const response = await this.doRequest({
+      refId: 'query_editor',
+      params: { action: 'get_graph_recipes' },
+      data: template,
+    });
+    return response.data.result;
+  }
+
+  async graphsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
+    const result = await this.graphRecipesQuery(query);
+    return result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {
@@ -97,7 +124,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           site: query.params.siteId || '',
           host_name: query.params.hostname,
           service_description: query.params.service,
-          graph_index: 0,
+          graph_index: query.params.graph_index,
         },
       ],
       data_range: {

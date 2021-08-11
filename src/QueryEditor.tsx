@@ -12,6 +12,7 @@ export interface QueryData {
   sites: Array<SelectableValue<string>>;
   hostnames: Array<SelectableValue<string>>;
   services: Array<SelectableValue<string>>;
+  graphs: Array<SelectableValue<number>>;
 }
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
@@ -55,8 +56,19 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
   };
 
   onServiceChange = async ({ value }: SelectableValue<string>) => {
+    const { onChange, query } = this.props;
+    const new_query = { ...query, params: { ...query.params, service: value } };
+    onChange(new_query);
+    const state: any = {
+      graphs: await this.props.datasource.graphsListQuery(new_query),
+    };
+    this.setState(state);
+  };
+
+  onGraphChange = async ({ value }: SelectableValue<number>) => {
     const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, params: { ...query.params, service: value } });
+    const new_query = { ...query, params: { ...query.params, graph_index: value } };
+    onChange(new_query);
     onRunQuery();
   };
 
@@ -94,6 +106,14 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
           onChange={this.onServiceChange}
           value={params.service || ''}
           placeholder="Select service"
+        />
+        <br />
+        <Select
+          width={32}
+          options={this.state.graphs}
+          onChange={this.onGraphChange}
+          value={params.service || ''}
+          placeholder="Select graph"
         />
         <br />
         <FormField
