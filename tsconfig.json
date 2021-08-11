@@ -4,6 +4,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "baseUrl": "./src",
+    "target": "es6",
     "typeRoots": ["./node_modules/@types"]
   }
 }

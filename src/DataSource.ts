@@ -56,36 +56,36 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const to = range!.to.unix();
     const datasource = this; // defined to be reachable on the next closure
 
-    const promises = options.targets.map(target => {
+    const promises = options.targets.map((target) => {
       const query = defaults(target, defaultQuery);
       return datasource.getGraphQuery([from, to], query);
     });
-    return Promise.all(promises).then(data => ({ data }));
+    return Promise.all(promises).then((data) => ({ data }));
   }
 
   sitesQuery(): Promise<Array<SelectableValue<string>>> {
     return this.doRequest({ refId: 'query_editor', params: { action: 'get_user_sites' } })
-      .then(response => response.data.result)
-      .then(result => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
+      .then((response) => response.data.result)
+      .then((result) => result.map(([value, text]: [string, string]) => ({ label: text, value: value })));
   }
 
   hostsQuery(site: string): Promise<Array<SelectableValue<string>>> {
     return this.doRequest({ refId: 'query_editor', params: { site_id: site, action: 'get_host_names' } })
-      .then(response => response.data.result.sort())
-      .then(result => result.map((hostname: string) => ({ label: hostname, value: hostname })));
+      .then((response) => response.data.result.sort())
+      .then((result) => result.map((hostname: string) => ({ label: hostname, value: hostname })));
   }
 
   servicesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
     return this.doRequest({ refId: 'query_editor', params: { ...query.params, action: 'get_metrics_of_host' } })
-      .then(response =>
+      .then((response) =>
         Object.keys(response.data.result)
-          .filter(key => !isEmpty(response.data.result[key].metrics))
+          .filter((key) => !isEmpty(response.data.result[key].metrics))
           .sort()
       )
-      .then(result => result.map((service: string) => ({ label: service, value: service })));
+      .then((result) => result.map((service: string) => ({ label: service, value: service })));
   }
 
-  getGraphQuery(range: number[], query: MyQuery) {
+  async getGraphQuery(range: number[], query: MyQuery) {
     if (!query.params.hostname) {
       return Promise.resolve([]);
     }
@@ -104,13 +104,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
         time_range: range,
       },
     });
-    return this.doRequest({ ...query, params: { action: 'get_graph' }, data: recipe }).then(response =>
-      buildMetricDataFrame(response, query)
-    );
+    const response = await this.doRequest({ ...query, params: { action: 'get_graph' }, data: recipe });
+    return buildMetricDataFrame(response, query);
   }
 
   async testDatasource() {
-    return this.doRequest({ params: { action: 'get_host_names' }, refId: 'testDatasource' }).then(response => {
+    return this.doRequest({ params: { action: 'get_host_names' }, refId: 'testDatasource' }).then((response) => {
       if (response.status !== 200) {
         return error('Could not connect to provided URL');
       } else if (!response.data.result) {

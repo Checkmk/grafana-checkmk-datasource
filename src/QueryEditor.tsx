@@ -23,7 +23,9 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
   }
 
   async componentDidMount() {
-    const sites = await this.props.datasource.sitesQuery().then(sites => [{ label: 'All Sites', value: '' }, ...sites]);
+    const sites = await this.props.datasource
+      .sitesQuery()
+      .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery('');
     this.setState({ sites, hostnames });
   }

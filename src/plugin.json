@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
   "name": "grafana-checkmk-datasource",
   "id": "tribe-29-grafana-checkmk-datasource",
@@ -14,13 +15,14 @@
       "small": "img/checkmk_logo.png",
       "large": "img/checkmk_logo.png"
     },
-    "links": [{ "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" }],
+    "links": [{ "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" },
+              { "name": "checkmk", "url": "https://checkmk.com" }],
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
   "dependencies": {
-    "grafanaVersion": "6.5.x",
+    "grafanaDependency": ">=7.0.0",
     "plugins": []
   },
   "routes": [
