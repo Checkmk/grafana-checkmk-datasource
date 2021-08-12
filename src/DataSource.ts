@@ -62,26 +62,20 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async sitesQuery(): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({ refId: 'query_editor', params: { action: 'get_user_sites' } });
+  async sitesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+    const response = await this.doRequest({ refId: query.refId, params: { action: 'get_user_sites' } });
     const result = response.data.result;
     return result.map(([value, text]: [string, string]) => ({ label: text, value: value }));
   }
 
-  async hostsQuery(site: string): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({
-      refId: 'query_editor',
-      params: { site_id: site, action: 'get_host_names' },
-    });
+  async hostsQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+    const response = await this.doRequest(query);
     const result = response.data.result.sort();
     return result.map((hostname: string) => ({ label: hostname, value: hostname }));
   }
 
   async servicesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({
-      refId: 'query_editor',
-      params: { ...query.params, action: 'get_metrics_of_host' },
-    });
+    const response = await this.doRequest(query);
     const result = Object.keys(response.data.result)
       .filter((key) => !isEmpty(response.data.result[key].metrics))
       .sort();
@@ -93,14 +87,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       specification: [
         'template',
         {
-          site: query.params.siteId || '',
+          site: query.params.site_id || '',
           host_name: query.params.hostname,
           service_description: query.params.service,
         },
       ],
     });
     const response = await this.doRequest({
-      refId: 'query_editor',
+      refId: query.refId,
       params: { action: 'get_graph_recipes' },
       data: template,
     });
@@ -121,7 +115,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       specification: [
         'template',
         {
-          site: query.params.siteId || '',
+          site: query.params.site_id || '',
           host_name: query.params.hostname,
           service_description: query.params.service,
           graph_index: query.params.graph_index,
