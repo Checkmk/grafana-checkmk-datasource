@@ -101,6 +101,15 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return response.data.result;
   }
 
+  async metricsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
+    const response = await this.doRequest(query);
+    return Object.values(response.data.result)
+      .map(({ metrics }) =>
+        Object.entries(metrics).map(([metric_id, { name, title }]) => ({ label: title, value: name }))
+      )
+      .flat();
+  }
+
   async graphsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
     const result = await this.graphRecipesQuery(query);
     return result.map((graph: any, index: number) => ({ label: graph.title, value: index }));

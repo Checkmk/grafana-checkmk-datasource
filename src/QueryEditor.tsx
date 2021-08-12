@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
 import React, { PureComponent } from 'react';
-import { InlineField, Select } from '@grafana/ui';
+import { InlineFieldRow, InlineField, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
@@ -10,6 +10,7 @@ export interface QueryData {
   sites: Array<SelectableValue<string>>;
   hostnames: Array<SelectableValue<string>>;
   services: Array<SelectableValue<string>>;
+  metrics: Array<SelectableValue<string>>;
   graphs: Array<SelectableValue<number>>;
 }
 
@@ -53,6 +54,12 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     }
   }
 
+  onModeChange = async ({ value }: SelectableValue<string>) => {
+    const { onChange, query } = this.props;
+    if (value === query.graphMode) return;
+    onChange({ refId: query.refId, graphMode: value, params: { site_id: query.params.site_id } });
+  };
+
   onSiteIdChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
     const clean_query = prepareHostsQuery(query, value || '');
@@ -83,10 +90,18 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     let new_query = { ...query, params: { ...query.params, service: value } };
     delete new_query.params.graph_index;
     onChange(new_query);
-    const state: any = {
-      ...this.state,
-      graphs: await this.props.datasource.graphsListQuery(new_query),
-    };
+    let state ={};
+    if (query.graphMode === 'graph') {
+      state = {
+        ...this.state,
+        graphs: await this.props.datasource.graphsListQuery(new_query),
+      };
+    } else {
+      state = {
+        ...this.state,
+        metrics: await this.props.datasource.metricsListQuery(new_query),
+      };
+    }
     this.setState(state);
   };
 
@@ -101,45 +116,79 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     const query = defaults(this.props.query, defaultQuery);
     const { params } = query;
     const clear = (value: any) => (value === undefined ? null : value);
+    const graph_modes = [
+      { label: 'Service graph', value: 'graph' },
+      { label: 'Single metric', value: 'metric' },
+      { label: 'Combined graph', value: 'combined' },
+    ];
 
     return (
       <div className="gf-form-group">
-        <InlineField labelWidth={14} label="Site">
-          <Select
-            width={32}
-            options={this.state.sites}
-            onChange={this.onSiteIdChange}
-            value={params.site_id}
-            placeholder="Select Site"
-          />
-        </InlineField>
-        <InlineField labelWidth={14} label="Host">
-          <Select
-            width={32}
-            options={this.state.hostnames}
-            onChange={this.onHostnameChange}
-            value={clear(params.hostname)}
-            placeholder="Select Host"
-          />
-        </InlineField>
-        <InlineField labelWidth={14} label="Service">
-          <Select
-            width={32}
-            options={this.state.services}
-            onChange={this.onServiceChange}
-            value={clear(params.service)}
-            placeholder="Select service"
-          />
-        </InlineField>
-        <InlineField labelWidth={14} label="Graph">
-          <Select
-            width={32}
-            options={this.state.graphs}
-            onChange={this.onGraphChange}
-            value={clear(params.graph_index)}
-            placeholder="Select graph"
-          />
-        </InlineField>
+        <InlineFieldRow>
+          <InlineField labelWidth={14} label="Mode">
+            <Select
+              width={32}
+              options={graph_modes}
+              onChange={this.onModeChange}
+              value={query.graphMode}
+              placeholder="Select Site"
+            />
+          </InlineField>
+          <InlineField labelWidth={14} label="Site">
+            <Select
+              width={32}
+              options={this.state.sites}
+              onChange={this.onSiteIdChange}
+              value={params.site_id}
+              placeholder="Select Site"
+            />
+          </InlineField>
+        </InlineFieldRow>
+
+        {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
+          <InlineFieldRow>
+            <InlineField labelWidth={14} label="Host">
+              <Select
+                width={32}
+                options={this.state.hostnames}
+                onChange={this.onHostnameChange}
+                value={clear(params.hostname)}
+                placeholder="Select Host"
+              />
+            </InlineField>
+            <InlineField labelWidth={14} label="Service">
+              <Select
+                width={32}
+                options={this.state.services}
+                onChange={this.onServiceChange}
+                value={clear(params.service)}
+                placeholder="Select service"
+              />
+            </InlineField>
+            {query.graphMode === 'graph' && (
+              <InlineField labelWidth={14} label="Graph">
+                <Select
+                  width={32}
+                  options={this.state.graphs}
+                  onChange={this.onGraphChange}
+                  value={clear(params.graph_index)}
+                  placeholder="Select graph"
+                />
+              </InlineField>
+            )}
+            {query.graphMode === 'metric' && (
+              <InlineField labelWidth={14} label="Metric">
+                <Select
+                  width={32}
+                  options={this.state.metrics}
+                  onChange={this.onGraphChange}
+                  value={clear(params.metric)}
+                  placeholder="Select Metric"
+                />
+              </InlineField>
+            )}
+          </InlineFieldRow>
+        )}
       </div>
     );
   }
