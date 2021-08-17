@@ -33,7 +33,7 @@ function prepareSevicesQuery(query: MyQuery, hostname: string) {
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [], hostnames: [], services: [], graphs: [] };
+    this.state = { sites: [], hostnames: [], services: [], graphs: [] , metrics: []};
   }
 
   async componentDidMount() {
@@ -43,11 +43,16 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
     if (query.params.hostname && query.params.service) {
-      this.setState({
+      const config={
         sites: sites,
         hostnames: hostnames,
-        services: await this.props.datasource.servicesQuery(prepareSevicesQuery(query, query.params.hostname)),
-        graphs: await this.props.datasource.graphsListQuery(query),
+        services: await this.props.datasource.servicesQuery(prepareSevicesQuery(query, query.params.hostname))}
+      if (query.graphMode==="graph")
+        this.setState({...config,
+                       graphs: await this.props.datasource.graphsListQuery(query)})
+      if (query.graphMode==="metric")
+        this.setState({...config,
+                       metrics: await this.props.datasource.metricsListQuery(query),
       });
     } else {
       this.setState({ sites, hostnames });
@@ -108,6 +113,13 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
   onGraphChange = async ({ value }: SelectableValue<number>) => {
     const { onChange, query, onRunQuery } = this.props;
     const new_query = { ...query, params: { ...query.params, graph_index: value } };
+    onChange(new_query);
+    onRunQuery();
+  };
+
+  onMetricChange = async ({ value }: SelectableValue<string>) => {
+    const { onChange, query, onRunQuery } = this.props;
+    const new_query = { ...query, params: { ...query.params, metric: value } };
     onChange(new_query);
     onRunQuery();
   };
@@ -181,7 +193,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
                 <Select
                   width={32}
                   options={this.state.metrics}
-                  onChange={this.onGraphChange}
+                  onChange={this.onMetricChange}
                   value={clear(params.metric)}
                   placeholder="Select Metric"
                 />

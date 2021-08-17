@@ -101,8 +101,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return response.data.result;
   }
 
-  async metricsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
-    const response = await this.doRequest(query);
+  async metricsListQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+    const { metric, ...params } = query.params;
+    const lean_query = { ...query, params: params };
+    const response = await this.doRequest(lean_query);
     return Object.values(response.data.result)
       .map(({ metrics }) =>
         Object.entries(metrics).map(([metric_id, { name, title }]) => ({ label: title, value: name }))
@@ -119,21 +121,38 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (!query.params.hostname) {
       return Promise.resolve([]);
     }
-
-    const recipe = buildRequestBody({
-      specification: [
-        'template',
-        {
-          site: query.params.site_id || '',
-          host_name: query.params.hostname,
-          service_description: query.params.service,
-          graph_index: query.params.graph_index,
+    let recipe = '';
+    if (query.graphMode === 'graph')
+      recipe = buildRequestBody({
+        specification: [
+          'template',
+          {
+            site: query.params.site_id || '',
+            host_name: query.params.hostname,
+            service_description: query.params.service,
+            graph_index: query.params.graph_index,
+          },
+        ],
+        data_range: {
+          time_range: range,
         },
-      ],
-      data_range: {
-        time_range: range,
-      },
-    });
+      });
+    if (query.graphMode === 'metric')
+      recipe = buildRequestBody({
+        specification: [
+          'single_timeseries',
+          {
+            site: query.params.site_id || '',
+            host: query.params.hostname,
+            service: query.params.service,
+            metric: query.params.metric,
+          },
+        ],
+        data_range: {
+          time_range: range,
+        },
+      });
+
     const response = await this.doRequest({ ...query, params: { action: 'get_graph' }, data: recipe });
     return buildMetricDataFrame(response, query);
   }
@@ -169,7 +188,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             )
           : error('Could not read API response, make sure the URL you provided is correct.')
       );
-
-    return result;
+    if (result.data.result_code !== 0) {
+      return error('fail');
+    } else {
+      return result;
+    }
   }
 }
