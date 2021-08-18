@@ -1,7 +1,7 @@
 import defaults from 'lodash/defaults';
 
-import React, { PureComponent } from 'react';
-import { InlineFieldRow, InlineField, Select } from '@grafana/ui';
+import React, { ChangeEvent, PureComponent } from 'react';
+import { InlineFieldRow, InlineField, Select, Input } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
@@ -33,7 +33,7 @@ function prepareSevicesQuery(query: MyQuery, hostname: string) {
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [], hostnames: [], services: [], graphs: [] , metrics: []};
+    this.state = { sites: [], hostnames: [], services: [], graphs: [], metrics: [] };
   }
 
   async componentDidMount() {
@@ -43,17 +43,15 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
     if (query.params.hostname && query.params.service) {
-      const config={
+      const config = {
         sites: sites,
         hostnames: hostnames,
-        services: await this.props.datasource.servicesQuery(prepareSevicesQuery(query, query.params.hostname))}
-      if (query.graphMode==="graph")
-        this.setState({...config,
-                       graphs: await this.props.datasource.graphsListQuery(query)})
-      if (query.graphMode==="metric")
-        this.setState({...config,
-                       metrics: await this.props.datasource.metricsListQuery(query),
-      });
+        services: await this.props.datasource.servicesQuery(prepareSevicesQuery(query, query.params.hostname)),
+      };
+      if (query.graphMode === 'graph')
+        this.setState({ ...config, graphs: await this.props.datasource.graphsListQuery(query) });
+      if (query.graphMode === 'metric')
+        this.setState({ ...config, metrics: await this.props.datasource.metricsListQuery(query) });
     } else {
       this.setState({ sites, hostnames });
     }
@@ -95,7 +93,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     let new_query = { ...query, params: { ...query.params, service: value } };
     delete new_query.params.graph_index;
     onChange(new_query);
-    let state ={};
+    let state = {};
     if (query.graphMode === 'graph') {
       state = {
         ...this.state,
@@ -124,6 +122,32 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     onRunQuery();
   };
 
+  onQueryhostChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = this.props;
+    onChange({ ...query, params: { ...query.params, hostname: event.target.value } });
+  };
+  onQuerysvcChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = this.props;
+    onChange({ ...query, params: { ...query.params, service: event.target.value } });
+    const state: any = { ...this.state, graphs: await this.props.datasource.graphsListQuery(query) };
+    console.log(state);
+    this.setState(state);
+  };
+  onPresentationChange = async ({ value }: SelectableValue<string>) => {
+    const { onChange, query } = this.props;
+    if (value === query.params.presentation) return;
+    const state: any = { ...this.state, graphs: await this.props.datasource.graphsListQuery(query) };
+    console.log(state);
+    onChange({ ...query, params: { ...query.params, presentation: value } });
+  };
+  onCombinedGraphChange = async ({ value }: SelectableValue<number>) => {
+    const { onChange, query, onRunQuery } = this.props;
+    const new_query = { ...query, params: { ...query.params, graph_name: value } };
+    onChange(new_query);
+    console.log('comb query', new_query);
+    onRunQuery();
+  };
+
   render() {
     const query = defaults(this.props.query, defaultQuery);
     const { params } = query;
@@ -132,6 +156,14 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       { label: 'Service graph', value: 'graph' },
       { label: 'Single metric', value: 'metric' },
       { label: 'Combined graph', value: 'combined' },
+    ];
+    const combined_presentations = [
+      { value: 'lines', label: 'Lines' },
+      { value: 'stacked', label: 'Stacked' },
+      { value: 'sum', label: 'Sum' },
+      { value: 'average', label: 'Average' },
+      { value: 'min', label: 'Minimum' },
+      { value: 'max', label: 'Maximum' },
     ];
 
     return (
@@ -143,7 +175,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
               options={graph_modes}
               onChange={this.onModeChange}
               value={query.graphMode}
-              placeholder="Select Site"
+              placeholder="Select Graph"
             />
           </InlineField>
           <InlineField labelWidth={14} label="Site">
@@ -151,7 +183,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
               width={32}
               options={this.state.sites}
               onChange={this.onSiteIdChange}
-              value={params.site_id}
+              value={params.site_id || ''}
               placeholder="Select Site"
             />
           </InlineField>
@@ -199,6 +231,46 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
                 />
               </InlineField>
             )}
+          </InlineFieldRow>
+        )}
+        {query.graphMode === 'combined' && (
+          <InlineFieldRow>
+            <InlineField label="Hostname regex" labelWidth={14}>
+              <Input
+                width={32}
+                type="text"
+                value={params.hostname || ''}
+                onChange={this.onQueryhostChange}
+                placeholder="none"
+              />
+            </InlineField>
+            <InlineField label="Service description regex" labelWidth={20}>
+              <Input
+                width={32}
+                type="text"
+                value={params.service || ''}
+                onChange={this.onQuerysvcChange}
+                placeholder="none"
+              />
+            </InlineField>
+            <InlineField label="Aggregation" labelWidth={14}>
+              <Select
+                width={32}
+                options={combined_presentations}
+                onChange={this.onPresentationChange}
+                value={query.params.presentation}
+                placeholder="Aggregation"
+              />
+            </InlineField>
+            <InlineField labelWidth={14} label="Graph">
+              <Select
+                width={32}
+                options={this.state.graphs}
+                onChange={this.onCombinedGraphChange}
+                value={clear(params.graph_name)}
+                placeholder="Select graph"
+              />
+            </InlineField>
           </InlineFieldRow>
         )}
       </div>

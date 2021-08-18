@@ -101,6 +101,26 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return response.data.result;
   }
 
+  async combinedGraphident(query: MyQuery): Promise<Array<any>> {
+    const { params } = query;
+    const data = buildRequestBody({
+      context: {
+        siteopt: { site: params.site_id },
+        hostregex: { host_regex: params.hostname },
+        serviceregex: { service_regex: params.service },
+      },
+      datasource: 'services',
+      presentation: query.params.presentation,
+      single_infos: ['host'],
+    });
+    console.log('data', data);
+    const response = await this.doRequest({
+      refId: query.refId,
+      params: { action: 'get_combined_graph_identifications' },
+      data: data,
+    });
+    return response.data.result;
+  }
   async metricsListQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
     const { metric, ...params } = query.params;
     const lean_query = { ...query, params: params };
@@ -113,7 +133,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async graphsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
-    const result = await this.graphRecipesQuery(query);
+    let result = [];
+    if (query.graphMode === 'combined') {
+      result = await this.combinedGraphident(query);
+      return result.map(({ title, identification }) => ({ label: title, value: identification[1].graph_template }));
+    }
+
+    result = await this.graphRecipesQuery(query);
     return result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
   }
 
@@ -146,6 +172,27 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             host: query.params.hostname,
             service: query.params.service,
             metric: query.params.metric,
+          },
+        ],
+        data_range: {
+          time_range: range,
+        },
+      });
+    const { params } = query;
+    if (query.graphMode === 'combined')
+      recipe = buildRequestBody({
+        specification: [
+          'combined',
+          {
+            context: {
+              siteopt: { site: params.site_id },
+              hostregex: { host_regex: params.hostname },
+              serviceregex: { service_regex: params.service },
+            },
+            datasource: 'services',
+            presentation: params.presentation,
+            graph_template: params.graph_name,
+            single_infos: ['host'],
           },
         ],
         data_range: {
