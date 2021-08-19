@@ -19,8 +19,11 @@ interface MetricInfo {
   name: string;
   title: string;
 }
+interface Metrics {
+  [key: string]: MetricInfo;
+}
 interface ServiceInfo {
-  metrics: MetricInfo;
+  metrics: Metrics;
   check_command: string;
 }
 
@@ -57,7 +60,7 @@ function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service:
   const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);
 
   return current_metrics
-    ? Object.values(current_metrics[1].metrics).map(({ name, title }: { name: string; title: string }) => ({
+    ? Object.values(current_metrics[1].metrics).map(({ name, title }) => ({
         label: title,
         value: name,
       }))
