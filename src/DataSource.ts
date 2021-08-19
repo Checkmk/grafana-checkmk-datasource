@@ -11,6 +11,7 @@ import {
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
+import { buildRequestBody, graphSpecification } from './graphspecs';
 import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
 
 const error = (message: string) => ({
@@ -20,8 +21,6 @@ const error = (message: string) => ({
 });
 
 const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
-
-const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
 function buildMetricDataFrame(response: any, query: MyQuery) {
   if (response.data.result_code !== 0) {
@@ -110,7 +109,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       presentation: query.params.presentation,
       single_infos: ['host'],
     });
-    console.log('data', data);
     const response = await this.doRequest({
       refId: query.refId,
       params: { action: 'get_combined_graph_identifications' },
@@ -134,63 +132,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (!query.params.hostname) {
       return Promise.resolve([]);
     }
-    let recipe = '';
-    if (query.graphMode === 'graph') {
-      recipe = buildRequestBody({
-        specification: [
-          'template',
-          {
-            site: query.params.site_id || '',
-            host_name: query.params.hostname,
-            service_description: query.params.service,
-            graph_index: query.params.graph_index,
-          },
-        ],
-        data_range: {
-          time_range: range,
-        },
-      });
-    }
-    if (query.graphMode === 'metric') {
-      recipe = buildRequestBody({
-        specification: [
-          'single_timeseries',
-          {
-            site: query.params.site_id || '',
-            host: query.params.hostname,
-            service: query.params.service,
-            metric: query.params.metric,
-          },
-        ],
-        data_range: {
-          time_range: range,
-        },
-      });
-    }
-    const { params } = query;
-    if (query.graphMode === 'combined') {
-      recipe = buildRequestBody({
-        specification: [
-          'combined',
-          {
-            context: {
-              siteopt: { site: params.site_id },
-              hostregex: { host_regex: params.hostname },
-              serviceregex: { service_regex: params.service },
-            },
-            datasource: 'services',
-            presentation: params.presentation,
-            graph_template: params.graph_name,
-            single_infos: ['host'],
-          },
-        ],
-        data_range: {
-          time_range: range,
-        },
-      });
-    }
 
-    const response = await this.doRequest({ ...query, params: { action: 'get_graph' }, data: recipe });
+    const response = await this.doRequest({
+      ...query,
+      params: { action: 'get_graph' },
+      data: graphSpecification(query, range),
+    });
     return buildMetricDataFrame(response, query);
   }
 
@@ -226,7 +173,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           : error('Could not read API response, make sure the URL you provided is correct.')
       );
     if (result.data.result_code !== 0) {
-      return error('fail');
+      throw new Error(`${result.data.result}`);
     } else {
       return result;
     }
