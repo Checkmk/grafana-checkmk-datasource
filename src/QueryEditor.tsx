@@ -10,6 +10,7 @@ export interface QueryData {
   sites: Array<SelectableValue<string>>;
   hostnames: Array<SelectableValue<string>>;
   services: Array<SelectableValue<string>>;
+  allmetrics: Array<[string, any]>;
   metrics: Array<SelectableValue<string>>;
   graphs: Array<SelectableValue<number>>;
 }
@@ -30,10 +31,34 @@ function prepareSevicesQuery(query: MyQuery, hostname: string) {
   };
 }
 
+async function allServiceMetrics(query: MyQuery, datasource: DataSource) {
+  const all_service_metrics = await datasource.metricsOfHostQuery(query);
+  const available_services = all_service_metrics.sort().map(([service]) => ({
+    label: service,
+    value: service,
+  }));
+
+  return {
+    services: available_services,
+    allmetrics: all_service_metrics,
+  };
+}
+
+function pickMetrics(all_service_metrics: Array<[string, any]>, service: string) {
+  const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);
+
+  return current_metrics
+    ? Object.values(current_metrics[1].metrics).map(({ name, title }: { name: string; title: string }) => ({
+        label: title,
+        value: name,
+      }))
+    : [];
+}
+
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [], hostnames: [], services: [], graphs: [], metrics: [] };
+    this.state = { sites: [], hostnames: [], services: [], graphs: [], metrics: [], allmetrics: [] };
   }
 
   async componentDidMount() {
@@ -43,15 +68,22 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
     if (query.params.hostname && query.params.service) {
+      const all_service_metrics = await allServiceMetrics(
+        prepareSevicesQuery(query, query.params.hostname),
+        this.props.datasource
+      );
+
       const config = {
+        ...all_service_metrics,
         sites: sites,
         hostnames: hostnames,
-        services: await this.props.datasource.servicesQuery(prepareSevicesQuery(query, query.params.hostname)),
       };
       if (query.graphMode === 'graph')
         this.setState({ ...config, graphs: await this.props.datasource.graphsListQuery(query) });
-      if (query.graphMode === 'metric')
-        this.setState({ ...config, metrics: await this.props.datasource.metricsListQuery(query) });
+      else if (query.graphMode === 'metric') {
+        const select_metrics = pickMetrics(all_service_metrics.allmetrics, query.params.service);
+        this.setState({ ...config, metrics: select_metrics });
+      }
     } else {
       this.setState({ sites, hostnames });
     }
@@ -80,9 +112,11 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     const { onChange, query } = this.props;
     const clean_query = prepareSevicesQuery(query, value || '');
     onChange(clean_query);
+
+    const all_service_metrics = await allServiceMetrics(clean_query, this.props.datasource);
     const state: any = {
       ...this.state,
-      services: await this.props.datasource.servicesQuery(clean_query),
+      ...all_service_metrics,
       graphs: [],
     };
     this.setState(state);
@@ -100,9 +134,10 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
         graphs: await this.props.datasource.graphsListQuery(new_query),
       };
     } else {
+      const select_metrics = pickMetrics(this.state.allmetrics, new_query.params.service);
       state = {
         ...this.state,
-        metrics: await this.props.datasource.metricsListQuery(new_query),
+        metrics: select_metrics,
       };
     }
     this.setState(state);

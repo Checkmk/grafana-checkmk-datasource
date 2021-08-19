@@ -1,4 +1,4 @@
-import { defaults, zip, isEmpty } from 'lodash';
+import { defaults, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -74,12 +74,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return result.map((hostname: string) => ({ label: hostname, value: hostname }));
   }
 
-  async servicesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
+  async metricsOfHostQuery(query: MyQuery): Promise<Array<[string, any]>> {
     const response = await this.doRequest(query);
-    const result = Object.keys(response.data.result)
-      .filter((key) => !isEmpty(response.data.result[key].metrics))
-      .sort();
-    return result.map((service: string) => ({ label: service, value: service }));
+    return Object.entries(response.data.result);
   }
 
   async graphRecipesQuery(query: MyQuery): Promise<Array<any>> {
@@ -120,16 +117,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       data: data,
     });
     return response.data.result;
-  }
-  async metricsListQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const { metric, ...params } = query.params;
-    const lean_query = { ...query, params: params };
-    const response = await this.doRequest(lean_query);
-    return Object.values(response.data.result)
-      .map(({ metrics }) =>
-        Object.entries(metrics).map(([metric_id, { name, title }]) => ({ label: title, value: name }))
-      )
-      .flat();
   }
 
   async graphsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
