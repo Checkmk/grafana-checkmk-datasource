@@ -15,6 +15,15 @@ export interface QueryData {
   graphs: Array<SelectableValue<number>>;
 }
 
+interface MetricInfo {
+  name: string;
+  title: string;
+}
+interface ServiceInfo {
+  metrics: MetricInfo;
+  check_command: string;
+}
+
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 function prepareHostsQuery(query: MyQuery, site: string) {
@@ -44,7 +53,7 @@ async function allServiceMetrics(query: MyQuery, datasource: DataSource) {
   };
 }
 
-function pickMetrics(all_service_metrics: Array<[string, any]>, service: string) {
+function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service: string) {
   const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);
 
   return current_metrics
@@ -78,9 +87,9 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
         sites: sites,
         hostnames: hostnames,
       };
-      if (query.graphMode === 'graph')
+      if (query.graphMode === 'graph') {
         this.setState({ ...config, graphs: await this.props.datasource.graphsListQuery(query) });
-      else if (query.graphMode === 'metric') {
+      } else if (query.graphMode === 'metric') {
         const select_metrics = pickMetrics(all_service_metrics.allmetrics, query.params.service);
         this.setState({ ...config, metrics: select_metrics });
       }
@@ -91,7 +100,9 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
 
   onModeChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
-    if (value === query.graphMode) return;
+    if (value === query.graphMode) {
+      return;
+    }
     onChange({ refId: query.refId, graphMode: value, params: { site_id: query.params.site_id } });
   };
 
@@ -170,7 +181,9 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
   };
   onPresentationChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
-    if (value === query.params.presentation) return;
+    if (value === query.params.presentation) {
+      return;
+    }
     const state: any = { ...this.state, graphs: await this.props.datasource.graphsListQuery(query) };
     console.log(state);
     onChange({ ...query, params: { ...query.params, presentation: value } });

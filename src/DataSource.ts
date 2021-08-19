@@ -79,7 +79,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Object.entries(response.data.result);
   }
 
-  async graphRecipesQuery(query: MyQuery): Promise<Array<any>> {
+  async graphRecipesQuery(query: MyQuery): Promise<any[]> {
     const template = buildRequestBody({
       specification: [
         'template',
@@ -98,7 +98,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return response.data.result;
   }
 
-  async combinedGraphident(query: MyQuery): Promise<Array<any>> {
+  async combinedGraphident(query: MyQuery): Promise<any[]> {
     const { params } = query;
     const data = buildRequestBody({
       context: {
@@ -135,7 +135,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       return Promise.resolve([]);
     }
     let recipe = '';
-    if (query.graphMode === 'graph')
+    if (query.graphMode === 'graph') {
       recipe = buildRequestBody({
         specification: [
           'template',
@@ -150,7 +150,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           time_range: range,
         },
       });
-    if (query.graphMode === 'metric')
+    }
+    if (query.graphMode === 'metric') {
       recipe = buildRequestBody({
         specification: [
           'single_timeseries',
@@ -165,8 +166,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           time_range: range,
         },
       });
+    }
     const { params } = query;
-    if (query.graphMode === 'combined')
+    if (query.graphMode === 'combined') {
       recipe = buildRequestBody({
         specification: [
           'combined',
@@ -186,6 +188,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           time_range: range,
         },
       });
+    }
 
     const response = await this.doRequest({ ...query, params: { action: 'get_graph' }, data: recipe });
     return buildMetricDataFrame(response, query);
