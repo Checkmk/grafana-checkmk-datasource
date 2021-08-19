@@ -1,13 +1,18 @@
-# Grafana Data Source Plugin Template
+# Checkmk Grafana Data Source Plugin 
 
-[![CircleCI](https://circleci.com/gh/grafana/simple-datasource/tree/master.svg?style=svg)](https://circleci.com/gh/grafana/simple-datasource/tree/master)
+This Data Source allows you to query checkmk metrics. It is a complete rewrite
+of the previous connector to match newer grafana versions.
 
-This template is a starting point for building Grafana Data Source Plugins
+Due to the breaking changes in this plugin, it is at the moment a complete
+separate plugin. Later on we will provide with an update setup.
 
-## What is Grafana Data Source Plugin?
-Grafana supports a wide range of data sources, including Prometheus, MySQL, and even Datadog. There’s a good chance you can already visualize metrics from the systems you have set up. In some cases, though, you already have an in-house metrics solution that you’d like to add to your Grafana dashboards. Grafana Data Source Plugins enables integrating such solutions with Grafana.
+This plugin id is: `tribe-29-grafana-checkmk-datasource`
+
+## Requirements
+You require checkmk>=`2.0.0` and Grafana>=7.0
 
 ## Getting started
+### Building the plugin
 1. Install dependencies
 ```BASH
 yarn install
@@ -24,9 +29,51 @@ yarn watch
 ```BASH
 yarn build
 ```
+### Installing 
+For development it is easiest to create a symlink inside your grafana plugins
+path(`/val/lib/grafana/plugins`) to this repository. Or if using docker mount
+this repository as a volume.
 
-## Learn more
-- [Build a data source plugin tutorial](https://grafana.com/tutorials/build-a-data-source-plugin)
-- [Grafana documentation](https://grafana.com/docs/)
-- [Grafana Tutorials](https://grafana.com/tutorials/) - Grafana Tutorials are step-by-step guides that help you make the most of Grafana
-- [Grafana UI Library](https://developers.grafana.com/ui) - UI components to help you build interfaces using Grafana Design System
+This plugin is not yet signed, thus you need to allow it on the `grafana.ini` file under
+`allow_loading_unsigned_plugins=tribe-29-grafana-checkmk-datasource`
+
+Grafana will read the `dist` folder, this repository does not include the
+builds. You need to follow previous section to prepare your own builds.
+
+### Plugin configuration
+#### URL:
+URL of the Checkmk Server used.\
+Example: http://checkmk.server/site/
+
+#### Username:
+User for API calls. Don't use `automation`, because that user has also
+admin configuration rights. Use a dedicated user that can only monitor. 
+
+#### API Key:
+Secret for the API User. This key is not transmitted from the grafana UI, only
+the backend has access to it. This is a security improvement to the previous
+plugin.
+
+Save & Test will check if the User authenticates and the data source is
+reachable.
+
+## Current state of development
+
+- Service graph works on RAW & CEE
+- Single metric for the moment now works only on CEE
+- Combined graphs remains CEE only
+- Dropped "Label Format" option. Prefer Grafana overrrides.
+- [ ] Annotations are not usable yet
+### Combined graphs
+- At the moment only a minimal interface is possible. There is only Host regex,
+  service regex fields.
+- Graph query only re triggers when selecting the graph recipe. That
+  inconveniently means after changing aggregation you need to at least
+  touch/select a "graph" to trigger the query for time series data.
+
+### Foreseen work under consideration
+- Use of host tag, including builtin ones
+- Add a filters for labels and hostgroups
+- Don't reset/empty fields after a change, if old selections are compatible with
+  change. E.g. Changing hostname should not remove Service "CPU load" if new
+  host also has that service.
