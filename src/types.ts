@@ -9,7 +9,7 @@ export interface MyQuery extends DataQuery {
 
 export const defaultQuery: Partial<MyQuery> = {
   graphMode: 'graph',
-  params: {},
+  params: { site_id: '' },
 };
 
 /**

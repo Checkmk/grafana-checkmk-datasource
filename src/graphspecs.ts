@@ -17,7 +17,7 @@ function graphTemplateSpecification(params: any, range: number[]) {
     specification: [
       'template',
       {
-        site: params.site_id || '',
+        site: params.site_id,
         host_name: params.hostname,
         service_description: params.service,
         graph_index: params.graph_index,
@@ -34,7 +34,7 @@ function singleMetricGraphSpecification(params: any, range: number[]) {
     specification: [
       'single_timeseries',
       {
-        site: params.site_id || '',
+        site: params.site_id,
         host: params.hostname,
         service: params.service,
         metric: params.metric,

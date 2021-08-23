@@ -83,7 +83,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       specification: [
         'template',
         {
-          site: query.params.site_id || '',
+          site: query.params.site_id,
           host_name: query.params.hostname,
           service_description: query.params.service,
         },

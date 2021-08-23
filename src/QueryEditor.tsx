@@ -234,7 +234,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
               width={32}
               options={this.state.sites}
               onChange={this.onSiteIdChange}
-              value={params.site_id || ''}
+              value={params.site_id}
               placeholder="Select Site"
             />
           </InlineField>
