@@ -47,6 +47,10 @@ function singleMetricGraphSpecification(params: any, range: number[]) {
 }
 
 function combinedGraphSpecification(params: any, range: number[]) {
+  const labelstring = params.labels
+    ? { host_label: JSON.stringify(params.labels.map((l: string) => ({ value: l }))) }
+      : "{}";
+  console.log('Com pa', labelstring, params);
   return buildRequestBody({
     specification: [
       'combined',
@@ -55,6 +59,7 @@ function combinedGraphSpecification(params: any, range: number[]) {
           siteopt: { site: params.site_id },
           hostregex: { host_regex: params.hostname },
           serviceregex: { service_regex: params.service },
+          host_labels: labelstring,
         },
         datasource: 'services',
         presentation: params.presentation,
