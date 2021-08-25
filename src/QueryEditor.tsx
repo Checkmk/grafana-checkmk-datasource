@@ -1,10 +1,11 @@
 import defaults from 'lodash/defaults';
 
 import React, { ChangeEvent, PureComponent } from 'react';
-import { InlineFieldRow, InlineField, Select, Input } from '@grafana/ui';
+import { InlineFieldRow, InlineField, Select, Input, MultiSelect } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
+//import { logError } from '@grafana/runtime';
 
 export interface QueryData {
   sites: Array<SelectableValue<string>>;
@@ -13,6 +14,7 @@ export interface QueryData {
   allmetrics: Array<[string, any]>;
   metrics: Array<SelectableValue<string>>;
   graphs: Array<SelectableValue<number>>;
+  labels: Array<SelectableValue<string>>;
 }
 
 interface MetricInfo {
@@ -70,7 +72,7 @@ function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service:
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [], hostnames: [], services: [], graphs: [], metrics: [], allmetrics: [] };
+    this.state = { sites: [], hostnames: [], services: [], graphs: [], metrics: [], allmetrics: [], labels: [] };
   }
 
   async componentDidMount() {
@@ -79,7 +81,9 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       .sitesQuery(query)
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
-    if (query.params.hostname && query.params.service) {
+    if (query.graphMode === 'combined') {
+      this.setState({ sites, labels: await this.getHostLabels() });
+    } else if (query.params.hostname && query.params.service) {
       const all_service_metrics = await allServiceMetrics(
         prepareSevicesQuery(query, query.params.hostname),
         this.props.datasource
@@ -198,6 +202,20 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     console.log('comb query', new_query);
     onRunQuery();
   };
+  onLabelsChange = async (values: any[]) => {
+    const { onChange, query, onRunQuery } = this.props;
+    const new_query = { ...query, params: { ...query.params, labels: values.map((v) => v.value) } };
+    onChange(new_query);
+    onRunQuery();
+  };
+  getHostLabels = async () => {
+    const result = await this.props.datasource.restRequest('ajax_autocomplete_labels.py', {
+      world: 'core',
+      search_label: '',
+    });
+    const labels = result.data.result.map(({ value }) => ({ label: value, value: value }));
+    return labels;
+  };
 
   render() {
     const query = defaults(this.props.query, defaultQuery);
@@ -304,6 +322,17 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
                 placeholder="none"
               />
             </InlineField>
+
+            <InlineField label="Host labels" labelWidth={14}>
+              <MultiSelect
+                options={this.state.labels}
+                placeholder="all"
+                width={32}
+                onChange={this.onLabelsChange}
+                value={params.labels}
+              />
+            </InlineField>
+
             <InlineField label="Aggregation" labelWidth={14}>
               <Select
                 width={32}
