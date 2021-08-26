@@ -61,8 +61,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async sitesQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({ refId: query.refId, params: { action: 'get_user_sites' } });
+  async sitesQuery(): Promise<Array<SelectableValue<string>>> {
+    const response = await this.doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' } });
     const result = response.data.result;
     return result.map(([value, text]: [string, string]) => ({ label: text, value: value }));
   }

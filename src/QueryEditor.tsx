@@ -5,6 +5,7 @@ import { InlineFieldRow, InlineField, Select, Input, MultiSelect } from '@grafan
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
+import { SiteQueryField } from './components/site';
 //import { logError } from '@grafana/runtime';
 
 export interface QueryData {
@@ -78,7 +79,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
   async componentDidMount() {
     const { query } = this.props;
     const sites = await this.props.datasource
-      .sitesQuery(query)
+      .sitesQuery()
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
     const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
     if (query.graphMode === 'combined') {
@@ -247,15 +248,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
               placeholder="Select Graph"
             />
           </InlineField>
-          <InlineField labelWidth={14} label="Site">
-            <Select
-              width={32}
-              options={this.state.sites}
-              onChange={this.onSiteIdChange}
-              value={params.site_id}
-              placeholder="Select Site"
-            />
-          </InlineField>
+          <SiteQueryField datasource={this.props.datasource} site_id={params.site_id} onChange={this.onSiteIdChange} />
         </InlineFieldRow>
 
         {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
