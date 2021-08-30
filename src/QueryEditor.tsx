@@ -3,9 +3,9 @@ import defaults from 'lodash/defaults';
 import React, { ChangeEvent, PureComponent } from 'react';
 import { InlineFieldRow, InlineField, Select, Input, MultiSelect } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource } from './DataSource';
+import { DataSource, prepareHostsQuery } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
-import { SiteQueryField } from './components/site';
+import { SiteQueryField, HostFilter } from './components/site';
 //import { logError } from '@grafana/runtime';
 
 export interface QueryData {
@@ -31,13 +31,6 @@ interface ServiceInfo {
 }
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
-
-function prepareHostsQuery(query: MyQuery, site: string) {
-  return {
-    ...query,
-    params: { site_id: site, action: 'get_host_names' },
-  };
-}
 
 function prepareSevicesQuery(query: MyQuery, hostname: string) {
   return {
@@ -75,12 +68,12 @@ interface GraphModeProps {
   onChange: (value: MyQuery) => void;
 }
 
-function GraphModeSelect(props: GraphModeProps) {
+function GraphModeSelect({ query, onChange }: GraphModeProps) {
   const onModeChange = ({ value }: SelectableValue<string>) => {
-    if (value === props.query.graphMode) {
+    if (value === query.graphMode) {
       return;
     }
-    props.onChange({ refId: props.query.refId, graphMode: value, params: { site_id: props.query.params.site_id } });
+    onChange({ refId: query.refId, graphMode: value, params: { site_id: query.params.site_id } });
   };
 
   const graph_modes = [
@@ -94,7 +87,7 @@ function GraphModeSelect(props: GraphModeProps) {
         width={32}
         options={graph_modes}
         onChange={onModeChange}
-        value={props.query.graphMode}
+        value={query.graphMode}
         placeholder="Select Graph"
       />
     </InlineField>
@@ -112,7 +105,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     const sites = await this.props.datasource
       .sitesQuery()
       .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
-    const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
+    const hostnames = await this.props.datasource.hostsQuery(query);
     if (query.graphMode === 'combined') {
       this.setState({ sites, labels: await this.getHostLabels() });
     } else if (query.params.hostname && query.params.service) {
@@ -136,19 +129,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       this.setState({ sites, hostnames });
     }
   }
-
-  onSiteIdChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = this.props;
-    const clean_query = prepareHostsQuery(query, value || '');
-    onChange(clean_query);
-    const state: any = {
-      sites: this.state.sites,
-      hostnames: await this.props.datasource.hostsQuery(clean_query),
-      services: [],
-      graphs: [],
-    };
-    this.setState(state);
-  };
 
   onHostnameChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
@@ -258,20 +238,12 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       <div className="gf-form-group">
         <InlineFieldRow>
           <GraphModeSelect onChange={this.props.onChange} query={query} />
-          <SiteQueryField datasource={this.props.datasource} site_id={params.site_id} onChange={this.onSiteIdChange} />
+          <SiteQueryField datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
         </InlineFieldRow>
 
         {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
           <InlineFieldRow>
-            <InlineField labelWidth={14} label="Host">
-              <Select
-                width={32}
-                options={this.state.hostnames}
-                onChange={this.onHostnameChange}
-                value={clear(params.hostname)}
-                placeholder="Select Host"
-              />
-            </InlineField>
+            <HostFilter datasource={this.props.datasource} query={query} onChange={this.onHostnameChange} />
             <InlineField labelWidth={14} label="Service">
               <Select
                 width={32}
