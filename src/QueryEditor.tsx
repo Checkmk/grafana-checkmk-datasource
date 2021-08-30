@@ -6,6 +6,7 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 import { SiteQueryField, HostFilter } from './components/site';
+import { GraphOfServiceQuery } from './components/templategraphs';
 //import { logError } from '@grafana/runtime';
 
 export interface QueryData {
@@ -32,25 +33,7 @@ interface ServiceInfo {
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
-function prepareSevicesQuery(query: MyQuery, hostname: string) {
-  return {
-    ...query,
-    params: { hostname: hostname, site_id: query.params.site_id, action: 'get_metrics_of_host' },
-  };
-}
 
-async function allServiceMetrics(query: MyQuery, datasource: DataSource) {
-  const all_service_metrics = await datasource.metricsOfHostQuery(query);
-  const available_services = all_service_metrics.sort().map(([service]) => ({
-    label: service,
-    value: service,
-  }));
-
-  return {
-    services: available_services,
-    allmetrics: all_service_metrics,
-  };
-}
 
 function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service: string) {
   const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);
@@ -130,20 +113,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     }
   }
 
-  onHostnameChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = this.props;
-    const clean_query = prepareSevicesQuery(query, value || '');
-    onChange(clean_query);
-
-    const all_service_metrics = await allServiceMetrics(clean_query, this.props.datasource);
-    const state: any = {
-      ...this.state,
-      ...all_service_metrics,
-      graphs: [],
-    };
-    this.setState(state);
-  };
-
   onServiceChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
     let new_query = { ...query, params: { ...query.params, service: value } };
@@ -165,12 +134,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     this.setState(state);
   };
 
-  onGraphChange = async ({ value }: SelectableValue<number>) => {
-    const { onChange, query, onRunQuery } = this.props;
-    const new_query = { ...query, params: { ...query.params, graph_index: value } };
-    onChange(new_query);
-    onRunQuery();
-  };
 
   onMetricChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = this.props;
@@ -244,26 +207,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
         {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
           <InlineFieldRow>
             <HostFilter datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
-            <InlineField labelWidth={14} label="Service">
-              <Select
-                width={32}
-                options={this.state.services}
-                onChange={this.onServiceChange}
-                value={clear(params.service)}
-                placeholder="Select service"
-              />
-            </InlineField>
-            {query.graphMode === 'graph' && (
-              <InlineField labelWidth={14} label="Graph">
-                <Select
-                  width={32}
-                  options={this.state.graphs}
-                  onChange={this.onGraphChange}
-                  value={clear(params.graph_index)}
-                  placeholder="Select graph"
-                />
-              </InlineField>
-            )}
+            <GraphOfServiceQuery onRunQuery={this.props.onRunQuery} datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
             {query.graphMode === 'metric' && (
               <InlineField labelWidth={14} label="Metric">
                 <Select

@@ -1,20 +1,10 @@
 import React, { PureComponent } from 'react';
 import { InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { DataSource, prepareHostsQuery } from '../DataSource';
-import { MyQuery } from 'types';
+import { prepareHostsQuery } from '../DataSource';
+import { FilterProps, SelectOptions } from './types';
 
-interface FilterProps {
-  datasource: DataSource;
-  query: MyQuery;
-  onChange: (stuff: any) => void;
-}
-
-interface SelectOptions {
-  options: Array<SelectableValue<string>>;
-}
-
-export class SiteQueryField extends PureComponent<FilterProps, SelectOptions> {
+export class SiteQueryField extends PureComponent<FilterProps, SelectOptions<string>> {
   constructor(props: FilterProps) {
     super(props);
     this.state = { options: [] };
@@ -50,7 +40,7 @@ export class SiteQueryField extends PureComponent<FilterProps, SelectOptions> {
   }
 }
 
-export class HostFilter extends PureComponent<FilterProps, SelectOptions> {
+export class HostFilter extends PureComponent<FilterProps, SelectOptions<string>> {
   constructor(props: FilterProps) {
     super(props);
     this.state = { options: [] };
