@@ -56,13 +56,19 @@ export class HostFilter extends PureComponent<FilterProps, SelectOptions> {
     this.state = { options: [] };
   }
 
-  async componentDidMount() {
-    if (!this.state.options.length) {
-      const { query } = this.props;
-      const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, query.params.site_id));
+  async componentDidUpdate(prevProps: FilterProps) {
+    const { query } = this.props;
+    const currSite = query.params.site_id;
+    if (!this.state.options.length || prevProps.query.params.site_id !== currSite) {
+      const hostnames = await this.props.datasource.hostsQuery(prepareHostsQuery(query, currSite));
       this.setState({ options: hostnames });
     }
   }
+
+  onHostChange = ({ value }: SelectableValue<string>) => {
+    const { query, onChange } = this.props;
+    onChange({ ...query, params: { ...query.params, hostname: value } });
+  };
 
   render() {
     return (
@@ -70,7 +76,7 @@ export class HostFilter extends PureComponent<FilterProps, SelectOptions> {
         <Select
           width={32}
           options={this.state.options}
-          onChange={this.props.onChange}
+          onChange={this.onHostChange}
           value={this.props.query.params.hostname}
           placeholder="Select Host"
         />

@@ -3,7 +3,7 @@ import defaults from 'lodash/defaults';
 import React, { ChangeEvent, PureComponent } from 'react';
 import { InlineFieldRow, InlineField, Select, Input, MultiSelect } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { DataSource, prepareHostsQuery } from './DataSource';
+import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 import { SiteQueryField, HostFilter } from './components/site';
 //import { logError } from '@grafana/runtime';
@@ -243,7 +243,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
 
         {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
           <InlineFieldRow>
-            <HostFilter datasource={this.props.datasource} query={query} onChange={this.onHostnameChange} />
+            <HostFilter datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
             <InlineField labelWidth={14} label="Service">
               <Select
                 width={32}
