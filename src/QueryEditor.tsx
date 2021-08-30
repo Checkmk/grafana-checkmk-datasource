@@ -70,6 +70,37 @@ function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service:
     : [];
 }
 
+interface GraphModeProps {
+  query: MyQuery;
+  onChange: (value: MyQuery) => void;
+}
+
+function GraphModeSelect(props: GraphModeProps) {
+  const onModeChange = ({ value }: SelectableValue<string>) => {
+    if (value === props.query.graphMode) {
+      return;
+    }
+    props.onChange({ refId: props.query.refId, graphMode: value, params: { site_id: props.query.params.site_id } });
+  };
+
+  const graph_modes = [
+    { label: 'Service graph', value: 'graph' },
+    { label: 'Single metric', value: 'metric' },
+    { label: 'Combined graph', value: 'combined' },
+  ];
+  return (
+    <InlineField labelWidth={14} label="Mode">
+      <Select
+        width={32}
+        options={graph_modes}
+        onChange={onModeChange}
+        value={props.query.graphMode}
+        placeholder="Select Graph"
+      />
+    </InlineField>
+  );
+}
+
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
@@ -105,14 +136,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
       this.setState({ sites, hostnames });
     }
   }
-
-  onModeChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = this.props;
-    if (value === query.graphMode) {
-      return;
-    }
-    onChange({ refId: query.refId, graphMode: value, params: { site_id: query.params.site_id } });
-  };
 
   onSiteIdChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
@@ -222,11 +245,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     const query = defaults(this.props.query, defaultQuery);
     const { params } = query;
     const clear = (value: any) => (value === undefined ? null : value);
-    const graph_modes = [
-      { label: 'Service graph', value: 'graph' },
-      { label: 'Single metric', value: 'metric' },
-      { label: 'Combined graph', value: 'combined' },
-    ];
     const combined_presentations = [
       { value: 'lines', label: 'Lines' },
       { value: 'stacked', label: 'Stacked' },
@@ -239,15 +257,7 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     return (
       <div className="gf-form-group">
         <InlineFieldRow>
-          <InlineField labelWidth={14} label="Mode">
-            <Select
-              width={32}
-              options={graph_modes}
-              onChange={this.onModeChange}
-              value={query.graphMode}
-              placeholder="Select Graph"
-            />
-          </InlineField>
+          <GraphModeSelect onChange={this.props.onChange} query={query} />
           <SiteQueryField datasource={this.props.datasource} site_id={params.site_id} onChange={this.onSiteIdChange} />
         </InlineFieldRow>
 
