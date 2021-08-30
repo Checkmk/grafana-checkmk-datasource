@@ -10,41 +10,13 @@ import { GraphOfServiceQuery } from './components/templategraphs';
 //import { logError } from '@grafana/runtime';
 
 export interface QueryData {
-  sites: Array<SelectableValue<string>>;
-  hostnames: Array<SelectableValue<string>>;
-  services: Array<SelectableValue<string>>;
-  allmetrics: Array<[string, any]>;
-  metrics: Array<SelectableValue<string>>;
-  graphs: Array<SelectableValue<number>>;
   labels: Array<SelectableValue<string>>;
 }
 
-interface MetricInfo {
-  name: string;
-  title: string;
-}
-interface Metrics {
-  [key: string]: MetricInfo;
-}
-interface ServiceInfo {
-  metrics: Metrics;
-  check_command: string;
-}
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 
-
-function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service: string) {
-  const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);
-
-  return current_metrics
-    ? Object.values(current_metrics[1].metrics).map(({ name, title }) => ({
-        label: title,
-        value: name,
-      }))
-    : [];
-}
 
 interface GraphModeProps {
   query: MyQuery;
@@ -80,67 +52,8 @@ function GraphModeSelect({ query, onChange }: GraphModeProps) {
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = { sites: [], hostnames: [], services: [], graphs: [], metrics: [], allmetrics: [], labels: [] };
+    this.state = {  labels: [] };
   }
-
-  async componentDidMount() {
-    const { query } = this.props;
-    const sites = await this.props.datasource
-      .sitesQuery()
-      .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
-    const hostnames = await this.props.datasource.hostsQuery(query);
-    if (query.graphMode === 'combined') {
-      this.setState({ sites, labels: await this.getHostLabels() });
-    } else if (query.params.hostname && query.params.service) {
-      const all_service_metrics = await allServiceMetrics(
-        prepareSevicesQuery(query, query.params.hostname),
-        this.props.datasource
-      );
-
-      const config = {
-        ...all_service_metrics,
-        sites: sites,
-        hostnames: hostnames,
-      };
-      if (query.graphMode === 'graph') {
-        this.setState({ ...config, graphs: await this.props.datasource.graphsListQuery(query) });
-      } else if (query.graphMode === 'metric') {
-        const select_metrics = pickMetrics(all_service_metrics.allmetrics, query.params.service);
-        this.setState({ ...config, metrics: select_metrics });
-      }
-    } else {
-      this.setState({ sites, hostnames });
-    }
-  }
-
-  onServiceChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = this.props;
-    let new_query = { ...query, params: { ...query.params, service: value } };
-    delete new_query.params.graph_index;
-    onChange(new_query);
-    let state = {};
-    if (query.graphMode === 'graph') {
-      state = {
-        ...this.state,
-        graphs: await this.props.datasource.graphsListQuery(new_query),
-      };
-    } else {
-      const select_metrics = pickMetrics(this.state.allmetrics, new_query.params.service);
-      state = {
-        ...this.state,
-        metrics: select_metrics,
-      };
-    }
-    this.setState(state);
-  };
-
-
-  onMetricChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query, onRunQuery } = this.props;
-    const new_query = { ...query, params: { ...query.params, metric: value } };
-    onChange(new_query);
-    onRunQuery();
-  };
 
   onQueryhostChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query } = this.props;
@@ -208,17 +121,6 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
           <InlineFieldRow>
             <HostFilter datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
             <GraphOfServiceQuery onRunQuery={this.props.onRunQuery} datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
-            {query.graphMode === 'metric' && (
-              <InlineField labelWidth={14} label="Metric">
-                <Select
-                  width={32}
-                  options={this.state.metrics}
-                  onChange={this.onMetricChange}
-                  value={clear(params.metric)}
-                  placeholder="Select Metric"
-                />
-              </InlineField>
-            )}
           </InlineFieldRow>
         )}
         {query.graphMode === 'combined' && (
