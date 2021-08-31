@@ -51,13 +51,24 @@ export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServi
     super(props);
     this.state = { services: [], allmetrics: [] };
   }
+  async fillState(query: MyQuery) {
+    const { datasource } = this.props;
+    const hostname = query.params.hostname;
+    if (hostname && !this.state.services.length) {
+      const all_service_metrics = await allServiceMetrics(prepareSevicesQuery(query, hostname), datasource);
+      this.setState(all_service_metrics);
+    }
+  }
+
+  async componentDidMount() {
+    this.fillState(this.props.query);
+  }
 
   async componentDidUpdate(prevProps: FilterProps) {
-    const { query, datasource } = this.props;
-    const currHost = query.params.hostname;
-    if (currHost && (!this.state.services.length || prevProps.query.params.hostname !== currHost)) {
-      const all_service_metrics = await allServiceMetrics(prepareSevicesQuery(query, currHost), datasource);
-      this.setState(all_service_metrics);
+    const { query } = this.props;
+    const hostname = query.params.hostname;
+    if (prevProps.query.params.hostname !== hostname) {
+      this.fillState(query);
     }
   }
 
@@ -106,15 +117,21 @@ export class MetricSelect extends PureComponent<FilterProps, SelectOptions<strin
     this.state = { options: [] };
   }
 
-  async componentDidUpdate(prevProps: FilterProps) {
-    const { allmetrics, query } = this.props;
-    const currService = query.params.service;
-    if (
-      allmetrics.length &&
-      currService &&
-      (!this.state.options.length || prevProps.query.params.service !== currService)
-    ) {
+  async fillOptions(query: MyQuery) {
+    const { allmetrics } = this.props;
+    const service = query.params.service;
+    if (allmetrics.length && service && !this.state.options.length) {
       this.setState({ options: pickMetrics(allmetrics, query.params.service) });
+    }
+  }
+
+  async componentDidMount() {
+    this.fillOptions(this.props.query);
+  }
+
+  async componentDidUpdate(prevProps: FilterProps) {
+    if (prevProps.query.params.service !== this.props.query.params.service) {
+      this.fillOptions(this.props.query);
     }
   }
 
@@ -144,19 +161,21 @@ export class GraphSelect extends PureComponent<FilterProps, SelectOptions<number
     this.state = { options: [] };
   }
 
-  async componentDidUpdate(prevProps: FilterProps) {
-    const { query, datasource } = this.props;
-    const currHost = query.params.hostname;
-    const currService = query.params.service;
-    if (
-      currHost &&
-      currService &&
-      (!this.state.options.length ||
-        prevProps.query.params.hostname !== currHost ||
-        prevProps.query.params.service !== currService)
-    ) {
-      const graphs = await datasource.graphsListQuery(query);
-      this.setState({ options: graphs });
+  async fillOptions(query: MyQuery) {
+    const { hostname, service } = this.props.query.params;
+    if (hostname && service && !this.state.options.length) {
+      this.setState({ options: await this.props.datasource.graphsListQuery(query) });
+    }
+  }
+
+  async componentDidMount() {
+    this.fillOptions(this.props.query);
+  }
+
+  async componentDidUpdate({ query: { params: prevParams } }: FilterProps) {
+    const { hostname, service } = this.props.query.params;
+    if (prevParams.hostname !== hostname || prevParams.service !== service) {
+      this.fillOptions(this.props.query);
     }
   }
 
