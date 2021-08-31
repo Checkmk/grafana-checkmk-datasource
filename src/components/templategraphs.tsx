@@ -4,7 +4,7 @@ import { InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { MyQuery } from 'types';
-import { FilterProps, SelectOptions } from './types';
+import { EditorProps, SelectOptions } from './types';
 
 interface MetricInfo {
   name: string;
@@ -46,8 +46,8 @@ interface GraphOfServiceOptions {
   allmetrics: Array<[string, ServiceInfo]>;
 }
 
-export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServiceOptions> {
-  constructor(props: FilterProps) {
+export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServiceOptions> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = { services: [], allmetrics: [] };
   }
@@ -67,7 +67,7 @@ export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServi
     }
   }
 
-  async componentDidUpdate(prevProps: FilterProps) {
+  async componentDidUpdate(prevProps: EditorProps) {
     const hostname = this.props.query.params.hostname;
     if (hostname && (!this.state.services.length || prevProps.query.params.hostname !== hostname)) {
       this.fillState();
@@ -113,13 +113,13 @@ function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service:
     : [];
 }
 
-export class MetricSelect extends PureComponent<FilterProps, SelectOptions<string>> {
-  constructor(props: FilterProps) {
+export class MetricSelect extends PureComponent<EditorProps, SelectOptions<string>> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = { options: [] };
   }
 
-  async componentDidUpdate(prevProps: FilterProps) {
+  async componentDidUpdate(prevProps: EditorProps) {
     const { allmetrics } = this.props;
     const service = this.props.query.params.service;
     if (allmetrics.length && service && (!this.state.options.length || prevProps.query.params.service !== service)) {
@@ -146,8 +146,8 @@ export class MetricSelect extends PureComponent<FilterProps, SelectOptions<strin
     );
   }
 }
-export class GraphSelect extends PureComponent<FilterProps, SelectOptions<number>> {
-  constructor(props: FilterProps) {
+export class GraphSelect extends PureComponent<EditorProps, SelectOptions<number>> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = { options: [] };
   }
@@ -163,7 +163,7 @@ export class GraphSelect extends PureComponent<FilterProps, SelectOptions<number
     }
   }
 
-  async componentDidUpdate({ query: { params: prevParams } }: FilterProps) {
+  async componentDidUpdate({ query: { params: prevParams } }: EditorProps) {
     const { hostname, service } = this.props.query.params;
     if (
       hostname &&
@@ -175,8 +175,9 @@ export class GraphSelect extends PureComponent<FilterProps, SelectOptions<number
   }
 
   onGraphChange = async ({ value }: SelectableValue<number>) => {
-    const { onChange, query } = this.props;
+    const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, params: { ...query.params, graph_index: value } });
+    onRunQuery();
   };
 
   render() {

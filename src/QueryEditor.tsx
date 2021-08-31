@@ -110,19 +110,14 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
     return (
       <div className="gf-form-group">
         <InlineFieldRow>
-          <GraphModeSelect onChange={this.props.onChange} query={query} />
-          <SiteQueryField datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
+          <GraphModeSelect {...this.props} query={query} />
+          <SiteQueryField {...this.props} query={query} />
         </InlineFieldRow>
 
         {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
           <InlineFieldRow>
-            <HostFilter datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
-            <GraphOfServiceQuery
-              onRunQuery={this.props.onRunQuery}
-              datasource={this.props.datasource}
-              query={query}
-              onChange={this.props.onChange}
-            />
+            <HostFilter {...this.props} query={query} />
+            <GraphOfServiceQuery {...this.props} />
           </InlineFieldRow>
         )}
         {query.graphMode === 'combined' && (

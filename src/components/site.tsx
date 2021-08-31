@@ -2,11 +2,11 @@ import React, { PureComponent } from 'react';
 import { InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { prepareHostsQuery } from '../DataSource';
-import { FilterProps, SelectOptions } from './types';
+import { EditorProps, SelectOptions } from './types';
 import { MyQuery } from '../types';
 
-export class SiteQueryField extends PureComponent<FilterProps, SelectOptions<string>> {
-  constructor(props: FilterProps) {
+export class SiteQueryField extends PureComponent<EditorProps, SelectOptions<string>> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = { options: [] };
   }
@@ -41,8 +41,8 @@ export class SiteQueryField extends PureComponent<FilterProps, SelectOptions<str
   }
 }
 
-export class HostFilter extends PureComponent<FilterProps, SelectOptions<string>> {
-  constructor(props: FilterProps) {
+export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>> {
+  constructor(props: EditorProps) {
     super(props);
     this.state = { options: [] };
   }
@@ -57,7 +57,7 @@ export class HostFilter extends PureComponent<FilterProps, SelectOptions<string>
     this.fillOptions(this.props.query);
   }
 
-  async componentDidUpdate(prevProps: FilterProps) {
+  async componentDidUpdate(prevProps: EditorProps) {
     const site_id = this.props.query.params.site_id;
     if (prevProps.query.params.site_id !== site_id) {
       this.fillOptions(this.props.query);
