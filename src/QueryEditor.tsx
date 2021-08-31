@@ -13,10 +13,7 @@ export interface QueryData {
   labels: Array<SelectableValue<string>>;
 }
 
-
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
-
-
 
 interface GraphModeProps {
   query: MyQuery;
@@ -52,7 +49,7 @@ function GraphModeSelect({ query, onChange }: GraphModeProps) {
 export class QueryEditor extends PureComponent<Props, QueryData> {
   constructor(props: Props) {
     super(props);
-    this.state = {  labels: [] };
+    this.state = { labels: [] };
   }
 
   onQueryhostChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -120,7 +117,12 @@ export class QueryEditor extends PureComponent<Props, QueryData> {
         {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
           <InlineFieldRow>
             <HostFilter datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
-            <GraphOfServiceQuery onRunQuery={this.props.onRunQuery} datasource={this.props.datasource} query={query} onChange={this.props.onChange} />
+            <GraphOfServiceQuery
+              onRunQuery={this.props.onRunQuery}
+              datasource={this.props.datasource}
+              query={query}
+              onChange={this.props.onChange}
+            />
           </InlineFieldRow>
         )}
         {query.graphMode === 'combined' && (

@@ -165,11 +165,11 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   async doRequest(options: MyQuery) {
     return this.cmkRequest({
-        method: options.data == null ? 'GET' : 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        url: buildUrlWithParams(`${this.url}/cmk/check_mk/webapi.py`, options.params),
-        data: options.data,
-      })
+      method: options.data == null ? 'GET' : 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      url: buildUrlWithParams(`${this.url}/cmk/check_mk/webapi.py`, options.params),
+      data: options.data,
+    });
   }
 
   async restRequest(api_url: string, data: any) {

@@ -49,7 +49,7 @@ function singleMetricGraphSpecification(params: any, range: number[]) {
 function combinedGraphSpecification(params: any, range: number[]) {
   const labelstring = params.labels
     ? { host_label: JSON.stringify(params.labels.map((l: string) => ({ value: l }))) }
-      : "{}";
+    : '{}';
   console.log('Com pa', labelstring, params);
   return buildRequestBody({
     specification: [
