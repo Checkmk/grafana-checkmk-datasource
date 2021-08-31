@@ -1,4 +1,4 @@
-import isEmpty from 'lodash/defaults';
+import { isEmpty } from 'lodash';
 import React, { PureComponent } from 'react';
 import { InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
@@ -21,7 +21,7 @@ interface ServiceInfo {
 async function allServiceMetrics(query: MyQuery, datasource: DataSource) {
   const all_service_metrics = await datasource.metricsOfHostQuery(query);
   const available_services = all_service_metrics
-    .filter(([_, serviceInfo]) => isEmpty(serviceInfo['metrics']))
+    .filter(([_, serviceInfo]) => !isEmpty(serviceInfo['metrics']))
     .sort()
     .map(([service]) => ({
       label: service,
@@ -51,8 +51,8 @@ export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServi
     super(props);
     this.state = { services: [], allmetrics: [] };
   }
-  async fillState(query: MyQuery) {
-    const { datasource } = this.props;
+  async fillState() {
+    const { query, datasource } = this.props;
     const hostname = query.params.hostname;
     if (hostname && !this.state.services.length) {
       const all_service_metrics = await allServiceMetrics(prepareSevicesQuery(query, hostname), datasource);
@@ -61,14 +61,16 @@ export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServi
   }
 
   async componentDidMount() {
-    this.fillState(this.props.query);
+    const hostname = this.props.query.params.hostname;
+    if (hostname && !this.state.services.length) {
+      this.fillState();
+    }
   }
 
   async componentDidUpdate(prevProps: FilterProps) {
-    const { query } = this.props;
-    const hostname = query.params.hostname;
-    if (prevProps.query.params.hostname !== hostname) {
-      this.fillState(query);
+    const hostname = this.props.query.params.hostname;
+    if (hostname && (!this.state.services.length || prevProps.query.params.hostname !== hostname)) {
+      this.fillState();
     }
   }
 
@@ -78,7 +80,7 @@ export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServi
   };
 
   render() {
-    const { query, onChange, onRunQuery } = this.props;
+    const { query, onChange } = this.props;
     return (
       <>
         <InlineField labelWidth={14} label="Service">
@@ -91,10 +93,10 @@ export class GraphOfServiceQuery extends PureComponent<FilterProps, GraphOfServi
           />
         </InlineField>
         {query.graphMode === 'graph' && (
-          <GraphSelect datasource={this.props.datasource} onChange={onChange} query={query} onRunQuery={onRunQuery} />
+          <GraphSelect datasource={this.props.datasource} onChange={onChange} query={query} />
         )}
         {query.graphMode === 'metric' && (
-          <MetricSelect onChange={onChange} query={query} onRunQuery={onRunQuery} allmetrics={this.state.allmetrics} />
+          <MetricSelect onChange={onChange} query={query} allmetrics={this.state.allmetrics} />
         )}
       </>
     );
@@ -117,28 +119,17 @@ export class MetricSelect extends PureComponent<FilterProps, SelectOptions<strin
     this.state = { options: [] };
   }
 
-  async fillOptions(query: MyQuery) {
-    const { allmetrics } = this.props;
-    const service = query.params.service;
-    if (allmetrics.length && service && !this.state.options.length) {
-      this.setState({ options: pickMetrics(allmetrics, query.params.service) });
-    }
-  }
-
-  async componentDidMount() {
-    this.fillOptions(this.props.query);
-  }
-
   async componentDidUpdate(prevProps: FilterProps) {
-    if (prevProps.query.params.service !== this.props.query.params.service) {
-      this.fillOptions(this.props.query);
+    const { allmetrics } = this.props;
+    const service = this.props.query.params.service;
+    if (allmetrics.length && service && (!this.state.options.length || prevProps.query.params.service !== service)) {
+      this.setState({ options: pickMetrics(allmetrics, this.props.query.params.service) });
     }
   }
 
   onMetricChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query, onRunQuery } = this.props;
+    const { onChange, query } = this.props;
     onChange({ ...query, params: { ...query.params, metric: value } });
-    onRunQuery();
   };
 
   render() {
@@ -161,28 +152,31 @@ export class GraphSelect extends PureComponent<FilterProps, SelectOptions<number
     this.state = { options: [] };
   }
 
-  async fillOptions(query: MyQuery) {
-    const { hostname, service } = this.props.query.params;
-    if (hostname && service && !this.state.options.length) {
-      this.setState({ options: await this.props.datasource.graphsListQuery(query) });
-    }
+  async fillOptions() {
+    this.setState({ options: await this.props.datasource.graphsListQuery(this.props.query) });
   }
 
   async componentDidMount() {
-    this.fillOptions(this.props.query);
+    const { hostname, service } = this.props.query.params;
+    if (hostname && service && !this.state.options.length) {
+      this.fillOptions();
+    }
   }
 
   async componentDidUpdate({ query: { params: prevParams } }: FilterProps) {
     const { hostname, service } = this.props.query.params;
-    if (prevParams.hostname !== hostname || prevParams.service !== service) {
-      this.fillOptions(this.props.query);
+    if (
+      hostname &&
+      service &&
+      (!this.state.options.length || prevParams.hostname !== hostname || prevParams.service !== service)
+    ) {
+      this.fillOptions();
     }
   }
 
   onGraphChange = async ({ value }: SelectableValue<number>) => {
-    const { onChange, query, onRunQuery } = this.props;
+    const { onChange, query } = this.props;
     onChange({ ...query, params: { ...query.params, graph_index: value } });
-    onRunQuery();
   };
 
   render() {
