@@ -80,7 +80,7 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
   };
 
   render() {
-    const { query, onChange } = this.props;
+    const { query } = this.props;
     return (
       <>
         <InlineField labelWidth={14} label="Service">
@@ -92,12 +92,8 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
             placeholder="Select service"
           />
         </InlineField>
-        {query.graphMode === 'graph' && (
-          <GraphSelect datasource={this.props.datasource} onChange={onChange} query={query} />
-        )}
-        {query.graphMode === 'metric' && (
-          <MetricSelect onChange={onChange} query={query} allmetrics={this.state.allmetrics} />
-        )}
+        {query.graphMode === 'graph' && <GraphSelect {...this.props} />}
+        {query.graphMode === 'metric' && <MetricSelect {...this.props} allmetrics={this.state.allmetrics} />}
       </>
     );
   }
@@ -153,7 +149,7 @@ export class GraphSelect extends PureComponent<EditorProps, SelectOptions<number
   }
 
   async fillOptions() {
-    this.setState({ options: await this.props.datasource.graphsListQuery(this.props.query) });
+    this.setState({ options: await this.props.datasource.graphRecipesQuery(this.props.query) });
   }
 
   async componentDidMount() {

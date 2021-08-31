@@ -84,7 +84,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Object.entries(response.data.result);
   }
 
-  async graphRecipesQuery(query: MyQuery): Promise<any[]> {
+  async graphRecipesQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
     const template = buildRequestBody({
       specification: [
         'template',
@@ -100,17 +100,13 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       params: { action: 'get_graph_recipes' },
       data: template,
     });
-    return response.data.result;
+    return response.data.result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
   }
 
-  async combinedGraphident(query: MyQuery): Promise<any[]> {
+  async combinedGraphIdent(query: MyQuery): Promise<Array<SelectableValue<string>>> {
     const { params } = query;
     const data = buildRequestBody({
-      context: {
-        siteopt: { site: params.site_id },
-        hostregex: { host_regex: params.hostname },
-        serviceregex: { service_regex: params.service },
-      },
+      context: query.context,
       datasource: 'services',
       presentation: query.params.presentation,
       single_infos: ['host'],
@@ -120,18 +116,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       params: { action: 'get_combined_graph_identifications' },
       data: data,
     });
-    return response.data.result;
-  }
-
-  async graphsListQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
-    let result = [];
-    if (query.graphMode === 'combined') {
-      result = await this.combinedGraphident(query);
-      return result.map(({ title, identification }) => ({ label: title, value: identification[1].graph_template }));
-    }
-
-    result = await this.graphRecipesQuery(query);
-    return result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
+    return response.data.result.map(({ title, identification }) => ({
+      label: title,
+      value: identification[1].graph_template,
+    }));
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {

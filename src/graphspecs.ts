@@ -1,4 +1,4 @@
-import { MyQuery } from './types';
+import { MyQuery, Context } from './types';
 export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
 export function graphSpecification(query: MyQuery, range: number[]) {
@@ -7,7 +7,7 @@ export function graphSpecification(query: MyQuery, range: number[]) {
   } else if (query.graphMode === 'metric') {
     return singleMetricGraphSpecification(query.params, range);
   } else if (query.graphMode === 'combined') {
-    return combinedGraphSpecification(query.params, range);
+    return combinedGraphSpecification(query.context || {}, query.params, range);
   }
   throw new Error('Unknown graph mode');
 }
@@ -46,7 +46,7 @@ function singleMetricGraphSpecification(params: any, range: number[]) {
   });
 }
 
-function combinedGraphSpecification(params: any, range: number[]) {
+function combinedGraphSpecification(context: Context, params: any, range: number[]) {
   const labelstring = params.labels
     ? { host_label: JSON.stringify(params.labels.map((l: string) => ({ value: l }))) }
     : '{}';
@@ -55,12 +55,7 @@ function combinedGraphSpecification(params: any, range: number[]) {
     specification: [
       'combined',
       {
-        context: {
-          siteopt: { site: params.site_id },
-          hostregex: { host_regex: params.hostname },
-          serviceregex: { service_regex: params.service },
-          host_labels: labelstring,
-        },
+        context: context,
         datasource: 'services',
         presentation: params.presentation,
         graph_template: params.graph_name,
