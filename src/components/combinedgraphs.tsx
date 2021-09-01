@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { InlineField, Select } from '@grafana/ui';
+import { Button, InlineField, Input, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
 
@@ -74,3 +74,59 @@ export class CombinedGraphSelect extends PureComponent<EditorProps, SelectOption
     );
   }
 }
+
+export class FilterEditor extends PureComponent<EditorProps> {
+  render() {
+    const {
+      query: { context },
+    } = this.props;
+    console.log('filters', context);
+    return (
+      <>
+        {Object.entries(context).map(([filtername, filtervars]) => (
+          <SelectFilters {...this.props} filtername={filtername} />
+        ))}
+      </>
+    );
+  }
+}
+
+export const SelectFilters = (props: EditorProps) => {
+  const all_filters = [
+    { value: 'hostname', label: 'Hostname' },
+    { value: 'hostregex', label: 'Hostname regex' },
+    { value: 'serviceregex', label: 'Service regex' },
+    { value: 'host_labels', label: 'Host Labels' },
+  ];
+  const context = props.query.context || {};
+
+  const available_filters = all_filters.filter(
+    ({ value }) => value === props.filtername || !context.hasOwnProperty(value)
+  );
+
+  const action = () => {
+    const { onChange, query, filtername } = props;
+    delete query.context[filtername]
+    onChange(query);
+  };
+
+  const onFilterChange = ({ value }: SelectableValue<string>) => {
+    const { onChange, query } = props;
+    onChange({ ...query, context: { ...query.context, [value]: {} } });
+  };
+
+  return (
+    <>
+      <InlineField label="Filter" labelWidth={14}>
+        <Select
+          width={32}
+          options={available_filters}
+          onChange={onFilterChange}
+          value={props.filtername}
+          placeholder="Filter"
+        />
+      </InlineField>
+      <Button icon="minus" variant="secondary" onClick={action}/>
+    </>
+  );
+};
