@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Button, InlineField, Input, Select } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
 import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceRegExFilter } from './site';
@@ -68,7 +68,7 @@ export class CombinedGraphSelect extends PureComponent<EditorProps, SelectOption
           width={32}
           options={this.state.options}
           onChange={this.onGraphChange}
-          value={this.props.query.params.graph_index}
+          value={this.props.query.params.graph_name}
           placeholder="Select graph"
         />
       </InlineField>
@@ -76,22 +76,23 @@ export class CombinedGraphSelect extends PureComponent<EditorProps, SelectOption
   }
 }
 
-export class FilterEditor extends PureComponent<EditorProps> {
-  render() {
-    const context = this.props.query.context;
-    console.log('filters', context);
-    return (
-      <>
-        {Object.entries(context).map(([filtername, filtervars]) => (
-          <SelectFilters {...this.props} filtername={filtername} />
-        ))}
-        <SelectFilters {...this.props} filtername={null} />
-      </>
-    );
-  }
+export const FilterEditor = (props: EditorProps) => {
+  const context = props.query.context || {};
+  return (
+    <>
+      {Object.keys(context).map((filtername, index) => (
+        <SelectFilters key={`${index}/${filtername}`} {...props} filtername={filtername} />
+      ))}
+      <SelectFilters {...props} filtername={null} />
+    </>
+  );
+};
+
+interface FilterEditorProps extends EditorProps {
+  filtername: string;
 }
 
-export const SelectFilters = (props: EditorProps) => {
+export const SelectFilters = (props: FilterEditorProps) => {
   const all_filters = [
     { value: 'hostname', label: 'Hostname', render: HostFilter },
     { value: 'hostregex', label: 'Hostname regex', render: HostRegExFilter },
@@ -106,8 +107,6 @@ export const SelectFilters = (props: EditorProps) => {
   if (!available_filters.length) {
     return null;
   }
-  const activeFilter = all_filters.find(({ value }) => value === props.filtername);
-  const ActiveFilter = activeFilter ? activeFilter.render : null;
 
   const action = () => {
     const { onChange, query, filtername } = props;
@@ -121,9 +120,11 @@ export const SelectFilters = (props: EditorProps) => {
     onChange({ ...query, context: { ...query.context, [value]: {} } });
   };
 
+  const activeFilter = all_filters.find(({ value }) => value === props.filtername);
+
   return (
-    <>
-      <InlineField label="Filter" labelWidth={14}>
+    <InlineFieldRow>
+      <InlineField label="Filter" labelWidth={8}>
         <Select
           width={32}
           options={available_filters}
@@ -135,9 +136,9 @@ export const SelectFilters = (props: EditorProps) => {
       {activeFilter && (
         <>
           <Button icon="minus" variant="secondary" onClick={action} />
-          <ActiveFilter {...props} />
+          <activeFilter.render {...props} />
         </>
       )}
-    </>
+    </InlineFieldRow>
   );
 };

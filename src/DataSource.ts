@@ -104,7 +104,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async combinedGraphIdent(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const { params } = query;
     const data = buildRequestBody({
       context: query.context,
       datasource: 'services',
@@ -123,10 +122,6 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {
-    if (!query.params.hostname) {
-      return Promise.resolve([]);
-    }
-
     const response = await this.doRequest({
       ...query,
       params: { action: 'get_graph' },

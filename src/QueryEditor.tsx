@@ -5,13 +5,12 @@ import { InlineFieldRow, InlineField, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
-import { SiteQueryField, HostFilter, HostLabelsFilter, HostRegExFilter, ServiceRegExFilter } from './components/site';
+import { SiteQueryField, HostFilter } from './components/site';
 import { GraphOfServiceQuery } from './components/templategraphs';
 import { CombinedGraphSelect, FilterEditor, SelectAggregation } from './components/combinedgraphs';
 //import { logError } from '@grafana/runtime';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
-
 
 interface GraphModeProps {
   query: MyQuery;
@@ -61,12 +60,11 @@ export const QueryEditor = (props: Props) => {
         </InlineFieldRow>
       )}
       {query.graphMode === 'combined' && (
-        <InlineFieldRow>
+        <>
           <FilterEditor {...props} />
-
           <SelectAggregation {...props} />
           <CombinedGraphSelect {...props} />
-        </InlineFieldRow>
+        </>
       )}
     </div>
   );
