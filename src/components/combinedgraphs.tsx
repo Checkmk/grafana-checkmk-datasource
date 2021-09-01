@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Button, InlineField, Input, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
+import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceRegExFilter } from './site';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -77,15 +78,14 @@ export class CombinedGraphSelect extends PureComponent<EditorProps, SelectOption
 
 export class FilterEditor extends PureComponent<EditorProps> {
   render() {
-    const {
-      query: { context },
-    } = this.props;
+    const context = this.props.query.context;
     console.log('filters', context);
     return (
       <>
         {Object.entries(context).map(([filtername, filtervars]) => (
           <SelectFilters {...this.props} filtername={filtername} />
         ))}
+        <SelectFilters {...this.props} filtername={null} />
       </>
     );
   }
@@ -93,25 +93,31 @@ export class FilterEditor extends PureComponent<EditorProps> {
 
 export const SelectFilters = (props: EditorProps) => {
   const all_filters = [
-    { value: 'hostname', label: 'Hostname' },
-    { value: 'hostregex', label: 'Hostname regex' },
-    { value: 'serviceregex', label: 'Service regex' },
-    { value: 'host_labels', label: 'Host Labels' },
+    { value: 'hostname', label: 'Hostname', render: HostFilter },
+    { value: 'hostregex', label: 'Hostname regex', render: HostRegExFilter },
+    { value: 'serviceregex', label: 'Service regex', render: ServiceRegExFilter },
+    { value: 'host_labels', label: 'Host Labels', render: HostLabelsFilter },
   ];
   const context = props.query.context || {};
-
   const available_filters = all_filters.filter(
     ({ value }) => value === props.filtername || !context.hasOwnProperty(value)
   );
+  // Early return in case all filters are on
+  if (!available_filters.length) {
+    return null;
+  }
+  const activeFilter = all_filters.find(({ value }) => value === props.filtername);
+  const ActiveFilter = activeFilter ? activeFilter.render : null;
 
   const action = () => {
     const { onChange, query, filtername } = props;
-    delete query.context[filtername]
+    delete query.context[filtername];
     onChange(query);
   };
 
   const onFilterChange = ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = props;
+    const { onChange, query, filtername } = props;
+    delete query.context[filtername];
     onChange({ ...query, context: { ...query.context, [value]: {} } });
   };
 
@@ -126,7 +132,12 @@ export const SelectFilters = (props: EditorProps) => {
           placeholder="Filter"
         />
       </InlineField>
-      <Button icon="minus" variant="secondary" onClick={action}/>
+      {activeFilter && (
+        <>
+          <Button icon="minus" variant="secondary" onClick={action} />
+          <ActiveFilter {...props} />
+        </>
+      )}
     </>
   );
 };

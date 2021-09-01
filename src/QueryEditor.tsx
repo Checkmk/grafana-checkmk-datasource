@@ -63,9 +63,6 @@ export const QueryEditor = (props: Props) => {
       {query.graphMode === 'combined' && (
         <InlineFieldRow>
           <FilterEditor {...props} />
-          <HostRegExFilter {...props} />
-          <ServiceRegExFilter {...props} />
-          <HostLabelsFilter {...props} />
 
           <SelectAggregation {...props} />
           <CombinedGraphSelect {...props} />
