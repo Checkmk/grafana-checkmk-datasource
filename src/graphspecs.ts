@@ -1,18 +1,19 @@
-import { MyQuery, Context } from './types';
+import { MyQuery } from './types';
 export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
 export function graphSpecification(query: MyQuery, range: number[]) {
   if (query.graphMode === 'graph') {
-    return graphTemplateSpecification(query.params, range);
+    return graphTemplateSpecification(query, range);
   } else if (query.graphMode === 'metric') {
-    return singleMetricGraphSpecification(query.params, range);
+    return singleMetricGraphSpecification(query, range);
   } else if (query.graphMode === 'combined') {
-    return combinedGraphSpecification(query.context || {}, query.params, range);
+    return combinedGraphSpecification(query, range);
   }
   throw new Error('Unknown graph mode');
 }
 
-function graphTemplateSpecification(params: any, range: number[]) {
+function graphTemplateSpecification(query: MyQuery, range: number[]) {
+  const { params } = query;
   return buildRequestBody({
     specification: [
       'template',
@@ -29,7 +30,8 @@ function graphTemplateSpecification(params: any, range: number[]) {
   });
 }
 
-function singleMetricGraphSpecification(params: any, range: number[]) {
+function singleMetricGraphSpecification(query: MyQuery, range: number[]) {
+  const { params } = query;
   return buildRequestBody({
     specification: [
       'single_timeseries',
@@ -46,12 +48,13 @@ function singleMetricGraphSpecification(params: any, range: number[]) {
   });
 }
 
-function combinedGraphSpecification(context: Context, params: any, range: number[]) {
+function combinedGraphSpecification(query: MyQuery, range: number[]) {
+  const { context, params } = query;
   return buildRequestBody({
     specification: [
       'combined',
       {
-        context: context,
+        context: context || {},
         datasource: 'services',
         presentation: params.presentation,
         graph_template: params.graph_name,
