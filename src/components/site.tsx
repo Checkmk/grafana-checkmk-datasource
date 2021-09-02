@@ -4,6 +4,7 @@ import { SelectableValue } from '@grafana/data';
 import { prepareHostsQuery } from '../DataSource';
 import { EditorProps, SelectOptions } from './types';
 import { MyQuery } from '../types';
+import get from 'lodash/get';
 
 export class SiteQueryField extends PureComponent<EditorProps, SelectOptions<string>> {
   constructor(props: EditorProps) {
@@ -89,7 +90,7 @@ export const HostRegExFilter = (props: EditorProps) => {
     const { onChange, query } = props;
     onChange({ ...query, context: { ...query.context, hostregex: { host_regex: event.target.value } } });
   };
-  const hostRegEx = props.query.context.hostregex || {};
+  const hostRegEx = get(props, 'query.context.hostregex',  {});
   return (
     <InlineField label="Hostname regex" labelWidth={14}>
       <Input width={32} type="text" value={hostRegEx.host_regex || ''} onChange={onHostChange} placeholder="none" />
@@ -102,7 +103,7 @@ export const ServiceRegExFilter = (props: EditorProps) => {
     const { onChange, query } = props;
     onChange({ ...query, context: { ...query.context, serviceregex: { service_regex: event.target.value } } });
   };
-  const serviceRegEx = props.query.context.serviceregex || {};
+  const serviceRegEx = get(props, "query.context.serviceregex", {});
   return (
     <InlineField label="Service regex" labelWidth={14}>
       <Input
@@ -126,7 +127,7 @@ export class HostLabelsFilter extends PureComponent<EditorProps, SelectOptions<s
       world: 'core',
       search_label: '',
     });
-    this.setState({ options: result.data.result.map(({ value }) => ({ label: value, value: value })) });
+    this.setState({ options: result.data.result.map(({ value } : { value: string }) => ({ label: value, value: value })) });
   }
 
   async componentDidMount() {
@@ -149,7 +150,7 @@ export class HostLabelsFilter extends PureComponent<EditorProps, SelectOptions<s
   };
 
   render() {
-    const hostLabelFilter = this.props.query.context.host_labels || {};
+    const hostLabelFilter = get(this, "props.query.context.host_labels", {});
     const labels = JSON.parse(hostLabelFilter.host_label || '[]');
     return (
       <InlineField label="Host labels" labelWidth={14}>

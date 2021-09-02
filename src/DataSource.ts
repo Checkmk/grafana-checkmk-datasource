@@ -115,7 +115,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       params: { action: 'get_combined_graph_identifications' },
       data: data,
     });
-    return response.data.result.map(({ title, identification }) => ({
+    return response.data.result.map(({ title, identification } : { title: string, identification: Record<string | number, any>}) => ({
       label: title,
       value: identification[1].graph_template,
     }));
