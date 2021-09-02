@@ -1,5 +1,5 @@
 import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms } from '@grafana/ui';
+import { LegacyForms, FieldSet } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions, MySecureJsonData } from './types';
 
@@ -10,7 +10,7 @@ interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> 
 interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {
-  onUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onChangeUrl = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -19,7 +19,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  onUsernameChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onChangeUsername = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -29,7 +29,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
   };
 
   // Secure field (only sent to the backend)
-  onSecretChange = (event: ChangeEvent<HTMLInputElement>) => {
+  onChangeSecret = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
@@ -60,50 +60,48 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
 
     return (
-      <div className="gf-form-group">
-        <div className="gf-form">
-          <FormField
-            label="URL"
-            labelWidth={6}
-            inputWidth={20}
-            onChange={this.onUrlChange}
-            value={jsonData.url || ''}
-            placeholder="enter url"
-            required
-          />
-        </div>
-
-        <br />
-        <br />
-        <h3 className="page-heading">Authentication</h3>
-        <div className="gf-form-inline">
+      <>
+        <FieldSet label="Generel">
           <div className="gf-form">
             <FormField
-              label="username"
+              label="URL"
               labelWidth={6}
               inputWidth={20}
-              onChange={this.onUsernameChange}
-              value={jsonData.username || ''}
-              placeholder="enter username"
-              required
+              onChange={this.onChangeUrl}
+              value={jsonData.url || ''}
+              tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
             />
           </div>
-        </div>
-        <div className="gf-form-inline">
+
+        </FieldSet>
+        <FieldSet label="Authentication">
           <div className="gf-form">
-            <SecretFormField
-              isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
-              value={secureJsonData.secret || ''}
-              label="API Key"
-              placeholder="enter secret"
+            <FormField
+              label="Username"
               labelWidth={6}
               inputWidth={20}
-              onReset={this.onResetSecret}
-              onChange={this.onSecretChange}
+              onChange={this.onChangeUsername}
+              value={jsonData.username || ''}
+              tooltip="In most usecases, this should be 'automation'."
             />
           </div>
-        </div>
-      </div>
+          <div className="gf-form-inline">
+            <div className="gf-form">
+              <SecretFormField
+                isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
+                value={secureJsonData.secret || ''}
+                label="Secret"
+                placeholder=""
+                labelWidth={6}
+                inputWidth={20}
+                onReset={this.onResetSecret}
+                onChange={this.onChangeSecret}
+                tooltip="You can find the password for your automation user in your Checkmk installation under users - automation."
+              />
+            </div>
+          </div>
+        </FieldSet>
+      </>
     );
   }
 }
