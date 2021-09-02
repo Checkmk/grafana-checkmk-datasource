@@ -1,5 +1,5 @@
 import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms } from '@grafana/ui';
+import { LegacyForms, FieldSet } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions, MySecureJsonData } from './types';
 
@@ -60,50 +60,45 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
 
     return (
-      <div className="gf-form-group">
-        <div className="gf-form">
-          <FormField
-            label="URL"
-            labelWidth={6}
-            inputWidth={20}
-            onChange={this.onUrlChange}
-            value={jsonData.url || ''}
-            placeholder="enter url"
-            required
-          />
-        </div>
-
-        <br />
-        <br />
-        <h3 className="page-heading">Authentication</h3>
-        <div className="gf-form-inline">
+      <>
+        <FieldSet label="Monitoring Site">
           <div className="gf-form">
             <FormField
-              label="username"
+              label="URL"
+              labelWidth={6}
+              inputWidth={20}
+              onChange={this.onUrlChange}
+              value={jsonData.url || ''}
+              tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
+            />
+          </div>
+        </FieldSet>
+        <FieldSet label="Authentication">
+          <div className="gf-form">
+            <FormField
+              label="Username"
               labelWidth={6}
               inputWidth={20}
               onChange={this.onUsernameChange}
               value={jsonData.username || ''}
-              placeholder="enter username"
-              required
+              tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
             />
           </div>
-        </div>
-        <div className="gf-form-inline">
           <div className="gf-form">
             <SecretFormField
               isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
               value={secureJsonData.secret || ''}
-              label="API Key"
-              placeholder="enter secret"
+              label="Secret"
+              placeholder=""
               labelWidth={6}
               inputWidth={20}
               onReset={this.onResetSecret}
               onChange={this.onSecretChange}
+              tooltip="You can find the secret for your user in your checkmk server under Users."
             />
           </div>
-        </div>
-      </div>
+        </FieldSet>
+      </>
     );
   }
 }

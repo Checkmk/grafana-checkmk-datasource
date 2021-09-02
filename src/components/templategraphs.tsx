@@ -1,4 +1,4 @@
-import { isEmpty } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import React, { PureComponent } from 'react';
 import { InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
@@ -109,14 +109,15 @@ function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service:
     : [];
 }
 
-export class MetricSelect extends PureComponent<EditorProps, SelectOptions<string>> {
-  constructor(props: EditorProps) {
+type EditorPropsWithMetrics = EditorProps & { allmetrics?: Array<[string, ServiceInfo]> };
+export class MetricSelect extends PureComponent<EditorPropsWithMetrics, SelectOptions<string>> {
+  constructor(props: EditorPropsWithMetrics) {
     super(props);
     this.state = { options: [] };
   }
 
-  async componentDidUpdate(prevProps: EditorProps) {
-    const { allmetrics } = this.props;
+  async componentDidUpdate(prevProps: EditorPropsWithMetrics) {
+    const allmetrics = get(this.props, 'allmetrics', []);
     const service = this.props.query.params.service;
     if (allmetrics.length && service && (!this.state.options.length || prevProps.query.params.service !== service)) {
       this.setState({ options: pickMetrics(allmetrics, this.props.query.params.service) });

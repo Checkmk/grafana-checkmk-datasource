@@ -15,8 +15,10 @@
       "small": "img/checkmk_logo.png",
       "large": "img/checkmk_logo.png"
     },
-    "links": [{ "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" },
-              { "name": "checkmk", "url": "https://checkmk.com" }],
+    "links": [
+      { "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" },
+      { "name": "checkmk", "url": "https://checkmk.com" }
+    ],
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"

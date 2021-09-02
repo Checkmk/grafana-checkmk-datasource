@@ -83,7 +83,7 @@ export const FilterEditor = (props: EditorProps) => {
       {Object.keys(context).map((filtername, index) => (
         <SelectFilters key={`${index}/${filtername}`} {...props} filtername={filtername} />
       ))}
-      <SelectFilters {...props} filtername={null} />
+      <SelectFilters {...props} filtername={''} />
     </>
   );
 };
@@ -110,14 +110,21 @@ export const SelectFilters = (props: FilterEditorProps) => {
 
   const action = () => {
     const { onChange, query, filtername } = props;
-    delete query.context[filtername];
+    if (query.context) {
+      delete query.context[filtername];
+    }
     onChange(query);
   };
 
-  const onFilterChange = ({ value }: SelectableValue<string>) => {
+  const onFilterChange = ({ value }: SelectableValue<string | null>) => {
     const { onChange, query, filtername } = props;
-    delete query.context[filtername];
-    onChange({ ...query, context: { ...query.context, [value]: {} } });
+    if (query.context) {
+      delete query.context[filtername];
+    }
+
+    if (value) {
+      onChange({ ...query, context: { ...query.context, [value]: {} } });
+    }
   };
 
   const activeFilter = all_filters.find(({ value }) => value === props.filtername);
@@ -129,7 +136,7 @@ export const SelectFilters = (props: FilterEditorProps) => {
           width={32}
           options={available_filters}
           onChange={onFilterChange}
-          value={props.filtername}
+          value={props.filtername || null}
           placeholder="Filter"
         />
       </InlineField>

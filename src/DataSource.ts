@@ -115,10 +115,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       params: { action: 'get_combined_graph_identifications' },
       data: data,
     });
-    return response.data.result.map(({ title, identification }) => ({
-      label: title,
-      value: identification[1].graph_template,
-    }));
+    return response.data.result.map(
+      ({ title, identification }: { title: string; identification: [string, any] }) => ({
+        label: title,
+        value: identification[1].graph_template,
+      })
+    );
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {
