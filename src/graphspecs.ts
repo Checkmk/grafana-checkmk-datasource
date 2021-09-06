@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import { MyQuery } from './types';
 export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
@@ -13,14 +14,14 @@ export function graphSpecification(query: MyQuery, range: number[]) {
 }
 
 function graphTemplateSpecification(query: MyQuery, range: number[]) {
-  const { params } = query;
+  const { params, context } = query;
   return buildRequestBody({
     specification: [
       'template',
       {
-        site: params.site_id,
-        host_name: params.hostname,
-        service_description: params.service,
+        site: get(context, 'siteopt.site', ''),
+        host_name: get(context, 'host.host', ''),
+        service_description: get(context, 'service.service', ''),
         graph_index: params.graph_index,
       },
     ],
@@ -31,14 +32,14 @@ function graphTemplateSpecification(query: MyQuery, range: number[]) {
 }
 
 function singleMetricGraphSpecification(query: MyQuery, range: number[]) {
-  const { params } = query;
+  const { params, context } = query;
   return buildRequestBody({
     specification: [
       'single_timeseries',
       {
-        site: params.site_id,
-        host: params.hostname,
-        service: params.service,
+        site: get(context, 'siteopt.site', ''),
+        host: get(context, 'host.host', ''),
+        service: get(context, 'service.service', ''),
         metric: params.metric,
       },
     ],

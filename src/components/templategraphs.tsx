@@ -1,4 +1,4 @@
-import { get, isEmpty } from 'lodash';
+import { get, isEmpty, update } from 'lodash';
 import React, { PureComponent } from 'react';
 import { InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
@@ -34,10 +34,14 @@ async function allServiceMetrics(query: MyQuery, datasource: DataSource) {
   };
 }
 
-function prepareSevicesQuery(query: MyQuery, hostname: string) {
+function prepareSevicesQuery(query: MyQuery) {
   return {
     ...query,
-    params: { hostname: hostname, site_id: query.params.site_id, action: 'get_metrics_of_host' },
+    params: {
+      hostname: get(query, 'context.host.host', ''),
+      site_id: get(query, 'context.siteopt.site', ''),
+      action: 'get_metrics_of_host',
+    },
   };
 }
 
@@ -51,32 +55,31 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
     super(props);
     this.state = { services: [], allmetrics: [] };
   }
+
   async fillState() {
     const { query, datasource } = this.props;
-    const hostname = query.params.hostname;
-    if (hostname && !this.state.services.length) {
-      const all_service_metrics = await allServiceMetrics(prepareSevicesQuery(query, hostname), datasource);
-      this.setState(all_service_metrics);
-    }
+    const all_service_metrics = await allServiceMetrics(prepareSevicesQuery(query), datasource);
+    this.setState(all_service_metrics);
   }
 
   async componentDidMount() {
-    const hostname = this.props.query.params.hostname;
+    const hostname = get(this, 'props.query.context.host.host', '');
     if (hostname && !this.state.services.length) {
       this.fillState();
     }
   }
 
   async componentDidUpdate(prevProps: EditorProps) {
-    const hostname = this.props.query.params.hostname;
-    if (hostname && (!this.state.services.length || prevProps.query.params.hostname !== hostname)) {
+    const hostname = get(this, 'props.query.context.host.host', '');
+    if (hostname && (!this.state.services.length || get(prevProps, 'query.context.host.host', '') !== hostname)) {
       this.fillState();
     }
   }
 
   onServiceChange = async ({ value }: SelectableValue<string>) => {
     const { query, onChange } = this.props;
-    onChange({ ...query, params: { ...query.params, service: value } });
+    update(query, 'context.service.service', () => value);
+    onChange(query);
   };
 
   render() {
@@ -88,7 +91,7 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
             width={32}
             options={this.state.services}
             onChange={this.onServiceChange}
-            value={query.params.service}
+            value={get(query, 'context.service.service', '')}
             placeholder="Select service"
           />
         </InlineField>
@@ -154,18 +157,22 @@ export class GraphSelect extends PureComponent<EditorProps, SelectOptions<number
   }
 
   async componentDidMount() {
-    const { hostname, service } = this.props.query.params;
+    const hostname = get(this, 'props.query.context.host.host', '');
+    const service = get(this, 'props.query.context.service.service', '');
     if (hostname && service && !this.state.options.length) {
       this.fillOptions();
     }
   }
 
-  async componentDidUpdate({ query: { params: prevParams } }: EditorProps) {
-    const { hostname, service } = this.props.query.params;
+  async componentDidUpdate({ query: { context: prevContext } }: EditorProps) {
+    const hostname = get(this, 'props.query.context.host.host', '');
+    const service = get(this, 'props.query.context.service.service', '');
     if (
       hostname &&
       service &&
-      (!this.state.options.length || prevParams.hostname !== hostname || prevParams.service !== service)
+      (!this.state.options.length ||
+        get(prevContext, 'host.host', '') !== hostname ||
+        get(prevContext, 'service.service', '') !== service)
     ) {
       this.fillOptions();
     }
@@ -173,7 +180,8 @@ export class GraphSelect extends PureComponent<EditorProps, SelectOptions<number
 
   onGraphChange = async ({ value }: SelectableValue<number>) => {
     const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, params: { ...query.params, graph_index: value } });
+    update(query, 'params.graph_index', () => value);
+    onChange(query);
     onRunQuery();
   };
 

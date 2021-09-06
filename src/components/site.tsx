@@ -1,7 +1,6 @@
 import React, { ChangeEvent, PureComponent } from 'react';
 import { InlineField, Select, MultiSelect, Input } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { prepareHostsQuery } from '../DataSource';
 import { EditorProps, SelectOptions } from './types';
 import { MyQuery } from '../types';
 import { get, update } from 'lodash';
@@ -95,7 +94,8 @@ export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>
 export const HostRegExFilter = (props: EditorProps) => {
   const onHostChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query } = props;
-    onChange({ ...query, context: { ...query.context, hostregex: { host_regex: event.target.value } } });
+    update(query, 'context.hostregex.host_regex', () => event.target.value);
+    onChange(query);
   };
   const hostRegEx = get(props, 'query.context.hostregex', {});
   return (
@@ -159,18 +159,13 @@ export class ServiceFilter extends PureComponent<EditorProps, SelectOptions<stri
 export const ServiceRegExFilter = (props: EditorProps) => {
   const onServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query } = props;
-    onChange({ ...query, context: { ...query.context, serviceregex: { service_regex: event.target.value } } });
+    update(query, 'context.serviceregex.service_regex', () => event.target.value);
+    onChange(query);
   };
-  const serviceRegEx = get(props, 'query.context.serviceregex', {});
+  const serviceRegEx = get(props, 'query.context.serviceregex.service_regex', '');
   return (
     <InlineField label="Service regex" labelWidth={14}>
-      <Input
-        width={32}
-        type="text"
-        value={serviceRegEx.service_regex || ''}
-        onChange={onServiceChange}
-        placeholder="none"
-      />
+      <Input width={32} type="text" value={serviceRegEx} onChange={onServiceChange} placeholder="none" />
     </InlineField>
   );
 };

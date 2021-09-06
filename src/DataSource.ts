@@ -1,4 +1,4 @@
-import { defaults, zip } from 'lodash';
+import { defaults, get, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -89,9 +89,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       specification: [
         'template',
         {
-          site: query.params.site_id,
-          host_name: query.params.hostname,
-          service_description: query.params.service,
+          site: get(query, 'context.siteopt.site', ''),
+          host_name: get(query, 'context.host.host', ''),
+          service_description: get(query, 'context.service.service', ''),
         },
       ],
     });
@@ -115,12 +115,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       params: { action: 'get_combined_graph_identifications' },
       data: data,
     });
-    return response.data.result.map(
-      ({ title, identification }: { title: string; identification: [string, any] }) => ({
-        label: title,
-        value: identification[1].graph_template,
-      })
-    );
+    return response.data.result.map(({ title, identification }: { title: string; identification: [string, any] }) => ({
+      label: title,
+      value: identification[1].graph_template,
+    }));
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {
