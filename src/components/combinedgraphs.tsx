@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
-import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceRegExFilter, SiteFilter } from './site';
+import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceFilter, ServiceRegExFilter, SiteFilter } from './site';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -97,6 +97,7 @@ export const SelectFilters = (props: FilterEditorProps) => {
     { value: 'siteopt', label: 'Site', render: SiteFilter },
     { value: 'host', label: 'Hostname', render: HostFilter },
     { value: 'hostregex', label: 'Hostname regex', render: HostRegExFilter },
+    { value: 'service', label: 'Service', render: ServiceFilter },
     { value: 'serviceregex', label: 'Service regex', render: ServiceRegExFilter },
     { value: 'host_labels', label: 'Host Labels', render: HostLabelsFilter },
   ];

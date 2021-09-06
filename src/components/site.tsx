@@ -46,9 +46,16 @@ export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>
     super(props);
     this.state = { options: [] };
   }
+
   async fillOptions(query: MyQuery) {
-    const site_id = query.params.site_id;
-    this.setState({ options: await this.props.datasource.hostsQuery(prepareHostsQuery(query, site_id)) });
+    const result = await this.props.datasource.restRequest('ajax_vs_autocomplete.py', {
+      ident: 'monitored_hostname',
+      params: { strict: true },
+      value: '',
+    });
+    this.setState({
+      options: result.data.result.choices.map(([value, label]: [string, string]) => ({ value, label })),
+    });
   }
 
   async componentDidMount() {
@@ -66,7 +73,7 @@ export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>
 
   onHostChange = ({ value }: SelectableValue<string>) => {
     const { query, onChange } = this.props;
-    update(query, 'context.host.host', ()=> value)
+    update(query, 'context.host.host', () => value);
     onChange(query);
   };
 
@@ -97,6 +104,57 @@ export const HostRegExFilter = (props: EditorProps) => {
     </InlineField>
   );
 };
+
+export class ServiceFilter extends PureComponent<EditorProps, SelectOptions<string>> {
+  constructor(props: EditorProps) {
+    super(props);
+    this.state = { options: [] };
+  }
+
+  async fillOptions(query: MyQuery) {
+    const result = await this.props.datasource.restRequest('ajax_vs_autocomplete.py', {
+      ident: 'monitored_service_description',
+      params: { strict: true },
+      value: '',
+    });
+    this.setState({
+      options: result.data.result.choices.map(([value, label]: [string, string]) => ({ value, label })),
+    });
+  }
+
+  async componentDidMount() {
+    if (!this.state.options.length) {
+      this.fillOptions(this.props.query);
+    }
+  }
+
+  async componentDidUpdate(prevProps: EditorProps) {
+    const site_id = this.props.query.params.site_id;
+    if (prevProps.query.params.site_id !== site_id) {
+      this.fillOptions(this.props.query);
+    }
+  }
+
+  onHostChange = ({ value }: SelectableValue<string>) => {
+    const { query, onChange } = this.props;
+    update(query, 'context.service.service', () => value);
+    onChange(query);
+  };
+
+  render() {
+    return (
+      <InlineField labelWidth={14} label="Service">
+        <Select
+          width={32}
+          options={this.state.options}
+          onChange={this.onHostChange}
+          value={get(this, 'props.query.context.service.service', '')}
+          placeholder="Select service"
+        />
+      </InlineField>
+    );
+  }
+}
 
 export const ServiceRegExFilter = (props: EditorProps) => {
   const onServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
