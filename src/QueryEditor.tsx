@@ -5,7 +5,7 @@ import { InlineFieldRow, InlineField, Select } from '@grafana/ui';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
-import { SiteQueryField, HostFilter } from './components/site';
+import { HostFilter, SiteFilter } from './components/site';
 import { GraphOfServiceQuery } from './components/templategraphs';
 import { CombinedGraphSelect, FilterEditor, SelectAggregation } from './components/combinedgraphs';
 //import { logError } from '@grafana/runtime';
@@ -50,11 +50,11 @@ export const QueryEditor = (props: Props) => {
     <div className="gf-form-group">
       <InlineFieldRow>
         <GraphModeSelect {...props} query={query} />
-        <SiteQueryField {...props} query={query} />
       </InlineFieldRow>
 
       {(query.graphMode === 'graph' || query.graphMode === 'metric') && (
         <InlineFieldRow>
+          <SiteFilter {...props} />
           <HostFilter {...props} query={query} />
           <GraphOfServiceQuery {...props} />
         </InlineFieldRow>

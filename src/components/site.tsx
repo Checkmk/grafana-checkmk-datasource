@@ -4,9 +4,9 @@ import { SelectableValue } from '@grafana/data';
 import { prepareHostsQuery } from '../DataSource';
 import { EditorProps, SelectOptions } from './types';
 import { MyQuery } from '../types';
-import get from 'lodash/get';
+import { get, update } from 'lodash';
 
-export class SiteQueryField extends PureComponent<EditorProps, SelectOptions<string>> {
+export class SiteFilter extends PureComponent<EditorProps, SelectOptions<string>> {
   constructor(props: EditorProps) {
     super(props);
     this.state = { options: [] };
@@ -21,20 +21,19 @@ export class SiteQueryField extends PureComponent<EditorProps, SelectOptions<str
 
   onSiteIdChange = ({ value }: SelectableValue<string>) => {
     const { onChange, query } = this.props;
-    onChange({
-      ...query,
-      params: { ...query.params, site_id: value },
-    });
+    update(query, 'context.siteopt.site', () => value);
+    onChange(query);
   };
 
   render() {
+    const site = get(this.props, 'query.context.siteopt.site', '');
     return (
       <InlineField labelWidth={14} label="Site">
         <Select
           width={32}
           options={this.state.options}
           onChange={this.onSiteIdChange}
-          value={this.props.query.params.site_id}
+          value={site}
           placeholder="Select Site"
         />
       </InlineField>
