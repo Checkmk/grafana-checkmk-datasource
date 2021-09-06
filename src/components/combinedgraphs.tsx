@@ -95,7 +95,7 @@ interface FilterEditorProps extends EditorProps {
 export const SelectFilters = (props: FilterEditorProps) => {
   const all_filters = [
     { value: 'siteopt', label: 'Site', render: SiteFilter },
-    { value: 'hostname', label: 'Hostname', render: HostFilter },
+    { value: 'host', label: 'Hostname', render: HostFilter },
     { value: 'hostregex', label: 'Hostname regex', render: HostRegExFilter },
     { value: 'serviceregex', label: 'Service regex', render: ServiceRegExFilter },
     { value: 'host_labels', label: 'Host Labels', render: HostLabelsFilter },

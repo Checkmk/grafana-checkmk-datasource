@@ -66,7 +66,8 @@ export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>
 
   onHostChange = ({ value }: SelectableValue<string>) => {
     const { query, onChange } = this.props;
-    onChange({ ...query, params: { ...query.params, hostname: value } });
+    update(query, 'context.host.host', ()=> value)
+    onChange(query);
   };
 
   render() {
@@ -76,7 +77,7 @@ export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>
           width={32}
           options={this.state.options}
           onChange={this.onHostChange}
-          value={this.props.query.params.hostname}
+          value={get(this, 'props.query.context.host.host', '')}
           placeholder="Select Host"
         />
       </InlineField>
