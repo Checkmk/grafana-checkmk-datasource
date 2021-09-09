@@ -11,7 +11,7 @@ import {
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
-import { buildRequestBody, graphSpecification } from './graphspecs';
+import { buildRequestBody, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
 
 const error = (message: string) => ({
@@ -125,7 +125,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const response = await this.doRequest({
       ...query,
       params: { action: 'get_graph' },
-      data: graphSpecification(query, range),
+      data: graphDefinitionRequest(query, range),
     });
     return buildMetricDataFrame(response, query);
   }
