@@ -11,7 +11,7 @@ import {
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
-import { buildRequestBody, graphDefinitionRequest } from './graphspecs';
+import { buildRequestBody, extractSingleInfos, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
 
 const error = (message: string) => ({
@@ -26,7 +26,7 @@ export function prepareHostsQuery(query: MyQuery, site: string) {
     params: { site_id: site, action: 'get_host_names' },
   };
 }
-const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
+export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
 
 function buildMetricDataFrame(response: any, query: MyQuery) {
   if (response.data.result_code !== 0) {
@@ -84,19 +84,12 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Object.entries(response.data.result);
   }
 
-  async graphRecipesQuery(query: MyQuery): Promise<Array<SelectableValue<number>>> {
+  async graphRecipesQuery({ refId, context }: MyQuery): Promise<Array<SelectableValue<number>>> {
     const template = buildRequestBody({
-      specification: [
-        'template',
-        {
-          site: get(query, 'context.siteopt.site', ''),
-          host_name: get(query, 'context.host.host', ''),
-          service_description: get(query, 'context.service.service', ''),
-        },
-      ],
+      specification: ['template', extractSingleInfos(context || {})],
     });
     const response = await this.doRequest({
-      refId: query.refId,
+      refId: refId,
       params: { action: 'get_graph_recipes' },
       data: template,
     });

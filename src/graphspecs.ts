@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import { MyQuery } from './types';
+import { Context, MyQuery } from './types';
 export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
 type GraphSpec = [string, any];
@@ -24,13 +24,19 @@ function graphSpecification(query: MyQuery): GraphSpec {
   throw new Error('Unknown graph mode');
 }
 
+function extractSingleInfos(context: Context) {
+  return {
+    site: get(context, 'siteopt.site', ''),
+    host_name: get(context, 'host.host', ''),
+    service_description: get(context, 'service.service', ''),
+  };
+}
+
 function graphTemplateSpecification({ params, context }: MyQuery): GraphSpec {
   return [
     'template',
     {
-      site: get(context, 'siteopt.site', ''),
-      host_name: get(context, 'host.host', ''),
-      service_description: get(context, 'service.service', ''),
+      ...extractSingleInfos(context || {}),
       graph_index: params.graph_index,
     },
   ];
@@ -40,9 +46,7 @@ function singleMetricGraphSpecification({ params, context }: MyQuery): GraphSpec
   return [
     'single_timeseries',
     {
-      site: get(context, 'siteopt.site', ''),
-      host: get(context, 'host.host', ''),
-      service: get(context, 'service.service', ''),
+      ...extractSingleInfos(context || {}),
       metric: params.metric,
     },
   ];
