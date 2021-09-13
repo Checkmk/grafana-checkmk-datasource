@@ -24,7 +24,7 @@ function graphSpecification(query: MyQuery): GraphSpec {
   throw new Error('Unknown graph mode');
 }
 
-function extractSingleInfos(context: Context) {
+export function extractSingleInfos(context: Context) {
   return {
     site: get(context, 'siteopt.site', ''),
     host_name: get(context, 'host.host', ''),

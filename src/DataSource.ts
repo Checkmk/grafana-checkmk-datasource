@@ -1,4 +1,4 @@
-import { defaults, get, zip } from 'lodash';
+import { defaults, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -12,7 +12,7 @@ import {
 import { getBackendSrv } from '@grafana/runtime';
 
 import { buildRequestBody, extractSingleInfos, graphDefinitionRequest } from './graphspecs';
-import { MyQuery, MyDataSourceOptions, defaultQuery } from './types';
+import { MyQuery, defaultQuery } from './types';
 
 const error = (message: string) => ({
   status: 'error',
@@ -46,12 +46,9 @@ function buildMetricDataFrame(response: any, query: MyQuery) {
   return frame;
 }
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
-  url: string;
-
-  constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+export class DataSource extends DataSourceApi<MyQuery> {
+  constructor(private instanceSettings: DataSourceInstanceSettings) {
     super(instanceSettings);
-    this.url = instanceSettings.url!;
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -143,7 +140,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return this.cmkRequest({
       method: options.data == null ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: buildUrlWithParams(`${this.url}/cmk/check_mk/webapi.py`, options.params),
+      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, options.params),
       data: options.data,
     });
   }
@@ -152,7 +149,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return this.cmkRequest({
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: `${this.url}/cmk/check_mk/${api_url}`,
+      url: `${this.instanceSettings.url}/cmk/check_mk/${api_url}`,
       data: buildRequestBody(data),
     });
   }
