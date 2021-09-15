@@ -1,6 +1,6 @@
 import { get, isEmpty, update } from 'lodash';
 import React, { PureComponent } from 'react';
-import { InlineField, Select } from '@grafana/ui';
+import { InlineField, QueryField, Select, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { MyQuery } from 'types';
@@ -81,11 +81,30 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
     update(query, 'context.service.service', () => value);
     onChange(query);
   };
+  onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
+    console.log(typeahead);
+
+    const result = await this.props.datasource.restRequest('ajax_vs_autocomplete.py', {
+      ident: 'monitored_hostname',
+      params: { strict: true },
+      value: '',
+    });
+
+    return {
+      suggestions: [
+        {
+          label: 'Hostnames',
+          items: result.data.result.choices.map(([_value, label]: [string, string]) => ({ label })),
+        },
+      ],
+    };
+  };
 
   render() {
     const { query } = this.props;
     return (
       <>
+        <QueryField onTypeahead={this.onTypeahead} placeholder="TRUS" portalOrigin="YOUTO" />
         <InlineField labelWidth={14} label="Service">
           <Select
             width={32}
