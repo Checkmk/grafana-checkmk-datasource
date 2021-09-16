@@ -1,6 +1,6 @@
 import { get, isEmpty, update } from 'lodash';
 import React, { PureComponent } from 'react';
-import { InlineField, QueryField, Select, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
+import { AsyncSelect, InlineField, QueryField, Select, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { MyQuery } from 'types';
@@ -102,9 +102,14 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
 
   render() {
     const { query } = this.props;
+    const hostVS = {
+      ident: 'monitored_hostname',
+      params: { strict: true },
+    };
+
     return (
       <>
-        <QueryField onTypeahead={this.onTypeahead} placeholder="TRUS" portalOrigin="YOUTO" />
+        <AsyncAutocomplete autocompleteConfig={hostVS} contextPath="context.host.host" {...this.props} />
         <InlineField labelWidth={14} label="Service">
           <Select
             width={32}
@@ -120,6 +125,41 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
     );
   }
 }
+
+const AsyncAutocomplete = ({ datasource, autocompleteConfig, onChange, query, contextPath }: EditorProps) => {
+  const getAutocomplete = (inputValue: string) =>
+    datasource
+      .restRequest('ajax_vs_autocomplete.py', {
+        ...autocompleteConfig,
+        value: inputValue,
+      })
+      .then((result) =>
+        result.data.result.choices.map(([value, label]: [string, string]) => ({
+          value,
+          label,
+          isDisabled: value === null,
+        }))
+      );
+
+  const onSelection = ({ value }: SelectableValue<string>) => {
+    update(query, contextPath, () => value);
+    onChange(query);
+  };
+
+  const selected = get(query, contextPath, '');
+  const val = { value: selected, label: selected };
+
+  return (
+    <AsyncSelect
+      defaultOptions={[val]}
+      onChange={onSelection}
+      loadOptions={getAutocomplete}
+      value={val}
+      width={32}
+      placeholder="type to trigger search"
+    />
+  );
+};
 
 function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service: string) {
   const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);
