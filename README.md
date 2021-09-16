@@ -1,5 +1,8 @@
 # Checkmk Grafana Data Source Plugin 
 
+![CI](https://github.com/tribe29/grafana-checkmk-datasource/actions/workflows/node.js.yml/badge.svg)
+
+
 This Data Source allows you to query checkmk metrics. It is a complete rewrite
 of the previous connector to match newer grafana versions.
 
