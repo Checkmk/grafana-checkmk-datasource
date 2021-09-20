@@ -1,9 +1,10 @@
 import { get, isEmpty, update } from 'lodash';
 import React, { PureComponent } from 'react';
-import { AsyncSelect, InlineField, QueryField, Select, TypeaheadInput, TypeaheadOutput } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { MyQuery } from 'types';
+import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps, SelectOptions } from './types';
 
 interface MetricInfo {
@@ -81,85 +82,21 @@ export class GraphOfServiceQuery extends PureComponent<EditorProps, GraphOfServi
     update(query, 'context.service.service', () => value);
     onChange(query);
   };
-  onTypeahead = async (typeahead: TypeaheadInput): Promise<TypeaheadOutput> => {
-    console.log(typeahead);
-
-    const result = await this.props.datasource.restRequest('ajax_vs_autocomplete.py', {
-      ident: 'monitored_hostname',
-      params: { strict: true },
-      value: '',
-    });
-
-    return {
-      suggestions: [
-        {
-          label: 'Hostnames',
-          items: result.data.result.choices.map(([_value, label]: [string, string]) => ({ label })),
-        },
-      ],
-    };
-  };
 
   render() {
     const { query } = this.props;
-    const hostVS = {
-      ident: 'monitored_hostname',
-      params: { strict: true },
-    };
 
     return (
-      <>
-        <AsyncAutocomplete autocompleteConfig={hostVS} contextPath="context.host.host" {...this.props} />
-        <InlineField labelWidth={14} label="Service">
-          <Select
-            width={32}
-            options={this.state.services}
-            onChange={this.onServiceChange}
-            value={get(query, 'context.service.service', '')}
-            placeholder="Select service"
-          />
-        </InlineField>
+      <InlineFieldRow>
+        <SiteFilter {...this.props} />
+        <HostFilter {...this.props} />
+        <ServiceFilter {...this.props} />
         {query.graphMode === 'graph' && <GraphSelect {...this.props} />}
         {query.graphMode === 'metric' && <MetricSelect {...this.props} allmetrics={this.state.allmetrics} />}
-      </>
+      </InlineFieldRow>
     );
   }
 }
-
-const AsyncAutocomplete = ({ datasource, autocompleteConfig, onChange, query, contextPath }: EditorProps) => {
-  const getAutocomplete = (inputValue: string) =>
-    datasource
-      .restRequest('ajax_vs_autocomplete.py', {
-        ...autocompleteConfig,
-        value: inputValue,
-      })
-      .then((result) =>
-        result.data.result.choices.map(([value, label]: [string, string]) => ({
-          value,
-          label,
-          isDisabled: value === null,
-        }))
-      );
-
-  const onSelection = ({ value }: SelectableValue<string>) => {
-    update(query, contextPath, () => value);
-    onChange(query);
-  };
-
-  const selected = get(query, contextPath, '');
-  const val = { value: selected, label: selected };
-
-  return (
-    <AsyncSelect
-      defaultOptions={[val]}
-      onChange={onSelection}
-      loadOptions={getAutocomplete}
-      value={val}
-      width={32}
-      placeholder="type to trigger search"
-    />
-  );
-};
 
 function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service: string) {
   const current_metrics = all_service_metrics.find(([svc, _]) => svc === service);

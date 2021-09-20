@@ -2,7 +2,7 @@ import React, { ChangeEvent, PureComponent } from 'react';
 import { InlineField, Select, MultiSelect, Input } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
-import { MyQuery } from '../types';
+import { AsyncAutocomplete } from './fields';
 import { get, update } from 'lodash';
 
 export class SiteFilter extends PureComponent<EditorProps, SelectOptions<string>> {
@@ -40,56 +40,17 @@ export class SiteFilter extends PureComponent<EditorProps, SelectOptions<string>
   }
 }
 
-export class HostFilter extends PureComponent<EditorProps, SelectOptions<string>> {
-  constructor(props: EditorProps) {
-    super(props);
-    this.state = { options: [] };
-  }
-
-  async fillOptions(query: MyQuery) {
-    const result = await this.props.datasource.restRequest('ajax_vs_autocomplete.py', {
-      ident: 'monitored_hostname',
-      params: { strict: true },
-      value: '',
-    });
-    this.setState({
-      options: result.data.result.choices.map(([value, label]: [string, string]) => ({ value, label })),
-    });
-  }
-
-  async componentDidMount() {
-    if (!this.state.options.length) {
-      this.fillOptions(this.props.query);
-    }
-  }
-
-  async componentDidUpdate(prevProps: EditorProps) {
-    const site_id = this.props.query.params.site_id;
-    if (prevProps.query.params.site_id !== site_id) {
-      this.fillOptions(this.props.query);
-    }
-  }
-
-  onHostChange = ({ value }: SelectableValue<string>) => {
-    const { query, onChange } = this.props;
-    update(query, 'context.host.host', () => value);
-    onChange(query);
+export const HostFilter = (props: EditorProps) => {
+  const hostVS = {
+    ident: 'monitored_hostname',
+    params: { strict: true },
   };
-
-  render() {
-    return (
-      <InlineField labelWidth={14} label="Hostname">
-        <Select
-          width={32}
-          options={this.state.options}
-          onChange={this.onHostChange}
-          value={get(this, 'props.query.context.host.host', '')}
-          placeholder="Select Host"
-        />
-      </InlineField>
-    );
-  }
-}
+  return (
+    <InlineField labelWidth={14} label="Hostname">
+      <AsyncAutocomplete autocompleteConfig={hostVS} contextPath="context.host.host" {...props} />
+    </InlineField>
+  );
+};
 
 export const HostRegExFilter = (props: EditorProps) => {
   const onHostChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -105,56 +66,18 @@ export const HostRegExFilter = (props: EditorProps) => {
   );
 };
 
-export class ServiceFilter extends PureComponent<EditorProps, SelectOptions<string>> {
-  constructor(props: EditorProps) {
-    super(props);
-    this.state = { options: [] };
-  }
-
-  async fillOptions(query: MyQuery) {
-    const result = await this.props.datasource.restRequest('ajax_vs_autocomplete.py', {
-      ident: 'monitored_service_description',
-      params: { strict: true },
-      value: '',
-    });
-    this.setState({
-      options: result.data.result.choices.map(([value, label]: [string, string]) => ({ value, label })),
-    });
-  }
-
-  async componentDidMount() {
-    if (!this.state.options.length) {
-      this.fillOptions(this.props.query);
-    }
-  }
-
-  async componentDidUpdate(prevProps: EditorProps) {
-    const site_id = this.props.query.params.site_id;
-    if (prevProps.query.params.site_id !== site_id) {
-      this.fillOptions(this.props.query);
-    }
-  }
-
-  onHostChange = ({ value }: SelectableValue<string>) => {
-    const { query, onChange } = this.props;
-    update(query, 'context.service.service', () => value);
-    onChange(query);
+export const ServiceFilter = (props: EditorProps) => {
+  const serviceVS = {
+    ident: 'monitored_service_description',
+    params: { strict: true, host: get(props, 'query.context.host.host', '') },
   };
 
-  render() {
-    return (
-      <InlineField labelWidth={14} label="Service">
-        <Select
-          width={32}
-          options={this.state.options}
-          onChange={this.onHostChange}
-          value={get(this, 'props.query.context.service.service', '')}
-          placeholder="Select service"
-        />
-      </InlineField>
-    );
-  }
-}
+  return (
+    <InlineField labelWidth={14} label="Service">
+      <AsyncAutocomplete autocompleteConfig={serviceVS} contextPath="context.service.service" {...props} />
+    </InlineField>
+  );
+};
 
 export const ServiceRegExFilter = (props: EditorProps) => {
   const onServiceChange = (event: ChangeEvent<HTMLInputElement>) => {
