@@ -6,19 +6,20 @@ import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps } from './types';
 import { vsAutocomplete } from './fields';
 
+const titleCase = (str: string) => str[0].toUpperCase()+str.slice(1).toLowerCase()
+
 export const GraphOfServiceQuery = (props: EditorProps) => (
   <InlineFieldRow>
     <SiteFilter {...props} />
     <HostFilter {...props} />
     <ServiceFilter {...props} />
-    {props.query.graphMode === 'graph' && <GraphSelect {...props} />}
-    {props.query.graphMode === 'metric' && <MetricSelect {...props} />}
+    <MetricSelect {...props} />
   </InlineFieldRow>
 );
 
 const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) => {
   const metricVS = {
-    ident: 'metric_with_source',
+    ident: query.graphMode==='metric'?'metric_with_source':'available_graphs',
     params: {
       strict: true,
       host: get(query, 'context.host.host', ''),
@@ -26,53 +27,23 @@ const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) 
     },
   };
   const getAutocomplete = vsAutocomplete(datasource, metricVS);
+  const configPath = query.graphMode ==='metric'?'params.metric':'params.graph'
+  const label = titleCase(query.graphMode || '');
 
   const onSelection = (value: SelectableValue<string>) => {
-    update(query, 'params.metric', () => value);
+    update(query, configPath, () => value);
     onChange(query);
     onRunQuery();
   };
 
-  const selected = get(query, 'params.metric', {});
   return (
-    <InlineField labelWidth={14} label="Metric">
+    <InlineField labelWidth={14} label={label}>
       <AsyncSelect
         onChange={onSelection}
         loadOptions={getAutocomplete}
-        value={selected}
+        value={get(query, configPath, {})}
         width={32}
-        placeholder="Search metric"
-      />
-    </InlineField>
-  );
-};
-
-const GraphSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) => {
-  const metricVS = {
-    ident: 'available_graphs',
-    params: {
-      strict: true,
-      host: get(query, 'context.host.host', ''),
-      service: get(query, 'context.service.service', ''),
-    },
-  };
-  const getAutocomplete = vsAutocomplete(datasource, metricVS);
-
-  const onGraphChange = (value: SelectableValue<number>) => {
-    update(query, 'params.graph', () => value);
-    onChange(query);
-    onRunQuery();
-  };
-
-  const selected = get(query, 'params.graph', {});
-  return (
-    <InlineField labelWidth={14} label="Graph">
-      <AsyncSelect
-        width={32}
-        loadOptions={getAutocomplete}
-        onChange={onGraphChange}
-        value={selected}
-        placeholder="Search graph"
+        placeholder={"Search"}
       />
     </InlineField>
   );
