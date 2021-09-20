@@ -6,6 +6,7 @@ import { DataSource } from '../DataSource';
 import { MyQuery } from 'types';
 import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps, SelectOptions } from './types';
+import { AsyncAutocomplete } from './fields';
 
 interface MetricInfo {
   name: string;
@@ -108,40 +109,23 @@ function pickMetrics(all_service_metrics: Array<[string, ServiceInfo]>, service:
     : [];
 }
 
-type EditorPropsWithMetrics = EditorProps & { allmetrics?: Array<[string, ServiceInfo]> };
-export class MetricSelect extends PureComponent<EditorPropsWithMetrics, SelectOptions<string>> {
-  constructor(props: EditorPropsWithMetrics) {
-    super(props);
-    this.state = { options: [] };
-  }
-
-  async componentDidUpdate(prevProps: EditorPropsWithMetrics) {
-    const allmetrics = get(this.props, 'allmetrics', []);
-    const service = this.props.query.params.service;
-    if (allmetrics.length && service && (!this.state.options.length || prevProps.query.params.service !== service)) {
-      this.setState({ options: pickMetrics(allmetrics, this.props.query.params.service) });
-    }
-  }
-
-  onMetricChange = async ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = this.props;
-    onChange({ ...query, params: { ...query.params, metric: value } });
+const MetricSelect = (props: EditorProps) => {
+  const metricVS = {
+    ident: 'metric_with_source',
+    params: {
+      strict: true,
+      host: get(props, 'query.context.host.host', ''),
+      service: get(props, 'query.context.service.service', ''),
+    },
   };
 
-  render() {
-    return (
-      <InlineField labelWidth={14} label="Metric">
-        <Select
-          width={32}
-          options={this.state.options}
-          onChange={this.onMetricChange}
-          value={this.props.query.params.metric}
-          placeholder="Select metric"
-        />
-      </InlineField>
-    );
-  }
-}
+  return (
+    <InlineField labelWidth={14} label="Metric">
+      <AsyncAutocomplete autocompleteConfig={metricVS} contextPath="params.metric" {...props} />
+    </InlineField>
+  );
+};
+
 export class GraphSelect extends PureComponent<EditorProps, SelectOptions<number>> {
   constructor(props: EditorProps) {
     super(props);
