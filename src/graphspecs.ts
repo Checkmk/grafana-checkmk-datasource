@@ -37,7 +37,7 @@ function graphTemplateSpecification({ params, context }: MyQuery): GraphSpec {
     'template',
     {
       ...extractSingleInfos(context || {}),
-      graph_index: params.graph_index,
+      graph_id: params.graph.value,
     },
   ];
 }
@@ -47,7 +47,7 @@ function singleMetricGraphSpecification({ params, context }: MyQuery): GraphSpec
     'single_timeseries',
     {
       ...extractSingleInfos(context || {}),
-      metric: params.metric,
+      metric: params.metric.value,
     },
   ];
 }

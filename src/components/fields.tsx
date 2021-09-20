@@ -1,44 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AsyncSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { get, update } from 'lodash';
+import { DataSource } from '../DataSource';
+
+export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) => (inputValue: string) =>
+  datasource
+    .restRequest('ajax_vs_autocomplete.py', {
+      ...autocompleteConfig,
+      value: inputValue.trim(),
+    })
+    .then((result) =>
+      result.data.result.choices.map(([value, label]: [string, string]) => ({
+        value,
+        label,
+        isDisabled: value === null,
+      }))
+    );
 
 export const AsyncAutocomplete = ({ datasource, autocompleteConfig, onChange, query, contextPath }: EditorProps) => {
-  //const [value, setValue] = useState<SelectableValue<string>>();
-  const getAutocomplete = (inputValue: string) =>
-    datasource
-      .restRequest('ajax_vs_autocomplete.py', {
-        ...autocompleteConfig,
-        value: inputValue,
-      })
-      .then((result) =>
-        result.data.result.choices.map(([value, label]: [string, string]) => ({
-          value,
-          label,
-          isDisabled: value === null,
-        }))
-      );
-
-  const onSelection = (value: SelectableValue<string>) => {
-    //setValue(value);
-    update(query, contextPath, () => value.value);
+  const getAutocomplete = vsAutocomplete(datasource, autocompleteConfig);
+  const onSelection = ({ value }: SelectableValue<string>) => {
+    update(query, contextPath, () => value);
     onChange(query);
   };
 
   const selected = get(query, contextPath, '');
   const val = { value: selected, label: selected };
-  console.log(this);
 
-  return (
-    <AsyncSelect
-      defaultOptions
-    cacheOptions={false}
-      onChange={onSelection}
-      loadOptions={getAutocomplete}
-      prefix="HIO"
-      width={32}
-      placeholder="type to trigger search"
-    />
-  );
+  return <AsyncSelect onChange={onSelection} loadOptions={getAutocomplete} value={val} width={32} />;
 };
