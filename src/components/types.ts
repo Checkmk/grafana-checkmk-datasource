@@ -5,7 +5,6 @@ import { MyQuery } from '../types';
 export interface AutoComplete {
   ident: string;
   params: any;
-  contextPath: string;
 }
 
 export interface EditorProps {
@@ -14,6 +13,11 @@ export interface EditorProps {
   onChange: (stuff: any) => void;
   onRunQuery: () => void;
   autocompleteConfig?: AutoComplete;
+}
+
+export interface AutoCompleteEditorProps extends EditorProps {
+  autocompleteConfig: AutoComplete;
+  contextPath: string;
 }
 
 export interface SelectOptions<T> {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AsyncSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { EditorProps } from './types';
+import { AutoCompleteEditorProps } from './types';
 import { get, update } from 'lodash';
 import { DataSource } from '../DataSource';
 
@@ -19,14 +19,20 @@ export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) 
       }))
     );
 
-export const AsyncAutocomplete = ({ datasource, autocompleteConfig, onChange, query }: EditorProps) => {
+export const AsyncAutocomplete = ({
+  datasource,
+  autocompleteConfig,
+  onChange,
+  query,
+  contextPath,
+}: AutoCompleteEditorProps) => {
   const getAutocomplete = vsAutocomplete(datasource, autocompleteConfig);
   const onSelection = ({ value }: SelectableValue<string>) => {
-    update(query, autocompleteConfig.contextPath, () => value);
+    update(query, contextPath, () => value);
     onChange(query);
   };
 
-  const selected = get(query, autocompleteConfig.contextPath, '');
+  const selected = get(query, contextPath, '');
   const val = { value: selected, label: selected };
 
   return <AsyncSelect onChange={onSelection} loadOptions={getAutocomplete} value={val} width={32} />;

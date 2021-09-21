@@ -1,7 +1,7 @@
-import React, { ChangeEvent, PureComponent } from 'react';
+import React, { ChangeEvent } from 'react';
 import { InlineField, Input, AsyncSelect, AsyncMultiSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { EditorProps, SelectOptions } from './types';
+import { EditorProps } from './types';
 import { AsyncAutocomplete } from './fields';
 import { get, update } from 'lodash';
 
@@ -33,11 +33,10 @@ export const HostFilter = (props: EditorProps) => {
   const hostVS = {
     ident: 'monitored_hostname',
     params: { strict: true },
-    contextPath: 'context.host.host',
   };
   return (
     <InlineField labelWidth={14} label="Hostname">
-      <AsyncAutocomplete autocompleteConfig={hostVS} {...props} />
+      <AsyncAutocomplete autocompleteConfig={hostVS} contextPath="context.host.host" {...props} />
     </InlineField>
   );
 };
@@ -60,12 +59,11 @@ export const ServiceFilter = (props: EditorProps) => {
   const serviceVS = {
     ident: 'monitored_service_description',
     params: { strict: true, host: get(props, 'query.context.host.host', '') },
-    contextPath: 'context.service.service',
   };
 
   return (
     <InlineField labelWidth={14} label="Service">
-      <AsyncAutocomplete autocompleteConfig={serviceVS} {...props} />
+      <AsyncAutocomplete autocompleteConfig={serviceVS} contextPath="context.service.service" {...props} />
     </InlineField>
   );
 };
@@ -85,31 +83,30 @@ export const ServiceRegExFilter = (props: EditorProps) => {
 };
 
 export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: EditorProps) => {
+  const valueListToSelect = (labels: Array<SelectableValue<string>>) =>
+    labels.map(({ value }) => ({ label: value, value: value }));
+
   const getHostLabels = (inputValue: string) => {
+    const search = inputValue.trim().toLowerCase();
     return datasource
       .restRequest('ajax_autocomplete_labels.py', {
         world: 'core',
-        search_label: inputValue.trim(),
+        search_label: search,
       })
-      .then((result) => valueListToSelect(result.data.result));
+      .then((result) =>
+        result.data.result.filter(({ value }: { value: string }) => value.toLowerCase().includes(search))
+      )
+      .then(valueListToSelect);
   };
 
-  const valueListToSelect = (labels) => labels.map(({ value }: { value: string }) => ({ label: value, value: value }));
-
   const onLabelsChange = (values: any[]) => {
-    const new_query = {
-      ...query,
-      context: {
-        ...query.context,
-        host_labels: { host_label: JSON.stringify(values.map((l) => ({ value: l.value }))) },
-      },
-    };
-    onChange(new_query);
+    update(query, 'context.host_labels.host_label', () => JSON.stringify(values.map((l) => ({ value: l.value }))));
+    onChange(query);
     onRunQuery();
   };
 
-  const hostLabelFilter = get(query, 'context.host_labels', {});
-  const labels = valueListToSelect(JSON.parse(hostLabelFilter.host_label || '[]'));
+  const hostLabelFilter = get(query, 'context.host_labels.host_label', '[]');
+  const labels = valueListToSelect(JSON.parse(hostLabelFilter));
   return (
     <InlineField label="Host labels" labelWidth={14}>
       <AsyncMultiSelect
