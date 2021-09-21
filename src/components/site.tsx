@@ -1,53 +1,43 @@
 import React, { ChangeEvent, PureComponent } from 'react';
-import { InlineField, Select, MultiSelect, Input } from '@grafana/ui';
+import { InlineField, MultiSelect, Input, AsyncSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
 import { AsyncAutocomplete } from './fields';
 import { get, update } from 'lodash';
 
-export class SiteFilter extends PureComponent<EditorProps, SelectOptions<string>> {
-  constructor(props: EditorProps) {
-    super(props);
-    this.state = { options: [] };
-  }
+export const SiteFilter = ({ datasource, query, onChange }: EditorProps) => {
+  const getSites = () => datasource.sitesQuery().then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
 
-  async componentDidMount() {
-    if (!this.state.options.length) {
-      const sites = await this.props.datasource.sitesQuery();
-      this.setState({ options: [{ label: 'All Sites', value: '' }, ...sites] });
-    }
-  }
-
-  onSiteIdChange = ({ value }: SelectableValue<string>) => {
-    const { onChange, query } = this.props;
-    update(query, 'context.siteopt.site', () => value);
+  const onSiteIdChange = (value: SelectableValue<string>) => {
+    update(query, 'context.siteopt.site', () => value.value);
+    update(query, 'params.selections.siteopt', () => value);
     onChange(query);
   };
 
-  render() {
-    const site = get(this.props, 'query.context.siteopt.site', '');
-    return (
-      <InlineField labelWidth={14} label="Site">
-        <Select
-          width={32}
-          options={this.state.options}
-          onChange={this.onSiteIdChange}
-          value={site}
-          placeholder="Select Site"
-        />
-      </InlineField>
-    );
-  }
-}
+  return (
+    <InlineField labelWidth={14} label="Site">
+      <AsyncSelect
+        width={32}
+        defaultOptions
+        cacheOptions
+        loadOptions={getSites}
+        value={get(query, 'params.selections.siteopt', {})}
+        onChange={onSiteIdChange}
+        placeholder="Select Site"
+      />
+    </InlineField>
+  );
+};
 
 export const HostFilter = (props: EditorProps) => {
   const hostVS = {
     ident: 'monitored_hostname',
     params: { strict: true },
+    contextPath: 'context.host.host',
   };
   return (
     <InlineField labelWidth={14} label="Hostname">
-      <AsyncAutocomplete autocompleteConfig={hostVS} contextPath="context.host.host" {...props} />
+      <AsyncAutocomplete autocompleteConfig={hostVS} {...props} />
     </InlineField>
   );
 };
@@ -70,11 +60,12 @@ export const ServiceFilter = (props: EditorProps) => {
   const serviceVS = {
     ident: 'monitored_service_description',
     params: { strict: true, host: get(props, 'query.context.host.host', '') },
+    contextPath: 'context.service.service',
   };
 
   return (
     <InlineField labelWidth={14} label="Service">
-      <AsyncAutocomplete autocompleteConfig={serviceVS} contextPath="context.service.service" {...props} />
+      <AsyncAutocomplete autocompleteConfig={serviceVS} {...props} />
     </InlineField>
   );
 };

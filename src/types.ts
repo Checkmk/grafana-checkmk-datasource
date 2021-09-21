@@ -16,7 +16,7 @@ export interface MyQuery extends DataQuery {
 
 export const defaultQuery: Partial<MyQuery> = {
   graphMode: 'graph',
-  params: { site_id: '' },
+  params: {},
   context: {},
 };
 

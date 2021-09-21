@@ -19,14 +19,14 @@ export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) 
       }))
     );
 
-export const AsyncAutocomplete = ({ datasource, autocompleteConfig, onChange, query, contextPath }: EditorProps) => {
+export const AsyncAutocomplete = ({ datasource, autocompleteConfig, onChange, query }: EditorProps) => {
   const getAutocomplete = vsAutocomplete(datasource, autocompleteConfig);
   const onSelection = ({ value }: SelectableValue<string>) => {
-    update(query, contextPath, () => value);
+    update(query, autocompleteConfig.contextPath, () => value);
     onChange(query);
   };
 
-  const selected = get(query, contextPath, '');
+  const selected = get(query, autocompleteConfig.contextPath, '');
   const val = { value: selected, label: selected };
 
   return <AsyncSelect onChange={onSelection} loadOptions={getAutocomplete} value={val} width={32} />;

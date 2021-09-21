@@ -1,12 +1,12 @@
 import { get, update } from 'lodash';
-import React  from 'react';
+import React from 'react';
 import { AsyncSelect, InlineField, InlineFieldRow } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps } from './types';
 import { vsAutocomplete } from './fields';
 
-const titleCase = (str: string) => str[0].toUpperCase()+str.slice(1).toLowerCase()
+const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
 
 export const GraphOfServiceQuery = (props: EditorProps) => (
   <InlineFieldRow>
@@ -19,7 +19,7 @@ export const GraphOfServiceQuery = (props: EditorProps) => (
 
 const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) => {
   const metricVS = {
-    ident: query.graphMode==='metric'?'metric_with_source':'available_graphs',
+    ident: query.graphMode === 'metric' ? 'metric_with_source' : 'available_graphs',
     params: {
       strict: true,
       host: get(query, 'context.host.host', ''),
@@ -27,7 +27,7 @@ const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) 
     },
   };
   const getAutocomplete = vsAutocomplete(datasource, metricVS);
-  const configPath = query.graphMode ==='metric'?'params.metric':'params.graph'
+  const configPath = query.graphMode === 'metric' ? 'params.metric' : 'params.graph';
   const label = titleCase(query.graphMode || '');
 
   const onSelection = (value: SelectableValue<string>) => {
@@ -43,7 +43,7 @@ const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) 
         loadOptions={getAutocomplete}
         value={get(query, configPath, {})}
         width={32}
-        placeholder={"Search"}
+        placeholder={'Search'}
       />
     </InlineField>
   );
