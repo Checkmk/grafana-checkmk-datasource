@@ -60,6 +60,7 @@ function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
       datasource: 'services',
       presentation: params.presentation,
       graph_template: params.graph_name,
+      single_infos: ['host'],
     },
   ];
 }

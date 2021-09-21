@@ -9,10 +9,14 @@ of the previous connector to match newer grafana versions.
 Due to the breaking changes in this plugin, it is at the moment a complete
 separate plugin. Later on we will provide with an update setup.
 
+This plugin is still on the prototyping stage. Things will break or change
+without any notice. Specially your configured panel can break as the internal
+data-structure that stores them is still changing.
+
 This plugin id is: `tribe-29-grafana-checkmk-datasource`
 
 ## Requirements
-You require checkmk>=`2.0.0` and Grafana>=7.0
+You require checkmk>=`2.0.0-2021.09.22`(but it was most tested on master) and Grafana>=7.0
 
 ## Getting started
 ### Building the plugin
@@ -68,11 +72,27 @@ reachable.
 - Dropped "Label Format" option. Prefer Grafana overrrides.
 - [ ] Annotations are not usable yet
 ### Combined graphs
-- At the moment only a minimal interface is possible. There is only Host regex,
-  service regex fields.
+- Construct combined graphs using traditional Checkmk filters. Currently available:
+  - Site filter
+  - Host exact match
+  - Host regex
+  - Service exact match
+  - Service Regex
+  - Host labels multi select
+#### Minor annoyances
+- Due to limitations of the Grafana UI Select components. Host, Service, Metric
+  & Graph dropdowns do not trigger a search when opening the dropdown. You must
+  type something to trigger the search. Pressing the arrow keys would not
+  trigger. Either write your text or press the space bar to trigge an
+  unconstrained search.
 - Graph query only re triggers when selecting the graph recipe. That
   inconveniently means after changing aggregation you need to at least
   touch/select a "graph" to trigger the query for time series data.
+- Changing any filters does not trigger a query. That can be changed in the
+  future. For know please press the refresh icon on the top right of the graph
+  to retrigger the query with all your changes applied.
+- When selecting a Filter. The focus jumps to the next Filter dropdown menu
+  instead of the more intuitive focus on the selected filter itself.
 
 ### Foreseen work under consideration
 - Use of host tag, including builtin ones
