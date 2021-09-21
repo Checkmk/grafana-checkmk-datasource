@@ -1,5 +1,5 @@
 import React, { ChangeEvent, PureComponent } from 'react';
-import { InlineField, MultiSelect, Input, AsyncSelect } from '@grafana/ui';
+import { InlineField, Input, AsyncSelect, AsyncMultiSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps, SelectOptions } from './types';
 import { AsyncAutocomplete } from './fields';
@@ -84,29 +84,19 @@ export const ServiceRegExFilter = (props: EditorProps) => {
   );
 };
 
-export class HostLabelsFilter extends PureComponent<EditorProps, SelectOptions<string>> {
-  constructor(props: EditorProps) {
-    super(props);
-    this.state = { options: [] };
-  }
-  async getHostLabels() {
-    const result = await this.props.datasource.restRequest('ajax_autocomplete_labels.py', {
-      world: 'core',
-      search_label: '',
-    });
-    this.setState({
-      options: result.data.result.map(({ value }: { value: string }) => ({ label: value, value: value })),
-    });
-  }
+export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: EditorProps) => {
+  const getHostLabels = (inputValue: string) => {
+    return datasource
+      .restRequest('ajax_autocomplete_labels.py', {
+        world: 'core',
+        search_label: inputValue.trim(),
+      })
+      .then((result) => valueListToSelect(result.data.result));
+  };
 
-  async componentDidMount() {
-    if (!this.state.options.length) {
-      this.getHostLabels();
-    }
-  }
+  const valueListToSelect = (labels) => labels.map(({ value }: { value: string }) => ({ label: value, value: value }));
 
-  onLabelsChange = async (values: any[]) => {
-    const { onChange, query, onRunQuery } = this.props;
+  const onLabelsChange = (values: any[]) => {
     const new_query = {
       ...query,
       context: {
@@ -118,19 +108,18 @@ export class HostLabelsFilter extends PureComponent<EditorProps, SelectOptions<s
     onRunQuery();
   };
 
-  render() {
-    const hostLabelFilter = get(this, 'props.query.context.host_labels', {});
-    const labels = JSON.parse(hostLabelFilter.host_label || '[]');
-    return (
-      <InlineField label="Host labels" labelWidth={14}>
-        <MultiSelect
-          options={this.state.options}
-          placeholder="all"
-          width={32}
-          onChange={this.onLabelsChange}
-          value={labels}
-        />
-      </InlineField>
-    );
-  }
-}
+  const hostLabelFilter = get(query, 'context.host_labels', {});
+  const labels = valueListToSelect(JSON.parse(hostLabelFilter.host_label || '[]'));
+  return (
+    <InlineField label="Host labels" labelWidth={14}>
+      <AsyncMultiSelect
+        width={32}
+        defaultOptions
+        loadOptions={getHostLabels}
+        onChange={onLabelsChange}
+        value={labels}
+        placeholder="Type to trigger search"
+      />
+    </InlineField>
+  );
+};
