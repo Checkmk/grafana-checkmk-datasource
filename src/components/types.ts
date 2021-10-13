@@ -1,4 +1,3 @@
-import { SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { MyQuery } from '../types';
 
@@ -18,8 +17,4 @@ export interface EditorProps {
 export interface AutoCompleteEditorProps extends EditorProps {
   autocompleteConfig: AutoComplete;
   contextPath: string;
-}
-
-export interface SelectOptions<T> {
-  options: Array<SelectableValue<T>>;
 }

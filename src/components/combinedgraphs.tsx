@@ -1,8 +1,9 @@
-import React, { PureComponent } from 'react';
-import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
+import React from 'react';
+import { AsyncSelect, Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { EditorProps, SelectOptions } from './types';
+import { EditorProps } from './types';
 import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceFilter, ServiceRegExFilter, SiteFilter } from './site';
+import { update } from 'lodash';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -33,48 +34,19 @@ export const SelectAggregation = (props: EditorProps) => {
   );
 };
 
-export class CombinedGraphSelect extends PureComponent<EditorProps, SelectOptions<string>> {
-  constructor(props: EditorProps) {
-    super(props);
-    this.state = { options: [] };
-  }
-
-  async fillOptions() {
-    this.setState({ options: await this.props.datasource.combinedGraphIdent(this.props.query) });
-  }
-
-  async componentDidMount() {
-    if (!this.state.options.length) {
-      this.fillOptions();
-    }
-  }
-
-  async componentDidUpdate({ query: { params: prevParams } }: EditorProps) {
-    if (!this.state.options.length || prevParams !== this.props.query.params) {
-      this.fillOptions();
-    }
-  }
-
-  onGraphChange = ({ value }: SelectableValue<string>) => {
-    const { onChange, query, onRunQuery } = this.props;
-    onChange({ ...query, params: { ...query.params, graph_name: value } });
+export const CombinedGraphSelect = ({ query, datasource, onChange, onRunQuery }: EditorProps) => {
+  const getAutocomplete = (_inputValue: string) => datasource.combinedGraphIdent(query);
+  const onSelection = ({ value }: SelectableValue<string>) => {
+    update(query, 'params.graph_name', () => value);
+    onChange(query);
     onRunQuery();
   };
-
-  render() {
-    return (
-      <InlineField labelWidth={14} label="Graph">
-        <Select
-          width={32}
-          options={this.state.options}
-          onChange={this.onGraphChange}
-          value={this.props.query.params.graph_name}
-          placeholder="Select graph"
-        />
-      </InlineField>
-    );
-  }
-}
+  return (
+    <InlineField labelWidth={14} label="Graph">
+      <AsyncSelect onChange={onSelection} loadOptions={getAutocomplete} width={32} />
+    </InlineField>
+  );
+};
 
 export const FilterEditor = (props: EditorProps) => {
   const context = props.query.context || {};

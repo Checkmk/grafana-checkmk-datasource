@@ -20,12 +20,6 @@ const error = (message: string) => ({
   message,
 });
 
-export function prepareHostsQuery(query: MyQuery, site: string) {
-  return {
-    ...query,
-    params: { site_id: site, action: 'get_host_names' },
-  };
-}
 export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
 
 function buildMetricDataFrame(response: any, query: MyQuery) {
@@ -68,17 +62,6 @@ export class DataSource extends DataSourceApi<MyQuery> {
     const response = await this.doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' } });
     const result = response.data.result;
     return result.map(([value, text]: [string, string]) => ({ label: text, value: value }));
-  }
-
-  async hostsQuery(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest(prepareHostsQuery(query, query.params.site_id));
-    const result = response.data.result.sort();
-    return result.map((hostname: string) => ({ label: hostname, value: hostname }));
-  }
-
-  async metricsOfHostQuery(query: MyQuery): Promise<Array<[string, any]>> {
-    const response = await this.doRequest(query);
-    return Object.entries(response.data.result);
   }
 
   async graphRecipesQuery({ refId, context }: MyQuery): Promise<Array<SelectableValue<number>>> {
