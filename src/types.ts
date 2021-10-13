@@ -15,7 +15,7 @@ export interface MyQuery extends DataQuery {
 }
 
 export const defaultQuery: Partial<MyQuery> = {
-  graphMode: 'graph',
+  graphMode: 'combined',
   params: {},
   context: {},
 };
@@ -26,6 +26,7 @@ export const defaultQuery: Partial<MyQuery> = {
 export interface MyDataSourceOptions extends DataSourceJsonData {
   url?: string;
   username?: string;
+  edition?: string;
 }
 
 /**

@@ -1,6 +1,6 @@
 import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms, FieldSet } from '@grafana/ui';
-import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
+import { LegacyForms, FieldSet, InlineField, Select } from '@grafana/ui';
+import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
 import { MyDataSourceOptions, MySecureJsonData } from './types';
 
 const { SecretFormField, FormField } = LegacyForms;
@@ -15,6 +15,15 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const jsonData = {
       ...options.jsonData,
       url: event.target.value,
+    };
+    onOptionsChange({ ...options, jsonData });
+  };
+
+  onEditionChange = ({ value }: SelectableValue<string>) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      edition: value,
     };
     onOptionsChange({ ...options, jsonData });
   };
@@ -58,6 +67,10 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const { options } = this.props;
     const { jsonData, secureJsonFields } = options;
     const secureJsonData = options.secureJsonData || {};
+    const cmkEditions = [
+      { value: 'CEE', label: 'Enterprice Editions' },
+      { value: 'RAW', label: 'RAW Edition' },
+    ];
 
     return (
       <>
@@ -72,6 +85,15 @@ export class ConfigEditor extends PureComponent<Props, State> {
               tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
             />
           </div>
+          <InlineField label="Edition" labelWidth={12}>
+            <Select
+              width={32}
+              options={cmkEditions}
+              onChange={this.onEditionChange}
+              value={jsonData.edition || 'CEE'}
+              placeholder="Select your checkmk edition"
+            />
+          </InlineField>
         </FieldSet>
         <FieldSet label="Authentication">
           <div className="gf-form">

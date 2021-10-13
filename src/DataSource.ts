@@ -1,4 +1,4 @@
-import { defaults, zip } from 'lodash';
+import { defaults, get, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -13,12 +13,6 @@ import { getBackendSrv } from '@grafana/runtime';
 
 import { buildRequestBody, extractSingleInfos, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, defaultQuery } from './types';
-
-const error = (message: string) => ({
-  status: 'error',
-  title: 'Error',
-  message,
-});
 
 export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
 
@@ -104,18 +98,30 @@ export class DataSource extends DataSourceApi<MyQuery> {
   }
 
   async testDatasource() {
-    return this.doRequest({ params: { action: 'get_host_names' }, refId: 'testDatasource' }).then((response) => {
-      if (response.status !== 200) {
-        return error('Could not connect to provided URL');
-      } else if (!response.data.result) {
-        return error(response.data);
-      } else {
-        return {
-          status: 'success',
-          message: 'Data source is working',
-          title: 'Success',
-        };
+    return this.doRequest({
+      params: {
+        action: 'get_combined_graph_identifications',
+      },
+      data: buildRequestBody({
+        context: { host: { host: 'ARANDOMNAME' } },
+        datasource: 'services',
+        single_infos: ['host'],
+      }),
+      refId: 'testDatasource',
+    }).then((response) => {
+      if (
+        response.data.result_code === 1 &&
+        response.data.result === 'Checkmk exception: Currently not supported with this Checkmk Edition' &&
+        get(this, 'instanceSettings.jsonData.edition', 'CEE') === 'CEE'
+      ) {
+        throw new Error('Mismatch between selected checkmk edition and monitoring site edition');
       }
+
+      return {
+        status: 'success',
+        message: 'Data source is working',
+        title: 'Success',
+      };
     });
   }
 
@@ -140,14 +146,22 @@ export class DataSource extends DataSourceApi<MyQuery> {
   async cmkRequest(request: any) {
     const result = await getBackendSrv()
       .datasourceRequest(request)
-      .catch(({ cancelled }) =>
-        cancelled
-          ? error(
-              `API request was cancelled. This has either happened because no 'Access-Control-Allow-Origin' header is present, or because of a ssl protocol error. Make sure you are running at least Checkmk version 2.0.`
-            )
-          : error('Could not read API response, make sure the URL you provided is correct.')
-      );
-    if (result.data.result_code !== 0) {
+      .catch(({ cancelled }) => {
+        if (cancelled) {
+          throw new Error(
+            `API request was cancelled. This has either happened because no 'Access-Control-Allow-Origin' header is present, or because of a ssl protocol error. Make sure you are running at least Checkmk version 2.0.`
+          );
+        } else {
+          throw new Error('Could not read API response, make sure the URL you provided is correct.');
+        }
+      });
+
+    if (typeof result.data === 'string') {
+      throw new Error(`${result.data}`);
+    } else if (
+      result.data.result_code !== 0 &&
+      result.data.result !== 'Checkmk exception: Currently not supported with this Checkmk Edition'
+    ) {
       throw new Error(`${result.data.result}`);
     } else {
       return result;
