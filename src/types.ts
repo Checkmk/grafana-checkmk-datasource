@@ -6,17 +6,18 @@ interface ContextHTTPVars {
 export interface Context {
   [key: string]: ContextHTTPVars;
 }
+
 export interface MyQuery extends DataQuery {
-  queryText?: string;
-  graphMode?: string;
-  params?: any;
-  context?: Context;
+  params: any;
+  context: Context;
   data?: any;
 }
 
 export const defaultQuery: Partial<MyQuery> = {
-  graphMode: 'combined',
-  params: {},
+  params: {
+    graphMode: 'combined',
+    presentation: 'lines',
+  },
   context: {},
 };
 

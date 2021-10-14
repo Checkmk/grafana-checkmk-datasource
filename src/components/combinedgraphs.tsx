@@ -8,7 +8,7 @@ import { update } from 'lodash';
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
     { value: 'lines', label: 'Lines' },
-    { value: 'stacked', label: 'Stacked' },
+    // { value: 'stacked', label: 'Stacked' }, // no difference to line at request level
     { value: 'sum', label: 'Sum' },
     { value: 'average', label: 'Average' },
     { value: 'min', label: 'Minimum' },

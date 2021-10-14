@@ -1,4 +1,4 @@
-import { defaults, get, zip } from 'lodash';
+import { defaults, get, isEmpty, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -11,7 +11,7 @@ import {
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
-import { buildRequestBody, extractSingleInfos, graphDefinitionRequest } from './graphspecs';
+import { buildRequestBody, combinedDesc, extractSingleInfos, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, defaultQuery } from './types';
 
 export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
@@ -53,7 +53,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
   }
 
   async sitesQuery(): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' } });
+    const response = await this.doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' }, context: {} });
     const result = response.data.result;
     return result.map(([value, text]: [string, string]) => ({ label: text, value: value }));
   }
@@ -66,21 +66,17 @@ export class DataSource extends DataSourceApi<MyQuery> {
       refId: refId,
       params: { action: 'get_graph_recipes' },
       data: template,
+      context,
     });
     return response.data.result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
   }
 
-  async combinedGraphIdent(query: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const data = buildRequestBody({
-      context: query.context,
-      datasource: 'services',
-      presentation: query.params.presentation,
-      single_infos: ['host'],
-    });
+  async combinedGraphIdent({ refId, context }: MyQuery): Promise<Array<SelectableValue<string>>> {
     const response = await this.doRequest({
-      refId: query.refId,
+      refId: refId,
       params: { action: 'get_combined_graph_identifications' },
-      data: data,
+      data: buildRequestBody(combinedDesc(context || {})),
+      context,
     });
     return response.data.result.map(({ title, identification }: { title: string; identification: [string, any] }) => ({
       label: title,
@@ -89,6 +85,10 @@ export class DataSource extends DataSourceApi<MyQuery> {
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {
+    if (isEmpty(query.context)) {
+      return new MutableDataFrame();
+    }
+
     const response = await this.doRequest({
       ...query,
       params: { action: 'get_graph' },
@@ -99,15 +99,10 @@ export class DataSource extends DataSourceApi<MyQuery> {
 
   async testDatasource() {
     return this.doRequest({
-      params: {
-        action: 'get_combined_graph_identifications',
-      },
-      data: buildRequestBody({
-        context: { host: { host: 'ARANDOMNAME' } },
-        datasource: 'services',
-        single_infos: ['host'],
-      }),
       refId: 'testDatasource',
+      params: { action: 'get_combined_graph_identifications' },
+      data: buildRequestBody(combinedDesc({ host: { host: 'ARANDOMNAME' } })),
+      context: {},
     }).then((response) => {
       if (
         response.data.result_code === 1 &&

@@ -14,11 +14,11 @@ export function graphDefinitionRequest(query: MyQuery, range: number[]): string 
 }
 
 function graphSpecification(query: MyQuery): GraphSpec {
-  if (query.graphMode === 'graph') {
+  if (query.params.graphMode === 'graph') {
     return graphTemplateSpecification(query);
-  } else if (query.graphMode === 'metric') {
+  } else if (query.params.graphMode === 'metric') {
     return singleMetricGraphSpecification(query);
-  } else if (query.graphMode === 'combined') {
+  } else if (query.params.graphMode === 'combined') {
     return combinedGraphSpecification(query);
   }
   throw new Error('Unknown graph mode');
@@ -52,15 +52,17 @@ function singleMetricGraphSpecification({ params, context }: MyQuery): GraphSpec
   ];
 }
 
+export function combinedDesc(context: Context) {
+  return {
+    context: context,
+    datasource: 'services',
+    single_infos: ['host'],
+  };
+}
+
 function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
   return [
     'combined',
-    {
-      context: context || {},
-      datasource: 'services',
-      presentation: params.presentation,
-      graph_template: params.graph_name,
-      single_infos: ['host'],
-    },
+    { ...combinedDesc(context || {}), graph_template: params.graph_name, presentation: params.presentation },
   ];
 }

@@ -19,7 +19,7 @@ export const GraphOfServiceQuery = (props: EditorProps) => (
 
 const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) => {
   const metricVS = {
-    ident: query.graphMode === 'metric' ? 'metric_with_source' : 'available_graphs',
+    ident: query.params.graphMode === 'metric' ? 'metric_with_source' : 'available_graphs',
     params: {
       strict: true,
       host: get(query, 'context.host.host', ''),
@@ -27,8 +27,8 @@ const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) 
     },
   };
   const getAutocomplete = vsAutocomplete(datasource, metricVS);
-  const configPath = query.graphMode === 'metric' ? 'params.metric' : 'params.graph';
-  const label = titleCase(query.graphMode || '');
+  const configPath = query.params.graphMode === 'metric' ? 'params.metric' : 'params.graph';
+  const label = titleCase(query.params.graphMode || '');
 
   const onSelection = (value: SelectableValue<string>) => {
     update(query, configPath, () => value);
