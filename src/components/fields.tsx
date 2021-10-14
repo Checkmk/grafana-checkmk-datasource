@@ -23,6 +23,7 @@ export const AsyncAutocomplete = ({
   datasource,
   autocompleteConfig,
   onChange,
+  onRunQuery,
   query,
   contextPath,
 }: AutoCompleteEditorProps) => {
@@ -30,6 +31,7 @@ export const AsyncAutocomplete = ({
   const onSelection = ({ value }: SelectableValue<string>) => {
     update(query, contextPath, () => value);
     onChange(query);
+    onRunQuery();
   };
 
   const selected = get(query, contextPath, '');
