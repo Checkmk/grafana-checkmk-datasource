@@ -3,7 +3,7 @@ import { AsyncSelect, Button, InlineField, InlineFieldRow, Select } from '@grafa
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceFilter, ServiceRegExFilter, SiteFilter } from './site';
-import { update } from 'lodash';
+import { get, update } from 'lodash';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -36,14 +36,23 @@ export const SelectAggregation = (props: EditorProps) => {
 
 export const CombinedGraphSelect = ({ query, datasource, onChange, onRunQuery }: EditorProps) => {
   const getAutocomplete = (_inputValue: string) => datasource.combinedGraphIdent(query);
-  const onSelection = ({ value }: SelectableValue<string>) => {
+  const onSelection = (value: SelectableValue<string>) => {
     update(query, 'params.graph_name', () => value);
     onChange(query);
     onRunQuery();
   };
+  const contextKey = JSON.stringify(query.context);
+
   return (
     <InlineField labelWidth={14} label="Graph">
-      <AsyncSelect onChange={onSelection} loadOptions={getAutocomplete} width={32} />
+      <AsyncSelect
+        onChange={onSelection}
+        loadOptions={getAutocomplete}
+        defaultOptions
+        width={32}
+        key={contextKey}
+        value={get(query, 'params.graph_name', {})}
+      />
     </InlineField>
   );
 };

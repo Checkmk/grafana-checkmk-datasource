@@ -35,5 +35,16 @@ export const AsyncAutocomplete = ({
   const selected = get(query, contextPath, '');
   const val = { value: selected, label: selected };
 
-  return <AsyncSelect onChange={onSelection} loadOptions={getAutocomplete} value={val} width={32} />;
+  const contextKey = JSON.stringify(query.context);
+
+  return (
+    <AsyncSelect
+      onChange={onSelection}
+      loadOptions={getAutocomplete}
+      defaultOptions
+      key={contextKey}
+      value={val}
+      width={32}
+    />
+  );
 };
