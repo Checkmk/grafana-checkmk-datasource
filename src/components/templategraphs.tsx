@@ -1,49 +1,43 @@
 import { get, update } from 'lodash';
 import React from 'react';
-import { AsyncSelect, InlineField, InlineFieldRow } from '@grafana/ui';
-import { SelectableValue } from '@grafana/data';
+import { InlineField, InlineFieldRow } from '@grafana/ui';
 import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps } from './types';
-import { vsAutocomplete } from './fields';
+import { AsyncAutocomplete, vsAutocomplete } from './fields';
 
 const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
 
-export const GraphOfServiceQuery = (props: EditorProps) => (
-  <InlineFieldRow>
-    <SiteFilter {...props} />
-    <HostFilter {...props} />
-    <ServiceFilter {...props} />
-    <MetricSelect {...props} />
-  </InlineFieldRow>
-);
+export const GraphOfServiceQuery = (props: EditorProps) => {
+  update(props, 'query.params.graphMode', () => 'metric');
 
-const MetricSelect = ({ datasource, query, onChange, onRunQuery }: EditorProps) => {
+  return (
+    <InlineFieldRow>
+      <SiteFilter {...props} />
+      <HostFilter {...props} />
+      <ServiceFilter {...props} />
+      <MetricSelect {...props} />
+    </InlineFieldRow>
+  );
+};
+
+const MetricSelect = (props: EditorProps) => {
   const metricVS = {
-    ident: query.params.graphMode === 'metric' ? 'metric_with_source' : 'available_graphs',
+    ident: props.query.params.graphMode === 'metric' ? 'metric_with_source' : 'available_graphs',
     params: {
       strict: true,
-      host: get(query, 'context.host.host', ''),
-      service: get(query, 'context.service.service', ''),
+      host: get(props.query, 'context.host.host', ''),
+      service: get(props.query, 'context.service.service', ''),
     },
   };
-  const getAutocomplete = vsAutocomplete(datasource, metricVS);
-  const configPath = query.params.graphMode === 'metric' ? 'params.metric' : 'params.graph';
-  const label = titleCase(query.params.graphMode || '');
-
-  const onSelection = (value: SelectableValue<string>) => {
-    update(query, configPath, () => value);
-    onChange(query);
-    onRunQuery();
-  };
+  const configPath = props.query.params.graphMode === 'metric' ? 'params.metric' : 'params.graph';
+  const label = titleCase(props.query.params.graphMode || '');
 
   return (
     <InlineField labelWidth={14} label={label}>
-      <AsyncSelect
-        onChange={onSelection}
-        loadOptions={getAutocomplete}
-        value={get(query, configPath, {})}
-        width={32}
-        placeholder={'Search'}
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, metricVS)}
+        contextPath={configPath}
+        {...props}
       />
     </InlineField>
   );

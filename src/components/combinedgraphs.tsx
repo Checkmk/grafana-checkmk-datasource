@@ -1,9 +1,10 @@
 import React from 'react';
-import { AsyncSelect, Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
+import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceFilter, ServiceRegExFilter, SiteFilter } from './site';
-import { get, update } from 'lodash';
+import { buildRequestBody, combinedDesc } from 'graphspecs';
+import { AsyncAutocomplete } from './fields';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -34,25 +35,27 @@ export const SelectAggregation = (props: EditorProps) => {
   );
 };
 
-export const CombinedGraphSelect = ({ query, datasource, onChange, onRunQuery }: EditorProps) => {
-  const getAutocomplete = (_inputValue: string) => datasource.combinedGraphIdent(query);
-  const onSelection = (value: SelectableValue<string>) => {
-    update(query, 'params.graph_name', () => value);
-    onChange(query);
-    onRunQuery();
-  };
-  const contextKey = JSON.stringify(query.context);
+export const CombinedGraphSelect = (props: EditorProps) => {
+  const getAutocomplete = (inputValue: string) =>
+    props.datasource
+      .doRequest({
+        refId: props.query.refId,
+        params: { action: 'get_combined_graph_identifications' },
+        data: buildRequestBody(combinedDesc(props.query.context)),
+        context: props.query.context,
+      })
+      .then((response) =>
+        response.data.result
+          .filter(({ title }: { title: string }) => title.toLowerCase().includes(inputValue.toLowerCase()))
+          .map(({ title, identification }: { title: string; identification: [string, any] }) => ({
+            label: title,
+            value: identification[1].graph_template,
+          }))
+      );
 
   return (
     <InlineField labelWidth={14} label="Graph">
-      <AsyncSelect
-        onChange={onSelection}
-        loadOptions={getAutocomplete}
-        defaultOptions
-        width={32}
-        key={contextKey}
-        value={get(query, 'params.graph_name', {})}
-      />
+      <AsyncAutocomplete autocompleter={getAutocomplete} contextPath={'params.graph_name'} {...props} />
     </InlineField>
   );
 };

@@ -11,10 +11,9 @@ export interface EditorProps {
   query: MyQuery;
   onChange: (stuff: any) => void;
   onRunQuery: () => void;
-  autocompleteConfig?: AutoComplete;
 }
 
 export interface AutoCompleteEditorProps extends EditorProps {
-  autocompleteConfig: AutoComplete;
+  autocompleter: (inputValue: string) => Promise<any>;
   contextPath: string;
 }

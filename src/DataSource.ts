@@ -52,12 +52,6 @@ export class DataSource extends DataSourceApi<MyQuery> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async sitesQuery(): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' }, context: {} });
-    const result = response.data.result;
-    return result.map(([value, text]: [string, string]) => ({ label: text, value: value }));
-  }
-
   async graphRecipesQuery({ refId, context }: MyQuery): Promise<Array<SelectableValue<number>>> {
     const template = buildRequestBody({
       specification: ['template', extractSingleInfos(context || {})],
@@ -69,19 +63,6 @@ export class DataSource extends DataSourceApi<MyQuery> {
       context,
     });
     return response.data.result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
-  }
-
-  async combinedGraphIdent({ refId, context }: MyQuery): Promise<Array<SelectableValue<string>>> {
-    const response = await this.doRequest({
-      refId: refId,
-      params: { action: 'get_combined_graph_identifications' },
-      data: buildRequestBody(combinedDesc(context || {})),
-      context,
-    });
-    return response.data.result.map(({ title, identification }: { title: string; identification: [string, any] }) => ({
-      label: title,
-      value: identification[1].graph_template,
-    }));
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {

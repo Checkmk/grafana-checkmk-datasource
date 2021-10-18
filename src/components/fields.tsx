@@ -20,32 +20,28 @@ export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) 
     );
 
 export const AsyncAutocomplete = ({
-  datasource,
-  autocompleteConfig,
+  autocompleter,
   onChange,
   onRunQuery,
   query,
   contextPath,
 }: AutoCompleteEditorProps) => {
-  const getAutocomplete = vsAutocomplete(datasource, autocompleteConfig);
-  const onSelection = ({ value }: SelectableValue<string>) => {
-    update(query, contextPath, () => value);
+  const onSelection = (value: SelectableValue<string>) => {
+    update(query, contextPath, () => value.value);
+    update(query, 'params.selections' + contextPath, () => value);
     onChange(query);
     onRunQuery();
   };
-
-  const selected = get(query, contextPath, '');
-  const val = { value: selected, label: selected };
 
   const contextKey = JSON.stringify(query.context);
 
   return (
     <AsyncSelect
       onChange={onSelection}
-      loadOptions={getAutocomplete}
+      loadOptions={autocompleter}
       defaultOptions
       key={contextKey}
-      value={val}
+      value={get(query, 'params.selections' + contextPath, {})}
       width={32}
     />
   );

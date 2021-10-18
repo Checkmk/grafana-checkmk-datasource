@@ -1,30 +1,24 @@
 import React, { ChangeEvent } from 'react';
-import { InlineField, Input, AsyncSelect, AsyncMultiSelect } from '@grafana/ui';
+import { InlineField, Input, AsyncMultiSelect } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
-import { AsyncAutocomplete } from './fields';
+import { AsyncAutocomplete, vsAutocomplete } from './fields';
 import { get, update } from 'lodash';
 
-export const SiteFilter = ({ datasource, query, onChange }: EditorProps) => {
-  const getSites = () => datasource.sitesQuery().then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
-
-  const onSiteIdChange = (value: SelectableValue<string>) => {
-    update(query, 'context.siteopt.site', () => value.value);
-    update(query, 'params.selections.siteopt', () => value);
-    onChange(query);
-  };
+export const SiteFilter = (props: EditorProps) => {
+  const getSites = (inputValue: string) =>
+    props.datasource
+      .doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' }, context: {} })
+      .then((response) =>
+        response.data.result
+          .filter(([_, text]: [string, string]) => text.toLowerCase().includes(inputValue.toLowerCase()))
+          .map(([value, text]: [string, string]) => ({ label: text, value: value }))
+      )
+      .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
 
   return (
     <InlineField labelWidth={14} label="Site">
-      <AsyncSelect
-        width={32}
-        defaultOptions
-        cacheOptions
-        loadOptions={getSites}
-        value={get(query, 'params.selections.siteopt', {})}
-        onChange={onSiteIdChange}
-        placeholder="Select Site"
-      />
+      <AsyncAutocomplete autocompleter={getSites} contextPath="context.siteopt.site" {...props} />
     </InlineField>
   );
 };
@@ -36,7 +30,11 @@ export const HostFilter = (props: EditorProps) => {
   };
   return (
     <InlineField labelWidth={14} label="Hostname">
-      <AsyncAutocomplete autocompleteConfig={hostVS} contextPath="context.host.host" {...props} />
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, hostVS)}
+        contextPath="context.host.host"
+        {...props}
+      />
     </InlineField>
   );
 };
@@ -63,7 +61,11 @@ export const ServiceFilter = (props: EditorProps) => {
 
   return (
     <InlineField labelWidth={14} label="Service">
-      <AsyncAutocomplete autocompleteConfig={serviceVS} contextPath="context.service.service" {...props} />
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, serviceVS)}
+        contextPath="context.service.service"
+        {...props}
+      />
     </InlineField>
   );
 };
