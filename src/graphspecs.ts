@@ -63,6 +63,6 @@ export function combinedDesc(context: Context) {
 function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
   return [
     'combined',
-    { ...combinedDesc(context || {}), graph_template: params.graph_name.value, presentation: params.presentation },
+    { ...combinedDesc(context || {}), graph_template: params.graph_name, presentation: params.presentation },
   ];
 }

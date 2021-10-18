@@ -1,20 +1,38 @@
 import { get, update } from 'lodash';
 import React from 'react';
-import { InlineField, InlineFieldRow } from '@grafana/ui';
+import { InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps } from './types';
 import { AsyncAutocomplete, vsAutocomplete } from './fields';
+import { SelectableValue } from '@grafana/data';
 
 const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
+const GraphType = ({ query, onChange }: EditorProps) => {
+  const graphTypes = [
+    { value: 'graph', label: 'Template' },
+    { value: 'metric', label: 'Single metric' },
+  ];
+  const onGraphTypeChange = (value: SelectableValue<string>) => {
+    update(query, 'params.graphMode', () => value.value);
+    onChange(query);
+  };
+
+  return (
+    <InlineField label="Graph type" labelWidth={14}>
+      <Select width={32} options={graphTypes} onChange={onGraphTypeChange} value={get(query, 'params.graphMode', '')} />
+    </InlineField>
+  );
+};
 
 export const GraphOfServiceQuery = (props: EditorProps) => {
-  update(props, 'query.params.graphMode', () => 'metric');
+  update(props, 'query.params.graphMode', (x) => (x === 'combined' ? 'metric' : x));
 
   return (
     <InlineFieldRow>
       <SiteFilter {...props} />
       <HostFilter {...props} />
       <ServiceFilter {...props} />
+      <GraphType {...props} />
       <MetricSelect {...props} />
     </InlineFieldRow>
   );
