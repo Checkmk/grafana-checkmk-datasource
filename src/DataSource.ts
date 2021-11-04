@@ -66,7 +66,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
   }
 
   async getGraphQuery(range: number[], query: MyQuery) {
-    if (isEmpty(query.context)) {
+    if (isEmpty(query.context) || !(query.params.graph || query.params.metric || query.params.graph_name)) {
       return new MutableDataFrame();
     }
 
