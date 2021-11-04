@@ -3,8 +3,9 @@ import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceFilter, ServiceRegExFilter, SiteFilter } from './site';
-import { buildRequestBody, combinedDesc } from 'graphspecs';
-import { AsyncAutocomplete } from './fields';
+import { combinedDesc } from 'graphspecs';
+import { AsyncAutocomplete, vsAutocomplete } from './fields';
+import { update } from 'lodash';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -36,26 +37,21 @@ export const SelectAggregation = (props: EditorProps) => {
 };
 
 export const CombinedGraphSelect = (props: EditorProps) => {
-  const getAutocomplete = (inputValue: string) =>
-    props.datasource
-      .doRequest({
-        refId: props.query.refId,
-        params: { action: 'get_combined_graph_identifications' },
-        data: buildRequestBody(combinedDesc(props.query.context)),
-        context: props.query.context,
-      })
-      .then((response) =>
-        response.data.result
-          .filter(({ title }: { title: string }) => title.toLowerCase().includes(inputValue.toLowerCase()))
-          .map(({ title, identification }: { title: string; identification: [string, any] }) => ({
-            label: title,
-            value: identification[1].graph_template,
-          }))
-      );
+  const combVS = {
+    ident: 'combined_graphs',
+    params: { ...combinedDesc(props.query.context), presentation: props.query.params.presentation },
+  };
+
+  console.log(props);
+  update(props, 'query.params.graphMode', () => 'combined');
 
   return (
     <InlineField labelWidth={14} label="Graph">
-      <AsyncAutocomplete autocompleter={getAutocomplete} contextPath={'params.graph_name'} {...props} />
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, combVS)}
+        contextPath={'params.graph_name'}
+        {...props}
+      />
     </InlineField>
   );
 };
