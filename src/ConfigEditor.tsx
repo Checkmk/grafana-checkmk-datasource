@@ -71,6 +71,9 @@ export class ConfigEditor extends PureComponent<Props, State> {
       { value: 'CEE', label: 'Enterprice Editions' },
       { value: 'RAW', label: 'RAW Edition' },
     ];
+    if (!jsonData.edition) {
+      this.onEditionChange(cmkEditions[0]);
+    }
 
     return (
       <>
@@ -90,7 +93,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
               width={32}
               options={cmkEditions}
               onChange={this.onEditionChange}
-              value={jsonData.edition || 'CEE'}
+              value={jsonData.edition}
               placeholder="Select your checkmk edition"
             />
           </InlineField>
