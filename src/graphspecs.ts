@@ -4,24 +4,22 @@ export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`
 
 type GraphSpec = [string, any];
 
-export function graphDefinitionRequest(query: MyQuery, range: number[]): string {
+export function graphDefinitionRequest(editionMode: string, query: MyQuery, range: number[]): string {
   return buildRequestBody({
-    specification: graphSpecification(query),
+    specification: graphSpecification(editionMode, query),
     data_range: {
       time_range: range,
     },
   });
 }
 
-function graphSpecification(query: MyQuery): GraphSpec {
-  if (query.params.graphMode === 'template') {
+function graphSpecification(editionMode: string, query: MyQuery): GraphSpec {
+  if (editionMode === 'RAW') {
     return graphTemplateSpecification(query);
-  } else if (query.params.graphMode === 'metric') {
-    return singleMetricGraphSpecification(query);
-  } else if (query.params.graphMode === 'combined') {
+  } else if (editionMode === 'CEE') {
     return combinedGraphSpecification(query);
   }
-  throw new Error('Unknown graph mode');
+  throw new Error('UNSUPORTED EDITION');
 }
 
 export function extractSingleInfos(context: Context) {
@@ -33,21 +31,12 @@ export function extractSingleInfos(context: Context) {
 }
 
 function graphTemplateSpecification({ params, context }: MyQuery): GraphSpec {
+  let graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
   return [
     'template',
     {
       ...extractSingleInfos(context || {}),
-      graph_id: params.graph,
-    },
-  ];
-}
-
-function singleMetricGraphSpecification({ params, context }: MyQuery): GraphSpec {
-  return [
-    'single_timeseries',
-    {
-      ...extractSingleInfos(context || {}),
-      metric: params.metric,
+      graph_id: graph_name,
     },
   ];
 }
@@ -61,10 +50,7 @@ export function combinedDesc(context: Context) {
 }
 
 function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
-  let graph_name = params.graph_name;
-  if (params.mode === 'metric') {
-    graph_name = 'METRIC_' + graph_name;
-  }
+  let graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
   return [
     'combined',
     { ...combinedDesc(context || {}), graph_template: graph_name, presentation: params.presentation },

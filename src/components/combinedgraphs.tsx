@@ -3,9 +3,6 @@ import { Button, InlineField, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { HostFilter, HostLabelsFilter, HostRegExFilter, ServiceFilter, ServiceRegExFilter, SiteFilter } from './site';
-import { combinedDesc } from 'graphspecs';
-import { AsyncAutocomplete, vsAutocomplete, GraphType, titleCase } from './fields';
-import { get, update } from 'lodash';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -33,36 +30,6 @@ export const SelectAggregation = (props: EditorProps) => {
         placeholder="Aggregation"
       />
     </InlineField>
-  );
-};
-
-export const CombinedGraphSelect = (props: EditorProps) => {
-  const mode = get(props, 'query.params.mode', 'template');
-  const combVS = {
-    ident: 'combined_graphs',
-    params: {
-      ...combinedDesc(props.query.context),
-      presentation: props.query.params.presentation,
-      mode: mode,
-    },
-  };
-
-  console.log(props);
-  update(props, 'query.params.graphMode', () => 'combined');
-
-  const label = titleCase(mode);
-
-  return (
-    <>
-      <GraphType contextPath="params.mode" {...props} autocompleter={(_) => new Promise(() => ({}))} />
-      <InlineField labelWidth={14} label={label}>
-        <AsyncAutocomplete
-          autocompleter={vsAutocomplete(props.datasource, combVS)}
-          contextPath={'params.graph_name'}
-          {...props}
-        />
-      </InlineField>
-    </>
   );
 };
 

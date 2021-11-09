@@ -2,9 +2,11 @@ import React from 'react';
 import { QueryEditorProps } from '@grafana/data';
 import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
-import { GraphOfServiceQuery } from './components/templategraphs';
-import { CombinedGraphSelect, FilterEditor, SelectAggregation } from './components/combinedgraphs';
+import { FilterEditor, SelectAggregation } from './components/combinedgraphs';
 import { defaults, get } from 'lodash';
+import { InlineFieldRow } from '@grafana/ui';
+import { HostFilter, ServiceFilter, SiteFilter } from 'components/site';
+import { GraphSelect } from 'components/fields';
 //import { logError } from '@grafana/runtime';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
@@ -15,12 +17,19 @@ export const QueryEditor = (props: Props) => {
 
   return (
     <div className="gf-form-group">
-      {editionMode === 'RAW' && <GraphOfServiceQuery {...props} />}
+      {editionMode === 'RAW' && (
+        <InlineFieldRow>
+          <SiteFilter {...props} />
+          <HostFilter {...props} />
+          <ServiceFilter {...props} />
+          <GraphSelect edition={editionMode} {...props} />
+        </InlineFieldRow>
+      )}
       {editionMode === 'CEE' && (
         <>
           <FilterEditor {...props} />
           <SelectAggregation {...props} />
-          <CombinedGraphSelect {...props} />
+          <GraphSelect edition={editionMode} {...props} />
         </>
       )}
     </div>

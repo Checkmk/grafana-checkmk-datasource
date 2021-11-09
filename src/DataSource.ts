@@ -70,10 +70,11 @@ export class DataSource extends DataSourceApi<MyQuery> {
       return new MutableDataFrame();
     }
 
+    const editionMode = get(this, 'instanceSettings.jsonData.edition', 'CEE');
     const response = await this.doRequest({
       ...query,
       params: { action: 'get_graph' },
-      data: graphDefinitionRequest(query, range),
+      data: graphDefinitionRequest(editionMode, query, range),
     });
     return buildMetricDataFrame(response, query);
   }

@@ -1,5 +1,5 @@
 import { DataSource } from '../DataSource';
-import { MyQuery } from '../types';
+import { MyQuery, Edition } from '../types';
 
 export interface AutoComplete {
   ident: string;
@@ -8,6 +8,7 @@ export interface AutoComplete {
 
 export interface EditorProps {
   datasource: DataSource;
+  edition?: Edition;
   query: MyQuery;
   onChange: (stuff: any) => void;
   onRunQuery: () => void;

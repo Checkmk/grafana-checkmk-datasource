@@ -1,7 +1,7 @@
 import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms, FieldSet, InlineField, Select } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { MyDataSourceOptions, MySecureJsonData } from './types';
+import { MyDataSourceOptions, MySecureJsonData, Edition } from './types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
@@ -19,7 +19,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  onEditionChange = ({ value }: SelectableValue<string>) => {
+  onEditionChange = ({ value }: SelectableValue<Edition>) => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -67,7 +67,12 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const { options } = this.props;
     const { jsonData, secureJsonFields } = options;
     const secureJsonData = options.secureJsonData || {};
-    const cmkEditions = [
+    interface EditionOption {
+      value: Edition;
+      label: string;
+    }
+
+    const cmkEditions: EditionOption[] = [
       { value: 'CEE', label: 'Enterprice Editions' },
       { value: 'RAW', label: 'RAW Edition' },
     ];
