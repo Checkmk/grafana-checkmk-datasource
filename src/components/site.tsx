@@ -26,7 +26,7 @@ export const SiteFilter = (props: EditorProps) => {
 export const HostFilter = (props: EditorProps) => {
   const hostVS = {
     ident: 'monitored_hostname',
-    params: { strict: true },
+    params: { strict: true, context: props.query.context },
   };
   return (
     <InlineField labelWidth={14} label="Hostname">
@@ -56,7 +56,7 @@ export const HostRegExFilter = (props: EditorProps) => {
 export const ServiceFilter = (props: EditorProps) => {
   const serviceVS = {
     ident: 'monitored_service_description',
-    params: { strict: true, host: get(props, 'query.context.host.host', '') },
+    params: { strict: true, host: get(props, 'query.context.host.host', ''), context: props.query.context },
   };
 
   return (

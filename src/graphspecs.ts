@@ -14,7 +14,7 @@ export function graphDefinitionRequest(query: MyQuery, range: number[]): string 
 }
 
 function graphSpecification(query: MyQuery): GraphSpec {
-  if (query.params.graphMode === 'graph') {
+  if (query.params.graphMode === 'template') {
     return graphTemplateSpecification(query);
   } else if (query.params.graphMode === 'metric') {
     return singleMetricGraphSpecification(query);
@@ -61,8 +61,12 @@ export function combinedDesc(context: Context) {
 }
 
 function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
+  let graph_name = params.graph_name;
+  if (params.mode === 'metric') {
+    graph_name = 'METRIC_' + graph_name;
+  }
   return [
     'combined',
-    { ...combinedDesc(context || {}), graph_template: params.graph_name, presentation: params.presentation },
+    { ...combinedDesc(context || {}), graph_template: graph_name, presentation: params.presentation },
   ];
 }

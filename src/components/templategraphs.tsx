@@ -1,28 +1,9 @@
 import { get, update } from 'lodash';
 import React from 'react';
-import { InlineField, InlineFieldRow, Select } from '@grafana/ui';
+import { InlineField, InlineFieldRow } from '@grafana/ui';
 import { HostFilter, ServiceFilter, SiteFilter } from './site';
 import { EditorProps } from './types';
-import { AsyncAutocomplete, vsAutocomplete } from './fields';
-import { SelectableValue } from '@grafana/data';
-
-const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
-const GraphType = ({ query, onChange }: EditorProps) => {
-  const graphTypes = [
-    { value: 'graph', label: 'Template' },
-    { value: 'metric', label: 'Single metric' },
-  ];
-  const onGraphTypeChange = (value: SelectableValue<string>) => {
-    update(query, 'params.graphMode', () => value.value);
-    onChange(query);
-  };
-
-  return (
-    <InlineField label="Graph type" labelWidth={14}>
-      <Select width={32} options={graphTypes} onChange={onGraphTypeChange} value={get(query, 'params.graphMode', '')} />
-    </InlineField>
-  );
-};
+import { AsyncAutocomplete, vsAutocomplete, GraphType, titleCase } from './fields';
 
 export const GraphOfServiceQuery = (props: EditorProps) => {
   update(props, 'query.params.graphMode', (x) => (x === 'combined' ? 'metric' : x));
@@ -32,7 +13,7 @@ export const GraphOfServiceQuery = (props: EditorProps) => {
       <SiteFilter {...props} />
       <HostFilter {...props} />
       <ServiceFilter {...props} />
-      <GraphType {...props} />
+      <GraphType contextPath="params.graphMode" {...props} autocompleter={(_) => new Promise(() => ({}))} />
       <MetricSelect {...props} />
     </InlineFieldRow>
   );
@@ -43,8 +24,7 @@ const MetricSelect = (props: EditorProps) => {
     ident: props.query.params.graphMode === 'metric' ? 'metric_with_source' : 'available_graphs',
     params: {
       strict: true,
-      host: get(props.query, 'context.host.host', ''),
-      service: get(props.query, 'context.service.service', ''),
+      context: get(props, 'query.context', {}),
     },
   };
   const configPath = props.query.params.graphMode === 'metric' ? 'params.metric' : 'params.graph';

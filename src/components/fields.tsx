@@ -1,5 +1,5 @@
 import React from 'react';
-import { AsyncSelect } from '@grafana/ui';
+import { AsyncSelect, InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { AutoCompleteEditorProps } from './types';
 import { get, update } from 'lodash';
@@ -49,5 +49,29 @@ export const AsyncAutocomplete = ({
       value={get(query, 'params.selections' + contextPath, {})}
       width={32}
     />
+  );
+};
+
+export const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
+
+export const GraphType = ({ query, onChange, contextPath }: AutoCompleteEditorProps) => {
+  const graphTypes = [
+    { value: 'template', label: 'Template' },
+    { value: 'metric', label: 'Single metric' },
+  ];
+  const onGraphTypeChange = (value: SelectableValue<string>) => {
+    update(query, contextPath, () => value.value);
+    onChange(query);
+  };
+
+  return (
+    <InlineField label="Graph type" labelWidth={14}>
+      <Select
+        width={32}
+        options={graphTypes}
+        onChange={onGraphTypeChange}
+        value={get(query, contextPath, 'template')}
+      />
+    </InlineField>
   );
 };
