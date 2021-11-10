@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { InlineField, Input, AsyncMultiSelect } from '@grafana/ui';
+import { InlineField, Input, AsyncMultiSelect, Checkbox, InlineFieldRow } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { AsyncAutocomplete, vsAutocomplete } from './fields';
@@ -45,11 +45,21 @@ export const HostRegExFilter = (props: EditorProps) => {
     update(query, 'context.hostregex.host_regex', () => event.target.value);
     onChange(query);
   };
+
+  const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = props;
+    update(query, 'context.hostregex.neg_host_regex', () => (event.target.checked ? 'on' : ''));
+    onChange(query);
+  };
+
   const hostRegEx = get(props, 'query.context.hostregex', {});
   return (
-    <InlineField label="Hostname regex" labelWidth={14}>
-      <Input width={32} type="text" value={hostRegEx.host_regex || ''} onChange={onHostChange} placeholder="none" />
-    </InlineField>
+    <InlineFieldRow>
+      <InlineField label="Hostname regex" labelWidth={14}>
+        <Input width={32} type="text" value={hostRegEx.host_regex || ''} onChange={onHostChange} placeholder="none" />
+      </InlineField>
+      <Checkbox label="negate" onChange={onNegateChange} />
+    </InlineFieldRow>
   );
 };
 
@@ -76,11 +86,21 @@ export const ServiceRegExFilter = (props: EditorProps) => {
     update(query, 'context.serviceregex.service_regex', () => event.target.value);
     onChange(query);
   };
+
+  const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = props;
+    update(query, 'context.serviceregex.neg_service_regex', () => (event.target.checked ? 'on' : ''));
+    onChange(query);
+  };
+
   const serviceRegEx = get(props, 'query.context.serviceregex.service_regex', '');
   return (
-    <InlineField label="Service regex" labelWidth={14}>
-      <Input width={32} type="text" value={serviceRegEx} onChange={onServiceChange} placeholder="none" />
-    </InlineField>
+    <InlineFieldRow>
+      <InlineField label="Service regex" labelWidth={14}>
+        <Input width={32} type="text" value={serviceRegEx} onChange={onServiceChange} placeholder="none" />
+      </InlineField>
+      <Checkbox label="negate" onChange={onNegateChange} />
+    </InlineFieldRow>
   );
 };
 
