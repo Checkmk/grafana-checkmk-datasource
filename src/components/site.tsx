@@ -142,3 +142,33 @@ export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: Ed
     </InlineField>
   );
 };
+
+export const HostGroupFilter = (props: EditorProps) => {
+  const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = props;
+    update(query, 'context.opthostgroup.neg_opthost_group', () => (event.target.checked ? 'on' : ''));
+    onChange(query);
+  };
+
+  const groupVS = {
+    ident: 'opthostgroup',
+    params: {
+      strict: true,
+      host: get(props, 'query.context.opthostgroup.opthost_group', ''),
+      context: props.query.context,
+    },
+  };
+
+  return (
+    <InlineFieldRow>
+      <InlineField label="Host is in Group" labelWidth={14}>
+        <AsyncAutocomplete
+          autocompleter={vsAutocomplete(props.datasource, groupVS)}
+          contextPath="context.opthostgroup.opthost_group"
+          {...props}
+        />
+      </InlineField>
+      <Checkbox label="negate" onChange={onNegateChange} />
+    </InlineFieldRow>
+  );
+};

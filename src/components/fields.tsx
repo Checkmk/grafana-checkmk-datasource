@@ -29,7 +29,7 @@ export const AsyncAutocomplete = ({
 }: AutoCompleteEditorProps) => {
   const onSelection = (value: SelectableValue<string>) => {
     update(query, contextPath, () => value.value);
-    update(query, 'params.selections' + contextPath, () => value);
+    update(query, 'params.selections.' + contextPath, () => value);
     onChange(query);
     onRunQuery();
   };
@@ -47,7 +47,7 @@ export const AsyncAutocomplete = ({
       loadOptions={autocompleter}
       defaultOptions
       key={contextKey}
-      value={get(query, 'params.selections' + contextPath, {})}
+      value={get(query, 'params.selections.' + contextPath, {})}
       width={32}
     />
   );
