@@ -172,3 +172,33 @@ export const HostGroupFilter = (props: EditorProps) => {
     </InlineFieldRow>
   );
 };
+
+export const ServiceGroupFilter = (props: EditorProps) => {
+  const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { onChange, query } = props;
+    update(query, 'context.optservicegroup.neg_optservice_group', () => (event.target.checked ? 'on' : ''));
+    onChange(query);
+  };
+
+  const groupVS = {
+    ident: 'optservicegroup',
+    params: {
+      strict: true,
+      service: get(props, 'query.context.optservicegroup.optservice_group', ''),
+      context: props.query.context,
+    },
+  };
+
+  return (
+    <InlineFieldRow>
+      <InlineField label="Service is in Group" labelWidth={14}>
+        <AsyncAutocomplete
+          autocompleter={vsAutocomplete(props.datasource, groupVS)}
+          contextPath="context.optservicegroup.optservice_group"
+          {...props}
+        />
+      </InlineField>
+      <Checkbox label="negate" onChange={onNegateChange} />
+    </InlineFieldRow>
+  );
+};
