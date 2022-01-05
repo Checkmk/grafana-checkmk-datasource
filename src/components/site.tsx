@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import { InlineField, Input, AsyncMultiSelect, Checkbox, InlineFieldRow } from '@grafana/ui';
+import { InlineField, Input, AsyncMultiSelect, Checkbox, InlineFieldRow, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { AsyncAutocomplete, vsAutocomplete } from './fields';
@@ -199,6 +199,53 @@ export const ServiceGroupFilter = (props: EditorProps) => {
         />
       </InlineField>
       <Checkbox label="negate" onChange={onNegateChange} />
+    </InlineFieldRow>
+  );
+};
+
+export const HostTagsFilter = (props: EditorProps) => {
+  const groupVS = {
+    ident: 'tag_groups',
+    params: {
+      context: props.query.context,
+    },
+  };
+  const optionVS = {
+    ident: 'tag_groups_opt',
+    params: {
+      group_id: get(props, 'query.context.host_tags.host_tag_0_grp', ''),
+      context: props.query.context,
+    },
+  };
+  const tag_operators = [
+    { value: 'is', label: 'is' },
+    { value: 'isnot', label: 'is not' },
+  ];
+  const onOperatorChange = (value: SelectableValue<string>) => {
+    update(props.query, 'context.host_tags.host_tag_0_op', () => value.value);
+    props.onChange(props.query);
+    props.onRunQuery();
+  };
+
+  return (
+    <InlineFieldRow>
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, groupVS)}
+        contextPath="context.host_tags.host_tag_0_grp"
+        {...props}
+      />
+      <Select
+        width={8}
+        options={tag_operators}
+        onChange={onOperatorChange}
+        value={get(props.query, 'context.host_tags.host_tag_0_op')}
+      />
+
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, optionVS)}
+        contextPath="context.host_tags.host_tag_0_val"
+        {...props}
+      />
     </InlineFieldRow>
   );
 };

@@ -11,6 +11,7 @@ import {
   ServiceGroupFilter,
   ServiceRegExFilter,
   SiteFilter,
+  HostTagsFilter,
 } from './site';
 
 export const SelectAggregation = (props: EditorProps) => {
@@ -68,6 +69,7 @@ export const SelectFilters = (props: FilterEditorProps) => {
     { value: 'host_labels', label: 'Host Labels', render: HostLabelsFilter },
     { value: 'opthostgroup', label: 'Host is in Group', render: HostGroupFilter },
     { value: 'optservicegroup', label: 'Service is in Group', render: ServiceGroupFilter },
+    { value: 'host_tags', label: 'HostTags', render: HostTagsFilter },
   ];
   const context = props.query.context || {};
   const available_filters = all_filters.filter(
