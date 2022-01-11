@@ -1,5 +1,15 @@
 import React, { ChangeEvent } from 'react';
-import { InlineField, Input, AsyncMultiSelect, Checkbox, InlineFieldRow, Select } from '@grafana/ui';
+import {
+  HorizontalGroup,
+  VerticalGroup,
+  Label,
+  InlineField,
+  Input,
+  AsyncMultiSelect,
+  Checkbox,
+  InlineFieldRow,
+  Select,
+} from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { AsyncAutocomplete, vsAutocomplete } from './fields';
@@ -203,7 +213,13 @@ export const ServiceGroupFilter = (props: EditorProps) => {
   );
 };
 
-export const HostTagsFilter = (props: EditorProps) => {
+interface HostTagsEditorProps extends EditorProps {
+  index: number;
+}
+
+export const HostTagsItemFilter = (props: HostTagsEditorProps) => {
+  const index = props.index;
+
   const groupVS = {
     ident: 'tag_groups',
     params: {
@@ -213,7 +229,7 @@ export const HostTagsFilter = (props: EditorProps) => {
   const optionVS = {
     ident: 'tag_groups_opt',
     params: {
-      group_id: get(props, 'query.context.host_tags.host_tag_0_grp', ''),
+      group_id: get(props, `query.context.host_tags.host_tag_${index}_grp`, ''),
       context: props.query.context,
     },
   };
@@ -222,30 +238,45 @@ export const HostTagsFilter = (props: EditorProps) => {
     { value: 'isnot', label: 'is not' },
   ];
   const onOperatorChange = (value: SelectableValue<string>) => {
-    update(props.query, 'context.host_tags.host_tag_0_op', () => value.value);
+    update(props.query, `context.host_tags.host_tag_${index}_op`, () => value.value);
     props.onChange(props.query);
     props.onRunQuery();
   };
 
   return (
-    <InlineFieldRow>
-      <AsyncAutocomplete
-        autocompleter={vsAutocomplete(props.datasource, groupVS)}
-        contextPath="context.host_tags.host_tag_0_grp"
-        {...props}
-      />
-      <Select
-        width={8}
-        options={tag_operators}
-        onChange={onOperatorChange}
-        value={get(props.query, 'context.host_tags.host_tag_0_op')}
-      />
+    <>
+      <VerticalGroup spacing="sm">
+        <HorizontalGroup>
+          <Label>Host tag {index + 1}: </Label>
+          <AsyncAutocomplete
+            autocompleter={vsAutocomplete(props.datasource, groupVS)}
+            contextPath={`context.host_tags.host_tag_${index}_grp`}
+            {...props}
+          />
+          <Select
+            width={8}
+            options={tag_operators}
+            onChange={onOperatorChange}
+            value={get(props.query, `context.host_tags.host_tag_${index}_op`)}
+          />
 
-      <AsyncAutocomplete
-        autocompleter={vsAutocomplete(props.datasource, optionVS)}
-        contextPath="context.host_tags.host_tag_0_val"
-        {...props}
-      />
-    </InlineFieldRow>
+          <AsyncAutocomplete
+            autocompleter={vsAutocomplete(props.datasource, optionVS)}
+            contextPath={`context.host_tags.host_tag_${index}_val`}
+            {...props}
+          />
+        </HorizontalGroup>
+      </VerticalGroup>
+    </>
+  );
+};
+
+export const HostTagsFilter = (props: EditorProps) => {
+  return (
+    <>
+      {Array.from({ length: 3 }).map((_, idx) => (
+        <HostTagsItemFilter index={idx} {...props} />
+      ))}
+    </>
   );
 };
