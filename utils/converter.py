@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import sqlite3
 
 
 def cli_options():
@@ -12,6 +13,11 @@ def cli_options():
     )
     parser.add_argument(
         "-n", "--datasource-new", help="Name of the NEW Grafana Connector Version 2.x"
+    )
+    parser.add_argument(
+        "-t",
+        "--new-dashboard-title",
+        help="Rename dashboard. If not set add NEW suffix",
     )
     return parser
 
@@ -45,9 +51,16 @@ def update_host_tags(target):
 
 def main():
     args = cli_options().parse_args()
-    with open(args.json_file) as fd:
-        dash = json.load(fd)
+    con = sqlite3.connect(args.json_file)
+    cur = con.cursor()
+    row = list(cur.execute("select data from dashboard where slug = 'cmk'"))
+    dash = json.loads(row[0][0])
 
+    # if title := args.new_dashboard_title:
+    #     dash["title"] = title
+    # else:
+    dash["title"] += " NEW"
+    dash["uid"] += "1"
 
     for panel in dash["panels"]:
         if panel.get("datasource") == args.datasource_old:
@@ -72,9 +85,25 @@ def main():
                     config_set(target, ["context", "siteopt", "site"], site)
 
                 if combined := target.pop("combinedgraph", None):
-                    target["params"]["graph_name"] = combined
+                    config_set(target, ["params", "graph_name"], combined)
+
+                mode = target.pop("mode", "")
+                if mode == "metric":
+                    nested_set(target, ["params", "graphMode"], "metric")
+
+                # if mode == "graph":
+                #     nested_set(
+                #         target, ["params", "graph_name"], str(target.pop("graph", "0"))
+                #     )
+
                 if presentation := target.pop("presentiation", None):
                     target["params"]["presentation"] = presentation
+
+    cur.execute(
+        "update dashboard set data = '%s'  where slug = 'cmk-new'" % json.dumps(dash)
+    )
+    con.commit()
+    con.close()
 
     print(json.dumps(dash))
 
