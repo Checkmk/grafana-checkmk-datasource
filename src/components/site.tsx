@@ -16,19 +16,15 @@ import { AsyncAutocomplete, vsAutocomplete } from './fields';
 import { get, update } from 'lodash';
 
 export const SiteFilter = (props: EditorProps) => {
-  const getSites = (inputValue: string) =>
-    props.datasource
-      .doRequest({ refId: 'siteQuery', params: { action: 'get_user_sites' }, context: {} })
-      .then((response) =>
-        response.data.result
-          .filter(([_, text]: [string, string]) => text.toLowerCase().includes(inputValue.toLowerCase()))
-          .map(([value, text]: [string, string]) => ({ label: text, value: value }))
-      )
-      .then((sites) => [{ label: 'All Sites', value: '' }, ...sites]);
+  const sitesVS = { ident: 'sites', params: { strict: false, context: props.query.context } };
 
   return (
     <InlineField labelWidth={14} label="Site">
-      <AsyncAutocomplete autocompleter={getSites} contextPath="context.siteopt.site" {...props} />
+      <AsyncAutocomplete
+        autocompleter={vsAutocomplete(props.datasource, sitesVS)}
+        contextPath="context.siteopt.site"
+        {...props}
+      />
     </InlineField>
   );
 };
