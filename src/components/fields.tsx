@@ -2,7 +2,7 @@ import React from 'react';
 import { AsyncSelect, InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { AutoCompleteEditorProps, EditorProps } from './types';
-import { get, update } from 'lodash';
+import { get, update, isEmpty } from 'lodash';
 import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
 
@@ -39,6 +39,19 @@ export const AsyncAutocomplete = ({
   // This is only to mark refresh on graph type selection as they are independent from context
   if (contextPath === 'params.metric' || contextPath === 'params.graph') {
     contextKey += contextPath;
+  }
+  // recover graph_name
+  if (contextPath === 'params.graph_name' && typeof query.graph === 'number' && query.params.graphMode === 'template') {
+    autocompleter('').then((res) => {
+      console.log('auto qu', res, query);
+      const graph_index = query.graph;
+      delete query.graph;
+      if (res.length > graph_index) {
+        onSelection(res[graph_index]);
+        const col = get(query, 'params.selections.' + contextPath, {});
+        console.log('up', col, isEmpty(col));
+      }
+    });
   }
 
   return (
@@ -100,16 +113,13 @@ export const GraphSelect = (props: EditorProps) => {
   }
 
   const label = titleCase(graphMode);
+  const autocompleter = vsAutocomplete(props.datasource, completionVS);
 
   return (
     <>
       <GraphType contextPath="params.graphMode" {...props} autocompleter={(_) => new Promise(() => ({}))} />
       <InlineField labelWidth={14} label={label}>
-        <AsyncAutocomplete
-          autocompleter={vsAutocomplete(props.datasource, completionVS)}
-          contextPath={'params.graph_name'}
-          {...props}
-        />
+        <AsyncAutocomplete autocompleter={autocompleter} contextPath={'params.graph_name'} {...props} />
       </InlineField>
     </>
   );
