@@ -7,11 +7,10 @@ import {
   DataSourceInstanceSettings,
   MutableDataFrame,
   FieldType,
-  SelectableValue,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
-import { buildRequestBody, combinedDesc, extractSingleInfos, graphDefinitionRequest } from './graphspecs';
+import { buildRequestBody, combinedDesc, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, defaultQuery } from './types';
 
 export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
@@ -52,24 +51,10 @@ export class DataSource extends DataSourceApi<MyQuery> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async graphRecipesQuery({ refId, context }: MyQuery): Promise<Array<SelectableValue<number>>> {
-    const template = buildRequestBody({
-      specification: ['template', extractSingleInfos(context || {})],
-    });
-    const response = await this.doRequest({
-      refId: refId,
-      params: { action: 'get_graph_recipes' },
-      data: template,
-      context,
-    });
-    return response.data.result.map((graph: any, index: number) => ({ label: graph.title, value: index }));
-  }
-
   async getGraphQuery(range: number[], query: MyQuery) {
-    if (isEmpty(query.context) || !(query.params.graph || query.params.metric || query.params.graph_name)) {
+    if (isEmpty(query.context) || !query.params.graph_name) {
       return new MutableDataFrame();
     }
-
     const editionMode = get(this, 'instanceSettings.jsonData.edition', 'CEE');
     const response = await this.doRequest({
       ...query,

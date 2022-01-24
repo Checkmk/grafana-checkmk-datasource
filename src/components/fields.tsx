@@ -2,7 +2,7 @@ import React from 'react';
 import { AsyncSelect, InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { AutoCompleteEditorProps, EditorProps } from './types';
-import { get, update, isEmpty } from 'lodash';
+import { get, update } from 'lodash';
 import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
 
@@ -40,20 +40,6 @@ export const AsyncAutocomplete = ({
   if (contextPath === 'params.metric' || contextPath === 'params.graph') {
     contextKey += contextPath;
   }
-  // recover graph_name
-  if (contextPath === 'params.graph_name' && typeof query.graph === 'number' && query.params.graphMode === 'template') {
-    autocompleter('').then((res) => {
-      console.log('auto qu', res, query);
-      const graph_index = query.graph;
-      delete query.graph;
-      if (res.length > graph_index) {
-        onSelection(res[graph_index]);
-        const col = get(query, 'params.selections.' + contextPath, {});
-        console.log('up', col, isEmpty(col));
-      }
-    });
-  }
-
   return (
     <AsyncSelect
       onChange={onSelection}

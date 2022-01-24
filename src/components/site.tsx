@@ -271,7 +271,7 @@ export const HostTagsFilter = (props: EditorProps) => {
   return (
     <>
       {Array.from({ length: 3 }).map((_, idx) => (
-        <HostTagsItemFilter index={idx} {...props} />
+        <HostTagsItemFilter key={idx} index={idx} {...props} />
       ))}
     </>
   );
