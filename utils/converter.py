@@ -84,17 +84,17 @@ def main():
                 if site := target.pop("site", None):
                     config_set(target, ["context", "siteopt", "site"], site)
 
-                if combined := target.pop("combinedgraph", None):
-                    config_set(target, ["params", "graph_name"], combined)
-
                 mode = target.pop("mode", "")
+                metric_id = target.pop("metric", "")
+                graph_id = str(target.pop("graph", "0"))
+                combined_graph_name = target.pop("combinedgraph", None)
                 if mode == "metric":
                     nested_set(target, ["params", "graphMode"], "metric")
-
-                # if mode == "graph":
-                #     nested_set(
-                #         target, ["params", "graph_name"], str(target.pop("graph", "0"))
-                #     )
+                    nested_set(target, ["params", "graph_name"], metric_id)
+                elif mode == "graph":
+                    nested_set(target, ["params", "graph_name"], graph_id)
+                elif combined_graph_name:
+                    config_set(target, ["params", "graph_name"], combined_graph_name)
 
                 if presentation := target.pop("presentiation", None):
                     target["params"]["presentation"] = presentation
