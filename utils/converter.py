@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import argparse
 import json
+import pprint
 import sqlite3
 import urllib.request as rq
 
@@ -15,11 +17,6 @@ def cli_options():
     )
     parser.add_argument(
         "-n", "--datasource-new", help="Name of the NEW Grafana Connector Version 2.x"
-    )
-    parser.add_argument(
-        "-t",
-        "--new-dashboard-title",
-        help="Rename dashboard. If not set add NEW suffix",
     )
     return parser
 
@@ -133,21 +130,8 @@ def query(conf):
     return _query
 
 
-def main():
-    args = cli_options().parse_args()
-    con = sqlite3.connect(args.db_file)
-    cur = con.cursor()
-    datasource_config = dict(get_datasource_configs(cur))
-    query_graph = query(datasource_config[args.datasource_old])
-
-    row = list(cur.execute("select data from dashboard where slug = 'cmk'"))
-    dash = json.loads(row[0][0])
-
-    # # if title := args.new_dashboard_title:
-    # #     dash["title"] = title
-    # # else:
-    dash["title"] += " NEW"
-    dash["uid"] += "1"
+def update_dashboard(data, args, query_graph):
+    dash = json.loads(data)
 
     for panel in dash["panels"]:
         if panel.get("datasource") == args.datasource_old:
@@ -157,11 +141,41 @@ def main():
                 update_context(target)
                 update_graph(query_graph, target)
 
-    print(json.dumps(dash))
-    cur.execute(
-        "update dashboard set data = '%s'  where slug = 'cmk-new'" % json.dumps(dash)
-    )
-    con.commit()
+    return dash
+
+
+def main():
+    args = cli_options().parse_args()
+    con = sqlite3.connect(args.db_file)
+    cur = con.cursor()
+    datasource_config = dict(get_datasource_configs(cur))
+    query_graph = query(datasource_config[args.datasource_old])
+
+    for did, data, creator in cur.execute("select id, data, created_by from dashboard"):
+        dash = update_dashboard(data, args, query_graph)
+        version = dash["version"]
+        dash["version"] += 1
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        cur.execute(
+            "insert into dashboard_version (dashboard_id, parent_version, restored_from, version,  created, created_by, message, data) values(?,?,?,?,?,?,?,?)",
+            (
+                did,
+                version,
+                0,
+                dash["version"],
+                now,
+                creator,
+                "Checkmk connector update",
+                json.dumps(dash),
+            ),
+        )
+        cur.execute(
+            """UPDATE dashboard SET
+            data = ?, version = ?, updated = ?
+            WHERE id = ?""",
+            (json.dumps(dash), dash["version"], now, did),
+        )
+        con.commit()
     con.close()
 
 
