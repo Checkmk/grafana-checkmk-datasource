@@ -3,20 +3,23 @@
 ![CI](https://github.com/tribe29/grafana-checkmk-datasource/actions/workflows/node.js.yml/badge.svg)
 
 This Data Source allows you to query checkmk metrics. It is a complete rewrite
-of the previous connector to match newer grafana versions.
+of the previous connector to match newer grafana versions. This plugin is on
+the alpha testing stage.
 
-Due to the breaking changes in this plugin, it is at the moment a complete
-separate plugin. Later on we will provide with an update setup.
-
-This plugin is still on the prototyping stage. Things will break or change
-without any notice. Specially your configured panel can break as the internal
-data-structure that stores them is still changing.
+Due to the breaking changes in this plugin, it is a complete separate plugin. We
+provide an update utility, although not all features from the previous connector
+are available. Those are some single metrics and annotations.
 
 This plugin id is: `tribe-29-grafana-checkmk-datasource`
 
 ## Requirements
 
-You require checkmk on master patched with branch `sandbox/on/filterSplit` (but it was most tested on master) and 7.0<=Grafana<8.2
+You require checkmk nightly build from the master branch and 7.0<=Grafana<8.2
+
+Since Grafana 8.2, plugins loaded diffently and the connector fails to load.
+Please help us with your setup on Issue #52 for us to debug further. We know
+that Grafana 8.3.4 on a docker container has worked for us, yet we don't yet
+know why.
 
 ## Getting started
 
@@ -79,13 +82,13 @@ plugin.
 Save & Test will check if the User authenticates and the data source is
 reachable.
 
-## Current state of development
+## Current state
 
 - Service graph works on RAW & CEE
 - Single metric for the moment now works only on CEE
 - Combined graphs remains CEE only
 - Dropped "Label Format" option. Prefer Grafana overrrides.
-- [ ] Annotations are not usable yet
+- Annotations are not usable yet
 
 ### Combined graphs
 
@@ -96,27 +99,39 @@ reachable.
   - Service exact match
   - Service Regex
   - Host labels multi select
+  - Host groups
+  - Service groups
+  - Host Tags
 
-#### Minor annoyances
+### Minor annoyances
 
-- Due to limitations of the Grafana UI Select components. Host, Service, Metric
-  & Graph dropdowns do not trigger a search when opening the dropdown. You must
-  type something to trigger the search. Pressing the arrow keys would not
-  trigger. Either write your text or press the space bar to trigge an
-  unconstrained search.
-- Graph query only re triggers when selecting the graph recipe. That
-  inconveniently means after changing aggregation you need to at least
-  touch/select a "graph" to trigger the query for time series data.
-- Changing any filters does not trigger a query. That can be changed in the
-  future. For know please press the refresh icon on the top right of the graph
-  to retrigger the query with all your changes applied.
 - When selecting a Filter. The focus jumps to the next Filter dropdown menu
   instead of the more intuitive focus on the selected filter itself.
+- Composed single metrics are not available anymore. E.g. from the Filesystem
+  service "Free space" is a composed metric being the difference between "Total
+  Size" and "Used Space".
 
-### Foreseen work under consideration
+## Updating from the previous connector
 
-- Use of host tag, including builtin ones
-- Add a filters for labels and hostgroups
-- Don't reset/empty fields after a change, if old selections are compatible with
-  change. E.g. Changing hostname should not remove Service "CPU load" if new
-  host also has that service.
+We provide a Python script `utils/converter.py` which will update the Grafana
+Sqlite database from the old connector setup to the new one. In that process it
+will go over all the dashboards and create a new version of them with the
+updated connector. PLEASE BACKUP THIS FILE BEFORE UPDATING.
+
+1. Install and configure this new connector. Take note of the name you give it
+   and take note of which name you gave the old connector. In this example we call them "Latest cmk connector" and "checkmk".
+2. Stop your Grafana instance and backup the file `grafana.db`
+3. Use the `converter.py` script, it has a `-h` option to remind you of the
+   usage. To update from the previous datasource "checkmk" into this new
+   connector "Latest cmk connector" on the `grafana.db` file, execute:
+
+```BASH
+python3  converter.py -o "checkmk" -n "Latest cmk connector" -db grafana.db
+```
+
+If any of the two datasources is your default datasource, omit that option on
+the command. This script will go over all your dashboards, it might take some
+time because it also queries information from your checkmk site, and that
+communication takes time.
+
+4. After the update completes start your Grafana server again.
