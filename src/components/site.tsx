@@ -159,7 +159,7 @@ export const HostGroupFilter = (props: EditorProps) => {
   const groupVS = {
     ident: 'allgroups',
     params: {
-      group_type: "host",
+      group_type: 'host',
       strict: true,
       host: get(props, 'query.context.opthostgroup.opthost_group', ''),
       context: props.query.context,
@@ -190,7 +190,7 @@ export const ServiceGroupFilter = (props: EditorProps) => {
   const groupVS = {
     ident: 'allgroups',
     params: {
-      group_type: "service",
+      group_type: 'service',
       strict: true,
       service: get(props, 'query.context.optservicegroup.optservice_group', ''),
       context: props.query.context,

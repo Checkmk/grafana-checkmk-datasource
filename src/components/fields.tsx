@@ -54,7 +54,7 @@ export const AsyncAutocomplete = ({
 
 export const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
 
-export const GraphType = ({ query, onChange, contextPath }: AutoCompleteEditorProps) => {
+export const GraphType = ({ query, onChange, onRunQuery, contextPath }: AutoCompleteEditorProps) => {
   const graphTypes = [
     { value: 'template', label: 'Template' },
     { value: 'metric', label: 'Single metric' },
@@ -62,6 +62,7 @@ export const GraphType = ({ query, onChange, contextPath }: AutoCompleteEditorPr
   const onGraphTypeChange = (value: SelectableValue<string>) => {
     update(query, contextPath, () => value.value);
     onChange(query);
+    onRunQuery();
   };
 
   return (

@@ -110,7 +110,7 @@ def get_datasource_configs(cursor):
     for ds, name, json_data in cursor.execute(
         "select type, name, json_data from data_source"
     ):
-        if ds in ["checkmk-datasource", "tribe-29-grafana-checkmk-datasource"]:
+        if ds in ["checkmk-datasource", "tribe-29-checkmk-datasource"]:
             yield name, {**json.loads(json_data), "name": name, "ds": ds}
 
 
