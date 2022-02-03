@@ -2,9 +2,9 @@
 
 ![CI](https://github.com/tribe29/grafana-checkmk-datasource/actions/workflows/node.js.yml/badge.svg)
 
-This datasource plugin is a complete rewrite from the previous connector. It has
+This data-source plugin is a complete rewrite from the previous connector. It has
 undergone a new architectural design and is not backwards compatible to the
-previous version. We nervertheless provide an upgrade procedure to assist you on
+previous version. We nevertheless provide an upgrade procedure to assist you on
 the transition. 
 
 This project has entered the Beta testing phase.
@@ -15,7 +15,7 @@ This project has entered the Beta testing phase.
 - Grafana >= 7.0
 
 This plugin release accompanies the Checkmk 2.1 release. You can use it already
-with Checkmk 2.0.0p20 for testing purposes, however bugfixes, changes and
+with Checkmk 2.0.0p20 for testing purposes, however bug-fixes, changes and
 updates  will mainly take place on Checkmk 2.1 to not compromise the stability
 of Checkmk 2.0.
 
@@ -56,7 +56,7 @@ Username
 
 Secret
 : Secret for the API User.
-: This key is not transmitted from the Grafana UI, only the backend has access
+: This key is not transmitted from the Grafana UI, only the back-end has access
   to it. This is a security improvement over the previous plugin.
 
 Save & Test will check if the User authenticates and the data source is
@@ -67,7 +67,7 @@ reachable.
 - CEE configuration is now a filter based selection of graph templates of single metric.
 - RAW configuration offers Service graphs and some single metrics.
 
-- Dropped "Label Format" option. Prefer Grafana overrrides.
+- Dropped "Label Format" option. Prefer Grafana overrides.
 - Annotations are not available.
 
 ### Combined graphs
@@ -93,8 +93,8 @@ reachable.
 
 ## Updating from the previous connector
 
-We provide a Python script `utils/converter.py` which will update the Grafana
-Sqlite database from the old connector setup to the new one. In that process it
+We provide a Python script `utils/converter.py` which updates the Grafana
+SQLite database from the old connector setup to the new one. In that process it
 will go over all the dashboards and create a new version of them with the
 updated connector. PLEASE BACKUP THIS FILE BEFORE UPDATING.
 
@@ -110,9 +110,11 @@ python3  converter.py -o "checkmk" -n "Latest cmk connector" -db grafana.db
 ```
 
 If any of the two datasources is your default datasource, omit that option on
-the command. This script will go over all your dashboards, it might take some
-time because it also queries information from your checkmk site, and that
-communication takes time.
+the command.
+
+This script will go over all your dashboards, it might take some time because it
+also queries information from your checkmk site, and that communication takes
+time.
 
 4. After the update completes start your Grafana server again.
 
