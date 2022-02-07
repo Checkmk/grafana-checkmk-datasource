@@ -12,7 +12,7 @@ This project has entered the Beta testing phase.
 ## Requirements
 
 - Checkmk >= 2.0.0p20
-- Grafana >= 7.0
+- Grafana >= 8.0
 
 This plugin release accompanies the Checkmk 2.1 release. You can use it already
 with Checkmk 2.0.0p20 for testing purposes, however bug-fixes, changes and
