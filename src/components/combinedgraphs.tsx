@@ -12,7 +12,7 @@ import {
   ServiceRegExFilter,
   SiteFilter,
   HostTagsFilter,
-} from './site';
+} from './filters';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [

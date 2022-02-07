@@ -5,7 +5,7 @@ import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 import { FilterEditor, SelectAggregation } from './components/combinedgraphs';
 import { defaults, get } from 'lodash';
 import { InlineFieldRow } from '@grafana/ui';
-import { HostFilter, ServiceFilter, SiteFilter } from 'components/site';
+import { HostFilter, ServiceFilter, SiteFilter } from 'components/filters';
 import { GraphSelect } from 'components/fields';
 //import { logError } from '@grafana/runtime';
 
