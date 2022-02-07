@@ -37,9 +37,10 @@ export const AsyncAutocomplete = ({
   let contextKey = JSON.stringify(query.context);
 
   // This is only to mark refresh on graph type selection as they are independent from context
-  if (contextPath === 'params.metric' || contextPath === 'params.graph') {
-    contextKey += contextPath;
+  if (contextPath === 'params.graph_name') {
+    contextKey += get(query, 'params.graphMode');
   }
+
   return (
     <AsyncSelect
       onChange={onSelection}
