@@ -5,7 +5,7 @@
 This data-source plugin is a complete rewrite from the previous connector. It has
 undergone a new architectural design and is not backwards compatible to the
 previous version. We nevertheless provide an upgrade procedure to assist you on
-the transition. 
+the transition.
 
 This project has entered the Beta testing phase.
 
@@ -16,10 +16,11 @@ This project has entered the Beta testing phase.
 
 This plugin release accompanies the checkmk 2.1 release. You can use it already
 with checkmk 2.0.0p20 for testing purposes, however bug-fixes, changes and
-updates  will mainly take place on checkmk 2.1 to not compromise the stability
+updates will mainly take place on checkmk 2.1 to not compromise the stability
 of checkmk 2.0.
 
 ## Getting started
+
 ### Installation
 
 Download the released version of this repository or clone it. Released versions
@@ -39,8 +40,8 @@ and you need to make sure this plugin is readable under those conditions. [Issue
 #52](https://github.com/tribe29/grafana-checkmk-datasource/issues/52#issuecomment-1026917446)
 includes troubleshooting information.
 
-
 ### Plugin configuration
+
 URL
 : URL of the Checkmk Server used.
 : Example: http://checkmk.server/site/
@@ -88,7 +89,9 @@ Enterprise editions site or a RAW edition one.
   - Host Tags
 
 ### Static filter selection (Service Graphs, RAW)
+
 Service graphs are defined by their specific descriptors for
+
 - Site
 - Hostname
 - Service
@@ -104,8 +107,8 @@ Service graphs are defined by their specific descriptors for
   metric graph type on the CEE interface, whereas there show up in duplication
   as a Template Type and a Single metric type on the RAW interface.
 - If connection to a checkmk 2.0 site.
-   - Host & service dropdown options are not constrained by other active filters in the query.
-   - Single metric graphs don't work on the RAW interface.
+  - Host & service dropdown options are not constrained by other active filters in the query.
+  - Single metric graphs don't work on the RAW interface.
 
 ## Updating from the previous connector
 
@@ -160,3 +163,16 @@ yarn watch
 yarn build
 ```
 
+# Maintenance
+
+Code formatting
+
+```BASH
+yarn prettier --write src
+```
+
+Update dependencies
+
+```BASH
+yarn upgrade --latest
+```
