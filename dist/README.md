@@ -12,12 +12,12 @@ This project has entered the Beta testing phase.
 ## Requirements
 
 - Checkmk >= 2.0.0p20
-- Grafana >= 7.0
+- Grafana >= 8.0
 
-This plugin release accompanies the Checkmk 2.1 release. You can use it already
-with Checkmk 2.0.0p20 for testing purposes, however bug-fixes, changes and
-updates  will mainly take place on Checkmk 2.1 to not compromise the stability
-of Checkmk 2.0.
+This plugin release accompanies the checkmk 2.1 release. You can use it already
+with checkmk 2.0.0p20 for testing purposes, however bug-fixes, changes and
+updates  will mainly take place on checkmk 2.1 to not compromise the stability
+of checkmk 2.0.
 
 ## Getting started
 ### Installation
@@ -64,13 +64,17 @@ reachable.
 
 ## Current state
 
-- CEE configuration is now a filter based selection of graph templates of single metric.
-- RAW configuration offers Service graphs and some single metrics.
+This plugin offers 2 different interfaces, depending if you connect to an
+Enterprise editions site or a RAW edition one.
+
+- CEE interface is now a filter based selection for graph templates or single
+  metrics.
+- RAW interface offers Service graphs and some single metrics.
 
 - Dropped "Label Format" option. Prefer Grafana overrides.
 - Annotations are not available.
 
-### Combined graphs
+### Filter base graph selection (Combined graphs, CEE)
 
 - Construct combined graphs using traditional Checkmk filters. Currently available:
   - Site filter
@@ -83,20 +87,32 @@ reachable.
   - Service groups
   - Host Tags
 
-### Minor annoyances
+### Static filter selection (Service Graphs, RAW)
+Service graphs are defined by their specific descriptors for
+- Site
+- Hostname
+- Service
+
+## Minor annoyances
 
 - When selecting a Filter. The focus jumps to the next Filter dropdown menu
   instead of the more intuitive focus on the selected filter itself.
 - Composed single metrics are not available anymore. E.g. from the Filesystem
   service "Free space" is a composed metric being the difference between "Total
   Size" and "Used Space".
+- Graphs that consist of a single metric(e.g. Uptime) appear on the Single
+  metric graph type on the CEE interface, whereas there show up in duplication
+  as a Template Type and a Single metric type on the RAW interface.
+- If connection to a checkmk 2.0 site.
+   - Host & service dropdown options are not constrained by other active filters in the query.
+   - Single metric graphs don't work on the RAW interface.
 
 ## Updating from the previous connector
 
 We provide a Python script `utils/converter.py` which updates the Grafana
 SQLite database from the old connector setup to the new one. In that process it
 will go over all the dashboards and create a new version of them with the
-updated connector. PLEASE BACKUP THIS FILE BEFORE UPDATING.
+updated connector. **PLEASE BACKUP THIS FILE BEFORE UPDATING.**
 
 1. Install and configure this new connector. Take note of the name you give it
    and take note of which name you gave the old connector. In this example we call them "Latest cmk connector" and "checkmk".
