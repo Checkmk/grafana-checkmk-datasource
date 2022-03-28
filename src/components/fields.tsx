@@ -103,11 +103,20 @@ export const GraphSelect = (props: EditorProps) => {
   const label = titleCase(graphMode);
   const autocompleter = vsAutocomplete(props.datasource, completionVS);
 
+  const autocompleter_wrap = (inputValue: string) =>
+    autocompleter(inputValue).then((choices) => {
+      if (graphMode === 'template') {
+        return choices.filter(({ value }: SelectableValue<string>) => value && !value.startsWith('METRIC_'));
+      } else {
+        return choices;
+      }
+    });
+
   return (
     <>
       <GraphType contextPath="params.graphMode" {...props} autocompleter={(_) => new Promise(() => ({}))} />
       <InlineField labelWidth={14} label={label}>
-        <AsyncAutocomplete autocompleter={autocompleter} contextPath={'params.graph_name'} {...props} />
+        <AsyncAutocomplete autocompleter={autocompleter_wrap} contextPath={'params.graph_name'} {...props} />
       </InlineField>
     </>
   );
