@@ -2,9 +2,15 @@ import React from 'react';
 import { AsyncSelect, InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
 import { AutoCompleteEditorProps, EditorProps } from './types';
-import { get, update } from 'lodash';
+import { get, update as _update, cloneDeep } from 'lodash';
 import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
+
+const update = (x: any, path: string, func: any) => {
+  let copy = cloneDeep(x);
+  _update(copy, path, func);
+  return copy;
+};
 
 export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) => (inputValue: string) =>
   datasource
@@ -28,9 +34,9 @@ export const AsyncAutocomplete = ({
   contextPath,
 }: AutoCompleteEditorProps) => {
   const onSelection = (value: SelectableValue<string>) => {
-    update(query, contextPath, () => value.value);
-    update(query, 'params.selections.' + contextPath, () => value);
-    onChange(query);
+    let newQuery = update(query, contextPath, () => value.value);
+    newQuery = update(newQuery, 'params.selections.' + contextPath, () => value);
+    onChange(newQuery);
     onRunQuery();
   };
 
@@ -61,8 +67,7 @@ export const GraphType = ({ query, onChange, onRunQuery, contextPath }: AutoComp
     { value: 'metric', label: 'Single metric' },
   ];
   const onGraphTypeChange = (value: SelectableValue<string>) => {
-    update(query, contextPath, () => value.value);
-    onChange(query);
+    onChange(update(query, contextPath, () => value.value));
     onRunQuery();
   };
 
