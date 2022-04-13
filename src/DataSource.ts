@@ -11,7 +11,7 @@ import {
 import { getBackendSrv } from '@grafana/runtime';
 
 import { buildRequestBody, combinedDesc, graphDefinitionRequest } from './graphspecs';
-import { MyQuery, defaultQuery } from './types';
+import { MyQuery, defaultQuery, MyDataSourceOptions } from './types';
 
 export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
 
@@ -34,7 +34,7 @@ function buildMetricDataFrame(response: any, query: MyQuery) {
 }
 
 export class DataSource extends DataSourceApi<MyQuery> {
-  constructor(private instanceSettings: DataSourceInstanceSettings) {
+  constructor(private instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
   }
 
@@ -70,21 +70,27 @@ export class DataSource extends DataSourceApi<MyQuery> {
       params: { action: 'get_combined_graph_identifications' },
       data: buildRequestBody(combinedDesc({ host: { host: 'ARANDOMNAME' } })),
       context: {},
-    }).then((response) => {
-      if (
-        response.data.result_code === 1 &&
-        response.data.result === 'Checkmk exception: Currently not supported with this Checkmk Edition' &&
-        get(this, 'instanceSettings.jsonData.edition', 'CEE') === 'CEE'
-      ) {
-        throw new Error('Mismatch between selected checkmk edition and monitoring site edition');
-      }
-
-      return {
-        status: 'success',
-        message: 'Data source is working',
-        title: 'Success',
-      };
-    });
+    })
+      .catch((error) => {
+        let firstLineOfError = error.message.split('\n')[0];
+        if (firstLineOfError === 'Checkmk exception: Currently not supported with this Checkmk Edition') {
+          if ((this.instanceSettings.jsonData.edition ?? 'CEE') === 'CEE') {
+            // edition dropdown = cee, so seeing this error means that we speak with a raw edition
+            throw new Error('Mismatch between selected Checkmk edition and monitoring site edition');
+          } else {
+            // edition dropdown = raw, so seeing this error is expected (but auth worked, so we are fine)
+            return;
+          }
+        }
+        throw error;
+      })
+      .then((response) => {
+        return {
+          status: 'success',
+          message: 'Data source is working',
+          title: 'Success',
+        };
+      });
   }
 
   async doRequest(options: MyQuery) {
@@ -120,10 +126,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
 
     if (typeof result.data === 'string') {
       throw new Error(`${result.data}`);
-    } else if (
-      result.data.result_code !== 0 &&
-      result.data.result !== 'Checkmk exception: Currently not supported with this Checkmk Edition'
-    ) {
+    } else if (result.data.result_code !== 0) {
       throw new Error(`${result.data.result}`);
     } else {
       return result;
