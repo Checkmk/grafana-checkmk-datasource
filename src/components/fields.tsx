@@ -100,6 +100,10 @@ export const GraphSelect = (props: EditorProps) => {
       ident: props.query.params.graphMode === 'metric' ? 'monitored_metrics' : 'available_graphs',
       params: {
         strict: 'withSource',
+        // 2.1.0 changed this parameter to:
+        // strict: true,
+        // show_independent_of_context: false,
+        // but the defaults for missing values seem to be in our favour.
         context: get(props, 'query.context', {}),
       },
     };
