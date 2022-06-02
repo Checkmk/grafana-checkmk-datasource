@@ -19,7 +19,7 @@ export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) 
       value: inputValue.trim(),
     })
     .then((result) =>
-      result.data.result.choices.map(([value, label]: [string, string]) => ({
+      result?.data.result.choices.map(([value, label]: [string, string]) => ({
         value,
         label,
         isDisabled: value === null,
