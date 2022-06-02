@@ -122,7 +122,7 @@ export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: Ed
         search_label: search,
       })
       .then((result) =>
-        result.data.result.filter(({ value }: { value: string }) => value.toLowerCase().includes(search))
+        result?.data.result.filter(({ value }: { value: string }) => value.toLowerCase().includes(search))
       )
       .then(valueListToSelect);
   };

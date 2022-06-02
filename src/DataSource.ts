@@ -113,9 +113,10 @@ export class DataSource extends DataSourceApi<MyQuery> {
 
   async cmkRequest(request: any) {
     const result = await getBackendSrv()
-      .datasourceRequest(request)
-      .catch(({ cancelled }) => {
-        if (cancelled) {
+      .fetch<{ result_code: number, result: any}>(request)
+      .toPromise()
+      .catch((error) => {
+        if (error.cancelled) {
           throw new Error(
             `API request was cancelled. This has either happened because no 'Access-Control-Allow-Origin' header is present, or because of a ssl protocol error. Make sure you are running at least Checkmk version 2.0.`
           );
@@ -124,7 +125,11 @@ export class DataSource extends DataSourceApi<MyQuery> {
         }
       });
 
-    if (typeof result.data === 'string') {
+    if (result === undefined) {
+      return undefined;
+    }
+
+    if (result.data instanceof String) {
       throw new Error(`${result.data}`);
     } else if (result.data.result_code !== 0) {
       throw new Error(`${result.data.result}`);
