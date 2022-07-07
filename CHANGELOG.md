@@ -2,6 +2,15 @@
 
 [//]: # (The ci will use the first section starting with `##` as release notes.)
 
+## NEXT
+
+* Removed `/dist` folder from git repository. That means that it's no longer
+  possible to install this Grafana plugin by `git clone`. If you use `git pull`
+  to update the plugin, you will have to change your deployment strategy of
+  this plugin. Please refer to the [official documentation][1]
+
+[1]: https://docs.checkmk.com/2.1.0/en/grafana.html
+
 ## 2.0.1
 
 * README.md already states that at least Grafana 8.0.0 is required, now the
