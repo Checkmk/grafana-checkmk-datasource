@@ -1,11 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "tribe-29-checkmk-datasource",
+  "name": "Checkmk",
   "id": "tribe-29-checkmk-datasource",
   "metrics": true,
   "info": {
-    "description": "Checkmk Datasource",
+    "description": "Checkmk data source",
     "author": {
       "name": "Tribe29 GmbH",
       "url": "https://github.com/tribe29/"
