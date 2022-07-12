@@ -7,8 +7,15 @@ export interface Context {
   [key: string]: ContextHTTPVars;
 }
 
+export interface QueryParams {
+  graphMode?: 'metric' | 'template';
+  presentation?: 'lines' | 'sum' | 'average' | 'min' | 'max';
+  graph_name?: string;
+  action?: 'get_graph' | 'get_combined_graph_identifications';
+}
+
 export interface MyQuery extends DataQuery {
-  params: any;
+  params: QueryParams;
   context: Context;
   data?: any;
 }
