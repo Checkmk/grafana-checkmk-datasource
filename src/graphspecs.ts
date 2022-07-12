@@ -53,7 +53,7 @@ function graphTemplateSpecification({ params, context }: MyQuery): GraphSpec {
   ];
 }
 
-export function combinedDesc(context: Context) {
+export function combinedDesc(context: Context): Omit<CombinedGraphSpec, 'graph_template' | 'presentation'> {
   return {
     context: context,
     datasource: 'services',
