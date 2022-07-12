@@ -1,11 +1,6 @@
 import { DataSource } from '../DataSource';
 import { MyQuery, Edition } from '../types';
 
-export interface AutoComplete {
-  ident: string;
-  params: any;
-}
-
 export interface EditorProps {
   datasource: DataSource;
   edition?: Edition;
