@@ -5,7 +5,7 @@ import { AutoCompleteEditorProps, AutoCompleteConfig, EditorProps } from './type
 import { get, update as _update, cloneDeep } from 'lodash';
 import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
-import { MyQuery } from 'types';
+import { MyQuery, ResponseDataAutocomplete } from 'types';
 
 const update = (x: MyQuery, path: string, func: () => SelectableValue<string> | string | undefined) => {
   const copy = cloneDeep(x);
@@ -16,7 +16,7 @@ const update = (x: MyQuery, path: string, func: () => SelectableValue<string> | 
 export const vsAutocomplete =
   (datasource: DataSource, autocompleteConfig: AutoCompleteConfig) => (inputValue: string) =>
     datasource
-      .restRequest('ajax_vs_autocomplete.py', {
+      .restRequest<ResponseDataAutocomplete>('ajax_vs_autocomplete.py', {
         ...autocompleteConfig,
         value: inputValue.trim(),
       })

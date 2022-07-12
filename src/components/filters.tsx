@@ -14,6 +14,7 @@ import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { AsyncAutocomplete, vsAutocomplete } from './fields';
 import { get, update } from 'lodash';
+import { ResponseDataAutocompleteLabel } from 'types';
 
 export const SiteFilter = (props: EditorProps) => {
   const sitesVS = { ident: 'sites', params: { strict: false, context: props.query.context } };
@@ -117,7 +118,7 @@ export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: Ed
   const getHostLabels = (inputValue: string) => {
     const search = inputValue.trim().toLowerCase();
     return datasource
-      .restRequest('ajax_autocomplete_labels.py', {
+      .restRequest<ResponseDataAutocompleteLabel>('ajax_autocomplete_labels.py', {
         world: 'core',
         search_label: search,
       })

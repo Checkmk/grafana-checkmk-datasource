@@ -8,15 +8,15 @@ import {
   MutableDataFrame,
   FieldType,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { FetchResponse, getBackendSrv, BackendSrvRequest } from '@grafana/runtime';
 
 import { buildRequestBody, combinedDesc, graphDefinitionRequest } from './graphspecs';
-import { MyQuery, defaultQuery, MyDataSourceOptions } from './types';
+import { MyQuery, defaultQuery, MyDataSourceOptions, ResponseData, ResponseDataCurves } from './types';
 
 export const buildUrlWithParams = (url: string, params: Record<string, string>) =>
   url + '?' + new URLSearchParams(params).toString();
 
-function buildMetricDataFrame(response: any, query: MyQuery) {
+function buildMetricDataFrame(response: FetchResponse<ResponseData<ResponseDataCurves>>, query: MyQuery) {
   if (response.data.result_code !== 0) {
     throw new Error(`${response.data.result}`);
   }
@@ -25,12 +25,10 @@ function buildMetricDataFrame(response: any, query: MyQuery) {
   const frame = new MutableDataFrame({
     refId: query.refId,
     fields: [{ name: 'Time', type: FieldType.time }].concat(
-      curves.map((x: any) => ({ name: x.title, type: FieldType.number }))
+      curves.map((x) => ({ name: x.title, type: FieldType.number }))
     ),
   });
-  zip(...curves.map((x: any) => x.rrddata)).forEach((d: any, i: number) =>
-    frame.appendRow([(start_time + i * step) * 1000, ...d])
-  );
+  zip(...curves.map((x) => x.rrddata)).forEach((d, i) => frame.appendRow([(start_time + i * step) * 1000, ...d]));
   return frame;
 }
 
@@ -56,7 +54,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
       return new MutableDataFrame();
     }
     const editionMode = get(this, 'instanceSettings.jsonData.edition', 'CEE');
-    const response = await this.doRequest({
+    const response = await this.doRequest<ResponseDataCurves>({
       ...query,
       params: { action: 'get_graph' },
       data: graphDefinitionRequest(editionMode, query, range),
@@ -93,8 +91,8 @@ export class DataSource extends DataSourceApi<MyQuery> {
       });
   }
 
-  async doRequest(options: MyQuery) {
-    return this.cmkRequest({
+  async doRequest<T>(options: MyQuery): Promise<FetchResponse<ResponseData<T>>> {
+    return this.cmkRequest<T>({
       method: options.data == null ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, { ...options.params }),
@@ -102,8 +100,8 @@ export class DataSource extends DataSourceApi<MyQuery> {
     });
   }
 
-  async restRequest(api_url: string, data: any) {
-    return this.cmkRequest({
+  async restRequest<T>(api_url: string, data: any): Promise<FetchResponse<ResponseData<T>>> {
+    return this.cmkRequest<T>({
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       url: `${this.instanceSettings.url}/cmk/check_mk/${api_url}`,
@@ -111,9 +109,9 @@ export class DataSource extends DataSourceApi<MyQuery> {
     });
   }
 
-  async cmkRequest(request: any) {
+  async cmkRequest<T>(request: BackendSrvRequest): Promise<FetchResponse<ResponseData<T>>> {
     const result = await getBackendSrv()
-      .fetch<{ result_code: number, result: any}>(request)
+      .fetch<ResponseData<T>>(request)
       .toPromise()
       .catch((error) => {
         if (error.cancelled) {
@@ -126,7 +124,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
       });
 
     if (result === undefined) {
-      return undefined;
+      throw new Error('Got undefined result');
     }
 
     if (result.data instanceof String) {
