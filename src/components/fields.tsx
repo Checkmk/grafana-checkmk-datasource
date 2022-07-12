@@ -127,7 +127,7 @@ export const GraphSelect = (props: EditorProps) => {
 
   return (
     <>
-      <GraphType contextPath="params.graphMode" {...props} autocompleter={(_) => new Promise(() => ({}))} />
+      <GraphType contextPath="params.graphMode" {...props} autocompleter={() => new Promise(() => ({}))} />
       <InlineField labelWidth={14} label={label}>
         <AsyncAutocomplete autocompleter={autocompleter_wrap} contextPath={'params.graph_name'} {...props} />
       </InlineField>
