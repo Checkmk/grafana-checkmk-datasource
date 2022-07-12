@@ -1,5 +1,6 @@
 import { DataSource } from '../DataSource';
 import { MyQuery, Edition } from '../types';
+import { SelectableValue } from '@grafana/data';
 
 export interface EditorProps {
   datasource: DataSource;
@@ -10,6 +11,6 @@ export interface EditorProps {
 }
 
 export interface AutoCompleteEditorProps extends EditorProps {
-  autocompleter: (inputValue: string) => Promise<any>;
+  autocompleter: (inputValue: string) => Promise<SelectableValue<string>[]>;
   contextPath: string;
 }
