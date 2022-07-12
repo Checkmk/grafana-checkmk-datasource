@@ -6,7 +6,7 @@ export interface EditorProps {
   datasource: DataSource;
   edition?: Edition;
   query: MyQuery;
-  onChange: (stuff: any) => void;
+  onChange: (stuff: MyQuery) => void;
   onRunQuery: () => void;
 }
 
