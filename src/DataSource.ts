@@ -96,7 +96,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
     return this.cmkRequest({
       method: options.data == null ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, options.params),
+      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, { ...options.params }),
       data: options.data,
     });
   }
