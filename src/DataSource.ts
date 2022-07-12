@@ -100,7 +100,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
     });
   }
 
-  async restRequest<T>(api_url: string, data: any): Promise<FetchResponse<ResponseData<T>>> {
+  async restRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<ResponseData<T>>> {
     return this.cmkRequest<T>({
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
