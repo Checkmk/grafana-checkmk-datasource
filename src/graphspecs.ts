@@ -1,8 +1,20 @@
 import { get } from 'lodash';
-import { Context, MyQuery } from './types';
+import { Context, MyQuery, Presentation } from './types';
 export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
 
-type GraphSpec = [string, any];
+interface CombinedGraphSpec {
+  graph_template: string;
+  presentation: Presentation;
+  context: Context;
+  datasource: string;
+  single_infos: string[];
+}
+
+interface TemplateGraphSpec {
+  graph_id: string;
+}
+
+type GraphSpec = ['template', TemplateGraphSpec] | ['combined', CombinedGraphSpec];
 
 export function graphDefinitionRequest(editionMode: string, query: MyQuery, range: number[]): string {
   return buildRequestBody({
@@ -51,6 +63,9 @@ export function combinedDesc(context: Context) {
 
 function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
   const graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
+  if (params.presentation == null) {
+    throw new Error('params.presentation has to be not null');
+  }
   return [
     'combined',
     { ...combinedDesc(context || {}), graph_template: graph_name, presentation: params.presentation },
