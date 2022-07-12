@@ -1,7 +1,7 @@
 import React from 'react';
 import { AsyncSelect, InlineField, Select } from '@grafana/ui';
 import { SelectableValue } from '@grafana/data';
-import { AutoCompleteEditorProps, EditorProps } from './types';
+import { AutoCompleteEditorProps, AutoCompleteConfig, EditorProps } from './types';
 import { get, update as _update, cloneDeep } from 'lodash';
 import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
@@ -13,19 +13,20 @@ const update = (x: MyQuery, path: string, func: () => SelectableValue<string> | 
   return copy;
 };
 
-export const vsAutocomplete = (datasource: DataSource, autocompleteConfig: any) => (inputValue: string) =>
-  datasource
-    .restRequest('ajax_vs_autocomplete.py', {
-      ...autocompleteConfig,
-      value: inputValue.trim(),
-    })
-    .then((result) =>
-      result?.data.result.choices.map(([value, label]: [string, string]) => ({
-        value,
-        label,
-        isDisabled: value === null,
-      }))
-    );
+export const vsAutocomplete =
+  (datasource: DataSource, autocompleteConfig: AutoCompleteConfig) => (inputValue: string) =>
+    datasource
+      .restRequest('ajax_vs_autocomplete.py', {
+        ...autocompleteConfig,
+        value: inputValue.trim(),
+      })
+      .then((result) =>
+        result?.data.result.choices.map(([value, label]: [string, string]) => ({
+          value,
+          label,
+          isDisabled: value === null,
+        }))
+      );
 
 export const AsyncAutocomplete = ({
   autocompleter,
@@ -86,7 +87,7 @@ export const GraphType = ({ query, onChange, onRunQuery, contextPath }: AutoComp
 
 export const GraphSelect = (props: EditorProps) => {
   const graphMode = get(props, 'query.params.graphMode', 'template');
-  let completionVS = {};
+  let completionVS;
   if (props.edition === 'CEE') {
     completionVS = {
       ident: 'combined_graphs',
@@ -108,6 +109,8 @@ export const GraphSelect = (props: EditorProps) => {
         context: get(props, 'query.context', {}),
       },
     };
+  } else {
+    throw new Error('props.edition has undefined value'); // should never happen
   }
 
   const label = titleCase(graphMode);
