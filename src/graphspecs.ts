@@ -31,7 +31,7 @@ export function extractSingleInfos(context: Context) {
 }
 
 function graphTemplateSpecification({ params, context }: MyQuery): GraphSpec {
-  let graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
+  const graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
   return [
     'template',
     {
@@ -50,7 +50,7 @@ export function combinedDesc(context: Context) {
 }
 
 function combinedGraphSpecification({ params, context }: MyQuery): GraphSpec {
-  let graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
+  const graph_name = (params.graphMode === 'metric' ? 'METRIC_' : '') + params.graph_name;
   return [
     'combined',
     { ...combinedDesc(context || {}), graph_template: graph_name, presentation: params.presentation },
