@@ -39,8 +39,8 @@ export class DataSource extends DataSourceApi<MyQuery> {
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
     const { range } = options;
-    const from = range!.from.unix();
-    const to = range!.to.unix();
+    const from = range.from.unix();
+    const to = range.to.unix();
 
     const promises = options.targets.map((target) => {
       const query = defaults(target, defaultQuery);
