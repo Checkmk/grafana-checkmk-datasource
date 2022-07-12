@@ -17,7 +17,7 @@ export interface QueryParams {
 export interface MyQuery extends DataQuery {
   params: QueryParams;
   context: Context;
-  data?: any;
+  data?: string;
 }
 
 export const defaultQuery: Partial<MyQuery> = {
