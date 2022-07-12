@@ -13,7 +13,8 @@ import { getBackendSrv } from '@grafana/runtime';
 import { buildRequestBody, combinedDesc, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, defaultQuery, MyDataSourceOptions } from './types';
 
-export const buildUrlWithParams = (url: string, params: any) => url + '?' + new URLSearchParams(params).toString();
+export const buildUrlWithParams = (url: string, params: Record<string, string>) =>
+  url + '?' + new URLSearchParams(params).toString();
 
 function buildMetricDataFrame(response: any, query: MyQuery) {
   if (response.data.result_code !== 0) {
