@@ -46,3 +46,29 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
 export interface MySecureJsonData {
   secret?: string;
 }
+
+export interface ResponseDataAutocomplete {
+  choices: [string, string][];
+}
+
+export type ResponseDataAutocompleteLabel = {
+  value: string;
+}[];
+
+export interface ResponseDataCurves {
+  filter: unknown;
+  start_time: number;
+  step: number;
+  curves: {
+    title: string;
+    rrddata: {
+      i: number;
+      d: Record<string, unknown>;
+    }[];
+  }[];
+}
+
+export interface ResponseData<T> {
+  result_code: number;
+  result: T;
+}
