@@ -5,8 +5,9 @@ import { AutoCompleteEditorProps, EditorProps } from './types';
 import { get, update as _update, cloneDeep } from 'lodash';
 import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
+import { MyQuery } from 'types';
 
-const update = (x: any, path: string, func: any) => {
+const update = (x: MyQuery, path: string, func: () => SelectableValue<string> | string | undefined) => {
   const copy = cloneDeep(x);
   _update(copy, path, func);
   return copy;
