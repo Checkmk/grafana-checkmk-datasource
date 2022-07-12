@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 import { Context, MyQuery, Presentation } from './types';
-export const buildRequestBody = (data: any) => `request=${JSON.stringify(data)}`;
+export const buildRequestBody = (data: unknown) => `request=${JSON.stringify(data)}`;
 
 interface CombinedGraphSpec {
   graph_template: string;
