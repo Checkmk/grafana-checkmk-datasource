@@ -7,9 +7,11 @@ export interface Context {
   [key: string]: ContextHTTPVars;
 }
 
+export type Presentation = 'lines' | 'sum' | 'average' | 'min' | 'max';
+
 export interface QueryParams {
   graphMode?: 'metric' | 'template';
-  presentation?: 'lines' | 'sum' | 'average' | 'min' | 'max';
+  presentation?: Presentation;
   graph_name?: string;
   action?: 'get_graph' | 'get_combined_graph_identifications';
 }
