@@ -5,8 +5,10 @@ import { MyDataSourceOptions, MySecureJsonData, Edition } from './types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions, MySecureJsonData> {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {

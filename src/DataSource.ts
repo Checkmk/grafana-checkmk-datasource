@@ -42,11 +42,10 @@ export class DataSource extends DataSourceApi<MyQuery> {
     const { range } = options;
     const from = range!.from.unix();
     const to = range!.to.unix();
-    const datasource = this; // defined to be reachable on the next closure
 
     const promises = options.targets.map((target) => {
       const query = defaults(target, defaultQuery);
-      return datasource.getGraphQuery([from, to], query);
+      return this.getGraphQuery([from, to], query);
     });
     return Promise.all(promises).then((data) => ({ data }));
   }
@@ -72,7 +71,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
       context: {},
     })
       .catch((error) => {
-        let firstLineOfError = error.message.split('\n')[0];
+        const firstLineOfError = error.message.split('\n')[0];
         if (firstLineOfError === 'Checkmk exception: Currently not supported with this Checkmk Edition') {
           if ((this.instanceSettings.jsonData.edition ?? 'CEE') === 'CEE') {
             // edition dropdown = cee, so seeing this error means that we speak with a raw edition
@@ -84,7 +83,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
         }
         throw error;
       })
-      .then((response) => {
+      .then(() => {
         return {
           status: 'success',
           message: 'Data source is working',

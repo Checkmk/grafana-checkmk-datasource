@@ -73,7 +73,7 @@ export const SelectFilters = (props: FilterEditorProps) => {
   ];
   const context = props.query.context || {};
   const available_filters = all_filters.filter(
-    ({ value }) => value === props.filtername || !context.hasOwnProperty(value)
+    ({ value }) => value === props.filtername || !Object.prototype.hasOwnProperty.call(context, value)
   );
   // Early return in case all filters are on
   if (!available_filters.length) {

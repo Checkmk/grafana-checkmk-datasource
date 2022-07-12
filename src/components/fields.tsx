@@ -7,7 +7,7 @@ import { DataSource } from '../DataSource';
 import { combinedDesc } from 'graphspecs';
 
 const update = (x: any, path: string, func: any) => {
-  let copy = cloneDeep(x);
+  const copy = cloneDeep(x);
   _update(copy, path, func);
   return copy;
 };
