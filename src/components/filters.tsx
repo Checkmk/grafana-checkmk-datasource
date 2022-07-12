@@ -127,7 +127,7 @@ export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: Ed
       .then(valueListToSelect);
   };
 
-  const onLabelsChange = (values: any[]) => {
+  const onLabelsChange = (values: SelectableValue<string>[]) => {
     update(query, 'context.host_labels.host_label', () => JSON.stringify(values.map((l) => ({ value: l.value }))));
     onChange(query);
     onRunQuery();
