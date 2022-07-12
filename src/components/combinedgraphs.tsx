@@ -13,6 +13,7 @@ import {
   SiteFilter,
   HostTagsFilter,
 } from './filters';
+import { Presentation } from 'types';
 
 export const SelectAggregation = (props: EditorProps) => {
   const combined_presentations = [
@@ -26,7 +27,7 @@ export const SelectAggregation = (props: EditorProps) => {
 
   const onPresentationChange = async ({ value }: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = props;
-    onChange({ ...query, params: { ...query.params, presentation: value } });
+    onChange({ ...query, params: { ...query.params, presentation: value as Presentation } });
     onRunQuery();
   };
 
