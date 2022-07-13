@@ -1,6 +1,6 @@
 import { get } from 'lodash';
-import { Context, MyQuery, Presentation } from './types';
-export const buildRequestBody = (data: unknown) => `request=${JSON.stringify(data)}`;
+import { ContextHTTPVars, Context, MyQuery, Presentation } from './types';
+export const buildRequestBody = (data: unknown): string => `request=${JSON.stringify(data)}`;
 
 interface CombinedGraphSpec {
   graph_template: string;
@@ -12,6 +12,12 @@ interface CombinedGraphSpec {
 
 interface TemplateGraphSpec {
   graph_id: string;
+}
+
+interface SingleInfos {
+  site: string | ContextHTTPVars;
+  host_name: string | ContextHTTPVars;
+  service_description: string | ContextHTTPVars;
 }
 
 type GraphSpec = ['template', TemplateGraphSpec] | ['combined', CombinedGraphSpec];
@@ -34,7 +40,7 @@ function graphSpecification(editionMode: string, query: MyQuery): GraphSpec {
   throw new Error('UNSUPORTED EDITION');
 }
 
-export function extractSingleInfos(context: Context) {
+export function extractSingleInfos(context: Context): SingleInfos {
   return {
     site: get(context, 'siteopt.site', ''),
     host_name: get(context, 'host.host', ''),

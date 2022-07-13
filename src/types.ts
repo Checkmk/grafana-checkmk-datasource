@@ -1,6 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-interface ContextHTTPVars {
+export interface ContextHTTPVars {
   [key: string]: string;
 }
 export interface Context {
