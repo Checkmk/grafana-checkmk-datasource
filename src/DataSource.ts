@@ -13,7 +13,7 @@ import { FetchResponse, getBackendSrv, BackendSrvRequest } from '@grafana/runtim
 import { buildRequestBody, combinedDesc, graphDefinitionRequest } from './graphspecs';
 import { MyQuery, defaultQuery, MyDataSourceOptions, ResponseData, ResponseDataCurves } from './types';
 
-export const buildUrlWithParams = (url: string, params: Record<string, string>) =>
+export const buildUrlWithParams = (url: string, params: Record<string, string>): string =>
   url + '?' + new URLSearchParams(params).toString();
 
 function buildMetricDataFrame(response: FetchResponse<ResponseData<ResponseDataCurves>>, query: MyQuery) {
@@ -49,7 +49,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async getGraphQuery(range: number[], query: MyQuery) {
+  async getGraphQuery(range: number[], query: MyQuery): Promise<MutableDataFrame<unknown>> {
     if (isEmpty(query.context) || !query.params.graph_name) {
       return new MutableDataFrame();
     }
@@ -62,7 +62,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
     return buildMetricDataFrame(response, query);
   }
 
-  async testDatasource() {
+  async testDatasource(): Promise<unknown | undefined> {
     return this.doRequest({
       refId: 'testDatasource',
       params: { action: 'get_combined_graph_identifications' },

@@ -14,7 +14,8 @@ const update = (x: MyQuery, path: string, func: () => SelectableValue<string> | 
 };
 
 export const vsAutocomplete =
-  (datasource: DataSource, autocompleteConfig: AutoCompleteConfig) => (inputValue: string) =>
+  (datasource: DataSource, autocompleteConfig: AutoCompleteConfig) =>
+  (inputValue: string): Promise<{ value: string; label: string; isDisabled: boolean }[]> =>
     datasource
       .restRequest<ResponseDataAutocomplete>('ajax_vs_autocomplete.py', {
         ...autocompleteConfig,
@@ -34,7 +35,7 @@ export const AsyncAutocomplete = ({
   onRunQuery,
   query,
   contextPath,
-}: AutoCompleteEditorProps) => {
+}: AutoCompleteEditorProps) : JSX.Element => {
   const onSelection = (value: SelectableValue<string>) => {
     let newQuery = update(query, contextPath, () => value.value);
     newQuery = update(newQuery, 'params.selections.' + contextPath, () => value);
@@ -61,9 +62,9 @@ export const AsyncAutocomplete = ({
   );
 };
 
-export const titleCase = (str: string) => str[0].toUpperCase() + str.slice(1).toLowerCase();
+export const titleCase = (str: string) : string => str[0].toUpperCase() + str.slice(1).toLowerCase();
 
-export const GraphType = ({ query, onChange, onRunQuery, contextPath }: AutoCompleteEditorProps) => {
+export const GraphType = ({ query, onChange, onRunQuery, contextPath }: AutoCompleteEditorProps) : JSX.Element => {
   const graphTypes = [
     { value: 'template', label: 'Template' },
     { value: 'metric', label: 'Single metric' },
@@ -85,7 +86,7 @@ export const GraphType = ({ query, onChange, onRunQuery, contextPath }: AutoComp
   );
 };
 
-export const GraphSelect = (props: EditorProps) => {
+export const GraphSelect = (props: EditorProps) : JSX.Element => {
   const graphMode = get(props, 'query.params.graphMode', 'template');
   let completionVS;
   if (props.edition === 'CEE') {
