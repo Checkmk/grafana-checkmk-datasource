@@ -11,7 +11,7 @@
     "start": "yarn watch"
   },
   "author": "Óscar Nájera",
-  "license": "",
+  "license": "GPL-2.0-only",
   "devDependencies": {
     "@grafana/data": "^8.5.4",
     "@grafana/runtime": "^8.5.4",
