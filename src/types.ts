@@ -1,11 +1,8 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 
-export interface ContextHTTPVars {
-  [key: string]: string;
-}
-export interface Context {
-  [key: string]: ContextHTTPVars;
-}
+export type ContextHTTPVars = Record<string, string>;
+
+export type Context = Record<string, ContextHTTPVars>;
 
 export type Presentation = 'lines' | 'sum' | 'average' | 'min' | 'max';
 
