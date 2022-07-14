@@ -10,7 +10,7 @@
     "sign": "grafana-toolkit plugin:sign",
     "start": "yarn watch"
   },
-  "author": "Óscar Nájera",
+  "author": "tribe29 GmbH",
   "license": "GPL-2.0-only",
   "devDependencies": {
     "@grafana/data": "^8.5.4",
