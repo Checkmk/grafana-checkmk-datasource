@@ -15,7 +15,7 @@ import {
 } from './filters';
 import { Presentation } from 'types';
 
-export const SelectAggregation = (props: EditorProps) : JSX.Element => {
+export const SelectAggregation = (props: EditorProps): JSX.Element => {
   const combined_presentations = [
     { value: 'lines', label: 'Lines' },
     // { value: 'stacked', label: 'Stacked' }, // no difference to line at request level
@@ -44,7 +44,7 @@ export const SelectAggregation = (props: EditorProps) : JSX.Element => {
   );
 };
 
-export const FilterEditor = (props: EditorProps) : JSX.Element => {
+export const FilterEditor = (props: EditorProps): JSX.Element => {
   const context = props.query.context || {};
   return (
     <>
@@ -60,7 +60,7 @@ interface FilterEditorProps extends EditorProps {
   filtername: string;
 }
 
-export const SelectFilters = (props: FilterEditorProps) : null | JSX.Element => {
+export const SelectFilters = (props: FilterEditorProps): null | JSX.Element => {
   const all_filters = [
     { value: 'siteopt', label: 'Site', render: SiteFilter },
     { value: 'host', label: 'Hostname', render: HostFilter },
