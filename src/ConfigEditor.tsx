@@ -12,7 +12,7 @@ interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions, 
 interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {
-  onUrlChange = (event: ChangeEvent<HTMLInputElement>) : void => {
+  onUrlChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -21,7 +21,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  onEditionChange = ({ value }: SelectableValue<Edition>) : void => {
+  onEditionChange = ({ value }: SelectableValue<Edition>): void => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -30,7 +30,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     onOptionsChange({ ...options, jsonData });
   };
 
-  onUsernameChange = (event: ChangeEvent<HTMLInputElement>) : void => {
+  onUsernameChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
@@ -40,7 +40,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
   };
 
   // Secure field (only sent to the backend)
-  onSecretChange = (event: ChangeEvent<HTMLInputElement>) : void => {
+  onSecretChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
@@ -50,7 +50,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     });
   };
 
-  onResetSecret = () : void => {
+  onResetSecret = (): void => {
     const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
@@ -65,7 +65,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     });
   };
 
-  render() : JSX.Element {
+  render(): JSX.Element {
     const { options } = this.props;
     const { jsonData, secureJsonFields } = options;
     const secureJsonData = options.secureJsonData || {};

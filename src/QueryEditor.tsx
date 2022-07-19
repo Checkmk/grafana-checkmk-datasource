@@ -11,7 +11,7 @@ import { GraphSelect } from 'components/fields';
 
 type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
-export const QueryEditor = (props: Props) : JSX.Element => {
+export const QueryEditor = (props: Props): JSX.Element => {
   defaults(props.query, defaultQuery); // mutate into default query
   const editionMode = get(props, 'datasource.instanceSettings.jsonData.edition', '');
 

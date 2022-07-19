@@ -11,7 +11,7 @@ export interface EditorProps {
 }
 
 export interface AutoCompleteEditorProps extends EditorProps {
-  autocompleter: (inputValue: string) => Promise<SelectableValue<string>[]>;
+  autocompleter: (inputValue: string) => Promise<Array<SelectableValue<string>>>;
   contextPath: string;
 }
 

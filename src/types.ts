@@ -45,24 +45,24 @@ export interface MySecureJsonData {
 }
 
 export interface ResponseDataAutocomplete {
-  choices: [string, string][];
+  choices: Array<[string, string]>;
 }
 
-export type ResponseDataAutocompleteLabel = {
+export type ResponseDataAutocompleteLabel = Array<{
   value: string;
-}[];
+}>;
 
 export interface ResponseDataCurves {
   filter: unknown;
   start_time: number;
   step: number;
-  curves: {
+  curves: Array<{
     title: string;
-    rrddata: {
+    rrddata: Array<{
       i: number;
       d: Record<string, unknown>;
-    }[];
-  }[];
+    }>;
+  }>;
 }
 
 export interface ResponseData<T> {
