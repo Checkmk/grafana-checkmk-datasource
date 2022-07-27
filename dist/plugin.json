@@ -1,19 +1,19 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "tribe-29-checkmk-datasource",
+  "name": "Checkmk",
   "id": "tribe-29-checkmk-datasource",
   "metrics": true,
   "info": {
-    "description": "Checkmk Datasource",
+    "description": "Checkmk data source",
     "author": {
       "name": "Tribe29 GmbH",
       "url": "https://github.com/tribe29/"
     },
     "keywords": ["checkmk"],
     "logos": {
-      "small": "img/checkmk_logo.png",
-      "large": "img/checkmk_logo.png"
+      "small": "img/checkmk_logo.svg",
+      "large": "img/checkmk_logo.svg"
     },
     "links": [
       { "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" },
@@ -21,7 +21,7 @@
     ],
     "screenshots": [],
     "version": "2.0.0",
-    "updated": "2022-06-02"
+    "updated": "2022-07-27"
   },
   "dependencies": {
     "grafanaDependency": ">=7.0.0",
