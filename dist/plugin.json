@@ -21,10 +21,10 @@
     ],
     "screenshots": [],
     "version": "2.0.0",
-    "updated": "2022-07-27"
+    "updated": "2022-08-08"
   },
   "dependencies": {
-    "grafanaDependency": ">=7.0.0",
+    "grafanaDependency": ">=8.0.0",
     "plugins": []
   },
   "routes": [
