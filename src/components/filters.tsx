@@ -13,7 +13,7 @@ import {
 import { SelectableValue } from '@grafana/data';
 import { EditorProps } from './types';
 import { AsyncAutocomplete, vsAutocomplete } from './fields';
-import { get, update } from 'lodash';
+import { get, update, debounce } from 'lodash';
 import { ResponseDataAutocompleteLabel } from 'types';
 
 export const SiteFilter = (props: EditorProps): JSX.Element => {
@@ -46,17 +46,23 @@ export const HostFilter = (props: EditorProps): JSX.Element => {
   );
 };
 
+const debouncedOnRunQuery = debounce((props: EditorProps) => {
+  props.onRunQuery();
+}, 500);
+
 export const HostRegExFilter = (props: EditorProps): JSX.Element => {
   const onHostChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onChange, query } = props;
     update(query, 'context.hostregex.host_regex', () => event.target.value);
     onChange(query);
+    debouncedOnRunQuery(props);
   };
 
   const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = props;
+    const { onChange, onRunQuery, query } = props;
     update(query, 'context.hostregex.neg_host_regex', () => (event.target.checked ? 'on' : ''));
     onChange(query);
+    onRunQuery();
   };
 
   const hostRegEx = get(props, 'query.context.hostregex', {});
@@ -92,12 +98,14 @@ export const ServiceRegExFilter = (props: EditorProps): JSX.Element => {
     const { onChange, query } = props;
     update(query, 'context.serviceregex.service_regex', () => event.target.value);
     onChange(query);
+    debouncedOnRunQuery(props);
   };
 
   const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = props;
+    const { onChange, onRunQuery, query } = props;
     update(query, 'context.serviceregex.neg_service_regex', () => (event.target.checked ? 'on' : ''));
     onChange(query);
+    onRunQuery();
   };
 
   const serviceRegEx = get(props, 'query.context.serviceregex.service_regex', '');
@@ -152,9 +160,10 @@ export const HostLabelsFilter = ({ datasource, onChange, query, onRunQuery }: Ed
 
 export const HostGroupFilter = (props: EditorProps): JSX.Element => {
   const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = props;
+    const { onChange, onRunQuery, query } = props;
     update(query, 'context.opthostgroup.neg_opthost_group', () => (event.target.checked ? 'on' : ''));
     onChange(query);
+    onRunQuery();
   };
 
   const groupVS = {
@@ -183,9 +192,10 @@ export const HostGroupFilter = (props: EditorProps): JSX.Element => {
 
 export const ServiceGroupFilter = (props: EditorProps): JSX.Element => {
   const onNegateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onChange, query } = props;
+    const { onChange, onRunQuery, query } = props;
     update(query, 'context.optservicegroup.neg_optservice_group', () => (event.target.checked ? 'on' : ''));
     onChange(query);
+    onRunQuery();
   };
 
   const groupVS = {
