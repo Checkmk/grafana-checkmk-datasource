@@ -1,6 +1,6 @@
 # Checkmk's Grafana Data Source Plugin
 
-![CI](https://github.com/tribe29/grafana-checkmk-datasource/actions/workflows/node.js.yml/badge.svg)
+![CI](https://github.com/tribe29/grafana-checkmk-datasource/actions/workflows/ci.yml/badge.svg)
 
 This is a [Grafana][1] [data source][2] plugin for visualizing Checkmk metrics
 in Grafana.
