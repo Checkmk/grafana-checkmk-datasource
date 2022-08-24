@@ -4,5 +4,9 @@
 
 const standard = require('@grafana/toolkit/src/config/jest.plugin.config');
 
+const extraTestPath = '**/tests/unit/*';
+const config = standard.jestConfig();
+config.testMatch.push(extraTestPath);
+
 // This process will use the same config that `yarn test` is using
-module.exports = standard.jestConfig();
+module.exports = config;
