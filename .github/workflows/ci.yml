@@ -18,7 +18,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Run prettier
-        run: yarn prettier -c src test package.json tsconfig.json tsfmt.json jest.config.js .github/workflows/*.yml
+        run: yarn prettier -c '{**/*,*}.{js,ts,jsx,tsx,json,yml}'
 
       - name: Build and test frontend
         run: yarn build
