@@ -29,3 +29,7 @@ e2e-results/
 # Editor
 .idea
 
+
+# cypress atrifacts
+tests/cypress/screenshots/
+tests/cypress/videos/
