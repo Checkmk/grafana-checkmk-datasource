@@ -93,6 +93,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
               onChange={this.onUrlChange}
               value={jsonData.url || ''}
               tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
+              data-test-id="checkmk-url"
             />
           </div>
           <InlineField label="Edition" labelWidth={12}>
@@ -114,6 +115,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
               onChange={this.onUsernameChange}
               value={jsonData.username || ''}
               tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
+              data-test-id="checkmk-username"
             />
           </div>
           <div className="gf-form">
@@ -127,6 +129,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
               onReset={this.onResetSecret}
               onChange={this.onSecretChange}
               tooltip="You can find the secret for your user in your checkmk server under Users."
+              data-test-id="checkmk-password"
             />
           </div>
         </FieldSet>
