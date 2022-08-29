@@ -48,11 +48,11 @@ yarn upgrade --latest
 TBD
 
 
-### E2E Tests
+## E2E Tests
 There are serval ways to run the e2e tests.
 Make sure to have a up to date `dist/` folder using `yarn build`.
 
-#### Local development use case
+### Local development use case
 ```BASH
 cd tests/
 docker-compose up -d checkmk grafana
@@ -61,14 +61,14 @@ yarn run cypress open
 This will show you a nice interactive GUI to run and debug your E2E tests.
 See the official [docs](https://docs.cypress.io/guides/overview/why-cypress) for more information.
 
-#### No Interactivity use case (e.g. CI)
+### No Interactivity use case (e.g. CI)
 ```BASH
 cd tests/
 docker-compose up --exit-code-from=cypress
 ```
 This will run all tests without any further interaction necessary.
 
-#### No docker use case
+### No docker use case
 If you don't want to or can't use docker at all, make sure you have a Grafana and a CheckMK instance running somewhere.
 The Plugin you want to test needs to be installed in you Grafana instance.
 
