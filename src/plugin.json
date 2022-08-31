@@ -17,9 +17,14 @@
     },
     "links": [
       { "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" },
-      { "name": "checkmk", "url": "https://checkmk.com" }
+      { "name": "Checkmk", "url": "https://checkmk.com" }
     ],
-    "screenshots": [],
+    "screenshots": [
+      {
+        "name": "Checkmk metrics shown in Grafana",
+        "path": "https://github.com/tribe29/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
