@@ -10,6 +10,9 @@ export interface QueryParams {
   graphMode?: 'metric' | 'template';
   presentation?: Presentation;
   graph_name?: string;
+  selections?: {
+    context?: Record<string, unknown>;
+  };
   action?: 'get_graph' | 'get_combined_graph_identifications';
 }
 

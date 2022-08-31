@@ -86,6 +86,9 @@ export const SelectFilters = (props: FilterEditorProps): null | JSX.Element => {
     if (query.context) {
       delete query.context[filtername];
     }
+    if (query.params.selections?.context) {
+      delete query.params.selections.context[filtername];
+    }
     onChange(query);
   };
 

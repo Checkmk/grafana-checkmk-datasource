@@ -92,10 +92,12 @@ export class DataSource extends DataSourceApi<MyQuery> {
   }
 
   async doRequest<T>(options: MyQuery): Promise<FetchResponse<ResponseData<T>>> {
+    const { selections, ...params } = options.params; // remove selections from params
+    // TODO: we should find a better place for selections!
     return this.cmkRequest<T>({
       method: options.data == null ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, { ...options.params }),
+      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, { ...params }),
       data: options.data,
     });
   }
