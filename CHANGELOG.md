@@ -2,7 +2,7 @@
 
 [//]: # (The ci will use the first section starting with `##` as release notes.)
 
-## NEXT
+## 99.9.9
 
 * Removed `/dist` folder from git repository. That means that it's no longer
   possible to install this Grafana plugin by `git clone`. If you use `git pull`
