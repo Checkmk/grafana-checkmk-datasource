@@ -2,12 +2,19 @@
 
 [//]: # (The ci will use the first section starting with `##` as release notes.)
 
-## NEXT
+## 2.0.2
 
 * Removed `/dist` folder from git repository. That means that it's no longer
   possible to install this Grafana plugin by `git clone`. If you use `git pull`
   to update the plugin, you will have to change your deployment strategy of
   this plugin. Please refer to the [official documentation][1]
+* FIX: After changing a "Hostname Regex", the graph was not automatically
+  updated, but Grafanas "Refresh dashboard" button on the upper right had
+  to be clicked. Now the graph should update automatically. In order to
+  limit the load on the checkmk server, the update is delayed by 500ms for
+  text fields.
+  This also affects: Hostname regex, Service Regex, Host is in Group,
+  Service is in Group
 
 [1]: https://docs.checkmk.com/2.1.0/en/grafana.html
 
