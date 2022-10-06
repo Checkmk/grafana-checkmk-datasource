@@ -8543,6 +8543,11 @@ prettier@2.6.0:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.6.0.tgz#12f8f504c4d8ddb76475f441337542fa799207d4"
   integrity sha512-m2FgJibYrBGGgQXNzfd0PuDGShJgRavjUoRCw1mZERIWVSXF0iLzLm+aOqTAbLnC3n6JzUhAA8uZnFVghHJ86A==
 
+prettier@^2.7.1:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.7.1.tgz#e235806850d057f97bb08368a4f7d899f7760c64"
+  integrity sha512-ujppO+MkdPqoVINuDFDRLClm7D78qbDt0/NR+wp5FqEZOoTNAjPHWj17QRhu7geIHJfcNhRk1XVQmF8Bp3ye+g==
+
 pretty-error@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/pretty-error/-/pretty-error-4.0.0.tgz#90a703f46dd7234adb46d0f84823e9d1cb8f10d6"
@@ -9042,6 +9047,13 @@ react-select-event@^5.1.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.5.0.tgz#148067f75846f6bf07254c453083f2d3d59935f6"
   integrity sha512-BwGjWL9wJxfug32mcIjj9arw9C8vBuW/pGijocFsS0NA8n6QSTmgvs27N1tVk7Pb5cJ1iFpQ5EcjqtO61sA02g==
+  dependencies:
+    "@testing-library/dom" ">=7"
+
+react-select-event@^5.5.1:
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/react-select-event/-/react-select-event-5.5.1.tgz#d67e04a6a51428b1534b15ecb1b82afbe5edddcb"
+  integrity sha512-goAx28y0+iYrbqZA2FeRTreHHs/ZtSuKxtA+J5jpKT5RHPCbVZJ4MqACfPnWyFXsEec+3dP5bCrNTxIX8oYe9A==
   dependencies:
     "@testing-library/dom" ">=7"
 

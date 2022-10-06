@@ -1,5 +1,4 @@
-import { buildUrlWithParams } from '../../src/DataSource';
-import { buildRequestBody } from '../../src/graphspecs';
+import { buildRequestBody, buildUrlWithParams } from '../../src/webapi';
 
 describe('URL conversions', () => {
   it('Params', () => {

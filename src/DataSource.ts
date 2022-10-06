@@ -1,43 +1,72 @@
-import { defaults, get, isEmpty, zip } from 'lodash';
+import { defaults, zip } from 'lodash';
 
 import {
   DataQueryRequest,
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
-  MutableDataFrame,
   FieldType,
+  MutableDataFrame,
 } from '@grafana/data';
-import { FetchResponse, getBackendSrv, BackendSrvRequest } from '@grafana/runtime';
+import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
 
-import { buildRequestBody, combinedDesc, graphDefinitionRequest } from './graphspecs';
-import { MyQuery, defaultQuery, MyDataSourceOptions, ResponseData, ResponseDataCurves } from './types';
+import { CmkQuery, DataSourceOptions, defaultQuery, Edition } from './types';
+import {
+  buildRequestBody,
+  buildUrlWithParams,
+  createWebApiRequestBody,
+  createWebApiRequestSpecification,
+  WebAPiGetGraphResult,
+  WebApiResponse,
+} from './webapi';
 
-export const buildUrlWithParams = (url: string, params: Record<string, string>): string =>
-  url + '?' + new URLSearchParams(params).toString();
-
-function buildMetricDataFrame(response: FetchResponse<ResponseData<ResponseDataCurves>>, query: MyQuery) {
-  if (response.data.result_code !== 0) {
-    throw new Error(`${response.data.result}`);
-  }
-  const { start_time, step, curves } = response.data.result;
-
-  const frame = new MutableDataFrame({
-    refId: query.refId,
-    fields: [{ name: 'Time', type: FieldType.time }].concat(
-      curves.map((x) => ({ name: x.title, type: FieldType.number }))
-    ),
-  });
-  zip(...curves.map((x) => x.rrddata)).forEach((d, i) => frame.appendRow([(start_time + i * step) * 1000, ...d]));
-  return frame;
-}
-
-export class DataSource extends DataSourceApi<MyQuery> {
-  constructor(private instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+export class DataSource extends DataSourceApi<CmkQuery> {
+  constructor(private instanceSettings: DataSourceInstanceSettings<DataSourceOptions>) {
     super(instanceSettings);
   }
 
-  async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+  getGraphQuery = async (range: number[], query: CmkQuery): Promise<MutableDataFrame<unknown>> => {
+    if (query.requestSpec.graph === '') {
+      return Promise.resolve(new MutableDataFrame());
+    }
+
+    const response = (
+      await getBackendSrv()
+        .fetch({
+          url:
+            `${this.instanceSettings.url}/cmk/check_mk/webapi.py?` +
+            new URLSearchParams({ action: 'get_graph' }).toString(),
+          data: buildRequestBody(
+            createWebApiRequestBody(createWebApiRequestSpecification(query.requestSpec, this.getEdition()), range)
+          ),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          method: 'POST',
+        })
+        .toPromise()
+    )?.data as WebApiResponse<WebAPiGetGraphResult>;
+
+    if (response.result_code !== 0) {
+      throw new Error(`${response.result}`);
+    }
+    const { start_time, step, curves } = response.result;
+
+    const frame = new MutableDataFrame({
+      refId: query.refId,
+      fields: [
+        { name: 'Time', type: FieldType.time },
+        ...curves.map((x: { title: string }) => ({ name: x.title, type: FieldType.number })),
+      ],
+    });
+
+    //TODO: uncomplicate this.
+    zip(...curves.map((x: { rrddata: Array<{ i: number; d: Record<string, unknown> }> }) => x.rrddata)).forEach(
+      (d, i) => frame.appendRow([(start_time + i * step) * 1000, ...d])
+    );
+
+    return frame;
+  };
+
+  async query(options: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
     const { range } = options;
     const from = range.from.unix();
     const to = range.to.unix();
@@ -49,30 +78,23 @@ export class DataSource extends DataSourceApi<MyQuery> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async getGraphQuery(range: number[], query: MyQuery): Promise<MutableDataFrame<unknown>> {
-    if (isEmpty(query.context) || !query.params.graph_name) {
-      return new MutableDataFrame();
-    }
-    const editionMode = get(this, 'instanceSettings.jsonData.edition', 'CEE');
-    const response = await this.doRequest<ResponseDataCurves>({
-      ...query,
-      params: { action: 'get_graph' },
-      data: graphDefinitionRequest(editionMode, query, range),
-    });
-    return buildMetricDataFrame(response, query);
-  }
-
-  async testDatasource(): Promise<unknown | undefined> {
-    return this.doRequest({
-      refId: 'testDatasource',
-      params: { action: 'get_combined_graph_identifications' },
-      data: buildRequestBody(combinedDesc({ host: { host: 'ARANDOMNAME' } })),
-      context: {},
+  async testDatasource(): Promise<unknown> {
+    return this.cmkRequest<unknown>({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, {
+        action: 'get_combined_graph_identifications',
+      }),
+      data: buildRequestBody({
+        context: { host: { host: 'ARANDOMNAME' } },
+        single_infos: ['host'],
+        datasource: 'services',
+      }),
     })
       .catch((error) => {
         const firstLineOfError = error.message.split('\n')[0];
         if (firstLineOfError === 'Checkmk exception: Currently not supported with this Checkmk Edition') {
-          if ((this.instanceSettings.jsonData.edition ?? 'CEE') === 'CEE') {
+          if (this.getEdition() === 'CEE') {
             // edition dropdown = cee, so seeing this error means that we speak with a raw edition
             throw new Error('Mismatch between selected Checkmk edition and monitoring site edition');
           } else {
@@ -91,16 +113,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
       });
   }
 
-  async doRequest<T>(options: MyQuery): Promise<FetchResponse<ResponseData<T>>> {
-    return this.cmkRequest<T>({
-      method: options.data == null ? 'GET' : 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, { ...options.params }),
-      data: options.data,
-    });
-  }
-
-  async restRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<ResponseData<T>>> {
+  async autocompleterRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<WebApiResponse<T>>> {
     return this.cmkRequest<T>({
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -109,9 +122,9 @@ export class DataSource extends DataSourceApi<MyQuery> {
     });
   }
 
-  async cmkRequest<T>(request: BackendSrvRequest): Promise<FetchResponse<ResponseData<T>>> {
+  async cmkRequest<T>(request: BackendSrvRequest): Promise<FetchResponse<WebApiResponse<T>>> {
     const result = await getBackendSrv()
-      .fetch<ResponseData<T>>(request)
+      .fetch<WebApiResponse<T>>(request)
       .toPromise()
       .catch((error) => {
         if (error.cancelled) {
@@ -126,8 +139,7 @@ export class DataSource extends DataSourceApi<MyQuery> {
     if (result === undefined) {
       throw new Error('Got undefined result');
     }
-
-    if (result.data instanceof String) {
+    if (typeof result.data === 'string') {
       throw new Error(`${result.data}`);
     } else if (result.data.result_code !== 0) {
       let message = `${result.data}`;
@@ -138,5 +150,9 @@ export class DataSource extends DataSourceApi<MyQuery> {
     } else {
       return result;
     }
+  }
+
+  getEdition(): Edition {
+    return this.instanceSettings.jsonData.edition ?? 'RAW';
   }
 }
