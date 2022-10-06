@@ -14,19 +14,21 @@
   "license": "GPL-2.0-only",
   "devDependencies": {
     "@grafana/data": "^9.0.4",
+    "@grafana/eslint-config": "^5.0.0",
     "@grafana/runtime": "^9.0.4",
     "@grafana/toolkit": "^9.0.4",
     "@grafana/ui": "^9.0.4",
-    "@types/lodash": "4.14.182",
     "@testing-library/jest-dom": "5.16.4",
     "@testing-library/react": "^12.1.5",
-    "eslint": "^8.19.0",
+    "@types/lodash": "4.14.182",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.33.0",
+    "eslint": "^8.19.0",
+    "eslint-plugin-jsdoc": "^39.3.6",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "@typescript-eslint/parser": "^5.33.0",
-    "@grafana/eslint-config": "^5.0.0",
-    "eslint-plugin-jsdoc": "^39.3.6"
+    "prettier": "^2.7.1",
+    "react-select-event": "^5.5.1"
   },
   "engines": {
     "node": ">=14"
