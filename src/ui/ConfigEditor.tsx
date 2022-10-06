@@ -1,12 +1,12 @@
 import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms, FieldSet, InlineField, Select } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { MyDataSourceOptions, MySecureJsonData, Edition } from './types';
+import { DataSourceOptions, SecureJsonData, Edition } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions, MySecureJsonData> {}
+interface Props extends DataSourcePluginOptionsEditorProps<DataSourceOptions, SecureJsonData> {}
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface State {}
