@@ -1,9 +1,9 @@
 import { DataSourcePlugin } from '@grafana/data';
 import { DataSource } from './DataSource';
-import { ConfigEditor } from './ConfigEditor';
-import { QueryEditor } from './QueryEditor';
-import { CmkQuery, MyDataSourceOptions } from './types';
+import { ConfigEditor } from './ui/ConfigEditor';
+import { QueryEditor } from './ui/QueryEditor';
+import { CmkQuery, DataSourceOptions } from './types';
 
-export const plugin = new DataSourcePlugin<DataSource, CmkQuery, MyDataSourceOptions>(DataSource)
+export const plugin = new DataSourcePlugin<DataSource, CmkQuery, DataSourceOptions>(DataSource)
   .setConfigEditor(ConfigEditor)
   .setQueryEditor(QueryEditor);

@@ -1,17 +1,17 @@
 import React from 'react';
-import { QueryEditorProps } from '@grafana/data';
-import { DataSource } from './DataSource';
-import { CmkQuery, defaultRequestSpec, MyDataSourceOptions, RequestSpec, ResponseDataAutocomplete } from './types';
+import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { DataSource } from '../DataSource';
+import { CmkQuery, DataSourceOptions, ResponseDataAutocomplete } from '../types';
 import { cloneDeep } from 'lodash';
 import { InlineFieldRow } from '@grafana/ui';
-import { Filter } from 'components/filters';
-import { GraphType, titleCase } from 'components/fields';
-import { createAutocompleteConfig } from './components/types';
+import { Filter, StringFilter } from './components';
+import { createAutocompleteConfig } from './autocomplete';
+import { defaultRequestSpec, RequestSpec } from '../RequestSpec';
+import { titleCase } from '../utils';
 
-type Props = QueryEditorProps<DataSource, CmkQuery, MyDataSourceOptions>;
+type GraphKind = 'template' | 'metric';
 
-const independent = '';
-const dependantOn = (...values: unknown[]) => JSON.stringify(values.sort());
+type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
 export const QueryEditor = (props: Props): JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
@@ -26,16 +26,21 @@ export const QueryEditor = (props: Props): JSX.Element => {
   const autocomplete =
     (ident: string) =>
     async (value = '') => {
-      const response = await props.datasource.restRequest<ResponseDataAutocomplete>(
+      const response = await props.datasource.autocompleterRequest<ResponseDataAutocomplete>(
         'ajax_vs_autocomplete.py',
         createAutocompleteConfig(requestSpec, ident, value)
       );
       return response.data.result.choices.map(([value, label]: [string, string]) => ({
         value,
         label,
-        isDisabled: value === null,
       }));
     };
+
+  const graphTypeCompleter = async () =>
+    [
+      { value: 'template', label: 'Template' },
+      { value: 'metric', label: 'Single metric' },
+    ] as Array<SelectableValue<GraphKind>>;
 
   if (editionMode === 'RAW') {
     const fieldSetter = function <T>(setter: (requestSpec: RequestSpec, value: T) => void) {
@@ -52,27 +57,32 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
     return (
       <InlineFieldRow>
-        <Filter
-          key={independent}
+        <StringFilter
           label={'Site'}
           setFilter={fieldSetter((rs, value) => (rs.site = value))}
           autocompleter={autocomplete('sites')}
         />
-        <Filter
-          key={dependantOn(requestSpec.site)}
+        <StringFilter
+          dependantOn={[requestSpec.site]}
           label={'Host'}
           setFilter={fieldSetter((rs, value) => (rs.host_name = value))}
           autocompleter={autocomplete('monitored_hostname')}
         />
-        <Filter
-          key={dependantOn(requestSpec.host_name, requestSpec.site)}
+        <StringFilter
+          dependantOn={[requestSpec.host_name, requestSpec.site]}
           label={'Service'}
           setFilter={fieldSetter((rs, value) => (rs.service = value))}
           autocompleter={autocomplete('monitored_service_description')}
         />
-        <GraphType setGraphType={fieldSetter((rs, value: typeof rs.graph_type) => (rs.graph_type = value))} />
         <Filter
-          key={dependantOn(requestSpec.service, requestSpec.host_name, requestSpec.site, requestSpec.graph_type)}
+          dependantOn={[]}
+          label={'Graph type'}
+          setFilter={fieldSetter((rs, value) => (rs.graph_type = value))}
+          autocompleter={graphTypeCompleter}
+          default={'template' as GraphKind}
+        />
+        <StringFilter
+          dependantOn={[requestSpec.service, requestSpec.host_name, requestSpec.site, requestSpec.graph_type]}
           label={titleCase(requestSpec.graph_type)}
           setFilter={fieldSetter((rs, value) => (rs.graph = value))}
           autocompleter={autocomplete(requestSpec.graph_type === 'metric' ? 'monitored_metrics' : 'available_graphs')}

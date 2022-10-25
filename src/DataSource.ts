@@ -10,30 +10,18 @@ import {
 } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
 
+import { CmkQuery, DataSourceOptions, defaultQuery } from './types';
 import {
-  CmkQuery,
+  buildRequestBody,
+  buildUrlWithParams,
+  createWebApiRequestBody,
   createWebApiRequestSpecification,
-  defaultQuery,
-  MyDataSourceOptions,
-  ResponseData,
   WebAPiGetGraphResult,
   WebApiResponse,
-} from './types';
-
-export const buildUrlWithParams = (url: string, params: Record<string, string>): string =>
-  url + '?' + new URLSearchParams(params).toString();
-
-export const buildRequestBody = (data: unknown): string => `request=${JSON.stringify(data)}`;
-
-function createCmkRequest(spec: [string, Record<string, unknown>], timeRange: number[]) {
-  return {
-    specification: spec,
-    data_range: { time_range: timeRange },
-  };
-}
+} from './webapi';
 
 export class DataSource extends DataSourceApi<CmkQuery> {
-  constructor(private instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
+  constructor(private instanceSettings: DataSourceInstanceSettings<DataSourceOptions>) {
     super(instanceSettings);
   }
 
@@ -49,7 +37,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
             `${this.instanceSettings.url}/cmk/check_mk/webapi.py?` +
             new URLSearchParams({ action: 'get_graph' }).toString(),
           data: buildRequestBody(
-            createCmkRequest(
+            createWebApiRequestBody(
               createWebApiRequestSpecification(query.requestSpec, this.instanceSettings.jsonData.edition ?? 'RAW'),
               range
             )
@@ -73,6 +61,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
       ],
     });
 
+    //TODO: uncomplicate this.
     zip(...curves.map((x: { rrddata: Array<{ i: number; d: Record<string, unknown> }> }) => x.rrddata)).forEach(
       (d, i) => frame.appendRow([(start_time + i * step) * 1000, ...d])
     );
@@ -126,7 +115,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   async doRequest<Request, Result>(options: {
     params: Record<string, string>;
     data: Request;
-  }): Promise<FetchResponse<ResponseData<Result>>> {
+  }): Promise<FetchResponse<WebApiResponse<Result>>> {
     return this.cmkRequest<Result>({
       method: options.data == null ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -135,7 +124,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     });
   }
 
-  async restRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<ResponseData<T>>> {
+  async autocompleterRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<WebApiResponse<T>>> {
     return this.cmkRequest<T>({
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -144,9 +133,9 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     });
   }
 
-  async cmkRequest<T>(request: BackendSrvRequest): Promise<FetchResponse<ResponseData<T>>> {
+  async cmkRequest<T>(request: BackendSrvRequest): Promise<FetchResponse<WebApiResponse<T>>> {
     const result = await getBackendSrv()
-      .fetch<ResponseData<T>>(request)
+      .fetch<WebApiResponse<T>>(request)
       .toPromise()
       .catch((error) => {
         if (error.cancelled) {

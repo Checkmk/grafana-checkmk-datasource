@@ -1,13 +1,10 @@
-import { DataSource } from '../DataSource';
-import { CmkQuery, Context, createCmkContext, Edition, Presentation, RequestSpec } from '../types';
+import { ContextHTTPVars } from '../types';
+import { createCmkContext } from '../webapi';
+import { RequestSpec } from '../RequestSpec';
 
-export interface EditorProps {
-  datasource: DataSource;
-  edition?: Edition;
-  query: CmkQuery;
-  onChange: (stuff: CmkQuery) => void;
-  onRunQuery: () => void;
-}
+export type Context = Record<string, ContextHTTPVars>;
+
+export type Presentation = 'lines' | 'sum' | 'average' | 'min' | 'max';
 
 export interface AutoCompleteConfig {
   ident: string;
@@ -19,7 +16,6 @@ export interface AutoCompleteConfig {
     context?: Context;
     datasource?: string;
     single_infos?: string[];
-    //TODO: un? once we rewrote all of it
   };
 }
 

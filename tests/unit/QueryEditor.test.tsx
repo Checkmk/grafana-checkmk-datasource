@@ -1,9 +1,10 @@
 import { act, render, screen } from '@testing-library/react';
-import { QueryEditor } from '../../src/QueryEditor';
-import { CmkQuery, defaultRequestSpec } from '../../src/types';
+import { QueryEditor } from '../../src/ui/QueryEditor';
+import { CmkQuery } from '../../src/types';
 import { DataSource } from '../../src/DataSource';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
+import { defaultRequestSpec } from '../../src/RequestSpec';
 
 const completions: Record<string, string[][]> = {
   sites: [
@@ -29,7 +30,7 @@ const completions: Record<string, string[][]> = {
 };
 
 describe('QueryEditor RAW', () => {
-  const restRequest = jest.fn(async (_, { ident }) => {
+  const autocompleterRequest = jest.fn(async (_, { ident }) => {
     return {
       data: {
         result: {
@@ -45,7 +46,7 @@ describe('QueryEditor RAW', () => {
         edition: 'RAW',
       },
     },
-    restRequest,
+    autocompleterRequest,
     getEdition() {
       return 'RAW';
     },
@@ -73,7 +74,7 @@ describe('QueryEditor RAW', () => {
     async ({ label, attribute, autocomplete }) => {
       render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
-      expect(restRequest).toHaveBeenCalledWith(
+      expect(autocompleterRequest).toHaveBeenCalledWith(
         'ajax_vs_autocomplete.py',
         expect.objectContaining({ ident: autocomplete })
       );
