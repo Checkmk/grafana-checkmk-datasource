@@ -9,7 +9,10 @@ export type Presentation = 'lines' | 'sum' | 'average' | 'min' | 'max';
 export interface AutoCompleteConfig {
   ident: string;
   value?: string;
+  // TODO: The content of "params" changes depending on "ident".
+  // TODO: Something like a tagged union would be ideal here
   params: {
+    group_id?: string;
     strict?: string | boolean;
     mode?: string;
     presentation?: Presentation;

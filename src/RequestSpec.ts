@@ -1,3 +1,5 @@
+import { GraphKind } from './types';
+
 interface NegatableOption {
   value: string;
   negated: boolean;
@@ -10,11 +12,11 @@ export interface RequestSpec {
   service: string;
   service_regex: NegatableOption;
   host_in_group: NegatableOption;
-  host_label: string;
+  host_labels: string[];
   service_in_group: NegatableOption;
-  host_tags?: Record<string, string>;
+  host_tags: Array<{ group: string; tag: string; operator: 'is' | 'isnot' }>;
   aggregation: 'lines' | 'sum' | 'average' | 'min' | 'max';
-  graph_type: 'template' | 'metric';
+  graph_type: GraphKind;
   graph: string;
 }
 
@@ -25,8 +27,9 @@ export const defaultRequestSpec: RequestSpec = {
   service: '',
   service_regex: { value: '', negated: false },
   host_in_group: { value: '', negated: false },
-  host_label: '',
+  host_labels: [],
   service_in_group: { value: '', negated: false },
+  host_tags: [],
   aggregation: 'lines',
   graph_type: 'template',
   graph: '',

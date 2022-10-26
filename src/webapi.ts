@@ -35,8 +35,8 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
   if (requestSpec.service !== '') {
     context['service'] = { service: requestSpec.service };
   }
-  if (requestSpec.host_label !== '') {
-    context['host_labels'] = { host_label: `[{"value":"${requestSpec.host_label}"}]` };
+  if (requestSpec.host_labels.length !== 0) {
+    context['host_labels'] = { host_label: `[{"value": "${requestSpec.host_labels}"}]` };
   }
 
   if (requestSpec.service_in_group.value !== '') {
@@ -47,7 +47,7 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
     context['opthostgroup'] = optservicegroup;
   }
   if (requestSpec.host_name_regex.value !== '') {
-    const hostregex: Record<string, unknown> = { host_regex: requestSpec.host_name_regex };
+    const hostregex: Record<string, unknown> = { host_regex: requestSpec.host_name_regex.value };
     if (requestSpec.host_name_regex.negated) {
       hostregex['neg_host_regex'] = 'on';
     }
@@ -68,11 +68,12 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
     context['serviceregex'] = serviceregex;
   }
 
-  if (requestSpec.host_tags !== undefined) {
+  if (requestSpec.host_tags.length > 0) {
     const tags: Record<string, string> = {};
-    Object.entries(requestSpec.host_tags).forEach(([key, value], index) => {
-      tags[`host_tag_${index}_grp`] = key;
-      tags[`host_tag_${index}_val`] = value;
+    requestSpec.host_tags.forEach(({ group, tag, operator }, index) => {
+      tags[`host_tag_${index}_grp`] = group;
+      tags[`host_tag_${index}_val`] = tag;
+      tags[`host_tag_${index}_op`] = operator;
     });
     context['host_tags'] = tags;
   }
@@ -92,11 +93,11 @@ export function createWebApiRequestSpecification(
   edition: Edition
 ): [string, Record<string, unknown>] {
   if (edition === 'RAW') {
-    const spefication: Record<string, unknown> = {};
+    const specification: Record<string, unknown> = {};
     if (requestSpec.graph_type === 'metric') {
-      spefication.graph_name = requestSpec.graph;
+      specification.graph_name = requestSpec.graph;
     } else {
-      spefication.graph_id = requestSpec.graph;
+      specification.graph_id = requestSpec.graph;
     }
     return [
       'template',
@@ -104,21 +105,30 @@ export function createWebApiRequestSpecification(
         site: requestSpec.site,
         host_name: requestSpec.host_name,
         service_description: requestSpec.service,
-        ...spefication,
+        ...specification,
       },
     ];
   }
   const context = createCmkContext(requestSpec);
-  return ['combined', context];
+  return [
+    'combined',
+    {
+      context: context,
+      datasource: 'services',
+      single_infos: ['host'],
+      graph_template: context['graph_template'],
+      presentation: context['presentation'],
+    },
+  ];
 }
 
 export const buildUrlWithParams = (url: string, params: Record<string, string>): string =>
   url + '?' + new URLSearchParams(params).toString();
 export const buildRequestBody = (data: unknown): string => `request=${JSON.stringify(data)}`;
 
-export function createWebApiRequestBody(spec: [string, Record<string, unknown>], timeRange: number[]) {
+export function createWebApiRequestBody(context: [string, Record<string, unknown>], timeRange: number[]) {
   return {
-    specification: spec,
+    specification: context,
     data_range: { time_range: timeRange },
   };
 }

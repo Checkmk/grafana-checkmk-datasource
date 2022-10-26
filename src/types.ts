@@ -29,3 +29,5 @@ export interface SecureJsonData {
 export interface ResponseDataAutocomplete {
   choices: Array<[string, string]>;
 }
+
+export type GraphKind = 'template' | 'metric';

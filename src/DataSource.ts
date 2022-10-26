@@ -10,7 +10,7 @@ import {
 } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
 
-import { CmkQuery, DataSourceOptions, defaultQuery } from './types';
+import { CmkQuery, DataSourceOptions, defaultQuery, Edition } from './types';
 import {
   buildRequestBody,
   buildUrlWithParams,
@@ -37,10 +37,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
             `${this.instanceSettings.url}/cmk/check_mk/webapi.py?` +
             new URLSearchParams({ action: 'get_graph' }).toString(),
           data: buildRequestBody(
-            createWebApiRequestBody(
-              createWebApiRequestSpecification(query.requestSpec, this.instanceSettings.jsonData.edition ?? 'RAW'),
-              range
-            )
+            createWebApiRequestBody(createWebApiRequestSpecification(query.requestSpec, this.getEdition()), range)
           ),
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           method: 'POST',
@@ -81,8 +78,13 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async testDatasource(): Promise<unknown | undefined> {
-    return this.doRequest({
+  async testDatasource(): Promise<unknown> {
+    return this.cmkRequest<unknown>({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, {
+        action: 'get_combined_graph_identifications',
+      }),
       params: { action: 'get_combined_graph_identifications' },
       data: buildRequestBody({
         context: { host: { host: 'ARANDOMNAME' } },
@@ -93,7 +95,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
       .catch((error) => {
         const firstLineOfError = error.message.split('\n')[0];
         if (firstLineOfError === 'Checkmk exception: Currently not supported with this Checkmk Edition') {
-          if ((this.instanceSettings.jsonData.edition ?? 'CEE') === 'CEE') {
+          if (this.getEdition() === 'CEE') {
             // edition dropdown = cee, so seeing this error means that we speak with a raw edition
             throw new Error('Mismatch between selected Checkmk edition and monitoring site edition');
           } else {
@@ -110,18 +112,6 @@ export class DataSource extends DataSourceApi<CmkQuery> {
           title: 'Success',
         };
       });
-  }
-
-  async doRequest<Request, Result>(options: {
-    params: Record<string, string>;
-    data: Request;
-  }): Promise<FetchResponse<WebApiResponse<Result>>> {
-    return this.cmkRequest<Result>({
-      method: options.data == null ? 'GET' : 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: buildUrlWithParams(`${this.instanceSettings.url}/cmk/check_mk/webapi.py`, { ...options.params }),
-      data: options.data,
-    });
   }
 
   async autocompleterRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<WebApiResponse<T>>> {
@@ -159,7 +149,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     }
   }
 
-  getEdition() {
-    return this.instanceSettings.jsonData.edition;
+  getEdition(): Edition {
+    return this.instanceSettings.jsonData.edition ?? 'RAW';
   }
 }
