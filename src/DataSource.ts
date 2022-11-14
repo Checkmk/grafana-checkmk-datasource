@@ -130,7 +130,11 @@ export class DataSource extends DataSourceApi<MyQuery> {
     if (result.data instanceof String) {
       throw new Error(`${result.data}`);
     } else if (result.data.result_code !== 0) {
-      throw new Error(`${result.data.result}`);
+      let message = `${result.data}`;
+      if (result.data.result !== undefined) {
+        message = `${result.data.result}`;
+      }
+      throw new Error(message);
     } else {
       return result;
     }
