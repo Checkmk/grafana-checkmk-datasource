@@ -1,6 +1,6 @@
 {
   "name": "tribe-29-checkmk-datasource",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "",
   "scripts": {
     "build": "grafana-toolkit plugin:build",

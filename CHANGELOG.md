@@ -2,6 +2,10 @@
 
 [//]: # (The ci will use the first section starting with `##` as release notes.)
 
+## 2.0.3
+
+* Provide better error message on wrong authentication.
+
 ## 2.0.2
 
 * Removed `/dist` folder from git repository. That means that it's no longer
