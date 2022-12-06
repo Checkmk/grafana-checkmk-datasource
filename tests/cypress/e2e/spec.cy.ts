@@ -1,8 +1,9 @@
-import { createCmkAutomationUser } from './helpers';
+import { createCmkAutomationUser, createCmkHost } from './helpers';
 
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
+  const hostName = 'localhost_' + Math.floor(Date.now() / 1000);
 
   it('configures the datasource correctly', () => {
     createCmkAutomationUser(cmkUser, cmkPassword);
@@ -22,5 +23,9 @@ describe('Source configuration', () => {
     cy.get('[aria-label="Data source settings page Save and Test button"]').click();
 
     cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
+  });
+
+  it('create a new CMK host', () => {
+    createCmkHost(hostName);
   });
 });
