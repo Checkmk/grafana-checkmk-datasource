@@ -2,7 +2,7 @@ import React from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
-import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
+import { VerticalGroup } from '@grafana/ui';
 import { FilterEditor, Select } from './components';
 import { createAutocompleteConfig, Presentation } from './autocomplete';
 import { defaultRequestSpec, RequestSpec } from '../RequestSpec';
@@ -87,7 +87,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   if (editionMode === 'RAW') {
     return (
-      <InlineFieldRow>
+      <VerticalGroup>
         <Select
           label={'Site'}
           requestSpec={requestSpec}
@@ -124,7 +124,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           label={titleCase(requestSpec.graph_type ?? 'Template')}
           autocompleter={autocomplete(requestSpec.graph_type === 'metric' ? 'monitored_metrics' : 'available_graphs')}
         />
-      </InlineFieldRow>
+      </VerticalGroup>
     );
   } else {
     // TODO: Recreate Filter Editor from requestSpec
