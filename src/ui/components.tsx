@@ -45,14 +45,16 @@ export interface SelectProps<Key extends RequestSpecStringKeys> {
 }
 
 export const Select = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
+  const { autocompleter } = props;
   const [currentValue, setCurrentValue] = React.useState({
     value: '',
     label: '',
   } as SelectableValue<RequestSpec[Key]>);
+  const cachedAutocompleter = React.useCallback((val: string) => autocompleter(val), [autocompleter]);
 
   React.useEffect(() => {
     async function inner() {
-      setCurrentValue(await asSelectableValue(props.autocompleter, get(props.requestSpec, props.requestSpecKey)));
+      setCurrentValue(await asSelectableValue(cachedAutocompleter, get(props.requestSpec, props.requestSpecKey)));
     }
 
     inner();
@@ -69,7 +71,7 @@ export const Select = <Key extends RequestSpecStringKeys>(props: SelectProps<Key
       <AsyncSelect
         inputId={`input_${props.label}`}
         onChange={onChange}
-        loadOptions={(val) => props.autocompleter(val)}
+        loadOptions={cachedAutocompleter}
         defaultOptions
         width={32}
         value={currentValue}
@@ -131,6 +133,7 @@ const SingleTag = (props: {
   autocompleteTagOptions(group?: string, value?: string): Promise<Array<SelectableValue<string>>>;
   initialState?: TagValue;
 }) => {
+  const { autocompleteTagGroups, autocompleteTagOptions } = props;
   const [state, setState] = React.useState(props.initialState);
   const [group, setGroup] = React.useState({
     value: props.initialState?.group,
@@ -141,17 +144,19 @@ const SingleTag = (props: {
     value: props.initialState?.tag,
     label: '',
   } as SelectableValue<string | undefined>);
+  const cachedAutocompleteTagOptions = React.useCallback(autocompleteTagOptions, [autocompleteTagOptions]);
+  const cachedAutocompleteTagGroups = React.useCallback(autocompleteTagGroups, [autocompleteTagGroups]);
 
   React.useEffect(() => {
     async function inner() {
-      setGroup(await asSelectableValue(props.autocompleteTagGroups, props.initialState?.group));
+      setGroup(await asSelectableValue(cachedAutocompleteTagGroups, props.initialState?.group));
       if (props.initialState?.operator) {
         setOperator(props.initialState.operator);
       }
       if (props.initialState?.group) {
         setTag(
           await asSelectableValue(
-            props.autocompleteTagOptions.bind(undefined, props.initialState.group),
+            cachedAutocompleteTagOptions.bind(undefined, props.initialState.group),
             props.initialState.tag
           )
         );
@@ -177,7 +182,7 @@ const SingleTag = (props: {
       <Label>Host tag {props.index}: </Label>
       <AsyncSelect
         onChange={(val) => publishState({ ...state, group: val.value ?? '' })}
-        loadOptions={props.autocompleteTagGroups}
+        loadOptions={cachedAutocompleteTagGroups}
         value={group}
       />
       <GrafanaSelect
@@ -189,7 +194,7 @@ const SingleTag = (props: {
       <AsyncSelect
         key={JSON.stringify(state?.group)}
         onChange={(val) => publishState({ ...state, tag: val.value ?? '' })}
-        loadOptions={props.autocompleteTagOptions.bind(undefined, state?.group)}
+        loadOptions={cachedAutocompleteTagOptions.bind(undefined, state?.group)}
         value={tag}
       />
     </HorizontalGroup>
@@ -239,7 +244,9 @@ const HostLabelFilter: React.FC<{
   update: (rq: RequestSpec, labels: 'host_labels', value: string[]) => void;
   autocomplete: (value: string) => Promise<Array<SelectableValue<string>>>;
 }> = (props) => {
+  const { autocomplete } = props;
   const [labels, setLabels] = React.useState([] as Array<SelectableValue<string>>);
+  const cachedAutocomplete = React.useCallback(autocomplete, [autocomplete]);
 
   const onLabelsChange = (items: Array<SelectableValue<string>>) => {
     setLabels(items);
@@ -255,7 +262,7 @@ const HostLabelFilter: React.FC<{
       <AsyncMultiSelect
         width={32}
         defaultOptions
-        loadOptions={props.autocomplete}
+        loadOptions={cachedAutocomplete}
         onChange={onLabelsChange}
         value={labels}
         placeholder="Type to trigger search"

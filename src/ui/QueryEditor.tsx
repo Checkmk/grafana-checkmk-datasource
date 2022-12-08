@@ -22,18 +22,20 @@ export const QueryEditor = (props: Props): JSX.Element => {
     return !isUndefined(spec.graph) && spec.graph !== '';
   }
 
-  const autocomplete =
+  const autocomplete = React.useCallback(
     (ident: string) =>
-    async (value = '') => {
-      const response = await props.datasource.autocompleterRequest<ResponseDataAutocomplete>(
-        'ajax_vs_autocomplete.py',
-        createAutocompleteConfig(requestSpec, ident, value)
-      );
-      return response.data.result.choices.map(([value, label]: [string, string]) => ({
-        value,
-        label,
-      }));
-    };
+      async (value = '') => {
+        const response = await props.datasource.autocompleterRequest<ResponseDataAutocomplete>(
+          'ajax_vs_autocomplete.py',
+          createAutocompleteConfig(requestSpec, ident, value)
+        );
+        return response.data.result.choices.map(([value, label]: [string, string]) => ({
+          value,
+          label,
+        }));
+      },
+    [props.datasource, requestSpec]
+  );
 
   const labelAutocomplete = async (value: string) => {
     const response = await props.datasource.autocompleterRequest<Array<{ value: string }>>(
