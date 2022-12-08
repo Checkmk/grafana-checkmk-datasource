@@ -17,28 +17,17 @@ import { RequestSpec, RequestSpecNegatableOptionKeys, RequestSpecStringKeys, Tag
 import { cloneDeep, get, isUndefined } from 'lodash';
 import { titleCase } from '../utils';
 
-function findSelectableValueWithValue<T extends RequestSpecStringKeys>(
-  options: Array<SelectableValue<RequestSpec[T]>>,
-  value: RequestSpec[T]
-): SelectableValue<RequestSpec[T]> {
-  const result = options.find((elem) => elem.value === value);
-  if (typeof result !== 'undefined') {
-    return result;
-  }
-  return { value: value, label: value?.toString() || '' };
-}
-
 async function asSelectableValue<T extends RequestSpecStringKeys>(
-  loadOptions: (value: string) => Promise<Array<SelectableValue<RequestSpec[T]>>>,
-  value: RequestSpec[T]
-): Promise<SelectableValue<RequestSpec[T]>> {
+  loadOptions: (value: string) => Promise<Array<SelectableValue<string>>>,
+  value: string
+): Promise<SelectableValue<string> | undefined> {
   const options = await loadOptions('');
-  return findSelectableValueWithValue(options, value);
+  return options.find((elem) => elem.value === value);
 }
 
 export interface SelectProps<Key extends RequestSpecStringKeys> {
   label?: string;
-  autocompleter: (value: string) => Promise<Array<SelectableValue<RequestSpec[Key]>>>;
+  autocompleter: (value: string) => Promise<Array<SelectableValue<NonNullable<RequestSpec[Key]>>>>;
   requestSpec: RequestSpec;
   requestSpecKey: Key;
   update: (rq: RequestSpec, key: Key, value: RequestSpec[Key]) => void;
@@ -46,18 +35,16 @@ export interface SelectProps<Key extends RequestSpecStringKeys> {
 
 export const Select = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
   const { autocompleter } = props;
-  const [currentValue, setCurrentValue] = React.useState({
-    value: '',
-    label: '',
-  } as SelectableValue<RequestSpec[Key]>);
+  const [currentValue, setCurrentValue] = React.useState<SelectableValue<RequestSpec[Key]> | undefined>();
   const cachedAutocompleter = React.useCallback((val: string) => autocompleter(val), [autocompleter]);
 
   React.useEffect(() => {
     async function inner() {
-      setCurrentValue(await asSelectableValue(cachedAutocompleter, get(props.requestSpec, props.requestSpecKey)));
+      setCurrentValue(await asSelectableValue(cachedAutocompleter, get(props.requestSpec, props.requestSpecKey) ?? ''));
     }
-
-    inner();
+    if (get(props.requestSpec, props.requestSpecKey) !== undefined) {
+      inner();
+    }
     // eslint-disable-next-line  react-hooks/exhaustive-deps
   }, [props.requestSpec]);
 
@@ -135,21 +122,15 @@ const SingleTag = (props: {
 }) => {
   const { autocompleteTagGroups, autocompleteTagOptions } = props;
   const [state, setState] = React.useState(props.initialState);
-  const [group, setGroup] = React.useState({
-    value: props.initialState?.group,
-    label: '',
-  } as SelectableValue<string | undefined>);
+  const [group, setGroup] = React.useState<SelectableValue<string> | undefined>();
   const [operator, setOperator] = React.useState('is');
-  const [tag, setTag] = React.useState({
-    value: props.initialState?.tag,
-    label: '',
-  } as SelectableValue<string | undefined>);
+  const [tag, setTag] = React.useState<SelectableValue<string> | undefined>();
   const cachedAutocompleteTagOptions = React.useCallback(autocompleteTagOptions, [autocompleteTagOptions]);
   const cachedAutocompleteTagGroups = React.useCallback(autocompleteTagGroups, [autocompleteTagGroups]);
 
   React.useEffect(() => {
     async function inner() {
-      setGroup(await asSelectableValue(cachedAutocompleteTagGroups, props.initialState?.group));
+      setGroup(await asSelectableValue(cachedAutocompleteTagGroups, props.initialState?.group ?? ''));
       if (props.initialState?.operator) {
         setOperator(props.initialState.operator);
       }
@@ -157,7 +138,7 @@ const SingleTag = (props: {
         setTag(
           await asSelectableValue(
             cachedAutocompleteTagOptions.bind(undefined, props.initialState.group),
-            props.initialState.tag
+            props.initialState?.tag ?? ''
           )
         );
       }
