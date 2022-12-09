@@ -1,12 +1,8 @@
-import { createCmkAutomationUser, createCmkHost, deleteCmkHost, activateCmkChanges } from './helpers';
-import { faker } from '@faker-js/faker';
-
+import { createCmkAutomationUser } from './helpers';
 
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
-  const fakerName = faker.name.firstName().toLowerCase();
-  const hostName = 'localhost_' + fakerName;
 
   it('configures the datasource correctly', () => {
     createCmkAutomationUser(cmkUser, cmkPassword);
@@ -26,13 +22,5 @@ describe('Source configuration', () => {
     cy.get('[aria-label="Data source settings page Save and Test button"]').click();
 
     cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
-  });
-
-  it('create and delete host', () => {
-    createCmkHost(hostName);
-    activateCmkChanges('cmk');
-
-    deleteCmkHost(hostName);
-    activateCmkChanges('cmk');
   });
 });
