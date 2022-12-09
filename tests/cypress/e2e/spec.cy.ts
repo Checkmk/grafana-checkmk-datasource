@@ -1,7 +1,6 @@
 import { createCmkAutomationUser, createCmkHost, deleteCmkHost, activateCmkChanges } from './helpers';
 import { faker } from '@faker-js/faker';
 
-
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
