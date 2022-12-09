@@ -1,9 +1,11 @@
-import { createCmkAutomationUser, createCmkHost } from './helpers';
+import { createCmkAutomationUser, createCmkHost, deleteCmkHost, activateCmkChanges } from './helpers';
+import { faker } from '@faker-js/faker';
 
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
-  const hostName = 'localhost_' + Math.floor(Date.now() / 1000);
+  const fakerName = faker.name.firstName().toLowerCase();
+  const hostName = 'localhost_' + fakerName;
 
   it('configures the datasource correctly', () => {
     createCmkAutomationUser(cmkUser, cmkPassword);
@@ -25,7 +27,11 @@ describe('Source configuration', () => {
     cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
   });
 
-  it('create a new CMK host', () => {
+  it('create and delete host', () => {
     createCmkHost(hostName);
+    activateCmkChanges('cmk');
+
+    deleteCmkHost(hostName);
+    activateCmkChanges('cmk');
   });
 });
