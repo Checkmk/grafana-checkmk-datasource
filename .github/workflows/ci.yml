@@ -44,6 +44,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: plugin-build-result
+          path: dist
 
       - name: run the e2e tests
         run: docker-compose up --exit-code-from=cypress
