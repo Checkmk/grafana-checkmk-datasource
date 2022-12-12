@@ -4,7 +4,7 @@ services:
   grafana:
     image: grafana/grafana-oss:9.1.0-ubuntu
     volumes:
-      - ..:/var/lib/grafana/plugins/grafana-checkmk-datasource
+      - ../dist/:/var/lib/grafana/plugins/grafana-checkmk-datasource
     environment:
       GF_ANALYTICS_REPORTING_ENABLED: 'false'
       GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
