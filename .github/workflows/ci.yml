@@ -48,3 +48,13 @@ jobs:
       - name: run the e2e tests
         run: docker-compose up --exit-code-from=cypress
         working-directory: tests/
+
+      - name: upload cypress artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress
+          retention-days: 1
+          path: |
+            tests/cypress/videos
+            tests/cypress/screenshots
