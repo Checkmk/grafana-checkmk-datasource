@@ -25,52 +25,58 @@ async function asSelectableValue<T extends RequestSpecStringKeys>(
   return options.find((elem) => elem.value === value);
 }
 
+function findOption<T>(value: T, options: Array<SelectableValue<T>>): SelectableValue<T> | undefined {
+  return options.filter((elem) => Object.is(value, elem.value))[0];
+}
+
 export interface SelectProps<Key extends RequestSpecStringKeys> {
   label?: string;
   autocompleter: (value: string) => Promise<Array<SelectableValue<NonNullable<RequestSpec[Key]>>>>;
   requestSpec: RequestSpec;
   requestSpecKey: Key;
   update: (rq: RequestSpec, key: Key, value: RequestSpec[Key]) => void;
+  dependantOn: unknown[];
 }
 
-export const Select = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
-  const { autocompleter } = props;
+export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
+  const { autocompleter, requestSpec, requestSpecKey } = props;
+  const [options, setOptions] = React.useState([] as Array<SelectableValue<RequestSpec[Key]>>);
   const [currentValue, setCurrentValue] = React.useState<SelectableValue<RequestSpec[Key]> | undefined>();
-  const cachedAutocompleter = React.useCallback((val: string) => autocompleter(val), [autocompleter]);
+  const value = get(requestSpec, requestSpecKey);
+
+  React.useEffect(() => {
+    setCurrentValue(findOption(value, options));
+  }, [setCurrentValue, value, options]);
 
   React.useEffect(() => {
     async function inner() {
-      setCurrentValue(await asSelectableValue(cachedAutocompleter, get(props.requestSpec, props.requestSpecKey) ?? ''));
+      setOptions(await autocompleter(''));
     }
-    if (get(props.requestSpec, props.requestSpecKey) !== undefined) {
-      inner();
-    }
-    // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [props.requestSpec]);
+
+    inner();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onChange = (value: SelectableValue<RequestSpec[Key]>) => {
-    setCurrentValue(value);
     props.update(props.requestSpec, props.requestSpecKey, value.value);
   };
 
   return (
     <InlineField labelWidth={14} label={props.label}>
-      <AsyncSelect
+      <GrafanaSelect
         inputId={`input_${props.label}`}
         onChange={onChange}
-        loadOptions={cachedAutocompleter}
-        defaultOptions
+        options={options}
         width={32}
         value={currentValue}
         placeholder={'Type to trigger search'}
-        key={JSON.stringify(props.requestSpec)}
+        key={JSON.stringify(props.dependantOn)}
       />
     </InlineField>
   );
 };
 
 export interface FilterProps<T extends RequestSpecNegatableOptionKeys> {
-  dependantOn?: unknown[];
   label: string;
   requestSpec: RequestSpec;
   requestSpecKey: T;
@@ -95,11 +101,7 @@ const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterProps<T>)
 
   return (
     <HorizontalGroup>
-      <InlineField
-        label={props.label}
-        labelWidth={14}
-        key={props.dependantOn ? JSON.stringify(props.dependantOn) : undefined}
-      >
+      <InlineField label={props.label} labelWidth={14}>
         <Input
           width={32}
           type="text"
@@ -187,6 +189,7 @@ const HostTagFilter: React.FC<{
   update: (rq: RequestSpec, key: 'host_tags', value: TagValue[]) => void;
   autocompleteTagGroups(value?: string): Promise<Array<SelectableValue<string>>>;
   autocompleteTagOptions(group: string, value: string): Promise<Array<SelectableValue<string>>>;
+  dependantOn: unknown[];
 }> = (props) => {
   const { autocompleteTagGroups, autocompleteTagOptions } = props;
   const [tags, setTags] = React.useState(
@@ -224,6 +227,7 @@ const HostLabelFilter: React.FC<{
   requestSpec: RequestSpec;
   update: (rq: RequestSpec, labels: 'host_labels', value: string[]) => void;
   autocomplete: (value: string) => Promise<Array<SelectableValue<string>>>;
+  dependantOn: unknown[];
 }> = (props) => {
   const { autocomplete } = props;
   const [labels, setLabels] = React.useState([] as Array<SelectableValue<string>>);
@@ -345,30 +349,33 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
       </InlineField>
       <OnlySetChildren>
         <ShowIfActive name="site">
-          <Select
+          <CheckMkSelect
             label="Site"
             autocompleter={props.autocompleterFactory('sites')}
             requestSpec={props.requestSpec}
             requestSpecKey={'site'}
             update={props.update}
+            dependantOn={[]}
           />
         </ShowIfActive>
         <ShowIfActive name="host_name">
-          <Select
+          <CheckMkSelect
             label="Host"
             autocompleter={props.autocompleterFactory('monitored_hostname')}
             requestSpec={props.requestSpec}
             requestSpecKey={'host_name'}
             update={props.update}
+            dependantOn={[props.requestSpec.site]}
           />
         </ShowIfActive>
         <ShowIfActive name="service">
-          <Select
+          <CheckMkSelect
             label="Service"
             autocompleter={props.autocompleterFactory('monitored_service_description')}
             requestSpec={props.requestSpec}
             requestSpecKey={'service'}
             update={props.update}
+            dependantOn={[props.requestSpec.site]}
           />
         </ShowIfActive>
         <ShowIfActive name="host_name_regex">
@@ -409,6 +416,7 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
             update={props.update}
             autocompleteTagGroups={props.autocompleterFactory('tag_groups')}
             autocompleteTagOptions={props.completeTagChoices}
+            dependantOn={[props.requestSpec.site]}
           />
         </ShowIfActive>
         <ShowIfActive name="host_labels">
@@ -416,6 +424,7 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
             requestSpec={props.requestSpec}
             update={props.update}
             autocomplete={props.labelAutocomplete}
+            dependantOn={[props.requestSpec.site]}
           />
         </ShowIfActive>
       </OnlySetChildren>
