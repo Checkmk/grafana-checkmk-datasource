@@ -3,7 +3,7 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
 import { VerticalGroup } from '@grafana/ui';
-import { FilterEditor, Select } from './components';
+import { FilterEditor, CheckMkSelect } from './components';
 import { createAutocompleteConfig, Presentation } from './autocomplete';
 import { defaultRequestSpec, RequestSpec } from '../RequestSpec';
 import { titleCase } from '../utils';
@@ -13,7 +13,7 @@ type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
 export const QueryEditor = (props: Props): JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
-  const [requestSpec, setRequestSpec] = React.useState(query.requestSpec || defaultRequestSpec);
+  const requestSpec = query.requestSpec || defaultRequestSpec;
 
   const editionMode = datasource.getEdition();
 
@@ -22,20 +22,18 @@ export const QueryEditor = (props: Props): JSX.Element => {
     return !isUndefined(spec.graph) && spec.graph !== '';
   }
 
-  const autocomplete = React.useCallback(
+  const autocomplete =
     (ident: string) =>
-      async (value = '') => {
-        const response = await props.datasource.autocompleterRequest<ResponseDataAutocomplete>(
-          'ajax_vs_autocomplete.py',
-          createAutocompleteConfig(requestSpec, ident, value)
-        );
-        return response.data.result.choices.map(([value, label]: [string, string]) => ({
-          value,
-          label,
-        }));
-      },
-    [props.datasource, requestSpec]
-  );
+    async (value = '') => {
+      const response = await props.datasource.autocompleterRequest<ResponseDataAutocomplete>(
+        'ajax_vs_autocomplete.py',
+        createAutocompleteConfig(requestSpec, ident, value)
+      );
+      return response.data.result.choices.map(([value, label]: [string, string]) => ({
+        value,
+        label,
+      }));
+    };
 
   const labelAutocomplete = async (value: string) => {
     const response = await props.datasource.autocompleterRequest<Array<{ value: string }>>(
@@ -68,16 +66,12 @@ export const QueryEditor = (props: Props): JSX.Element => {
     { value: 'max', label: 'Maximum' },
   ];
 
-  React.useEffect(() => {
-    onChange({ ...query, requestSpec: requestSpec });
+  const update = (rq: RequestSpec, key: string, value: unknown) => {
+    const newRequestSpec = { ...rq, [key]: value };
+    onChange({ ...query, requestSpec: newRequestSpec });
     if (isMinimalRequest(requestSpec)) {
       onRunQuery();
     }
-    // eslint-disable-next-line  react-hooks/exhaustive-deps
-  }, [requestSpec]);
-
-  const update = (rq: RequestSpec, key: string, value: unknown) => {
-    setRequestSpec({ ...rq, [key]: value });
   };
 
   const graphTypeCompleter = async (): Promise<Array<SelectableValue<GraphKind>>> => [
@@ -88,41 +82,46 @@ export const QueryEditor = (props: Props): JSX.Element => {
   if (editionMode === 'RAW') {
     return (
       <VerticalGroup>
-        <Select
+        <CheckMkSelect
           label={'Site'}
           requestSpec={requestSpec}
           requestSpecKey={'site'}
           update={update}
           autocompleter={autocomplete('sites')}
+          dependantOn={[]}
         />
-        <Select
+        <CheckMkSelect
           label={'Host'}
           requestSpec={requestSpec}
           requestSpecKey={'host_name'}
           update={update}
           autocompleter={autocomplete('monitored_hostname')}
+          dependantOn={[requestSpec.site]}
         />
-        <Select
+        <CheckMkSelect
           label={'Service'}
           requestSpec={requestSpec}
           requestSpecKey={'service'}
           update={update}
           autocompleter={autocomplete('monitored_service_description')}
+          dependantOn={[requestSpec.site]}
         />
 
-        <Select
+        <CheckMkSelect
           requestSpec={requestSpec}
           requestSpecKey={'graph_type'}
           update={update}
           label={'Graph type'}
           autocompleter={graphTypeCompleter}
+          dependantOn={[]}
         />
-        <Select
+        <CheckMkSelect
           requestSpec={requestSpec}
           requestSpecKey={'graph'}
           update={update}
           label={titleCase(requestSpec.graph_type ?? 'Template')}
           autocompleter={autocomplete(requestSpec.graph_type === 'metric' ? 'monitored_metrics' : 'available_graphs')}
+          dependantOn={[requestSpec]}
         />
       </VerticalGroup>
     );
@@ -137,26 +136,29 @@ export const QueryEditor = (props: Props): JSX.Element => {
           labelAutocomplete={labelAutocomplete}
           completeTagChoices={completeTagChoices}
         />
-        <Select
+        <CheckMkSelect
           label={'Aggregation'}
           requestSpec={requestSpec}
           requestSpecKey={'aggregation'}
           update={update}
           autocompleter={presentationCompleter}
+          dependantOn={[]}
         />
-        <Select
+        <CheckMkSelect
           requestSpec={requestSpec}
           requestSpecKey={'graph_type'}
           update={update}
           label={'Graph type'}
           autocompleter={graphTypeCompleter}
+          dependantOn={[]}
         />
-        <Select
+        <CheckMkSelect
           requestSpec={requestSpec}
           requestSpecKey={'graph'}
           update={update}
           label={titleCase(requestSpec.graph_type ?? 'Template')}
           autocompleter={autocomplete(requestSpec.graph_type === 'metric' ? 'monitored_metrics' : 'available_graphs')}
+          dependantOn={[requestSpec]}
         />
       </VerticalGroup>
     );
