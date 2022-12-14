@@ -3,7 +3,8 @@ import { activateCmkChanges, createCmkAutomationUser, createCmkHost, deleteCmkHo
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
-  const hostName = 'localhost_' + Math.floor(Date.now() / 1000);
+  const randID = Math.floor(Date.now() / 1000);
+  const hostName = 'localhost_' + randID;
 
   it('configures the datasource correctly', () => {
     createCmkAutomationUser(cmkUser, cmkPassword);
@@ -29,6 +30,54 @@ describe('Source configuration', () => {
   it('create and delete host', () => {
     createCmkHost(hostName);
     activateCmkChanges('cmk');
+
+    deleteCmkHost(hostName);
+    activateCmkChanges('cmk');
+  });
+
+  it('create a new time-usage panel', { defaultCommandTimeout: 10000 }, () => {
+    createCmkHost(hostName);
+    activateCmkChanges('cmk');
+
+    cy.visit('/');
+    cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
+    cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
+    cy.get('[aria-label="Login button"]').click();
+
+    cy.visit('/dashboard/new');
+    cy.get('button[aria-label="Add new panel"]').click();
+
+    cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
+
+    cy.get('input[id="input_Host"]').type('{enter}'); // Hostname -> <current host> (one entry only)
+    cy.contains(hostName).should('be.hidden');
+
+    cy.get('[class="panel-content"]').should('be.visible');
+
+    function select_time_usage_template(count: number = 20) {
+      // selecting a template results in a flaky behavior
+      // TODO: fix flakyness and remove this iteration
+
+      cy.log('Selecting time usage template (' + count + ' tries left)');
+      cy.get('input[id="input_Template"]').type('{enter}', { force: true }); // Template -> Time usage by phase (one entry only)
+
+      cy.get('[class="panel-content"]').then(($panel) => {
+        if (count == 0 || $panel.find('[aria-label="VizLegend series CPU time in user space"]').is(':visible')) {
+          return;
+        }
+
+        select_time_usage_template(count - 1);
+      });
+    }
+
+    select_time_usage_template();
+    expect('[aria-label="VizLegend series CPU time in user space"]').to.exist;
+
+    cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
+    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randID);
+
+    cy.get('button[aria-label="Save dashboard button"]').click();
+    cy.contains('Dashboard saved').should('be.visible');
 
     deleteCmkHost(hostName);
     activateCmkChanges('cmk');
