@@ -70,7 +70,6 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectPr
         width={32}
         value={currentValue}
         placeholder={'Type to trigger search'}
-        key={JSON.stringify(props.dependantOn)}
       />
     </InlineField>
   );
@@ -231,7 +230,8 @@ const HostLabelFilter: React.FC<{
 }> = (props) => {
   const { autocomplete } = props;
   const [labels, setLabels] = React.useState([] as Array<SelectableValue<string>>);
-  const cachedAutocomplete = React.useCallback(autocomplete, [autocomplete]);
+
+  // TODO: are label values == label labels?
 
   const onLabelsChange = (items: Array<SelectableValue<string>>) => {
     setLabels(items);
@@ -247,7 +247,7 @@ const HostLabelFilter: React.FC<{
       <AsyncMultiSelect
         width={32}
         defaultOptions
-        loadOptions={cachedAutocomplete}
+        loadOptions={autocomplete}
         onChange={onLabelsChange}
         value={labels}
         placeholder="Type to trigger search"
@@ -301,29 +301,28 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
     setActiveComponents(copy);
   }
 
-  const ShowIfActive = (showIfActiveProps: { name: string; children: JSX.Element }): JSX.Element | null => {
-    function cleanup() {
-      removeComponent(showIfActiveProps.name);
-      props.update(props.requestSpec, showIfActiveProps.name, undefined);
+  const OnlyActiveChildren = (innerProps: { children: JSX.Element[] }): JSX.Element => {
+    function cleanup(name: string) {
+      removeComponent(name);
+      props.update(props.requestSpec, name, undefined);
     }
 
-    if (activeComponents.includes(showIfActiveProps.name)) {
-      return (
-        <HorizontalGroup>
-          <Button icon="minus" variant="secondary" onClick={cleanup} />
-          {showIfActiveProps.children}
-        </HorizontalGroup>
-      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // TODO: is there a better solution?
+    function getName(elem: any) {
+      return elem.props['data-name'];
     }
-    return null;
-  };
 
-  const OnlySetChildren = (props: { children: JSX.Element[] }): JSX.Element => {
     return (
       <VerticalGroup>
-        {React.Children.toArray(props.children).filter((elem) =>
-          activeComponents.includes((elem as React.ReactElement).props.name)
-        )}
+        {React.Children.toArray(innerProps.children)
+          .filter((elem) => activeComponents.includes(getName(elem)))
+          .map((elem) => (
+            <HorizontalGroup key={getName(elem)}>
+              <Button icon="minus" variant="secondary" onClick={() => cleanup(getName(elem))} />
+              {elem}
+            </HorizontalGroup>
+          ))}
       </VerticalGroup>
     );
   };
@@ -347,87 +346,78 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
           value={{ label: 'Add Filter' }}
         />
       </InlineField>
-      <OnlySetChildren>
-        <ShowIfActive name="site">
-          <CheckMkSelect
-            label="Site"
-            autocompleter={props.autocompleterFactory('sites')}
-            requestSpec={props.requestSpec}
-            requestSpecKey={'site'}
-            update={props.update}
-            dependantOn={[]}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="host_name">
-          <CheckMkSelect
-            label="Host"
-            autocompleter={props.autocompleterFactory('monitored_hostname')}
-            requestSpec={props.requestSpec}
-            requestSpecKey={'host_name'}
-            update={props.update}
-            dependantOn={[props.requestSpec.site]}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="service">
-          <CheckMkSelect
-            label="Service"
-            autocompleter={props.autocompleterFactory('monitored_service_description')}
-            requestSpec={props.requestSpec}
-            requestSpecKey={'service'}
-            update={props.update}
-            dependantOn={[props.requestSpec.site]}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="host_name_regex">
-          <Filter
-            label="Host Regex"
-            requestSpec={props.requestSpec}
-            requestSpecKey="host_name_regex"
-            update={props.update}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="service_regex">
-          <Filter
-            label="Service Regex"
-            requestSpec={props.requestSpec}
-            requestSpecKey="service_regex"
-            update={props.update}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="host_in_group">
-          <Filter
-            label="Host in Group"
-            requestSpec={props.requestSpec}
-            requestSpecKey="host_in_group"
-            update={props.update}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="service_in_group">
-          <Filter
-            label="Service in Group"
-            requestSpec={props.requestSpec}
-            requestSpecKey="service_in_group"
-            update={props.update}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="host_tags">
-          <HostTagFilter
-            requestSpec={props.requestSpec}
-            update={props.update}
-            autocompleteTagGroups={props.autocompleterFactory('tag_groups')}
-            autocompleteTagOptions={props.completeTagChoices}
-            dependantOn={[props.requestSpec.site]}
-          />
-        </ShowIfActive>
-        <ShowIfActive name="host_labels">
-          <HostLabelFilter
-            requestSpec={props.requestSpec}
-            update={props.update}
-            autocomplete={props.labelAutocomplete}
-            dependantOn={[props.requestSpec.site]}
-          />
-        </ShowIfActive>
-      </OnlySetChildren>
+      <OnlyActiveChildren>
+        <CheckMkSelect
+          data-name="site"
+          label="Site"
+          autocompleter={props.autocompleterFactory('sites')}
+          requestSpec={props.requestSpec}
+          requestSpecKey={'site'}
+          update={props.update}
+          dependantOn={[]}
+        />
+        <CheckMkSelect
+          data-name="host_name"
+          label="Host"
+          autocompleter={props.autocompleterFactory('monitored_hostname')}
+          requestSpec={props.requestSpec}
+          requestSpecKey={'host_name'}
+          update={props.update}
+          dependantOn={[props.requestSpec.site]}
+        />
+        <CheckMkSelect
+          data-name="service"
+          label="Service"
+          autocompleter={props.autocompleterFactory('monitored_service_description')}
+          requestSpec={props.requestSpec}
+          requestSpecKey={'service'}
+          update={props.update}
+          dependantOn={[props.requestSpec.site]}
+        />
+        <Filter
+          data-name="host_name_regex"
+          label="Host Regex"
+          requestSpec={props.requestSpec}
+          requestSpecKey="host_name_regex"
+          update={props.update}
+        />
+        <Filter
+          data-name="service_regex"
+          label="Service Regex"
+          requestSpec={props.requestSpec}
+          requestSpecKey="service_regex"
+          update={props.update}
+        />
+        <Filter
+          data-name="host_in_group"
+          label="Host in Group"
+          requestSpec={props.requestSpec}
+          requestSpecKey="host_in_group"
+          update={props.update}
+        />
+        <Filter
+          data-name="service_in_group"
+          label="Service in Group"
+          requestSpec={props.requestSpec}
+          requestSpecKey="service_in_group"
+          update={props.update}
+        />
+        <HostTagFilter
+          data-name="host_tags"
+          requestSpec={props.requestSpec}
+          update={props.update}
+          autocompleteTagGroups={props.autocompleterFactory('tag_groups')}
+          autocompleteTagOptions={props.completeTagChoices}
+          dependantOn={[props.requestSpec.site]}
+        />
+        <HostLabelFilter
+          data-name="host_labels"
+          requestSpec={props.requestSpec}
+          update={props.update}
+          autocomplete={props.labelAutocomplete}
+          dependantOn={[props.requestSpec.site]}
+        />
+      </OnlyActiveChildren>
     </InlineFieldRow>
   );
 };
