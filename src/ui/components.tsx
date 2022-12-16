@@ -2,7 +2,6 @@ import React from 'react';
 import { SelectableValue } from '@grafana/data';
 import {
   AsyncMultiSelect,
-  AsyncSelect,
   Button,
   Checkbox,
   HorizontalGroup,
@@ -22,16 +21,8 @@ import {
   RequestSpecStringKeys,
   TagValue,
 } from '../RequestSpec';
-import { cloneDeep, get, isUndefined } from 'lodash';
+import { get, isUndefined } from 'lodash';
 import { titleCase } from '../utils';
-
-async function asSelectableValue<T extends RequestSpecStringKeys>(
-  loadOptions: (value: string) => Promise<Array<SelectableValue<string>>>,
-  value: string
-): Promise<SelectableValue<string> | undefined> {
-  const options = await loadOptions('');
-  return options.find((elem) => elem.value === value);
-}
 
 function findOption<T>(value: T, options: Array<SelectableValue<T>>): SelectableValue<T> | undefined {
   return options.filter((elem) => Object.is(value, elem.value))[0];
@@ -131,42 +122,54 @@ const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterProps<T>)
 
 const SingleTag = (props: {
   index: number;
-  setTag(value: TagValue): void;
-  autocompleteTagGroups(value?: string): Promise<Array<SelectableValue<string>>>;
-  autocompleteTagOptions(group?: string, value?: string): Promise<Array<SelectableValue<string>>>;
-  initialState?: TagValue;
+  requestSpec: RequestSpec;
+  setTag(value: TagValue, rq: RequestSpec): void;
+  autocompleteTagGroups(value: string): Promise<Array<SelectableValue<string>>>;
+  autocompleteTagOptions(group: string, value: string): Promise<Array<SelectableValue<string>>>;
+  dependantOn: unknown[];
 }) => {
-  const { autocompleteTagGroups, autocompleteTagOptions } = props;
-  const [state, setState] = React.useState(props.initialState);
+  const { dependantOn } = props;
+  const tagValue = props.requestSpec.host_tags ? props.requestSpec.host_tags[props.index] : {};
   const [group, setGroup] = React.useState<SelectableValue<string> | undefined>();
+  const [groupOptions, setGroupOptions] = React.useState<Array<SelectableValue<string>>>([]);
   const [operator, setOperator] = React.useState('is');
   const [tag, setTag] = React.useState<SelectableValue<string> | undefined>();
-  const cachedAutocompleteTagOptions = React.useCallback(autocompleteTagOptions, [autocompleteTagOptions]);
-  const cachedAutocompleteTagGroups = React.useCallback(autocompleteTagGroups, [autocompleteTagGroups]);
+  const [tagOptions, setTagOptions] = React.useState<Array<SelectableValue<string>>>([]);
 
   React.useEffect(() => {
     async function inner() {
-      setGroup(await asSelectableValue(cachedAutocompleteTagGroups, props.initialState?.group ?? ''));
-      if (props.initialState?.operator) {
-        setOperator(props.initialState.operator);
+      setGroupOptions(await props.autocompleteTagGroups(''));
+    }
+
+    inner();
+  }, [dependantOn]);
+
+  React.useEffect(() => {
+    async function inner() {
+      setTagOptions(await props.autocompleteTagOptions(tagValue.group ?? '', ''));
+    }
+
+    inner();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [group, dependantOn]);
+
+  React.useEffect(() => {
+    async function inner() {
+      setGroup(findOption(tagValue.group ?? '', groupOptions));
+      if (tagValue.operator) {
+        setOperator(tagValue.operator);
       }
-      if (props.initialState?.group) {
-        setTag(
-          await asSelectableValue(
-            cachedAutocompleteTagOptions.bind(undefined, props.initialState.group),
-            props.initialState?.tag ?? ''
-          )
-        );
+      if (tagValue.group) {
+        setTag(findOption(tagValue.tag ?? '', tagOptions));
       }
     }
 
     inner();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dependantOn]);
 
   const publishState = (value: TagValue) => {
-    setState(value);
-    props.setTag(value);
+    props.setTag(value, props.requestSpec);
   };
 
   const tagOperators = [
@@ -177,21 +180,20 @@ const SingleTag = (props: {
   return (
     <HorizontalGroup>
       <Label>Host tag {props.index}: </Label>
-      <AsyncSelect
-        onChange={(val) => publishState({ ...state, group: val.value ?? '' })}
-        loadOptions={cachedAutocompleteTagGroups}
+      <GrafanaSelect
+        onChange={(val) => publishState({ ...tagValue, group: val.value ?? '' })}
+        options={groupOptions}
         value={group}
       />
       <GrafanaSelect
         width={8}
         options={tagOperators}
-        onChange={(val) => publishState({ ...state, operator: val.value ?? 'is' })}
+        onChange={(val) => publishState({ ...tagValue, operator: val.value ?? 'is' })}
         value={operator}
       />
-      <AsyncSelect
-        key={JSON.stringify(state?.group)}
-        onChange={(val) => publishState({ ...state, tag: val.value ?? '' })}
-        loadOptions={cachedAutocompleteTagOptions.bind(undefined, state?.group)}
+      <GrafanaSelect
+        onChange={(val) => publishState({ ...tagValue, tag: val.value ?? '' })}
+        options={tagOptions}
         value={tag}
       />
     </HorizontalGroup>
@@ -201,24 +203,20 @@ const SingleTag = (props: {
 const HostTagFilter: React.FC<{
   requestSpec: RequestSpec;
   update: (rq: RequestSpec, key: 'host_tags', value: TagValue[]) => void;
-  autocompleteTagGroups(value?: string): Promise<Array<SelectableValue<string>>>;
+  autocompleteTagGroups(value: string): Promise<Array<SelectableValue<string>>>;
   autocompleteTagOptions(group: string, value: string): Promise<Array<SelectableValue<string>>>;
   dependantOn: unknown[];
 }> = (props) => {
   const { autocompleteTagGroups, autocompleteTagOptions } = props;
-  const [tags, setTags] = React.useState(
-    props.requestSpec.host_tags || ([{}, {}, {}] as [TagValue, TagValue, TagValue])
-  );
 
-  const setTagAtIndex = (index: number, value: TagValue) => {
-    const copy = cloneDeep(tags);
-    copy[index] = value;
-    setTags(copy);
-    props.update(
-      props.requestSpec,
-      'host_tags',
-      tags.filter((tag) => !Object.is(tag, {}))
-    );
+  const setTagAtIndex = (index: number, value: TagValue, rq: RequestSpec) => {
+    if (isUndefined(value.operator)) {
+      value.operator = 'is'
+    }
+
+    const tags = rq.host_tags?.slice() ?? [{}, {}, {}];
+    tags[index] = value;
+    props.update(props.requestSpec, 'host_tags', tags);
   };
 
   return (
@@ -230,7 +228,8 @@ const HostTagFilter: React.FC<{
           setTag={setTagAtIndex.bind(undefined, index)}
           autocompleteTagGroups={autocompleteTagGroups}
           autocompleteTagOptions={autocompleteTagOptions}
-          initialState={tags[index]}
+          requestSpec={props.requestSpec}
+          dependantOn={dependsOnSite(props.requestSpec)}
         />
       ))}
     </VerticalGroup>
