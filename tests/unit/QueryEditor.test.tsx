@@ -143,41 +143,70 @@ describe('QueryEditor RAW', () => {
   it('calls the autocompleters the minimal amount of times', async () => {
     render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'sites'}));
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'monitored_hostname'}));
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'monitored_service_description'}));
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'available_graphs'}));
-    autocompleterRequest.mockClear()
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'sites' })
+    );
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'monitored_hostname' })
+    );
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'monitored_service_description' })
+    );
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'available_graphs' })
+    );
+    autocompleterRequest.mockClear();
 
     const siteInput = screen.getByLabelText('Site');
     await act(async () => {
       await selectEvent.select(siteInput, 'Site One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'monitored_hostname'}));
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'monitored_service_description'}));
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'available_graphs'}));
-    autocompleterRequest.mockClear()
-
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'monitored_hostname' })
+    );
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'monitored_service_description' })
+    );
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'available_graphs' })
+    );
+    autocompleterRequest.mockClear();
 
     const hostInput = screen.getByLabelText('Host');
     await act(async () => {
       await selectEvent.select(hostInput, 'Host One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'monitored_service_description'}));
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'available_graphs'}));
-    autocompleterRequest.mockClear()
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'monitored_service_description' })
+    );
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'available_graphs' })
+    );
+    autocompleterRequest.mockClear();
 
     const serviceInput = screen.getByLabelText('Service');
     await act(async () => {
       await selectEvent.select(serviceInput, 'Service One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledWith("ajax_vs_autocomplete.py", expect.objectContaining({ident: 'available_graphs'}));
-    autocompleterRequest.mockClear()
+    expect(autocompleterRequest).toHaveBeenCalledWith(
+      'ajax_vs_autocomplete.py',
+      expect.objectContaining({ ident: 'available_graphs' })
+    );
+    autocompleterRequest.mockClear();
 
     const graphInput = screen.getByLabelText('Template');
     await act(async () => {
       await selectEvent.select(graphInput, 'Graph One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledTimes(0)
+    expect(autocompleterRequest).toHaveBeenCalledTimes(0);
   });
 });

@@ -211,7 +211,7 @@ const HostTagFilter: React.FC<{
 
   const setTagAtIndex = (index: number, value: TagValue, rq: RequestSpec) => {
     if (isUndefined(value.operator)) {
-      value.operator = 'is'
+      value.operator = 'is';
     }
 
     const tags = rq.host_tags?.slice() ?? [{}, {}, {}];

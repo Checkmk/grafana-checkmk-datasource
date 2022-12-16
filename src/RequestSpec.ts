@@ -38,25 +38,25 @@ export const defaultRequestSpec: RequestSpec = {
 };
 
 export function dependsOnNothing(): unknown[] {
-  return []
+  return [];
 }
 
 export function dependsOnSite(rq: RequestSpec): unknown[] {
-  return [rq.site]
+  return [rq.site];
 }
 
 export function dependsOnHost(rq: RequestSpec): unknown[] {
-  return dependsOnSite(rq).concat([rq.host_name, rq.host_name_regex, rq.host_in_group, rq.host_tags, rq.host_labels])
+  return dependsOnSite(rq).concat([rq.host_name, rq.host_name_regex, rq.host_in_group, rq.host_tags, rq.host_labels]);
 }
 
 export function dependsOnService(rq: RequestSpec): unknown[] {
-  return dependsOnHost(rq).concat([rq.service, rq.service_regex, rq.service_in_group])
+  return dependsOnHost(rq).concat([rq.service, rq.service_regex, rq.service_in_group]);
 }
 
 export function dependsOn(rq: RequestSpec): unknown[] {
-  return Object.values(rq)
+  return Object.values(rq);
 }
 
 export function dependsOnAll(...values: unknown[]): unknown[] {
-  return values.flat(99) // hopefully nobody will nest suff deeper than 99 levels
+  return values.flat(99); // hopefully nobody will nest suff deeper than 99 levels
 }

@@ -70,7 +70,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   const update = (rq: RequestSpec, key: string, value: unknown) => {
     const newRequestSpec = { ...rq, [key]: value };
-    setRequestSpec(newRequestSpec)
+    setRequestSpec(newRequestSpec);
     onChange({ ...query, requestSpec: newRequestSpec });
     onRunQuery();
   };

@@ -1,4 +1,4 @@
-import {defaults, get, isUndefined, zip} from 'lodash';
+import { defaults, get, isUndefined, zip } from 'lodash';
 
 import {
   DataQueryRequest,
@@ -26,7 +26,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   }
 
   getGraphQuery = async (range: number[], query: CmkQuery): Promise<MutableDataFrame<unknown>> => {
-    const graph = get(query, "requestSpec.graph")
+    const graph = get(query, 'requestSpec.graph');
     if (isUndefined(graph) || graph === '') {
       return Promise.resolve(new MutableDataFrame());
     }
