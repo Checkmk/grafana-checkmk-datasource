@@ -142,6 +142,7 @@ const SingleTag = (props: {
     }
 
     inner();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dependantOn]);
 
   React.useEffect(() => {
@@ -282,6 +283,7 @@ const OnlyActiveChildren = (props: {
     props.update(props.requestSpec, name, undefined);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function getName(elem: any) {
     return elem.props['data-name'];
   }
