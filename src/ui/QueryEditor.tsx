@@ -3,11 +3,10 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
 import { VerticalGroup } from '@grafana/ui';
-import { FilterEditor, CheckMkSelect } from './components';
+import { CheckMkSelect, FilterEditor } from './components';
 import { createAutocompleteConfig, Presentation } from './autocomplete';
 import { defaultRequestSpec, RequestSpec } from '../RequestSpec';
 import { titleCase } from '../utils';
-import { isUndefined } from 'lodash';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
@@ -16,11 +15,6 @@ export const QueryEditor = (props: Props): JSX.Element => {
   const requestSpec = query.requestSpec || defaultRequestSpec;
 
   const editionMode = datasource.getEdition();
-
-  function isMinimalRequest(spec: RequestSpec) {
-    // The UI doesn't give you any choices for a graph until it has enough information to get data, so this should be fine
-    return !isUndefined(spec.graph) && spec.graph !== '';
-  }
 
   const autocomplete =
     (ident: string) =>
@@ -69,9 +63,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
   const update = (rq: RequestSpec, key: string, value: unknown) => {
     const newRequestSpec = { ...rq, [key]: value };
     onChange({ ...query, requestSpec: newRequestSpec });
-    if (isMinimalRequest(requestSpec)) {
-      onRunQuery();
-    }
+    onRunQuery();
   };
 
   const graphTypeCompleter = async (): Promise<Array<SelectableValue<GraphKind>>> => [
