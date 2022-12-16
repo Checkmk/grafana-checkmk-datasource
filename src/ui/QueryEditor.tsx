@@ -5,14 +5,22 @@ import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from
 import { VerticalGroup } from '@grafana/ui';
 import { CheckMkSelect, FilterEditor } from './components';
 import { createAutocompleteConfig, Presentation } from './autocomplete';
-import { defaultRequestSpec, RequestSpec } from '../RequestSpec';
+import {
+  defaultRequestSpec,
+  dependsOnAll,
+  dependsOnHost,
+  dependsOnNothing,
+  dependsOnService,
+  dependsOnSite,
+  RequestSpec,
+} from '../RequestSpec';
 import { titleCase } from '../utils';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
 export const QueryEditor = (props: Props): JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
-  const requestSpec = query.requestSpec || defaultRequestSpec;
+  const [requestSpec, setRequestSpec] = React.useState(query.requestSpec || defaultRequestSpec);
 
   const editionMode = datasource.getEdition();
 
@@ -62,6 +70,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   const update = (rq: RequestSpec, key: string, value: unknown) => {
     const newRequestSpec = { ...rq, [key]: value };
+    setRequestSpec(newRequestSpec);
     onChange({ ...query, requestSpec: newRequestSpec });
     onRunQuery();
   };
@@ -80,7 +89,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           requestSpecKey={'site'}
           update={update}
           autocompleter={autocomplete('sites')}
-          dependantOn={[]}
+          dependantOn={dependsOnNothing()}
         />
         <CheckMkSelect
           label={'Host'}
@@ -88,7 +97,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           requestSpecKey={'host_name'}
           update={update}
           autocompleter={autocomplete('monitored_hostname')}
-          dependantOn={[requestSpec.site]}
+          dependantOn={dependsOnSite(requestSpec)}
         />
         <CheckMkSelect
           label={'Service'}
@@ -96,16 +105,15 @@ export const QueryEditor = (props: Props): JSX.Element => {
           requestSpecKey={'service'}
           update={update}
           autocompleter={autocomplete('monitored_service_description')}
-          dependantOn={[requestSpec.site]}
+          dependantOn={dependsOnHost(requestSpec)}
         />
-
         <CheckMkSelect
           requestSpec={requestSpec}
           requestSpecKey={'graph_type'}
           update={update}
           label={'Graph type'}
           autocompleter={graphTypeCompleter}
-          dependantOn={[]}
+          dependantOn={dependsOnNothing()}
         />
         <CheckMkSelect
           requestSpec={requestSpec}
@@ -113,7 +121,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           update={update}
           label={titleCase(requestSpec.graph_type ?? 'Template')}
           autocompleter={autocomplete(requestSpec.graph_type === 'metric' ? 'monitored_metrics' : 'available_graphs')}
-          dependantOn={[requestSpec]}
+          dependantOn={dependsOnAll(dependsOnService(requestSpec), requestSpec.graph_type)}
         />
       </VerticalGroup>
     );
@@ -134,7 +142,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           requestSpecKey={'aggregation'}
           update={update}
           autocompleter={presentationCompleter}
-          dependantOn={[]}
+          dependantOn={dependsOnNothing()}
         />
         <CheckMkSelect
           requestSpec={requestSpec}
@@ -142,7 +150,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           update={update}
           label={'Graph type'}
           autocompleter={graphTypeCompleter}
-          dependantOn={[]}
+          dependantOn={dependsOnNothing()}
         />
         <CheckMkSelect
           requestSpec={requestSpec}
@@ -150,7 +158,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           update={update}
           label={titleCase(requestSpec.graph_type ?? 'Template')}
           autocompleter={autocomplete(requestSpec.graph_type === 'metric' ? 'monitored_metrics' : 'available_graphs')}
-          dependantOn={[requestSpec]}
+          dependantOn={dependsOnAll(dependsOnService(requestSpec), requestSpec.graph_type)}
         />
       </VerticalGroup>
     );

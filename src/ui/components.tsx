@@ -13,7 +13,15 @@ import {
   Select as GrafanaSelect,
   VerticalGroup,
 } from '@grafana/ui';
-import { RequestSpec, RequestSpecNegatableOptionKeys, RequestSpecStringKeys, TagValue } from '../RequestSpec';
+import {
+  dependsOnHost,
+  dependsOnNothing,
+  dependsOnSite,
+  RequestSpec,
+  RequestSpecNegatableOptionKeys,
+  RequestSpecStringKeys,
+  TagValue,
+} from '../RequestSpec';
 import { cloneDeep, get, isUndefined } from 'lodash';
 import { titleCase } from '../utils';
 
@@ -29,6 +37,13 @@ function findOption<T>(value: T, options: Array<SelectableValue<T>>): Selectable
   return options.filter((elem) => Object.is(value, elem.value))[0];
 }
 
+function updateOnDepChangeOnly<T extends { dependantOn: unknown[] }>(component: React.FunctionComponent<T>) {
+  // TODO: unlog
+  return React.memo(component, (prevProps, nextProps) => {
+    return JSON.stringify(prevProps.dependantOn) === JSON.stringify(nextProps.dependantOn);
+  });
+}
+
 export interface SelectProps<Key extends RequestSpecStringKeys> {
   label?: string;
   autocompleter: (value: string) => Promise<Array<SelectableValue<NonNullable<RequestSpec[Key]>>>>;
@@ -38,8 +53,8 @@ export interface SelectProps<Key extends RequestSpecStringKeys> {
   dependantOn: unknown[];
 }
 
-export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
-  const { autocompleter, requestSpec, requestSpecKey } = props;
+export const CheckMkSelect = updateOnDepChangeOnly(<Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
+  const { autocompleter, requestSpec, requestSpecKey, dependantOn } = props;
   const [options, setOptions] = React.useState([] as Array<SelectableValue<RequestSpec[Key]>>);
   const [currentValue, setCurrentValue] = React.useState<SelectableValue<RequestSpec[Key]> | undefined>();
   const value = get(requestSpec, requestSpecKey);
@@ -55,7 +70,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectPr
 
     inner();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dependantOn]);
 
   const onChange = (value: SelectableValue<RequestSpec[Key]>) => {
     props.update(props.requestSpec, props.requestSpecKey, value.value);
@@ -73,7 +88,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectPr
       />
     </InlineField>
   );
-};
+});
 
 export interface FilterProps<T extends RequestSpecNegatableOptionKeys> {
   label: string;
@@ -256,6 +271,38 @@ const HostLabelFilter: React.FC<{
   );
 };
 
+const OnlyActiveChildren = (props: {
+  children: JSX.Element[];
+  update: (rq: RequestSpec, key: string, value: unknown) => void;
+  removeComponent: (name: string) => void;
+  activeComponents: string[];
+  requestSpec: RequestSpec;
+}): JSX.Element => {
+  function cleanup(name: string) {
+    props.removeComponent(name);
+    props.update(props.requestSpec, name, undefined);
+  }
+
+  // TODO: is there a better solution?
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getName(elem: any) {
+    return elem.props['data-name'];
+  }
+
+  return (
+    <VerticalGroup>
+      {React.Children.toArray(props.children)
+        .filter((elem) => props.activeComponents.includes(getName(elem)))
+        .map((elem) => (
+          <HorizontalGroup key={getName(elem)}>
+            <Button icon="minus" variant="secondary" onClick={() => cleanup(getName(elem))} />
+            {elem}
+          </HorizontalGroup>
+        ))}
+    </VerticalGroup>
+  );
+};
+
 export interface FilterEditorProps {
   requestSpec: RequestSpec;
   update: (rq: RequestSpec, key: string, value: unknown) => void;
@@ -301,32 +348,6 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
     setActiveComponents(copy);
   }
 
-  const OnlyActiveChildren = (innerProps: { children: JSX.Element[] }): JSX.Element => {
-    function cleanup(name: string) {
-      removeComponent(name);
-      props.update(props.requestSpec, name, undefined);
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // TODO: is there a better solution?
-    function getName(elem: any) {
-      return elem.props['data-name'];
-    }
-
-    return (
-      <VerticalGroup>
-        {React.Children.toArray(innerProps.children)
-          .filter((elem) => activeComponents.includes(getName(elem)))
-          .map((elem) => (
-            <HorizontalGroup key={getName(elem)}>
-              <Button icon="minus" variant="secondary" onClick={() => cleanup(getName(elem))} />
-              {elem}
-            </HorizontalGroup>
-          ))}
-      </VerticalGroup>
-    );
-  };
-
   function labelCase(val: string) {
     return titleCase(val.replace(/_/g, ' '));
   }
@@ -346,7 +367,12 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
           value={{ label: 'Add Filter' }}
         />
       </InlineField>
-      <OnlyActiveChildren>
+      <OnlyActiveChildren
+        activeComponents={activeComponents}
+        requestSpec={props.requestSpec}
+        update={props.update}
+        removeComponent={removeComponent}
+      >
         <CheckMkSelect
           data-name="site"
           label="Site"
@@ -354,7 +380,7 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
           requestSpec={props.requestSpec}
           requestSpecKey={'site'}
           update={props.update}
-          dependantOn={[]}
+          dependantOn={dependsOnNothing()}
         />
         <CheckMkSelect
           data-name="host_name"
@@ -363,7 +389,7 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
           requestSpec={props.requestSpec}
           requestSpecKey={'host_name'}
           update={props.update}
-          dependantOn={[props.requestSpec.site]}
+          dependantOn={dependsOnSite(props.requestSpec)}
         />
         <CheckMkSelect
           data-name="service"
@@ -372,7 +398,7 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
           requestSpec={props.requestSpec}
           requestSpecKey={'service'}
           update={props.update}
-          dependantOn={[props.requestSpec.site]}
+          dependantOn={dependsOnHost(props.requestSpec)}
         />
         <Filter
           data-name="host_name_regex"
@@ -408,14 +434,14 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
           update={props.update}
           autocompleteTagGroups={props.autocompleterFactory('tag_groups')}
           autocompleteTagOptions={props.completeTagChoices}
-          dependantOn={[props.requestSpec.site]}
+          dependantOn={dependsOnSite(props.requestSpec)}
         />
         <HostLabelFilter
           data-name="host_labels"
           requestSpec={props.requestSpec}
           update={props.update}
           autocomplete={props.labelAutocomplete}
-          dependantOn={[props.requestSpec.site]}
+          dependantOn={dependsOnSite(props.requestSpec)}
         />
       </OnlyActiveChildren>
     </InlineFieldRow>
