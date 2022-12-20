@@ -78,7 +78,7 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
     });
     context['host_tags'] = tags;
   }
-  if (requestSpec.graph !== '') {
+  if (requestSpec.graph && requestSpec.graph !== '') {
     if (requestSpec.graph_type === 'metric') {
       context['graph_template'] = 'METRIC_' + requestSpec.graph;
     } else {

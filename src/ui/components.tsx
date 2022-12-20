@@ -1,7 +1,16 @@
 import React from 'react';
 import { SelectableValue } from '@grafana/data';
 import {
+  RequestSpec,
+  TagValue,
+  FullRequestSpec,
+  RequestSpecNegatableOptionKeys,
+  RequestSpecStringKeys,
+  NegatableOption,
+} from '../RequestSpec';
+import {
   AsyncMultiSelect,
+  AsyncSelect,
   Button,
   Checkbox,
   HorizontalGroup,
@@ -12,213 +21,250 @@ import {
   Select as GrafanaSelect,
   VerticalGroup,
 } from '@grafana/ui';
-import {
-  dependsOnHost,
-  dependsOnNothing,
-  dependsOnSite,
-  RequestSpec,
-  RequestSpecNegatableOptionKeys,
-  RequestSpecStringKeys,
-  TagValue,
-} from '../RequestSpec';
-import { get, isUndefined } from 'lodash';
-import { titleCase } from '../utils';
 
-function findOption<T>(value: T, options: Array<SelectableValue<T>>): SelectableValue<T> | undefined {
-  return options.filter((elem) => Object.is(value, elem.value))[0];
-}
-
-function updateOnDepChangeOnly<T extends { dependantOn: unknown[] }>(component: React.FunctionComponent<T>) {
-  // TODO: unlog
-  return React.memo(component, (prevProps, nextProps) => {
-    return JSON.stringify(prevProps.dependantOn) === JSON.stringify(nextProps.dependantOn);
-  });
-}
-
-export interface SelectProps<Key extends RequestSpecStringKeys> {
+interface SelectProps<Key extends RequestSpecStringKeys> {
   label?: string;
-  autocompleter: (value: string) => Promise<Array<SelectableValue<NonNullable<RequestSpec[Key]>>>>;
-  requestSpec: RequestSpec;
-  requestSpecKey: Key;
-  update: (rq: RequestSpec, key: Key, value: RequestSpec[Key]) => void;
-  dependantOn: unknown[];
+  requestSpecKey?: Key;
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<FullRequestSpec[Key]>>>>;
+  onChange: (value: FullRequestSpec[Key]) => void;
+  value: FullRequestSpec[Key];
 }
 
-export const CheckMkSelect = updateOnDepChangeOnly(<Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
-  const { autocompleter, requestSpec, requestSpecKey, dependantOn } = props;
-  const [options, setOptions] = React.useState([] as Array<SelectableValue<RequestSpec[Key]>>);
-  const [currentValue, setCurrentValue] = React.useState<SelectableValue<RequestSpec[Key]> | undefined>();
-  const value = get(requestSpec, requestSpecKey);
+export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
+  const { autocompleter, value, onChange, label } = props;
+  const [options, setOptions] = React.useState([] as Array<SelectableValue<FullRequestSpec[Key]>>);
+  const [counter, setCounter] = React.useState(0);
+  let placeholder = 'Type to trigger search';
 
-  React.useEffect(() => {
-    setCurrentValue(findOption(value, options));
-  }, [setCurrentValue, value, options]);
-
-  React.useEffect(() => {
-    async function inner() {
-      setOptions(await autocompleter(''));
+  function findValueInOptions() {
+    const result = options.find((opt) => opt.value === value);
+    if (result) {
+      return result;
     }
+    if (value !== undefined) {
+      placeholder = `Could not find '${value}'`;
+    }
+    return null;
+  }
 
-    inner();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dependantOn]);
+  const loadOptions = React.useCallback(
+    (inputValue: string): Promise<Array<SelectableValue[Key]>> => {
+      return autocompleter(inputValue).then((data) => {
+        setOptions(data);
+        return data;
+      });
+    },
+    [autocompleter]
+  );
 
-  const onChange = (value: SelectableValue<RequestSpec[Key]>) => {
-    props.update(props.requestSpec, props.requestSpecKey, value.value);
+  React.useEffect(() => {
+    setOptions([]);
+    setCounter((c) => c + 1);
+  }, [autocompleter, label]);
+
+  const changed = (newValue: SelectableValue<FullRequestSpec[Key]>) => {
+    if (newValue.value === undefined) {
+      throw new Error('Please report this error!');
+    }
+    onChange(newValue.value);
   };
 
   return (
     <InlineField labelWidth={14} label={props.label}>
-      <GrafanaSelect
+      <AsyncSelect
         inputId={`input_${props.label}`}
-        onChange={onChange}
-        options={options}
+        onChange={changed}
+        defaultOptions={true}
+        // there seems to be no official way to re-trigger the async select field
+        // but there are many hacks: https://github.com/JedWatson/react-select/issues/1581
+        key={`${Math.max(1, counter)}`} // ignore the first update
+        loadOptions={loadOptions}
         width={32}
-        value={currentValue}
-        placeholder={'Type to trigger search'}
+        value={findValueInOptions()}
+        placeholder={placeholder}
       />
     </InlineField>
   );
-});
+};
 
-export interface FilterProps<T extends RequestSpecNegatableOptionKeys> {
+interface FilterProps<Key extends RequestSpecNegatableOptionKeys> {
   label: string;
-  requestSpec: RequestSpec;
-  requestSpecKey: T;
-  update: (rq: RequestSpec, key: keyof RequestSpec, value: unknown) => void;
+  requestSpecKey: Key;
+  onChange: (value: FullRequestSpec[Key]) => void;
+  value: RequestSpec[Key];
 }
 
-const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterProps<T>) => {
+export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterProps<T>) => {
+  const { onChange, label } = props;
+
+  const value: NegatableOption =
+    props.value === undefined
+      ? {
+          value: '',
+          negated: false,
+        }
+      : { ...props.value };
+
+  // TODO: some kind of debouncing is needed! Not sure where to implement it.
+
   const onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    props.update(props.requestSpec, props.requestSpecKey, {
-      value: event.target.value,
-      negated: props.requestSpec[props.requestSpecKey]?.negated ?? false,
-    });
+    value.value = event.target.value;
+    onChange(value);
   };
 
   const onNegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = event.target.checked;
-    props.update(props.requestSpec, props.requestSpecKey, {
-      negated: checked,
-      value: props.requestSpec[props.requestSpecKey]?.value ?? '',
-    });
+    value.negated = event.target.checked;
+    onChange(value);
   };
 
   return (
     <HorizontalGroup>
-      <InlineField label={props.label} labelWidth={14}>
+      <InlineField label={label} labelWidth={14}>
         <Input
           width={32}
           type="text"
-          value={props.requestSpec[props.requestSpecKey]?.value}
+          value={value !== undefined ? value.value : ''}
           onChange={onValueChange}
           placeholder="none"
         />
       </InlineField>
-      <Checkbox label="Negate" value={props.requestSpec[props.requestSpecKey]?.negated} onChange={onNegateChange} />
+      <Checkbox label="Negate" value={value !== undefined ? value.negated : false} onChange={onNegateChange} />
     </HorizontalGroup>
   );
 };
 
 const SingleTag = (props: {
   index: number;
-  requestSpec: RequestSpec;
-  setTag(value: TagValue, rq: RequestSpec): void;
-  autocompleteTagGroups(value: string): Promise<Array<SelectableValue<string>>>;
-  autocompleteTagOptions(group: string, value: string): Promise<Array<SelectableValue<string>>>;
-  dependantOn: unknown[];
+  onChange: (newValue: TagValue) => void;
+  value: TagValue | undefined;
+  autocompleter: (
+    // TODO: define type for this, perhaps remove context and name it directly groupId?
+    prefix: string,
+    mode: 'groups' | 'choices',
+    context: Record<string, unknown>
+  ) => Promise<Array<SelectableValue<string>>>;
 }) => {
-  const { dependantOn } = props;
-  const tagValue = props.requestSpec.host_tags ? props.requestSpec.host_tags[props.index] : {};
-  const [group, setGroup] = React.useState<SelectableValue<string> | undefined>();
-  const [groupOptions, setGroupOptions] = React.useState<Array<SelectableValue<string>>>([]);
-  const [operator, setOperator] = React.useState('is');
-  const [tag, setTag] = React.useState<SelectableValue<string> | undefined>();
+  const { onChange, autocompleter } = props;
+  const value: TagValue = props.value === undefined ? { operator: 'is' } : props.value;
+
   const [tagOptions, setTagOptions] = React.useState<Array<SelectableValue<string>>>([]);
+  const [groupOptions, setGroupOptions] = React.useState<Array<SelectableValue<string>>>([]);
+  // we just use this state for notifying useEffect of the changed data. TODO: perhaps there is a better way?
+  const [groupId, setGroupId] = React.useState<string | undefined>(value.group);
 
   React.useEffect(() => {
     async function inner() {
-      setGroupOptions(await props.autocompleteTagGroups(''));
+      // TODO: use teardown
+      setGroupOptions(await autocompleter('', 'groups', {}));
     }
-
     inner();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dependantOn]);
+  }, [autocompleter]);
 
   React.useEffect(() => {
     async function inner() {
-      setTagOptions(await props.autocompleteTagOptions(tagValue.group ?? '', ''));
-    }
-
-    inner();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [group, dependantOn]);
-
-  React.useEffect(() => {
-    async function inner() {
-      setGroup(findOption(tagValue.group ?? '', groupOptions));
-      if (tagValue.operator) {
-        setOperator(tagValue.operator);
+      // TODO: use teardown
+      if (groupId === undefined) {
+        return;
       }
-      if (tagValue.group) {
-        setTag(findOption(tagValue.tag ?? '', tagOptions));
-      }
+      setTagOptions(await autocompleter('', 'choices', { groupId: groupId }));
     }
-
     inner();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dependantOn]);
+  }, [autocompleter, groupId]);
 
-  const publishState = (value: TagValue) => {
-    props.setTag(value, props.requestSpec);
-  };
+  //  TODO: use teardown above!
+  //  React.useEffect(() => {
+  //    let useAsyncResult = true; // https://beta.reactjs.org/apis/react/useEffect#fetching-data-with-effects
+  //    async function inner() {
+  //      const options = await autocompleter('');
+  //      if (useAsyncResult) {
+  //        setOptions(options);
+  //      }
+  //    }
+  //    return () => {
+  //      useAsyncResult = false;
+  //    };
+  //  }, [autocompleter, label]);
 
   const tagOperators = [
     { value: 'is', label: '=' },
     { value: 'is not', label: '≠' },
   ];
 
+  const findOperatorSelectable = function (value: string | undefined): SelectableValue<string> | undefined {
+    for (const operator of tagOperators) {
+      if (operator.value === value || (operator.value === 'is' && value === undefined)) {
+        return operator;
+      }
+    }
+    return undefined;
+  };
+
+  const findGroupSelectable = function (value: string | undefined): SelectableValue<string> | null {
+    if (groupOptions === undefined) {
+      return null;
+    }
+    for (const group of groupOptions) {
+      if (group.value === value) {
+        return group;
+      }
+    }
+    return null;
+  };
+
+  const findTagSelectable = function (value: string | undefined): SelectableValue<string> | null {
+    // TODO: c&p from above!
+    if (tagOptions === undefined) {
+      return null;
+    }
+    for (const tag of tagOptions) {
+      if (tag.value === value) {
+        return tag;
+      }
+    }
+    return null;
+  };
+
   return (
     <HorizontalGroup>
       <Label>Host tag {props.index}: </Label>
       <GrafanaSelect
-        onChange={(val) => publishState({ ...tagValue, group: val.value ?? '' })}
+        // TODO: should this be a AsyncSelect?
+        onChange={(val) => {
+          onChange({ ...value, group: val.value ?? '' });
+          setGroupId(val.value);
+        }}
         options={groupOptions}
-        value={group}
+        value={findGroupSelectable(value.group)}
       />
       <GrafanaSelect
         width={8}
         options={tagOperators}
-        onChange={(val) => publishState({ ...tagValue, operator: val.value ?? 'is' })}
-        value={operator}
+        onChange={(val) => onChange({ ...value, operator: val.value ?? 'is' })}
+        value={findOperatorSelectable(value.operator)}
       />
       <GrafanaSelect
-        onChange={(val) => publishState({ ...tagValue, tag: val.value ?? '' })}
+        // TODO: should this be a AsyncSelect?
+        onChange={(val) => onChange({ ...value, tag: val.value ?? '' })}
         options={tagOptions}
-        value={tag}
+        value={findTagSelectable(value.tag)}
       />
     </HorizontalGroup>
   );
 };
 
-const HostTagFilter: React.FC<{
-  requestSpec: RequestSpec;
-  update: (rq: RequestSpec, key: 'host_tags', value: TagValue[]) => void;
-  autocompleteTagGroups(value: string): Promise<Array<SelectableValue<string>>>;
-  autocompleteTagOptions(group: string, value: string): Promise<Array<SelectableValue<string>>>;
-  dependantOn: unknown[];
+export const HostTagFilter: React.FC<{
+  label: string;
+  requestSpecKey: string;
+  onChange: (newValue: [TagValue, TagValue, TagValue]) => void;
+  value: [TagValue, TagValue, TagValue] | undefined;
+  autocompleter: (
+    prefix: string,
+    mode: 'groups' | 'choices',
+    context: Record<string, unknown>
+  ) => Promise<Array<SelectableValue<string>>>;
+  //dependantOn: unknown[];
 }> = (props) => {
-  const { autocompleteTagGroups, autocompleteTagOptions } = props;
-
-  const setTagAtIndex = (index: number, value: TagValue, rq: RequestSpec) => {
-    if (isUndefined(value.operator)) {
-      value.operator = 'is';
-    }
-
-    const tags = rq.host_tags?.slice() ?? [{}, {}, {}];
-    tags[index] = value;
-    props.update(props.requestSpec, 'host_tags', tags);
-  };
+  const { value, autocompleter, onChange } = props;
 
   return (
     <VerticalGroup spacing="sm">
@@ -226,130 +272,91 @@ const HostTagFilter: React.FC<{
         <SingleTag
           key={index}
           index={index}
-          setTag={setTagAtIndex.bind(undefined, index)}
-          autocompleteTagGroups={autocompleteTagGroups}
-          autocompleteTagOptions={autocompleteTagOptions}
-          requestSpec={props.requestSpec}
-          dependantOn={dependsOnSite(props.requestSpec)}
+          onChange={(tag: TagValue) => {
+            const newValue: [TagValue, TagValue, TagValue] = Object.assign([], value);
+            newValue[index] = tag;
+            onChange(newValue);
+          }}
+          autocompleter={autocompleter}
+          value={value !== undefined ? value[index] : undefined}
         />
       ))}
     </VerticalGroup>
   );
 };
 
-const HostLabelFilter: React.FC<{
-  requestSpec: RequestSpec;
-  update: (rq: RequestSpec, labels: 'host_labels', value: string[]) => void;
-  autocomplete: (value: string) => Promise<Array<SelectableValue<string>>>;
-  dependantOn: unknown[];
+export const HostLabelFilter: React.FC<{
+  label: string;
+  requestSpecKey: string;
+  onChange: (newValue: string[]) => void;
+  value: string[] | undefined;
+  autocompleter: (value: string) => Promise<Array<SelectableValue<string>>>;
 }> = (props) => {
-  const { autocomplete } = props;
-  const [labels, setLabels] = React.useState([] as Array<SelectableValue<string>>);
-
-  // TODO: are label values == label labels?
+  const { value, autocompleter, label, onChange } = props;
 
   const onLabelsChange = (items: Array<SelectableValue<string>>) => {
-    setLabels(items);
-    props.update(
-      props.requestSpec,
-      'host_labels',
-      labels.map((val) => val.value).filter((val) => !isUndefined(val)) as string[]
-    );
+    const result: string[] = [];
+    for (const element of items) {
+      if (element.value === undefined) {
+        continue;
+      }
+      result.push(element.value);
+    }
+    onChange(result);
+  };
+
+  const toMultiSelectValue = (value: string[] | undefined) => {
+    const result: Array<SelectableValue<string>> = [];
+    for (const element of value || []) {
+      result.push({ value: element, label: element });
+    }
+    return result;
   };
 
   return (
-    <InlineField label="Host labels" labelWidth={14}>
+    <InlineField label={label} labelWidth={14}>
       <AsyncMultiSelect
         width={32}
         defaultOptions
-        loadOptions={autocomplete}
+        loadOptions={autocompleter}
         onChange={onLabelsChange}
-        value={labels}
+        value={toMultiSelectValue(value)}
         placeholder="Type to trigger search"
       />
     </InlineField>
   );
 };
 
-const OnlyActiveChildren = (props: {
-  children: JSX.Element[];
-  update: (rq: RequestSpec, key: string, value: unknown) => void;
-  removeComponent: (name: string) => void;
-  activeComponents: string[];
-  requestSpec: RequestSpec;
-}): JSX.Element => {
-  function cleanup(name: string) {
-    props.removeComponent(name);
-    props.update(props.requestSpec, name, undefined);
-  }
-
-  // TODO: is there a better solution?
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function getName(elem: any) {
-    return elem.props['data-name'];
-  }
-
-  return (
-    <VerticalGroup>
-      {React.Children.toArray(props.children)
-        .filter((elem) => props.activeComponents.includes(getName(elem)))
-        .map((elem) => (
-          <HorizontalGroup key={getName(elem)}>
-            <Button icon="minus" variant="secondary" onClick={() => cleanup(getName(elem))} />
-            {elem}
-          </HorizontalGroup>
-        ))}
-    </VerticalGroup>
-  );
-};
-
-export interface FilterEditorProps {
-  requestSpec: RequestSpec;
-  update: (rq: RequestSpec, key: string, value: unknown) => void;
-  autocompleterFactory: (ident: string) => (value?: string) => Promise<Array<{ value: string; label: string }>>;
-  labelAutocomplete: (value: string) => Promise<Array<SelectableValue<string>>>;
-  completeTagChoices: (group: string, value: string) => Promise<Array<SelectableValue<string>>>;
-}
-
-export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
-  const allComponentNames: string[] = [
-    'site',
-    'host_name',
-    'service',
-    'host_name_regex',
-    'service_regex',
-    'host_labels',
-    'host_tags',
-    'service_in_group',
-    'host_in_group',
-  ];
-
-  function allSetProperties(): string[] {
-    return Object.entries(props.requestSpec)
-      .filter(([key, _]) => typeof get(props.requestSpec, key) !== 'undefined')
-      .filter(([key, _]) => allComponentNames.includes(key))
-      .map((entry) => entry[0]);
-  }
-
-  const [activeComponents, setActiveComponents] = React.useState(allSetProperties() as string[]);
-
-  function addComponent(name?: string) {
-    if (name === undefined) {
-      return;
+export const OnlyActiveChildren = (props: { children: JSX.Element[]; requestSpec: RequestSpec }): JSX.Element => {
+  const allComponents: string[] = [];
+  const initialActiveComponents = [];
+  for (const child of props.children) {
+    allComponents.push(child.props.label);
+    // TODO: would be cool to have a better typing here
+    const requestSpecKey: keyof RequestSpec = child.props.requestSpecKey;
+    const requestSpecValue = props.requestSpec[requestSpecKey];
+    if (requestSpecValue !== undefined && requestSpecValue !== '') {
+      initialActiveComponents.push(child.props.label);
     }
-    const copy = activeComponents.slice();
-    copy.push(name);
-    setActiveComponents(copy);
   }
 
-  function removeComponent(name: string) {
-    const copy = activeComponents.slice();
-    copy.splice(copy.indexOf(name), 1);
-    setActiveComponents(copy);
+  const [activeComponents, setActiveComponents] = React.useState(initialActiveComponents);
+
+  function availableComponentsOptions() {
+    const result = [];
+    for (const component of allComponents) {
+      if (activeComponents.includes(component)) {
+        continue;
+      }
+      result.push({ value: component, label: component });
+    }
+    return result;
   }
 
-  function labelCase(val: string) {
-    return titleCase(val.replace(/_/g, ' '));
+  // TODO: better typing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getLabel(elem: any) {
+    return elem.props['label'];
   }
 
   return (
@@ -357,93 +364,41 @@ export const FilterEditor: React.FC<FilterEditorProps> = (props) => {
       <InlineField label="Filter" labelWidth={8}>
         <GrafanaSelect
           width={32}
-          options={allComponentNames
-            .filter((val) => !activeComponents.includes(val))
-            .map((val) => ({
-              label: labelCase(val),
-              value: val,
-            }))}
-          onChange={(selectableValue) => addComponent(selectableValue.value)}
+          options={availableComponentsOptions()}
+          onChange={(value) => setActiveComponents((c) => [...c, value.value])}
           value={{ label: 'Add Filter' }}
         />
       </InlineField>
-      <OnlyActiveChildren
-        activeComponents={activeComponents}
-        requestSpec={props.requestSpec}
-        update={props.update}
-        removeComponent={removeComponent}
-      >
-        <CheckMkSelect
-          data-name="site"
-          label="Site"
-          autocompleter={props.autocompleterFactory('sites')}
-          requestSpec={props.requestSpec}
-          requestSpecKey={'site'}
-          update={props.update}
-          dependantOn={dependsOnNothing()}
-        />
-        <CheckMkSelect
-          data-name="host_name"
-          label="Host"
-          autocompleter={props.autocompleterFactory('monitored_hostname')}
-          requestSpec={props.requestSpec}
-          requestSpecKey={'host_name'}
-          update={props.update}
-          dependantOn={dependsOnSite(props.requestSpec)}
-        />
-        <CheckMkSelect
-          data-name="service"
-          label="Service"
-          autocompleter={props.autocompleterFactory('monitored_service_description')}
-          requestSpec={props.requestSpec}
-          requestSpecKey={'service'}
-          update={props.update}
-          dependantOn={dependsOnHost(props.requestSpec)}
-        />
-        <Filter
-          data-name="host_name_regex"
-          label="Host Regex"
-          requestSpec={props.requestSpec}
-          requestSpecKey="host_name_regex"
-          update={props.update}
-        />
-        <Filter
-          data-name="service_regex"
-          label="Service Regex"
-          requestSpec={props.requestSpec}
-          requestSpecKey="service_regex"
-          update={props.update}
-        />
-        <Filter
-          data-name="host_in_group"
-          label="Host in Group"
-          requestSpec={props.requestSpec}
-          requestSpecKey="host_in_group"
-          update={props.update}
-        />
-        <Filter
-          data-name="service_in_group"
-          label="Service in Group"
-          requestSpec={props.requestSpec}
-          requestSpecKey="service_in_group"
-          update={props.update}
-        />
-        <HostTagFilter
-          data-name="host_tags"
-          requestSpec={props.requestSpec}
-          update={props.update}
-          autocompleteTagGroups={props.autocompleterFactory('tag_groups')}
-          autocompleteTagOptions={props.completeTagChoices}
-          dependantOn={dependsOnSite(props.requestSpec)}
-        />
-        <HostLabelFilter
-          data-name="host_labels"
-          requestSpec={props.requestSpec}
-          update={props.update}
-          autocomplete={props.labelAutocomplete}
-          dependantOn={dependsOnSite(props.requestSpec)}
-        />
-      </OnlyActiveChildren>
+      <VerticalGroup>
+        {React.Children.toArray(props.children)
+          // TODO: this is a legacy API: https://beta.reactjs.org/apis/react/Children
+          .filter((elem) => {
+            if (!React.isValidElement(elem)) {
+              return false;
+            }
+            return activeComponents.includes(getLabel(elem));
+          })
+          .map((elem) => (
+            <HorizontalGroup key={getLabel(elem)}>
+              <Button
+                icon="minus"
+                variant="secondary"
+                onClick={() =>
+                  setActiveComponents((c) => {
+                    if (!React.isValidElement(elem)) {
+                      return c;
+                    }
+                    const result = [...c];
+                    result.splice(result.indexOf(elem.props.label), 1);
+                    elem.props.onChange(undefined);
+                    return result;
+                  })
+                }
+              />
+              {elem}
+            </HorizontalGroup>
+          ))}
+      </VerticalGroup>
     </InlineFieldRow>
   );
 };
