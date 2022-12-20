@@ -1,4 +1,4 @@
-import { createCmkAutomationUser, createCmkHost, deleteCmkHost, activateCmkChanges } from './helpers';
+import { activateCmkChanges, createCmkAutomationUser, createCmkHost, deleteCmkHost } from './helpers';
 
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
@@ -23,6 +23,7 @@ describe('Source configuration', () => {
     cy.get('[aria-label="Data source settings page Save and Test button"]').click();
 
     cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
+    cy.contains('Data source is working').should('be.visible');
   });
 
   it('create and delete host', () => {
