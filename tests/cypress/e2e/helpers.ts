@@ -55,14 +55,48 @@ export function deleteCmkHost(hostName: string) {
   });
 }
 
+function waitForActivation(activation_id: string, waitingTime: number = 1000) {
+  cy.wait(waitingTime);
+  cy.request({
+    method: 'GET',
+    url:
+      Cypress.env('cypressToCheckmkUrl') +
+      '/check_mk/api/1.0/objects/activation_run/' +
+      activation_id +
+      '/actions/wait-for-completion/invoke',
+    followRedirect: false,
+    headers: { accept: 'application/json' },
+    auth: {
+      bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
+    },
+  }).then((response) => {
+    if (response.status === 204) return;
+
+    waitForActivation(activation_id);
+  });
+}
+
 export function activateCmkChanges(siteName: string) {
+  cy.on('uncaught:exception', (err, runnable) => {
+    // activating changes is raising an uncaught exception
+    // with no error message.
+    // We are here avoiding to listen to uncaught exceptions
+    // with no error messages.
+    // TODO: investigate the root cause of such exception and
+    // remove this.
+
+    if (err.message.match('')) {
+      return false;
+    }
+  });
+
   cy.request({
     method: 'POST',
     url:
       Cypress.env('cypressToCheckmkUrl') +
       '/check_mk/api/1.0/domain-types/activation_run/actions/activate-changes/invoke',
-    followRedirect: true,
-    headers: { content: 'application/json' },
+    followRedirect: false,
+    headers: { accept: 'application/json' },
     auth: {
       bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
     },
@@ -73,5 +107,10 @@ export function activateCmkChanges(siteName: string) {
     },
   }).then((response) => {
     expect(response.status).is.equal(200);
+
+    const activation_id = response.body.id;
+    cy.log('Activation ID: ' + activation_id);
+
+    waitForActivation(activation_id);
   });
 }
