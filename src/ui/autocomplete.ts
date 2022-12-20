@@ -2,11 +2,11 @@ import { ContextHTTPVars } from '../types';
 import { createCmkContext } from '../webapi';
 import { RequestSpec } from '../RequestSpec';
 
-export type Context = Record<string, ContextHTTPVars>;
+type Context = Record<string, ContextHTTPVars>;
 
 export type Presentation = 'lines' | 'sum' | 'average' | 'min' | 'max';
 
-export interface AutoCompleteConfig {
+interface AutoCompleteConfig {
   ident: string;
   value?: string;
   // TODO: The content of "params" changes depending on "ident".

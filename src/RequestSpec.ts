@@ -1,21 +1,29 @@
-interface NegatableOption {
+export interface NegatableOption {
   value: string;
   negated: boolean;
 }
 
-interface FullRequestSpec {
-  host_name: string;
-  host_name_regex: NegatableOption;
-  site: string;
-  service: string;
-  service_regex: NegatableOption;
-  host_in_group: NegatableOption;
-  host_labels: string[];
-  service_in_group: NegatableOption;
-  host_tags: [TagValue, TagValue, TagValue];
-  aggregation: string;
+export interface FullRequestSpec {
+  // TODO: not 100% sure if this is really useful, to have undefined in the full request spec
+  // but i wanted to express that graph_type and aggregation can not be undefined, but all others can.
+  // maybe we could also go back to use RequestSpec, and remove the undefined here.
   graph_type: string;
-  graph: string;
+
+  aggregation: string;
+
+  site: string | undefined;
+
+  host_name: string | undefined;
+  host_name_regex: NegatableOption | undefined;
+  host_in_group: NegatableOption | undefined;
+  host_labels: string[] | undefined;
+  host_tags: [TagValue, TagValue, TagValue] | undefined;
+
+  service: string | undefined;
+  service_regex: NegatableOption | undefined;
+  service_in_group: NegatableOption | undefined;
+
+  graph: string | undefined;
 }
 
 export interface TagValue {
@@ -24,6 +32,7 @@ export interface TagValue {
   operator?: string;
 }
 
+// TODO: is unused.
 export type Aggregation = 'lines' | 'sum' | 'average' | 'min' | 'max';
 
 export type RequestSpec = Partial<FullRequestSpec>;
@@ -36,27 +45,3 @@ export const defaultRequestSpec: RequestSpec = {
   aggregation: 'lines',
   graph_type: 'template',
 };
-
-export function dependsOnNothing(): unknown[] {
-  return [];
-}
-
-export function dependsOnSite(rq: RequestSpec): unknown[] {
-  return [rq.site];
-}
-
-export function dependsOnHost(rq: RequestSpec): unknown[] {
-  return dependsOnSite(rq).concat([rq.host_name, rq.host_name_regex, rq.host_in_group, rq.host_tags, rq.host_labels]);
-}
-
-export function dependsOnService(rq: RequestSpec): unknown[] {
-  return dependsOnHost(rq).concat([rq.service, rq.service_regex, rq.service_in_group]);
-}
-
-export function dependsOn(rq: RequestSpec): unknown[] {
-  return Object.values(rq);
-}
-
-export function dependsOnAll(...values: unknown[]): unknown[] {
-  return values.flat(99); // hopefully nobody will nest suff deeper than 99 levels
-}
