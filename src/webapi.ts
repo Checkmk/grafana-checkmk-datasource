@@ -96,9 +96,9 @@ export function createWebApiRequestSpecification(
   if (edition === 'RAW') {
     const specification: Record<string, unknown> = {};
     if (requestSpec.graph_type === 'metric') {
-      specification.graph_name = requestSpec.graph;
+      specification.graph_id = 'METRIC_' + requestSpec.graph;
     } else {
-      specification.graph_id = requestSpec.graph;
+      specification.graph_name = requestSpec.graph;
     }
     return [
       'template',
