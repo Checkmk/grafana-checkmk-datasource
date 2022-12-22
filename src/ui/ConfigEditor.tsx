@@ -1,7 +1,7 @@
 import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms, FieldSet, InlineField, Select } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { DataSourceOptions, SecureJsonData, Edition } from '../types';
+import { DataSourceOptions, SecureJsonData, Edition, Backend } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
@@ -28,6 +28,17 @@ export class ConfigEditor extends PureComponent<Props, State> {
       edition: value,
     };
     onOptionsChange({ ...options, jsonData });
+  };
+
+  onBackendChange = ({ value }: SelectableValue<Backend>): void => {
+    const { onOptionsChange, options } = this.props;
+    onOptionsChange({
+      ...options,
+      jsonData: {
+        ...options.jsonData,
+        backend: value,
+      },
+    });
   };
 
   onUsernameChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -81,6 +92,13 @@ export class ConfigEditor extends PureComponent<Props, State> {
     if (!jsonData.edition) {
       this.onEditionChange(cmkEditions[0]);
     }
+    const cmkBackends: Array<SelectableValue<Backend>> = [
+      { value: 'web', label: 'Web-API' },
+      { value: 'rest', label: 'REST-API' },
+    ];
+    if (!jsonData.backend) {
+      this.onBackendChange(cmkBackends[0]);
+    }
 
     return (
       <>
@@ -102,6 +120,15 @@ export class ConfigEditor extends PureComponent<Props, State> {
               options={cmkEditions}
               onChange={this.onEditionChange}
               value={jsonData.edition}
+              placeholder="Select your checkmk edition"
+            />
+          </InlineField>
+          <InlineField label="Backend" labelWidth={12} tooltip="Choose REST-API for checkmk >= 2.2">
+            <Select
+              width={32}
+              options={cmkBackends}
+              onChange={this.onBackendChange}
+              value={jsonData.backend}
               placeholder="Select your checkmk edition"
             />
           </InlineField>

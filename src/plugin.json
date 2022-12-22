@@ -34,6 +34,16 @@
   },
   "routes": [
     {
+      "path": "rest",
+      "url": "{{ .JsonData.url }}",
+      "headers": [
+        {
+          "name": "Authorization",
+          "content": "Bearer {{ .JsonData.username }} {{ .SecureJsonData.secret }}"
+        }
+      ]
+    },
+    {
       "path": "cmk",
       "url": "{{ .JsonData.url }}",
       "urlParams": [
