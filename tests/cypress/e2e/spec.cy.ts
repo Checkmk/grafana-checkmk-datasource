@@ -1,15 +1,25 @@
 import { Method } from 'cypress/types/net-stubbing';
-import { activateCmkChanges, createCmkAutomationUser, createCmkHost, deleteCmkHost, recursiveType } from './helpers';
+import {
+  activateCmkChanges,
+  createCmkAutomationUser,
+  createCmkHost,
+  deleteCmkHost,
+  recursiveType,
+  deleteCmkAutomationUser,
+} from './helpers';
 
-describe('Source configuration', () => {
+describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
   const randID = Math.floor(Date.now() / 1000);
   const hostName = 'localhost_' + randID;
 
-  it('configures the datasource correctly', () => {
+  before(function () {
+    deleteCmkAutomationUser(cmkUser, cmkPassword, false); // clean-up possible existing user
     createCmkAutomationUser(cmkUser, cmkPassword);
+  });
 
+  it('configures the datasource correctly', () => {
     cy.visit('/');
     cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
     cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
@@ -74,5 +84,9 @@ describe('Source configuration', () => {
 
     deleteCmkHost(hostName);
     activateCmkChanges('cmk');
+  });
+
+  after(function () {
+    deleteCmkAutomationUser(cmkUser, cmkPassword);
   });
 });
