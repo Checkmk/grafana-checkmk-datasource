@@ -114,3 +114,27 @@ export function activateCmkChanges(siteName: string) {
     waitForActivation(activation_id);
   });
 }
+
+export function recursiveType(
+  targetSelector: string,
+  checkSelector: string,
+  bodySelector: string,
+  typedCommand: string,
+  count: number,
+  forceType: boolean
+) {
+  assert(count >= 0);
+
+  cy.log('Recursive typing ' + typedCommand + ' in ' + targetSelector + ' (' + count + ' tries left)');
+  cy.get(targetSelector).type(typedCommand, { force: forceType });
+
+  cy.get(bodySelector).then(($body) => {
+    const checkCondition = $body.find(checkSelector).is(':visible');
+    if (count == 0 || checkCondition) {
+      assert(checkCondition);
+      return;
+    }
+
+    recursiveType(targetSelector, checkSelector, bodySelector, typedCommand, count - 1, forceType);
+  });
+}
