@@ -12,11 +12,13 @@ export const defaultQuery: Partial<CmkQuery> = {
 };
 
 export type Edition = 'CEE' | 'RAW';
+export type Backend = 'web' | 'rest';
 
 export interface DataSourceOptions extends DataSourceJsonData {
   url?: string;
   username?: string;
   edition?: Edition;
+  backend?: Backend;
 }
 
 /**
