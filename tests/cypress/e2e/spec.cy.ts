@@ -1,4 +1,5 @@
-import { activateCmkChanges, createCmkAutomationUser, createCmkHost, deleteCmkHost } from './helpers';
+import { Method } from 'cypress/types/net-stubbing';
+import { activateCmkChanges, createCmkAutomationUser, createCmkHost, deleteCmkHost, recursiveType } from './helpers';
 
 describe('Source configuration', () => {
   const cmkUser = 'cmkuser';
@@ -54,24 +55,16 @@ describe('Source configuration', () => {
 
     cy.get('[class="panel-content"]').should('be.visible');
 
-    function select_time_usage_template(count: number = 20) {
-      // selecting a template results in a flaky behavior
-      // TODO: fix flakyness and remove this iteration
-
-      cy.log('Selecting time usage template (' + count + ' tries left)');
-      cy.get('input[id="input_Template"]').type('{enter}', { force: true }); // Template -> Time usage by phase (one entry only)
-
-      cy.get('[class="panel-content"]').then(($panel) => {
-        if (count == 0 || $panel.find('[aria-label="VizLegend series CPU time in user space"]').is(':visible')) {
-          return;
-        }
-
-        select_time_usage_template(count - 1);
-      });
-    }
-
-    select_time_usage_template();
-    expect('[aria-label="VizLegend series CPU time in user space"]').to.exist;
+    // selecting a template results in a flaky behavior
+    // TODO: fix flakyness and remove this iteration
+    recursiveType(
+      'input[id="input_Template"]',
+      '[aria-label="VizLegend series CPU time in user space"]',
+      '[class="panel-container"]',
+      '{enter}', // Template -> Time usage by phase (one entry only)
+      20,
+      true
+    );
 
     cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
     cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randID);
