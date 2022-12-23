@@ -17,6 +17,7 @@ describe('e2e tests', () => {
   before(function () {
     deleteCmkAutomationUser(cmkUser, cmkPassword, false); // clean-up possible existing user
     createCmkAutomationUser(cmkUser, cmkPassword);
+    activateCmkChanges('cmk');
   });
 
   it('configures the datasource correctly', () => {
@@ -88,5 +89,6 @@ describe('e2e tests', () => {
 
   after(function () {
     deleteCmkAutomationUser(cmkUser, cmkPassword);
+    activateCmkChanges('cmk');
   });
 });
