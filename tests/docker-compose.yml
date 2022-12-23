@@ -2,7 +2,7 @@ version: '3'
 
 services:
   grafana:
-    image: grafana/grafana-oss:9.1.0-ubuntu
+    image: grafana/grafana-oss:latest-ubuntu
     volumes:
       - ../dist/:/var/lib/grafana/plugins/grafana-checkmk-datasource
     environment:

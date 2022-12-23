@@ -61,7 +61,7 @@ describe('e2e tests', () => {
     cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
 
     cy.get('input[id="input_Host"]').type('{enter}'); // Hostname -> <current host> (one entry only)
-    cy.contains(hostName).should('be.hidden');
+    cy.contains(hostName).should('be.visible');
 
     cy.get('[class="panel-content"]').should('be.visible');
 
