@@ -7,6 +7,10 @@ export interface FullRequestSpec {
   // TODO: not 100% sure if this is really useful, to have undefined in the full request spec
   // but i wanted to express that graph_type and aggregation can not be undefined, but all others can.
   // maybe we could also go back to use RequestSpec, and remove the undefined here.
+
+  // TODO: we need to rename graph_type, as the graph_type differentiates between graph and metric.
+  // TODO: we also need to rename graph, as this could contain a metric name.
+  // my suggestion: entity_type and entity then it should be clear that they influence each other.
   graph_type: string;
 
   aggregation: string;
