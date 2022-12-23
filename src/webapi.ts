@@ -23,9 +23,6 @@ export interface WebApiResponse<Result> {
 
 export function createCmkContext(requestSpec: RequestSpec): Record<string, unknown> {
   const context: Record<string, unknown> = {};
-  context['single_infos'] = ['hosts'];
-  context['datasource'] = 'services';
-  context['presentation'] = requestSpec.aggregation;
 
   if (!isUndefined(requestSpec.site)) {
     context['siteopt'] = { site: requestSpec.site };
@@ -118,7 +115,7 @@ export function createWebApiRequestSpecification(
       datasource: 'services',
       single_infos: ['host'],
       graph_template: context['graph_template'],
-      presentation: context['presentation'],
+      presentation: requestSpec.aggregation,
     },
   ];
 }
