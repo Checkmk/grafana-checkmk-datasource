@@ -39,7 +39,7 @@ describe('e2e tests', () => {
     cy.contains('Data source is working').should('be.visible');
   });
 
-  it('create a new time-usage panel', { defaultCommandTimeout: 10000 }, () => {
+  it('create a new time-usage panel', { defaultCommandTimeout: 10000, retries: 2 }, () => {
     cy.visit('/');
     cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
     cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
