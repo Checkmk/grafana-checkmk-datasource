@@ -11,12 +11,12 @@ import {
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
-  const randID = Math.floor(Date.now() / 1000);
-  const hostName = 'localhost_' + randID;
+  const hostName = 'localhost_grafana';
 
   before(function () {
     deleteCmkAutomationUser(cmkUser, cmkPassword, false); // clean-up possible existing user
     createCmkAutomationUser(cmkUser, cmkPassword);
+    createCmkHost(hostName);
     activateCmkChanges('cmk');
   });
 
@@ -39,18 +39,7 @@ describe('e2e tests', () => {
     cy.contains('Data source is working').should('be.visible');
   });
 
-  it('create and delete host', () => {
-    createCmkHost(hostName);
-    activateCmkChanges('cmk');
-
-    deleteCmkHost(hostName);
-    activateCmkChanges('cmk');
-  });
-
   it('create a new time-usage panel', { defaultCommandTimeout: 10000 }, () => {
-    createCmkHost(hostName);
-    activateCmkChanges('cmk');
-
     cy.visit('/');
     cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
     cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
@@ -77,17 +66,16 @@ describe('e2e tests', () => {
       true
     );
 
+    const randInt = Math.floor(Math.random() * 1000);
     cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
-    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randID);
+    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randInt);
 
     cy.get('button[aria-label="Save dashboard button"]').click();
     cy.contains('Dashboard saved').should('be.visible');
-
-    deleteCmkHost(hostName);
-    activateCmkChanges('cmk');
   });
 
   after(function () {
+    deleteCmkHost(hostName);
     deleteCmkAutomationUser(cmkUser, cmkPassword);
     activateCmkChanges('cmk');
   });
