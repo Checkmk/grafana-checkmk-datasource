@@ -4,15 +4,12 @@ import {
   createCmkAutomationUser,
   createCmkHost,
   deleteCmkHost,
-  recursiveType,
   deleteCmkAutomationUser,
 } from './helpers';
 
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
-  const randID = Math.floor(Date.now() / 1000);
-  const hostName = 'localhost_' + randID;
 
   before(function () {
     deleteCmkAutomationUser(cmkUser, cmkPassword, false); // clean-up possible existing user
@@ -40,6 +37,8 @@ describe('e2e tests', () => {
   });
 
   it('create and delete host', () => {
+    const hostName = 'localhost_' + Math.floor(Date.now() / 1000);
+
     createCmkHost(hostName);
     activateCmkChanges('cmk');
 
@@ -47,48 +46,51 @@ describe('e2e tests', () => {
     activateCmkChanges('cmk');
   });
 
-  it('create a new time-usage panel', { defaultCommandTimeout: 10000 }, () => {
-    createCmkHost(hostName);
-    activateCmkChanges('cmk');
+  it(
+    'create a new time-usage panel',
+    {
+      defaultCommandTimeout: 10000,
+      retries: 0,
+    },
+    () => {
+      const randID = Math.floor(Date.now() / 1000);
+      const hostName = 'localhost_' + randID;
 
-    cy.visit('/');
-    cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
-    cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
-    cy.get('[aria-label="Login button"]').click();
+      createCmkHost(hostName);
+      activateCmkChanges('cmk');
 
-    cy.visit('/dashboard/new');
-    cy.get('button[aria-label="Add new panel"]').click();
+      cy.visit('/');
+      cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
+      cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
+      cy.get('[aria-label="Login button"]').click();
 
-    cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
+      cy.visit('/dashboard/new');
+      cy.get('button[aria-label="Add new panel"]').click();
 
-    cy.get('input[id="input_Host"]').type('{enter}'); // Hostname -> <current host> (one entry only)
-    cy.contains(hostName).should('be.visible');
+      cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
 
-    cy.get('[class="panel-content"]').should('be.visible');
+      // cy.get('input[id="input_Host"]').type(hostName); // Hostname -> <current host>
+      cy.get('input[id="input_Host"]').type('{enter}');
+      cy.contains(hostName).should('be.visible');
 
-    // selecting a template results in a flaky behavior
-    // TODO: fix flakyness and remove this iteration
-    recursiveType(
-      'input[id="input_Template"]',
-      '[aria-label="VizLegend series CPU time in user space"]',
-      '[class="panel-container"]',
-      '{enter}', // Template -> Time usage by phase (one entry only)
-      20,
-      true
-    );
+      cy.get('[class="panel-content"]').should('be.visible');
 
-    cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
-    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randID);
+      cy.get('input[id="input_Template"]').type('{enter}'); // Template -> Time usage by phase (one entry)
+      cy.get('[aria-label="VizLegend series CPU time in user space"]').should('be.visible');
 
-    cy.get('button[aria-label="Save dashboard button"]').click();
-    cy.contains('Dashboard saved').should('be.visible');
+      cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
+      cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randID);
 
-    deleteCmkHost(hostName);
-    activateCmkChanges('cmk');
-  });
+      cy.get('button[aria-label="Save dashboard button"]').click();
+      cy.contains('Dashboard saved').should('be.visible');
+
+      deleteCmkHost(hostName);
+      activateCmkChanges('cmk');
+    }
+  );
 
   after(function () {
-    deleteCmkAutomationUser(cmkUser, cmkPassword);
-    activateCmkChanges('cmk');
+    // deleteCmkAutomationUser(cmkUser, cmkPassword);
+    // activateCmkChanges('cmk');
   });
 });
