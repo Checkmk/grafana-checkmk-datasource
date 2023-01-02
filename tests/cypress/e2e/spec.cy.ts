@@ -1,4 +1,3 @@
-import { Method } from 'cypress/types/net-stubbing';
 import {
   activateCmkChanges,
   createCmkAutomationUser,
