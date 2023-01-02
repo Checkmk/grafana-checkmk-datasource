@@ -5,6 +5,7 @@ import {
   deleteCmkHost,
   recursiveType,
   deleteCmkAutomationUser,
+  executeServiceDiscovery,
 } from './helpers';
 
 describe('e2e tests', () => {
@@ -16,6 +17,7 @@ describe('e2e tests', () => {
     deleteCmkAutomationUser(cmkUser, cmkPassword, false); // clean-up possible existing user
     createCmkAutomationUser(cmkUser, cmkPassword);
     createCmkHost(hostName);
+    executeServiceDiscovery(hostName, 'new');
     activateCmkChanges('cmk');
   });
 
@@ -54,16 +56,9 @@ describe('e2e tests', () => {
 
     cy.get('[class="panel-content"]').should('be.visible');
 
-    // selecting a template results in a flaky behavior
-    // TODO: fix flakyness and remove this iteration
-    recursiveType(
-      'input[id="input_Template"]',
-      '[aria-label="VizLegend series CPU time in user space"]',
-      '[class="panel-container"]',
-      '{enter}', // Template -> Time usage by phase (one entry only)
-      20,
-      true
-    );
+    cy.get('input[id="input_Template"]').click(); // Template -> Time usage by phase
+    cy.contains('Time usage by phase').click();
+    cy.get('[aria-label="VizLegend series CPU time in user space"]').should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();

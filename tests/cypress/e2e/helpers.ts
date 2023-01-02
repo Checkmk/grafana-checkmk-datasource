@@ -118,6 +118,25 @@ export function activateCmkChanges(siteName: string) {
   });
 }
 
+export function executeServiceDiscovery(hostName: string, mode: string) {
+  cy.request({
+    method: 'POST',
+    url:
+      Cypress.env('cypressToCheckmkUrl') + '/check_mk/api/1.0/domain-types/service_discovery_run/actions/start/invoke',
+    followRedirect: true,
+    headers: { accept: 'application/json' },
+    auth: {
+      bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
+    },
+    body: {
+      host_name: hostName,
+      mode: mode,
+    },
+  }).then((response) => {
+    expect(response.status).is.equal(200);
+  });
+}
+
 export function recursiveType(
   targetSelector: string,
   checkSelector: string,
