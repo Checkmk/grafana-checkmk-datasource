@@ -67,6 +67,33 @@ describe('e2e tests', () => {
     cy.contains('Dashboard saved').should('be.visible');
   });
 
+  it('create a new CPU-usage panel', { defaultCommandTimeout: 10000, retries: 2 }, () => {
+    cy.visit('/');
+    cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
+    cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
+    cy.get('[aria-label="Login button"]').click();
+
+    cy.visit('/dashboard/new');
+    cy.get('button[aria-label="Add new panel"]').click();
+
+    cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
+
+    cy.get('input[id="input_Host"]').type('{enter}'); // Hostname -> <current host> (one entry only)
+    cy.contains(hostName).should('be.visible');
+
+    cy.get('[class="panel-content"]').should('be.visible');
+
+    cy.get('input[id="input_Template"]').click(); // Template -> CPU utilization
+    cy.contains('CPU utilization').click();
+    cy.get('[aria-label="VizLegend series CPU utilization"]').should('be.visible');
+
+    const randInt = Math.floor(Math.random() * 1000);
+    cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
+    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randInt);
+    cy.get('button[aria-label="Save dashboard button"]').click();
+    cy.contains('Dashboard saved').should('be.visible');
+  });
+
   after(function () {
     deleteCmkHost(hostName);
     deleteCmkAutomationUser(cmkUser, cmkPassword);
