@@ -3,7 +3,6 @@ import {
   createCmkAutomationUser,
   createCmkHost,
   deleteCmkHost,
-  recursiveType,
   deleteCmkAutomationUser,
   executeServiceDiscovery,
 } from './helpers';
