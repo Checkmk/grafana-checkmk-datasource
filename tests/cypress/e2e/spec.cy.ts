@@ -49,14 +49,19 @@ describe('e2e tests', () => {
     cy.get('button[aria-label="Add new panel"]').click();
 
     cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
+    cy.get('input[id="react-select-7-input"]').type('Service{enter}'); // Filter -> 'Service'
 
     cy.get('input[id="input_Host"]').type('{enter}'); // Hostname -> <current host> (one entry only)
     cy.contains(hostName).should('be.visible');
 
+    cy.get('input[id="input_Service"]').type('{enter}'); // Service -> 'Check_MK' (first entry)
+    cy.contains('Check_MK').should('be.visible');
+
     cy.get('[class="panel-content"]').should('be.visible');
 
-    cy.get('input[id="input_Template"]').click(); // Template -> Time usage by phase
-    cy.contains('Time usage by phase').click();
+    cy.get('input[id="input_Template"]').type('{enter}'); // Template -> 'Time usage by phase' (one entry)
+    cy.contains('Time usage by phase').should('be.visible');
+
     cy.get('[aria-label="VizLegend series CPU time in user space"]').should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
