@@ -36,25 +36,44 @@ export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>
   const { autocompleter, value, onChange, label, inputId } = props;
   const [options, setOptions] = React.useState([] as Array<SelectableValue<T>>);
   const [counter, setCounter] = React.useState(0);
-  let placeholder = 'Type to trigger search';
+  const [autocompleteError, setAutocompleteError] = React.useState('');
 
   function findValueInOptions() {
     const result = options.find((opt) => opt.value === value);
     if (result) {
       return result;
     }
-    if (value !== undefined) {
-      placeholder = `Could not find '${value}'`;
-    }
     return null;
+  }
+
+  function getPlaceholder() {
+    if (autocompleteError !== '') {
+      return autocompleteError;
+    }
+    if (value !== undefined) {
+      // if findValueInOptions returns non null, the return value here is
+      // irrelevant, because the displayed option is shown, no need to
+      // add a more complicated logic here.
+      return `Could not find '${value}'`;
+    }
+    return 'Type to trigger search';
   }
 
   const loadOptions = React.useCallback(
     (inputValue: string): Promise<Array<SelectableValue<T>>> => {
-      return autocompleter(inputValue).then((data) => {
-        setOptions(data);
-        return data;
-      });
+      return autocompleter(inputValue).then(
+        (data) => {
+          setAutocompleteError('');
+          setOptions(data);
+          return data;
+        },
+        (error) => {
+          if (error && error.message) {
+            setAutocompleteError(error.message);
+          }
+          throw error;
+        }
+      );
     },
     [autocompleter]
   );
@@ -82,7 +101,7 @@ export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>
       loadOptions={loadOptions}
       width={32}
       value={findValueInOptions()}
-      placeholder={placeholder}
+      placeholder={getPlaceholder()}
     />
   );
 };
