@@ -98,7 +98,12 @@ export const QueryEditor = (props: Props): JSX.Element => {
   ];
 
   const siteAutocompleter = React.useCallback(
-    (prefix: string) => contextAutocomplete(datasource, 'sites', {}, prefix, { strict: false }),
+    (prefix: string) => {
+      // TODO: this is a quick fix until we have decided how to handle site='' in raw edition
+      // until then we remove the 'All Sites' element for raw edition:
+      const strict = datasource.getEdition() === 'RAW';
+      return contextAutocomplete(datasource, 'sites', {}, prefix, { strict: strict });
+    },
     [datasource]
   );
   const hostAutocompleter = React.useCallback(
