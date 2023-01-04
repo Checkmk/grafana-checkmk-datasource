@@ -114,7 +114,7 @@ export default class RestApiBackend implements Backend {
       (query.requestSpec.graph_type !== 'metric' && query.requestSpec.graph_type !== 'template') ||
       query.requestSpec.graph === undefined
     ) {
-      throw new Error('Query is missing required fields');
+      throw 'Query is missing required fields';
     }
 
     const commonRequest: CommonRequest = {
@@ -138,7 +138,7 @@ export default class RestApiBackend implements Backend {
         query.requestSpec.host_name === undefined ||
         query.requestSpec.service === undefined
       ) {
-        throw new Error('Query is missing required fields');
+        throw 'Query is missing required fields';
       }
       const request: RestApiGetRequest = {
         site: query.requestSpec.site,
