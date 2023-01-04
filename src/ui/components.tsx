@@ -21,6 +21,7 @@ import {
   Select as GrafanaSelect,
   VerticalGroup,
 } from '@grafana/ui';
+import { debounce } from 'lodash';
 
 interface SelectProps<Key extends RequestSpecStringKeys> {
   label?: string;
@@ -104,12 +105,20 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
           negated: false,
         }
       : { ...props.value };
+  const [textValue, setTextValue] = React.useState(value !== undefined ? value.value : '');
 
-  // TODO: some kind of debouncing is needed! Not sure where to implement it.
+  const debouncedOnChange = React.useMemo(
+    () =>
+      debounce((newValue) => {
+        onChange(newValue);
+      }, 1000),
+    [onChange]
+  );
 
   const onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    value.value = event.target.value;
-    onChange(value);
+    setTextValue(event.target.value); // update text input
+    value.value = event.target.value; // update value of this closure
+    debouncedOnChange(value); // only the last debounce call comes through
   };
 
   const onNegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,13 +129,7 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
   return (
     <HorizontalGroup>
       <InlineField label={label} labelWidth={14}>
-        <Input
-          width={32}
-          type="text"
-          value={value !== undefined ? value.value : ''}
-          onChange={onValueChange}
-          placeholder="none"
-        />
+        <Input width={32} type="text" value={textValue} onChange={onValueChange} placeholder="none" />
       </InlineField>
       <Checkbox label="Negate" value={value !== undefined ? value.negated : false} onChange={onNegateChange} />
     </HorizontalGroup>
