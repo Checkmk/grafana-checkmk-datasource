@@ -25,3 +25,11 @@ export function addCmkDatasource(
   cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
   cy.contains('Data source is working').should('be.visible');
 }
+
+export function saveDashboard(dashboardID: string) {
+  cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
+  cy.get('input[aria-label="Save dashboard title field"]').type(' ' + dashboardID);
+
+  cy.get('button[aria-label="Save dashboard button"]').click();
+  cy.contains('Dashboard saved').should('be.visible');
+}
