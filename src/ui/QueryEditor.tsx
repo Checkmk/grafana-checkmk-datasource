@@ -3,7 +3,14 @@ import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { DataSource } from '../DataSource';
 import { CmkQuery, DataSourceOptions, ResponseDataAutocomplete, GraphKind } from '../types';
 import { VerticalGroup, InlineFieldRow } from '@grafana/ui';
-import { CheckMkSelect, OnlyActiveChildren, Filter, HostTagFilter, HostLabelFilter } from './components';
+import {
+  CheckMkSelect,
+  OnlyActiveChildren,
+  Filter,
+  HostTagFilter,
+  HostLabelFilter,
+  CheckMkSelectNegatable,
+} from './components';
 import { createAutocompleteConfig, Presentation } from './autocomplete';
 import { RequestSpec } from '../RequestSpec';
 import { titleCase } from '../utils';
@@ -14,11 +21,12 @@ async function contextAutocomplete(
   datasource: DataSource,
   ident: string,
   partialRequestSpec: Partial<RequestSpec>,
-  prefix: string
+  prefix: string,
+  params: Record<string, string | boolean>
 ) {
   const response = await datasource.autocompleterRequest<ResponseDataAutocomplete>(
     'ajax_vs_autocomplete.py',
-    createAutocompleteConfig(partialRequestSpec, ident, prefix)
+    createAutocompleteConfig(partialRequestSpec, ident, prefix, params)
   );
   return response.data.result.choices.map(([value, label]: [string, string]) => ({
     value,
@@ -90,21 +98,27 @@ export const QueryEditor = (props: Props): JSX.Element => {
   ];
 
   const siteAutocompleter = React.useCallback(
-    (prefix: string) => contextAutocomplete(datasource, 'sites', {}, prefix),
+    (prefix: string) => contextAutocomplete(datasource, 'sites', {}, prefix, { strict: false }),
     [datasource]
   );
   const hostAutocompleter = React.useCallback(
-    (prefix: string) => contextAutocomplete(datasource, 'monitored_hostname', { site: qSite }, prefix),
+    (prefix: string) =>
+      contextAutocomplete(datasource, 'monitored_hostname', { site: qSite }, prefix, { strict: 'with_source' }),
     [datasource, qSite]
   );
   const hostLabelAutocompleter = React.useCallback(
     (prefix: string) => labelAutocomplete(datasource, prefix),
     [datasource]
   );
+  const hostGroupAutocompleter = React.useCallback(
+    (prefix: string) =>
+      contextAutocomplete(datasource, 'allgroups', { site: qSite }, prefix, { group_type: 'host', strict: true }),
+    [datasource, qSite]
+  );
   const hostTagAutocompleter = React.useCallback(
     (prefix: string, mode: 'groups' | 'choices', context: Record<string, unknown>) => {
       if (mode === 'groups') {
-        return contextAutocomplete(datasource, 'tag_groups', { site: qSite, ...context }, prefix);
+        return contextAutocomplete(datasource, 'tag_groups', { site: qSite, ...context }, prefix, { strict: true });
       } else {
         return (async function () {
           // TODO: would have expected that this is dependent on the site, but does not look like that?
@@ -125,20 +139,48 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   const serviceAutocompleter = React.useCallback(
     (prefix: string) =>
-      contextAutocomplete(datasource, 'monitored_service_description', { site: qSite, ...qHost }, prefix),
+      contextAutocomplete(datasource, 'monitored_service_description', { site: qSite, ...qHost }, prefix, {
+        strict: true,
+      }),
+    [datasource, qSite, qHost]
+  );
+  const serviceGroupAutocompleter = React.useCallback(
+    (prefix: string) =>
+      contextAutocomplete(datasource, 'allgroups', { site: qSite, ...qHost }, prefix, {
+        group_type: 'service',
+        strict: true,
+      }),
     [datasource, qSite, qHost]
   );
   const graphAutocompleter = React.useCallback(
     (prefix: string) => {
-      const ident = qGraphType === 'metric' ? 'monitored_metrics' : 'available_graphs';
+      let ident: string;
+      let params = {};
+      if (datasource.getEdition() === 'RAW') {
+        ident = qGraphType === 'metric' ? 'monitored_metrics' : 'available_graphs';
+        params = { strict: 'with_source' };
+        // 2.1.0 changed { strict: 'with_source' } to:
+        // strict: true,
+        // show_independent_of_context: false,
+        // but the defaults for missing values seem to be in our favour.
+      } else {
+        ident = 'combined_graphs';
+        params = {
+          presentation: qAggregation, // TODO: not 100% sure if this is needed, but 2.0.1 does it that way
+          mode: qGraphType,
+          datasource: 'services',
+          single_infos: ['host'],
+        };
+      }
       return contextAutocomplete(
         datasource,
         ident,
         { site: qSite, ...qHost, ...qService, graph_type: qGraphType },
-        prefix
+        prefix,
+        params
       );
     },
-    [datasource, qSite, qHost, qService, qGraphType]
+    [datasource, qSite, qHost, qService, qGraphType, qAggregation]
   );
 
   if (editionMode === 'RAW') {
@@ -198,12 +240,12 @@ export const QueryEditor = (props: Props): JSX.Element => {
               value={qHost.host_name_regex}
               onChange={(host_name_regex) => setQHost({ ...qHost, host_name_regex: host_name_regex })}
             />
-            <Filter
-              // TODO: THIS IS NOT A FILTER! THIS SHOULD BE A NEGATABLE_CHECK_MK_DROPDOWN!
+            <CheckMkSelectNegatable
               requestSpecKey="host_in_group"
               label="Host in Group"
               value={qHost.host_in_group}
               onChange={(host_in_group) => setQHost({ ...qHost, host_in_group: host_in_group })}
+              autocompleter={hostGroupAutocompleter}
             />
             <HostLabelFilter
               label="Host labels"
@@ -232,12 +274,12 @@ export const QueryEditor = (props: Props): JSX.Element => {
               value={qService.service_regex}
               onChange={(service_regex) => setQService({ ...qService, service_regex: service_regex })}
             />
-            <Filter
-              // TODO: THIS IS NOT A FILTER! THIS SHOULD BE A NEGATABLE_CHECK_MK_DROPDOWN!
+            <CheckMkSelectNegatable
               requestSpecKey="service_in_group"
               label="Service in Group"
               value={qService.service_in_group}
               onChange={(service_in_group) => setQService({ ...qService, service_in_group: service_in_group })}
+              autocompleter={serviceGroupAutocompleter}
             />
           </OnlyActiveChildren>
         </InlineFieldRow>

@@ -23,17 +23,18 @@ import {
 } from '@grafana/ui';
 import { debounce } from 'lodash';
 
-interface SelectProps<Key extends RequestSpecStringKeys> {
+interface CheckMkAsyncSelectProps<T> {
   label?: string;
-  requestSpecKey?: Key;
-  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<FullRequestSpec[Key]>>>>;
-  onChange: (value: FullRequestSpec[Key]) => void;
-  value: FullRequestSpec[Key];
+  requestSpecKey?: T;
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<T>>>>;
+  onChange: (value: T) => void;
+  value: T;
+  inputId: string; // make the InlineField magic do its work // TODO: find better solution
 }
 
-export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectProps<Key>) => {
-  const { autocompleter, value, onChange, label } = props;
-  const [options, setOptions] = React.useState([] as Array<SelectableValue<FullRequestSpec[Key]>>);
+export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>) {
+  const { autocompleter, value, onChange, label, inputId } = props;
+  const [options, setOptions] = React.useState([] as Array<SelectableValue<T>>);
   const [counter, setCounter] = React.useState(0);
   let placeholder = 'Type to trigger search';
 
@@ -49,7 +50,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectPr
   }
 
   const loadOptions = React.useCallback(
-    (inputValue: string): Promise<Array<SelectableValue[Key]>> => {
+    (inputValue: string): Promise<Array<SelectableValue<T>>> => {
       return autocompleter(inputValue).then((data) => {
         setOptions(data);
         return data;
@@ -63,7 +64,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectPr
     setCounter((c) => c + 1);
   }, [autocompleter, label]);
 
-  const changed = (newValue: SelectableValue<FullRequestSpec[Key]>) => {
+  const changed = (newValue: SelectableValue<T>) => {
     if (newValue.value === undefined) {
       throw new Error('Please report this error!');
     }
@@ -71,20 +72,94 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: SelectPr
   };
 
   return (
+    <AsyncSelect
+      inputId={inputId}
+      onChange={changed}
+      defaultOptions={true}
+      // there seems to be no official way to re-trigger the async select field
+      // but there are many hacks: https://github.com/JedWatson/react-select/issues/1581
+      key={`${Math.max(1, counter)}`} // ignore the first update
+      loadOptions={loadOptions}
+      width={32}
+      value={findValueInOptions()}
+      placeholder={placeholder}
+    />
+  );
+};
+
+interface CheckMkSelectProps<Key extends RequestSpecStringKeys> {
+  label?: string;
+  requestSpecKey?: Key;
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<FullRequestSpec[Key]>>>>;
+  onChange: (value: FullRequestSpec[Key]) => void;
+  value: FullRequestSpec[Key];
+}
+
+export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkSelectProps<Key>) => {
+  const { autocompleter, value, onChange, label } = props;
+
+  return (
     <InlineField labelWidth={14} label={props.label}>
-      <AsyncSelect
+      <CheckMkAsyncSelect
         inputId={`input_${props.label}`}
-        onChange={changed}
-        defaultOptions={true}
-        // there seems to be no official way to re-trigger the async select field
-        // but there are many hacks: https://github.com/JedWatson/react-select/issues/1581
-        key={`${Math.max(1, counter)}`} // ignore the first update
-        loadOptions={loadOptions}
-        width={32}
-        value={findValueInOptions()}
-        placeholder={placeholder}
+        label={label}
+        autocompleter={autocompleter}
+        onChange={onChange}
+        value={value}
       />
     </InlineField>
+  );
+};
+
+// TODO: this and the component is mostly c&p from Filter
+// perhps the negated part can be moved into its own component?
+interface CheckMkSelectNegatableProps<Key extends RequestSpecNegatableOptionKeys> {
+  label: string;
+  requestSpecKey: Key;
+  onChange: (value: FullRequestSpec[Key]) => void;
+  value: RequestSpec[Key];
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<string>>>;
+}
+
+export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>(
+  props: CheckMkSelectNegatableProps<T>
+) => {
+  const { onChange, label, autocompleter } = props;
+
+  const value: NegatableOption =
+    props.value === undefined
+      ? {
+          value: '',
+          negated: false,
+        }
+      : { ...props.value };
+
+  const onValueChange = (newValue: string) => {
+    if (newValue === undefined) {
+      throw 'this is an internal error, please report';
+    }
+    value.value = newValue;
+    onChange(value);
+  };
+
+  const onNegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    value.negated = event.target.checked;
+    onChange(value);
+  };
+
+  return (
+    <HorizontalGroup>
+      <InlineField label={label} labelWidth={14}>
+        <CheckMkAsyncSelect
+          inputId={`input_${props.label}`}
+          label={label}
+          autocompleter={autocompleter}
+          onChange={onValueChange}
+          value={value.value}
+        />
+      </InlineField>
+      <Checkbox label="Negate" value={value !== undefined ? value.negated : false} onChange={onNegateChange} />
+    </HorizontalGroup>
   );
 };
 
