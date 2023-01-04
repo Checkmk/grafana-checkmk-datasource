@@ -12,8 +12,8 @@ const completions: Record<string, string[][]> = {
     ['site_2', 'Site Two'],
   ],
   monitored_hostname: [
-    ['host_name_1', 'Host One'],
-    ['host_name_2', 'Host Two'],
+    ['host_name_1', 'Hostname One'],
+    ['host_name_2', 'Hostname Two'],
   ],
   monitored_service_description: [
     ['service_1', 'Service One'],
@@ -65,10 +65,10 @@ describe('QueryEditor RAW', () => {
   });
 
   it.each`
-    label        | attribute      | autocomplete
-    ${'Site'}    | ${'site'}      | ${'sites'}
-    ${'Host'}    | ${'host_name'} | ${'monitored_hostname'}
-    ${'Service'} | ${'service'}   | ${'monitored_service_description'}
+    label         | attribute      | autocomplete
+    ${'Site'}     | ${'site'}      | ${'sites'}
+    ${'Hostname'} | ${'host_name'} | ${'monitored_hostname'}
+    ${'Service'}  | ${'service'}   | ${'monitored_service_description'}
   `(
     'sets $attribute using $label with results from autocompleter $autocomplete',
     async ({ label, attribute, autocomplete }) => {
@@ -179,9 +179,9 @@ describe('QueryEditor RAW', () => {
     );
     autocompleterRequest.mockClear();
 
-    const hostInput = screen.getByLabelText('Host');
+    const hostInput = screen.getByLabelText('Hostname');
     await act(async () => {
-      await selectEvent.select(hostInput, 'Host One', { container: document.body });
+      await selectEvent.select(hostInput, 'Hostname One', { container: document.body });
     });
     expect(autocompleterRequest).toHaveBeenCalledWith(
       'ajax_vs_autocomplete.py',

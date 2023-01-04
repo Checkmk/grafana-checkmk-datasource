@@ -188,7 +188,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
       <VerticalGroup>
         <CheckMkSelect label={'Site'} value={qSite} onChange={setQSite} autocompleter={siteAutocompleter} />
         <CheckMkSelect<'host_name'>
-          label={'Host'}
+          label={'Hostname'}
           value={qHost.host_name}
           onChange={(host) => setQHost({ ...qHost, host_name: host })}
           autocompleter={hostAutocompleter}
@@ -229,20 +229,20 @@ export const QueryEditor = (props: Props): JSX.Element => {
             />
             <CheckMkSelect<'host_name'>
               requestSpecKey={'host_name'}
-              label={'Host'}
+              label={'Hostname'}
               value={qHost.host_name}
               onChange={(host) => setQHost({ ...qHost, host_name: host })}
               autocompleter={hostAutocompleter}
             />
             <Filter
               requestSpecKey="host_name_regex"
-              label="Host Regex"
+              label="Hostname regex"
               value={qHost.host_name_regex}
               onChange={(host_name_regex) => setQHost({ ...qHost, host_name_regex: host_name_regex })}
             />
             <CheckMkSelectNegatable
               requestSpecKey="host_in_group"
-              label="Host in Group"
+              label="Host in group"
               value={qHost.host_in_group}
               onChange={(host_in_group) => setQHost({ ...qHost, host_in_group: host_in_group })}
               autocompleter={hostGroupAutocompleter}
@@ -270,13 +270,13 @@ export const QueryEditor = (props: Props): JSX.Element => {
             />
             <Filter
               requestSpecKey="service_regex"
-              label="Service Regex"
+              label="Service regex"
               value={qService.service_regex}
               onChange={(service_regex) => setQService({ ...qService, service_regex: service_regex })}
             />
             <CheckMkSelectNegatable
               requestSpecKey="service_in_group"
-              label="Service in Group"
+              label="Service in group"
               value={qService.service_in_group}
               onChange={(service_in_group) => setQService({ ...qService, service_in_group: service_in_group })}
               autocompleter={serviceGroupAutocompleter}
