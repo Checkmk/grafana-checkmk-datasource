@@ -1,4 +1,4 @@
-import { loginGrafana } from './helpers';
+import { loginGrafana, addCmkDatasource } from './helpers';
 
 import {
   activateCmkChanges,
@@ -26,22 +26,8 @@ describe('e2e tests', () => {
     executeServiceDiscovery(hostName0, 'new');
     executeServiceDiscovery(hostName1, 'new');
     activateCmkChanges('cmk');
-  });
 
-  it('configures the datasource correctly', () => {
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-
-    cy.visit('/datasources/new');
-    cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
-
-    cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
-    cy.get('[data-test-id="checkmk-username"]').type(cmkUser);
-    cy.get('[data-test-id="checkmk-password"]').type(cmkPassword);
-
-    cy.get('[aria-label="Data source settings page Save and Test button"]').click();
-
-    cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
-    cy.contains('Data source is working').should('be.visible');
+    addCmkDatasource(cmkUser, cmkPassword, Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
   });
 
   it('time-usage panel by service (single host)', { defaultCommandTimeout: 10000, retries: 2 }, () => {

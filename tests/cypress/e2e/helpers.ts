@@ -4,3 +4,24 @@ export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
   cy.get('input[name="password"]').type(passwordGrafana);
   cy.get('[aria-label="Login button"]').click();
 }
+
+export function addCmkDatasource(
+  cmkUsername: string,
+  cmkPassword: string,
+  grafanaUsername: string,
+  passwordGrafana: string
+) {
+  loginGrafana(grafanaUsername, passwordGrafana);
+
+  cy.visit('/datasources/new');
+  cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
+
+  cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
+  cy.get('[data-test-id="checkmk-username"]').type(cmkUsername);
+  cy.get('[data-test-id="checkmk-password"]').type(cmkPassword);
+
+  cy.get('[aria-label="Data source settings page Save and Test button"]').click();
+
+  cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
+  cy.contains('Data source is working').should('be.visible');
+}
