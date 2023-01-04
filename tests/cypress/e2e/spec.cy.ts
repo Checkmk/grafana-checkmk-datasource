@@ -1,4 +1,4 @@
-import { loginGrafana, addCmkDatasource } from './helpers';
+import { loginGrafana, addCmkDatasource, saveDashboard } from './helpers';
 
 import {
   activateCmkChanges,
@@ -52,11 +52,7 @@ describe('e2e tests', () => {
     cy.contains('CPU time in user space').should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
-    cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
-    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randInt);
-
-    cy.get('button[aria-label="Save dashboard button"]').click();
-    cy.contains('Dashboard saved').should('be.visible');
+    saveDashboard(randInt.toString());
   });
 
   it('time-usage panel by service (multiple hosts)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
@@ -77,11 +73,7 @@ describe('e2e tests', () => {
     cy.contains('CPU time in user space, ' + hostName1).should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
-    cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
-    cy.get('input[aria-label="Save dashboard title field"]').type(' ' + randInt);
-
-    cy.get('button[aria-label="Save dashboard button"]').click();
-    cy.contains('Dashboard saved').should('be.visible');
+    saveDashboard(randInt.toString());
   });
 
   after(function () {
