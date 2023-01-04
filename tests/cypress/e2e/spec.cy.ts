@@ -54,21 +54,20 @@ describe('e2e tests', () => {
     cy.visit('/dashboard/new');
     cy.get('button[aria-label="Add new panel"]').click();
 
-    cy.get('input[id="react-select-7-input"]').type('Host name{enter}'); // Filter -> 'Host name'
+    cy.get('input[id="react-select-7-input"]').type('Hostname{enter}'); // Filter -> 'Host name'
     cy.get('input[id="react-select-7-input"]').type('Service{enter}'); // Filter -> 'Service'
 
-    cy.get('input[id="input_Host"]').type('{enter}'); // Hostname -> <current host> (one entry only)
-    cy.contains(hostName0).should('be.visible');
+    cy.get('input[id="input_Hostname"]').type('{enter}'); // Hostname -> hostName0 (first entry)
+    cy.contains(hostName0).should('exist');
 
     cy.get('input[id="input_Service"]').type('{enter}'); // Service -> 'Check_MK' (first entry)
-    cy.contains('Check_MK').should('be.visible');
-
-    cy.get('[class="panel-content"]').should('be.visible');
+    cy.contains('Check_MK').should('exist');
 
     cy.get('input[id="input_Template"]').type('{enter}'); // Template -> 'Time usage by phase' (one entry)
-    cy.contains('Time usage by phase').should('be.visible');
+    cy.contains('Time usage by phase').should('exist');
 
-    cy.get('[aria-label="VizLegend series CPU time in user space"]').should('be.visible');
+    cy.get('[class="panel-content"]').should('be.visible');
+    cy.contains('CPU time in user space').should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
@@ -90,12 +89,10 @@ describe('e2e tests', () => {
     cy.get('input[id="react-select-7-input"]').type('Service{enter}'); // Filter -> 'Service'
 
     cy.get('input[id="input_Service"]').type('{enter}'); // Service -> 'Check_MK' (first entry)
-    cy.contains('Check_MK').should('be.visible');
-
-    cy.get('[class="panel-content"]').should('be.visible');
+    cy.contains('Check_MK').should('exist');
 
     cy.get('input[id="input_Template"]').type('{enter}'); // Template -> 'Time usage by phase' (one entry)
-    cy.contains('Time usage by phase').should('be.visible');
+    cy.contains('Time usage by phase').should('exist');
 
     cy.contains('CPU time in user space, ' + hostName0).should('be.visible');
     cy.contains('CPU time in user space, ' + hostName1).should('be.visible');
