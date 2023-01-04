@@ -22,27 +22,19 @@ interface AutoCompleteConfig {
   };
 }
 
-export function createAutocompleteConfig(requestSpec: RequestSpec, ident: string, value: string): AutoCompleteConfig {
+export function createAutocompleteConfig(
+  requestSpec: RequestSpec,
+  ident: string,
+  value: string,
+  params: Record<string, string | boolean>
+): AutoCompleteConfig {
   const context = createCmkContext(requestSpec) as Context;
-
-  let strict: string | boolean = true;
-  switch (ident) {
-    case 'site':
-      strict = false;
-      break;
-    case 'monitored_metrics':
-    case 'available_graphs':
-      strict = 'with_source';
-      break;
-    default:
-      strict = true;
-  }
 
   return {
     ident,
     value,
     params: {
-      strict,
+      ...params,
       context,
     },
   };

@@ -38,11 +38,12 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
   }
 
   if (!isUndefined(requestSpec.service_in_group) && requestSpec.service_in_group.value !== '') {
-    const optservicegroup: Record<string, unknown> = { opthost_group: requestSpec.service_in_group };
+    // TODO: code is 90% c&p and already contained some c&p bugs, we should try to use functions here!
+    const optservicegroup: Record<string, unknown> = { optservice_group: requestSpec.service_in_group.value };
     if (requestSpec.service_in_group.negated) {
       optservicegroup['neg_optservice_group'] = 'on';
     }
-    context['opthostgroup'] = optservicegroup;
+    context['optservicegroup'] = optservicegroup;
   }
   if (!isUndefined(requestSpec.host_name_regex) && requestSpec.host_name_regex.value !== '') {
     const hostregex: Record<string, unknown> = { host_regex: requestSpec.host_name_regex.value };
@@ -52,7 +53,7 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
     context['hostregex'] = hostregex;
   }
   if (!isUndefined(requestSpec.host_in_group) && requestSpec.host_in_group.value !== '') {
-    const opthostgroup: Record<string, unknown> = { opthost_group: requestSpec.host_in_group };
+    const opthostgroup: Record<string, unknown> = { opthost_group: requestSpec.host_in_group.value };
     if (requestSpec.host_in_group.negated) {
       opthostgroup['neg_opthost_group'] = 'on';
     }
