@@ -5,8 +5,6 @@ on:
     branches:
       - main
   pull_request:
-    branches:
-      - main
   schedule:
     - cron: '38 0 * * *' # every day at randint(0, 60) minutes after midnight
 
