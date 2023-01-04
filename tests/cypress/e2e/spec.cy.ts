@@ -5,7 +5,7 @@ import {
   deleteCmkHost,
   deleteCmkAutomationUser,
   executeServiceDiscovery,
-} from './helpers';
+} from './api_helpers';
 
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
