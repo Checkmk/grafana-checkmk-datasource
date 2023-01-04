@@ -1,3 +1,5 @@
+import { loginGrafana } from './helpers';
+
 import {
   activateCmkChanges,
   createCmkAutomationUser,
@@ -27,10 +29,7 @@ describe('e2e tests', () => {
   });
 
   it('configures the datasource correctly', () => {
-    cy.visit('/');
-    cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
-    cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
-    cy.get('[aria-label="Login button"]').click();
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
 
     cy.visit('/datasources/new');
     cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
@@ -46,10 +45,7 @@ describe('e2e tests', () => {
   });
 
   it('time-usage panel by service (single host)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
-    cy.visit('/');
-    cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
-    cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
-    cy.get('[aria-label="Login button"]').click();
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
 
     cy.visit('/dashboard/new');
     cy.get('button[aria-label="Add new panel"]').click();
@@ -78,10 +74,7 @@ describe('e2e tests', () => {
   });
 
   it('time-usage panel by service (multiple hosts)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
-    cy.visit('/');
-    cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
-    cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
-    cy.get('[aria-label="Login button"]').click();
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
 
     cy.visit('/dashboard/new');
     cy.get('button[aria-label="Add new panel"]').click();
