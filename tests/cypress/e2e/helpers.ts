@@ -10,6 +10,12 @@ export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
   cy.get('[aria-label="Login button"]').click();
 }
 
+export function addNewPanel() {
+  // add a new panel in a new dashboard
+  cy.visit('/dashboard/new');
+  cy.get('button[aria-label="Add new panel"]').click();
+}
+
 export function addCmkDatasource(
   cmkUsername: string,
   cmkPassword: string,

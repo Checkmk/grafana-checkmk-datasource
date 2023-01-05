@@ -6,6 +6,7 @@ import {
   inputTemplateSelector,
   inputHostSelector,
   inputServiceSelector,
+  addNewPanel,
 } from './helpers';
 
 import {
@@ -40,9 +41,7 @@ describe('e2e tests', () => {
 
   it('time-usage panel by service (single host)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
     loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-
-    cy.visit('/dashboard/new');
-    cy.get('button[aria-label="Add new panel"]').click();
+    addNewPanel();
 
     cy.get(inputFilterSelector).type('Hostname{enter}'); // Filter -> 'Host name'
     cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
@@ -65,9 +64,7 @@ describe('e2e tests', () => {
 
   it('time-usage panel by service (multiple hosts)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
     loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-
-    cy.visit('/dashboard/new');
-    cy.get('button[aria-label="Add new panel"]').click();
+    addNewPanel();
 
     cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
 
