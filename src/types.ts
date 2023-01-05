@@ -3,8 +3,52 @@ import { defaultRequestSpec, RequestSpec } from './RequestSpec';
 
 export type ContextHTTPVars = Record<string, string>;
 
+type Negative = undefined | 'on' | '';
+
+export interface Context {
+  host?: {
+    host: string;
+  };
+  siteopt?: {
+    site: string;
+  };
+  hostregex?: { host_regex: string; neg_host_regex?: Negative };
+  service?: { service: string };
+  serviceregex?: { neg_service_regex?: Negative; service_regex: string };
+  host_labels?: { host_label: string };
+  opthostgroup?: { opthost_group: string; neg_opthost_group?: Negative };
+  optservicegroup?: { optservice_group: string; neg_optservice_group?: Negative };
+  host_tags?: {
+    host_tag_0_grp?: string;
+    host_tag_0_op?: 'is' | 'isnot';
+    host_tag_0_val?: string;
+    host_tag_1_grp?: string;
+    host_tag_1_op?: 'is' | 'isnot';
+    host_tag_1_val?: string;
+    host_tag_2_grp?: string;
+    host_tag_2_op?: 'is' | 'isnot';
+    host_tag_2_val?: string;
+  };
+}
+
+export interface Params {
+  graphMode: 'metric' | 'template';
+  graph_name: string;
+  // TODO: duplicate with definition in autocomplete
+  presentation: 'lines' | 'sum' | 'average' | 'min' | 'max';
+  selections: unknown;
+}
+
 export interface CmkQuery extends DataQuery {
   requestSpec: RequestSpec;
+  /**
+   * @deprecated legacy interface context should not be used, use requestSpec
+   */
+  context?: Context;
+  /**
+   * @deprecated legacy interface params should not be used, use requestSpec
+   */
+  params?: Params;
 }
 
 export const defaultQuery: Partial<CmkQuery> = {

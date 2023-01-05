@@ -14,6 +14,7 @@ import {
 import { createAutocompleteConfig, Presentation } from './autocomplete';
 import { RequestSpec } from '../RequestSpec';
 import { titleCase } from '../utils';
+import { updateQuery } from '../webapi';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
@@ -46,6 +47,7 @@ async function labelAutocomplete(datasource: DataSource, prefix: string) {
 
 export const QueryEditor = (props: Props): JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
+  updateQuery(query);
   const rs = query.requestSpec || {};
   const [qAggregation, setQAggregation] = React.useState(rs.aggregation || 'lines');
   const [qGraphType, setQGraphType] = React.useState(rs.graph_type || 'template');

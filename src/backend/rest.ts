@@ -15,7 +15,7 @@ import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtim
 import { CmkQuery } from '../types';
 import { DatasourceOptions, Backend } from './types';
 // TODO: move to neutral place
-import { createCmkContext } from '../webapi';
+import { updateQuery, createCmkContext } from '../webapi';
 
 type RestApiGraphResponse = {
   time_range: {
@@ -107,6 +107,7 @@ export default class RestApiBackend implements Backend {
     // it's not about a single graph line, but a single chart. grafana supports
     // to query multiple graphs in one request, but we have to unwind this, as
     // our api only supports a single chart/query per api call.
+    updateQuery(query);
 
     // prepare data required by cre and cee
     if (
