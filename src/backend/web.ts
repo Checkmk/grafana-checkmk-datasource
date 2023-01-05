@@ -7,6 +7,7 @@ import {
   buildUrlWithParams,
   createWebApiRequestBody,
   createWebApiRequestSpecification,
+  updateQuery,
   WebAPiGetGraphResult,
   WebApiResponse,
 } from './../webapi';
@@ -106,6 +107,7 @@ export default class WebApiBackend implements Backend {
   }
 
   getGraphQuery = async (range: number[], query: CmkQuery): Promise<MutableDataFrame<unknown>> => {
+    updateQuery(query);
     const graph = get(query, 'requestSpec.graph');
     if (isUndefined(graph) || graph === '') {
       return Promise.resolve(new MutableDataFrame());
