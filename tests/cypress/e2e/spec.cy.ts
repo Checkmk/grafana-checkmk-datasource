@@ -1,4 +1,12 @@
-import { loginGrafana, addCmkDatasource, saveDashboard } from './helpers';
+import {
+  loginGrafana,
+  addCmkDatasource,
+  saveDashboard,
+  inputFilterSelector,
+  inputTemplateSelector,
+  inputHostSelector,
+  inputServiceSelector,
+} from './helpers';
 
 import {
   activateCmkChanges,
@@ -36,16 +44,16 @@ describe('e2e tests', () => {
     cy.visit('/dashboard/new');
     cy.get('button[aria-label="Add new panel"]').click();
 
-    cy.get('input[id="react-select-7-input"]').type('Hostname{enter}'); // Filter -> 'Host name'
-    cy.get('input[id="react-select-7-input"]').type('Service{enter}'); // Filter -> 'Service'
+    cy.get(inputFilterSelector).type('Hostname{enter}'); // Filter -> 'Host name'
+    cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
 
-    cy.get('input[id="input_Hostname"]').type('{enter}'); // Hostname -> hostName0 (first entry)
+    cy.get(inputHostSelector).type('{enter}'); // Hostname -> hostName0 (first entry)
     cy.contains(hostName0).should('exist');
 
-    cy.get('input[id="input_Service"]').type('{enter}'); // Service -> 'Check_MK' (first entry)
+    cy.get(inputServiceSelector).type('{enter}'); // Service -> 'Check_MK' (first entry)
     cy.contains('Check_MK').should('exist');
 
-    cy.get('input[id="input_Template"]').type('{enter}'); // Template -> 'Time usage by phase' (one entry)
+    cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
     cy.get('[class="panel-content"]').should('be.visible');
@@ -61,12 +69,12 @@ describe('e2e tests', () => {
     cy.visit('/dashboard/new');
     cy.get('button[aria-label="Add new panel"]').click();
 
-    cy.get('input[id="react-select-7-input"]').type('Service{enter}'); // Filter -> 'Service'
+    cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
 
-    cy.get('input[id="input_Service"]').type('{enter}'); // Service -> 'Check_MK' (first entry)
+    cy.get(inputServiceSelector).type('{enter}'); // Service -> 'Check_MK' (first entry)
     cy.contains('Check_MK').should('exist');
 
-    cy.get('input[id="input_Template"]').type('{enter}'); // Template -> 'Time usage by phase' (one entry)
+    cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
     cy.contains('CPU time in user space, ' + hostName0).should('be.visible');
