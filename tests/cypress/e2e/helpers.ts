@@ -1,3 +1,8 @@
+export const inputFilterSelector = 'input[id="react-select-7-input"]';
+export const inputHostSelector = 'input[id="input_Hostname"]';
+export const inputServiceSelector = 'input[id="input_Service"]';
+export const inputTemplateSelector = 'input[id="input_Template"]';
+
 export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
   cy.visit('/login');
   cy.get('input[name="user"]').type(grafanaUsername);
