@@ -1,5 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
-import { defaultRequestSpec, RequestSpec } from './RequestSpec';
+
+import { RequestSpec, defaultRequestSpec } from './RequestSpec';
 
 export type ContextHTTPVars = Record<string, string>;
 

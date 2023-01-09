@@ -1,4 +1,12 @@
 import {
+  activateCmkChanges,
+  createCmkAutomationUser,
+  createCmkHost,
+  deleteCmkAutomationUser,
+  deleteCmkHost,
+  executeServiceDiscovery,
+} from './api_helpers';
+import {
   addCmkDatasource,
   addNewPanel,
   inputFilterSelector,
@@ -8,15 +16,6 @@ import {
   loginGrafana,
   saveDashboard,
 } from './helpers';
-
-import {
-  activateCmkChanges,
-  createCmkAutomationUser,
-  createCmkHost,
-  deleteCmkAutomationUser,
-  deleteCmkHost,
-  executeServiceDiscovery,
-} from './api_helpers';
 
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';

@@ -1,27 +1,28 @@
-import React from 'react';
 import { SelectableValue } from '@grafana/data';
-import {
-  RequestSpec,
-  TagValue,
-  FullRequestSpec,
-  RequestSpecNegatableOptionKeys,
-  RequestSpecStringKeys,
-  NegatableOption,
-} from '../RequestSpec';
 import {
   AsyncMultiSelect,
   AsyncSelect,
   Button,
   Checkbox,
+  Select as GrafanaSelect,
   HorizontalGroup,
   InlineField,
   InlineFieldRow,
   Input,
   Label,
-  Select as GrafanaSelect,
   VerticalGroup,
 } from '@grafana/ui';
 import { debounce } from 'lodash';
+import React from 'react';
+
+import {
+  FullRequestSpec,
+  NegatableOption,
+  RequestSpec,
+  RequestSpecNegatableOptionKeys,
+  RequestSpecStringKeys,
+  TagValue,
+} from '../RequestSpec';
 
 interface CheckMkAsyncSelectProps<T> {
   label?: string;

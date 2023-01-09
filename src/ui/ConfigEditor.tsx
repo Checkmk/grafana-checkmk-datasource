@@ -1,7 +1,8 @@
-import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms, FieldSet, InlineField, Select } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { DataSourceOptions, SecureJsonData, Edition, Backend } from '../types';
+import { FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+import React, { ChangeEvent, PureComponent } from 'react';
+
+import { Backend, DataSourceOptions, Edition, SecureJsonData } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
 

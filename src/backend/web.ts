@@ -1,19 +1,18 @@
-import { defaults, get, isUndefined, zip } from 'lodash';
 import { DataQueryRequest, DataQueryResponse, FieldType, MutableDataFrame } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
+import { defaults, get, isUndefined, zip } from 'lodash';
 
+import { CmkQuery, defaultQuery } from '../types';
 import {
+  WebAPiGetGraphResult,
+  WebApiResponse,
   buildRequestBody,
   buildUrlWithParams,
   createWebApiRequestBody,
   createWebApiRequestSpecification,
   updateQuery,
-  WebAPiGetGraphResult,
-  WebApiResponse,
 } from './../webapi';
-
-import { DatasourceOptions, Backend } from './types';
-import { defaultQuery, CmkQuery } from '../types';
+import { Backend, DatasourceOptions } from './types';
 
 export default class WebApiBackend implements Backend {
   datasource: DatasourceOptions;

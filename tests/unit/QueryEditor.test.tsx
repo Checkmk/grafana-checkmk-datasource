@@ -1,10 +1,11 @@
 import { act, render, screen } from '@testing-library/react';
-import { QueryEditor } from '../../src/ui/QueryEditor';
-import { CmkQuery } from '../../src/types';
-import { DataSource } from '../../src/DataSource';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
+
+import { DataSource } from '../../src/DataSource';
 import { defaultRequestSpec } from '../../src/RequestSpec';
+import { CmkQuery } from '../../src/types';
+import { QueryEditor } from '../../src/ui/QueryEditor';
 
 const completions: Record<string, string[][]> = {
   sites: [

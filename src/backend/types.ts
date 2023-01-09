@@ -1,4 +1,5 @@
 import { DataQueryRequest, DataQueryResponse } from '@grafana/data';
+
 import { CmkQuery, Edition } from '../types';
 
 export interface Backend {
