@@ -1,6 +1,7 @@
 export const inputFilterSelector = 'input[id="react-select-7-input"]';
 export const inputHostSelector = 'input[id="input_Hostname"]';
 export const inputServiceSelector = 'input[id="input_Service"]';
+export const inputServiceRegexSelector = 'input[class="css-1mlczho-input-input"]'; //TODO: introduce id for this input selector.
 export const inputTemplateSelector = 'input[id="input_Template"]';
 
 export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {

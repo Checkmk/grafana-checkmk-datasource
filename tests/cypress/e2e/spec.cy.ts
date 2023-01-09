@@ -11,6 +11,7 @@ import {
   addNewPanel,
   inputFilterSelector,
   inputHostSelector,
+  inputServiceRegexSelector,
   inputServiceSelector,
   inputTemplateSelector,
   loginGrafana,
@@ -75,6 +76,27 @@ describe('e2e tests', () => {
 
     cy.contains('CPU time in user space, ' + hostName0).should('be.visible');
     cy.contains('CPU time in user space, ' + hostName1).should('be.visible');
+
+    const randInt = Math.floor(Math.random() * 1000);
+    saveDashboard(randInt.toString());
+  });
+
+  it('RAM-used panel by service regex (multiple hosts)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+    addNewPanel();
+
+    cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
+    cy.contains('Service regex').should('exist');
+
+    cy.get(inputServiceRegexSelector).first().type('Memory{enter}'); // Service regex -> 'Memory'
+    cy.get('input[value="Memory"]').should('exist');
+
+    cy.get(inputTemplateSelector).click(); // Template -> 'RAM used'
+    cy.contains('RAM used').click();
+    cy.contains('RAM used').should('exist');
+
+    cy.contains(hostName0).should('be.visible');
+    cy.contains(hostName1).should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
