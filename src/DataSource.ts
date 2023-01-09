@@ -1,12 +1,11 @@
 import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
 
-import { CmkQuery, DataSourceOptions, Edition, Backend as BackendType } from './types';
-import { buildRequestBody, WebApiResponse } from './webapi';
-
-import WebApiBackend from './backend/web';
 import RestApiBackend from './backend/rest';
 import { Backend } from './backend/types';
+import WebApiBackend from './backend/web';
+import { Backend as BackendType, CmkQuery, DataSourceOptions, Edition } from './types';
+import { WebApiResponse, buildRequestBody } from './webapi';
 
 export class DataSource extends DataSourceApi<CmkQuery> {
   webBackend: WebApiBackend;

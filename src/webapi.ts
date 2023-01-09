@@ -1,6 +1,7 @@
-import { Edition, Params, Context, CmkQuery } from './types';
-import { RequestSpec, NegatableOption, TagValue } from './RequestSpec';
 import { isUndefined } from 'lodash';
+
+import { NegatableOption, RequestSpec, TagValue } from './RequestSpec';
+import { CmkQuery, Context, Edition, Params } from './types';
 
 export interface WebAPiGetGraphResult {
   start_time: number;

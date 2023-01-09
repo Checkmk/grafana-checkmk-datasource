@@ -1,21 +1,21 @@
 import {
-  DataQueryRequest,
-  FieldType,
-  Field,
   ArrayVector,
+  DataQueryRequest,
   DataQueryResponse,
-  MutableDataFrame,
-  dateTime,
-  DateTime,
-  TimeRange,
   DataQueryResponseData,
+  DateTime,
+  Field,
+  FieldType,
+  MutableDataFrame,
+  TimeRange,
+  dateTime,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
 
 import { CmkQuery } from '../types';
-import { DatasourceOptions, Backend } from './types';
 // TODO: move to neutral place
-import { updateQuery, createCmkContext } from '../webapi';
+import { createCmkContext, updateQuery } from '../webapi';
+import { Backend, DatasourceOptions } from './types';
 
 type RestApiGraphResponse = {
   time_range: {

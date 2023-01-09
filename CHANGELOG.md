@@ -1,18 +1,18 @@
 # Changelog
 
-[//]: # (The ci will use the first section starting with `##` as release notes.)
+[//]: # 'The ci will use the first section starting with `##` as release notes.'
 
 ## 2.0.3
 
-* Provide better error message on wrong authentication.
+- Provide better error message on wrong authentication.
 
 ## 2.0.2
 
-* Removed `/dist` folder from git repository. That means that it's no longer
+- Removed `/dist` folder from git repository. That means that it's no longer
   possible to install this Grafana plugin by `git clone`. If you use `git pull`
   to update the plugin, you will have to change your deployment strategy of
   this plugin. Please refer to the [official documentation][1]
-* FIX: After changing a "Hostname Regex", the graph was not automatically
+- FIX: After changing a "Hostname Regex", the graph was not automatically
   updated, but Grafanas "Refresh dashboard" button on the upper right had
   to be clicked. Now the graph should update automatically. In order to
   limit the load on the checkmk server, the update is delayed by 500ms for
@@ -24,9 +24,9 @@
 
 ## 2.0.1
 
-* README.md already states that at least Grafana 8.0.0 is required, now the
+- README.md already states that at least Grafana 8.0.0 is required, now the
   plugin also reflects that version requirement.
-* add missing logo file to dist folder
+- add missing logo file to dist folder
 
 ## 2.0.0
 
@@ -66,17 +66,16 @@ updated connector. **PLEASE BACKUP THIS FILE BEFORE UPDATING.**
 
 [github]: https://github.com/tribe29/grafana-checkmk-datasource/
 
-
 ## 2.0.0b3
 
-* Update dependencies
-* Fix data source test on raw edition
+- Update dependencies
+- Fix data source test on raw edition
 
 ## 2.0.0b2
 
-* Update dependencies
-* Filter METRIC_ graph templates on CEE
+- Update dependencies
+- Filter METRIC\_ graph templates on CEE
 
 ## 2.0.0b1
 
-* Complete rewrite from scratch
+- Complete rewrite from scratch

@@ -1,20 +1,21 @@
-import React from 'react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
+import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
+import React from 'react';
+
 import { DataSource } from '../DataSource';
-import { CmkQuery, DataSourceOptions, ResponseDataAutocomplete, GraphKind } from '../types';
-import { VerticalGroup, InlineFieldRow } from '@grafana/ui';
-import {
-  CheckMkSelect,
-  OnlyActiveChildren,
-  Filter,
-  HostTagFilter,
-  HostLabelFilter,
-  CheckMkSelectNegatable,
-} from './components';
-import { createAutocompleteConfig, Presentation } from './autocomplete';
 import { RequestSpec } from '../RequestSpec';
+import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
 import { titleCase } from '../utils';
 import { updateQuery } from '../webapi';
+import { Presentation, createAutocompleteConfig } from './autocomplete';
+import {
+  CheckMkSelect,
+  CheckMkSelectNegatable,
+  Filter,
+  HostLabelFilter,
+  HostTagFilter,
+  OnlyActiveChildren,
+} from './components';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
