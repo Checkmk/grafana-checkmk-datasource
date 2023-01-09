@@ -1,20 +1,20 @@
 import {
-  loginGrafana,
   addCmkDatasource,
-  saveDashboard,
+  addNewPanel,
   inputFilterSelector,
-  inputTemplateSelector,
   inputHostSelector,
   inputServiceSelector,
-  addNewPanel,
+  inputTemplateSelector,
+  loginGrafana,
+  saveDashboard,
 } from './helpers';
 
 import {
   activateCmkChanges,
   createCmkAutomationUser,
   createCmkHost,
-  deleteCmkHost,
   deleteCmkAutomationUser,
+  deleteCmkHost,
   executeServiceDiscovery,
 } from './api_helpers';
 
