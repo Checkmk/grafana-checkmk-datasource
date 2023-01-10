@@ -26,6 +26,7 @@ import { debounce } from 'lodash';
 interface CheckMkAsyncSelectProps<T> {
   label?: string;
   requestSpecKey?: T;
+  width?: number;
   autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<T>>>>;
   onChange: (value: T) => void;
   value: T;
@@ -33,7 +34,7 @@ interface CheckMkAsyncSelectProps<T> {
 }
 
 export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>) {
-  const { autocompleter, value, onChange, label, inputId } = props;
+  const { autocompleter, width, value, onChange, label, inputId } = props;
   const [options, setOptions] = React.useState([] as Array<SelectableValue<T>>);
   const [counter, setCounter] = React.useState(0);
   const [autocompleteError, setAutocompleteError] = React.useState('');
@@ -99,7 +100,7 @@ export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>
       // but there are many hacks: https://github.com/JedWatson/react-select/issues/1581
       key={`${Math.max(1, counter)}`} // ignore the first update
       loadOptions={loadOptions}
-      width={32}
+      width={width || 32}
       value={findValueInOptions()}
       placeholder={getPlaceholder()}
     />
@@ -243,107 +244,45 @@ const SingleTag = (props: {
 }) => {
   const { onChange, autocompleter } = props;
   const value: TagValue = props.value === undefined ? { operator: 'is' } : props.value;
+  const groupId = value.group;
 
-  const [tagOptions, setTagOptions] = React.useState<Array<SelectableValue<string>>>([]);
-  const [groupOptions, setGroupOptions] = React.useState<Array<SelectableValue<string>>>([]);
-  // we just use this state for notifying useEffect of the changed data. TODO: perhaps there is a better way?
-  const [groupId, setGroupId] = React.useState<string | undefined>(value.group);
-
-  React.useEffect(() => {
-    async function inner() {
-      // TODO: use teardown
-      setGroupOptions(await autocompleter('', 'groups', {}));
-    }
-    inner();
-  }, [autocompleter]);
-
-  React.useEffect(() => {
-    async function inner() {
-      // TODO: use teardown
-      if (groupId === undefined) {
-        return;
-      }
-      setTagOptions(await autocompleter('', 'choices', { groupId: groupId }));
-    }
-    inner();
-  }, [autocompleter, groupId]);
-
-  //  TODO: use teardown above!
-  //  React.useEffect(() => {
-  //    let useAsyncResult = true; // https://beta.reactjs.org/apis/react/useEffect#fetching-data-with-effects
-  //    async function inner() {
-  //      const options = await autocompleter('');
-  //      if (useAsyncResult) {
-  //        setOptions(options);
-  //      }
-  //    }
-  //    return () => {
-  //      useAsyncResult = false;
-  //    };
-  //  }, [autocompleter, label]);
-
-  const tagOperators = [
-    { value: 'is', label: '=' },
-    { value: 'is not', label: '≠' },
-  ];
-
-  const findOperatorSelectable = function (value: string | undefined): SelectableValue<string> | undefined {
-    for (const operator of tagOperators) {
-      if (operator.value === value || (operator.value === 'is' && value === undefined)) {
-        return operator;
-      }
-    }
-    return undefined;
-  };
-
-  const findGroupSelectable = function (value: string | undefined): SelectableValue<string> | null {
-    if (groupOptions === undefined) {
-      return null;
-    }
-    for (const group of groupOptions) {
-      if (group.value === value) {
-        return group;
-      }
-    }
-    return null;
-  };
-
-  const findTagSelectable = function (value: string | undefined): SelectableValue<string> | null {
-    // TODO: c&p from above!
-    if (tagOptions === undefined) {
-      return null;
-    }
-    for (const tag of tagOptions) {
-      if (tag.value === value) {
-        return tag;
-      }
-    }
-    return null;
-  };
+  const groupAutocompleter = React.useCallback(
+    (prefix: string) => autocompleter(prefix, 'groups', {}),
+    [autocompleter]
+  );
+  const operatorAutocompleter = (prefix: string) =>
+    Promise.resolve([
+      { value: 'is', label: '=' },
+      { value: 'is not', label: '≠' },
+    ]);
+  const tagAutocompleter = React.useCallback(
+    (prefix: string) => autocompleter(prefix, 'choices', { groupId: groupId || '' }),
+    [autocompleter, groupId]
+  );
 
   return (
     <HorizontalGroup>
       <Label>Host tag {props.index}: </Label>
-      <GrafanaSelect
-        // TODO: should this be a AsyncSelect?
+      <CheckMkAsyncSelect
         onChange={(val) => {
-          onChange({ ...value, group: val.value ?? '' });
-          setGroupId(val.value);
+          onChange({ ...value, group: val ?? '' });
         }}
-        options={groupOptions}
-        value={findGroupSelectable(value.group)}
+        value={value.group}
+        inputId={'group'}
+        autocompleter={groupAutocompleter}
       />
-      <GrafanaSelect
+      <CheckMkAsyncSelect
         width={8}
-        options={tagOperators}
-        onChange={(val) => onChange({ ...value, operator: val.value ?? 'is' })}
-        value={findOperatorSelectable(value.operator)}
+        onChange={(val) => onChange({ ...value, operator: val ?? 'is' })}
+        value={value.operator}
+        autocompleter={operatorAutocompleter}
+        inputId={'operator'}
       />
-      <GrafanaSelect
-        // TODO: should this be a AsyncSelect?
-        onChange={(val) => onChange({ ...value, tag: val.value ?? '' })}
-        options={tagOptions}
-        value={findTagSelectable(value.tag)}
+      <CheckMkAsyncSelect
+        onChange={(val) => onChange({ ...value, tag: val ?? '' })}
+        value={value.tag}
+        inputId={'tag'}
+        autocompleter={tagAutocompleter}
       />
     </HorizontalGroup>
   );
