@@ -86,9 +86,13 @@ export default class WebApiBackend implements Backend {
           throw new Error(
             `API request was cancelled. This has either happened because no 'Access-Control-Allow-Origin' header is present, or because of a ssl protocol error. Make sure you are running at least Checkmk version 2.0.`
           );
-        } else {
-          throw new Error('Could not read API response, make sure the URL you provided is correct.');
         }
+        if (error.status === 410) {
+          throw new Error(
+            "Web-API is not available. Choose correct Checkmk version in Data Source Settings, or enable Web-API in 'Global settings' if you use Checkmk 2.1.0."
+          );
+        }
+        throw new Error('Could not read API response, make sure the URL you provided is correct.');
       });
 
     if (result === undefined) {
