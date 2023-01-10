@@ -72,10 +72,25 @@ export default class RestApiBackend implements Backend {
       url: '/version',
       method: 'GET',
     });
-    // TODO: check if this version matches the edition!
+    const checkMkVersion: string = result.data.versions.checkmk;
+    if (checkMkVersion.startsWith('2.0') || checkMkVersion.startsWith('1.')) {
+      throw new Error(
+        `A Checkmk version below 2.1.0 is not supported for this plugin, but you can set the backend to the '< 2.2' version and use at your own risk.`
+      );
+    }
+    if (checkMkVersion.startsWith('2.1')) {
+      throw new Error(
+        `Checkmk version 2.1.0 has been detected, but this plugin is configured to use version 2.2.0 and above. Please set the backend option to '< 2.2' and make sure to have the Web Api enabled on the server.`
+      );
+    }
+    if (this.datasource.getEdition() === 'CEE' && result.data.edition === 'raw') {
+      throw new Error(
+        'The data source specified the Checkmk Enterprise Edition, but Checkmk Raw Edition was detected. Please choose the raw edition in the data source settings.'
+      );
+    }
     return {
       status: 'success',
-      message: `Data source is working, reached version ${result.data.versions.checkmk} of checkmk`,
+      message: `Data source is working, reached version ${checkMkVersion} of checkmk`,
       title: 'Success',
     };
   }
@@ -94,6 +109,12 @@ export default class RestApiBackend implements Backend {
     } catch (error: any) {
       // grafana error handling is only showing status code and status message,
       // but we may have a more detailed error message
+      if (error.status === 404) {
+        throw new Error(
+          'REST API graph endpoints are unavailable. Please make sure you have at least Checkmk 2.2.0 installed.'
+        );
+      }
+
       if (error.data && error.data.title && error.data.detail) {
         throw new Error(`${error.data.title} ${error.data.detail}`);
       }
