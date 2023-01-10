@@ -94,8 +94,8 @@ export class ConfigEditor extends PureComponent<Props, State> {
       this.onEditionChange(cmkEditions[0]);
     }
     const cmkBackends: Array<SelectableValue<Backend>> = [
-      { value: 'web', label: 'Web-API' },
-      { value: 'rest', label: 'REST-API' },
+      { value: 'web', label: '< 2.2' },
+      { value: 'rest', label: '>= 2.2' },
     ];
     if (!jsonData.backend) {
       this.onBackendChange(cmkBackends[0]);
@@ -124,13 +124,17 @@ export class ConfigEditor extends PureComponent<Props, State> {
               placeholder="Select your checkmk edition"
             />
           </InlineField>
-          <InlineField label="Backend" labelWidth={12} tooltip="Choose REST-API for checkmk >= 2.2">
+          <InlineField
+            label="Version"
+            labelWidth={12}
+            tooltip="Choose the appropriate version for your Checkmk installation"
+          >
             <Select
               width={32}
               options={cmkBackends}
               onChange={this.onBackendChange}
               value={jsonData.backend}
-              placeholder="Select your checkmk edition"
+              placeholder="Select your checkmk version"
             />
           </InlineField>
         </FieldSet>
