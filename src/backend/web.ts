@@ -60,11 +60,13 @@ export default class WebApiBackend implements Backend {
     const from = range.from.unix();
     const to = range.to.unix();
 
-    const promises = options.targets.map((target) => {
-      // TODO: check if the defaults call is still necessary.
-      const query = defaults(target, defaultQuery);
-      return this.getGraphQuery([from, to], query);
-    });
+    const promises = options.targets
+      .filter((target) => !target.hide)
+      .map((target) => {
+        // TODO: check if the defaults call is still necessary.
+        const query = defaults(target, defaultQuery);
+        return this.getGraphQuery([from, to], query);
+      });
     return Promise.all(promises).then((data) => ({ data }));
   }
 
