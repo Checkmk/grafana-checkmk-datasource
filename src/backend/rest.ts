@@ -56,9 +56,11 @@ export default class RestApiBackend implements Backend {
   }
 
   async query(request: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
-    const promises = request.targets.map((target) => {
-      return this.getSingleGraph(request.range, target);
-    });
+    const promises = request.targets
+      .filter((target) => !target.hide)
+      .map((target) => {
+        return this.getSingleGraph(request.range, target);
+      });
     const result = await Promise.all(promises).then((data) => ({ data }));
     return result;
   }
