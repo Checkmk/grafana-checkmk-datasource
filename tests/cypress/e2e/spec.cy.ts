@@ -42,7 +42,7 @@ describe('e2e tests', () => {
     addCmkDatasource(cmkUser, cmkPassword, Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
   });
 
-  it('time-usage panel by service (single host)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
+  it('time-usage panel by service (single host)', {}, () => {
     loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
     addNewPanel();
 
@@ -65,7 +65,7 @@ describe('e2e tests', () => {
     saveDashboard(randInt.toString());
   });
 
-  it('time-usage panel by service (multiple hosts)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
+  it('time-usage panel by service (multiple hosts)', {}, () => {
     loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
     addNewPanel();
 
@@ -84,7 +84,7 @@ describe('e2e tests', () => {
     saveDashboard(randInt.toString());
   });
 
-  it('RAM-used panel by service regex (multiple hosts)', { defaultCommandTimeout: 10000, retries: 2 }, () => {
+  it('RAM-used panel by service regex (multiple hosts)', {}, () => {
     loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
     addNewPanel();
 
@@ -105,36 +105,32 @@ describe('e2e tests', () => {
     saveDashboard(randInt.toString());
   });
 
-  it(
-    'RAM-used panel by host labels (multiple hosts, single metric)',
-    { defaultCommandTimeout: 10000, retries: 2 },
-    () => {
-      loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-      addNewPanel();
+  it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+    addNewPanel();
 
-      cy.get(inputFilterSelector).type('Host labels{enter}'); // Filter -> 'Host labels'
-      cy.contains('Host labels').should('exist');
+    cy.get(inputFilterSelector).type('Host labels{enter}'); // Filter -> 'Host labels'
+    cy.contains('Host labels').should('exist');
 
-      cy.get(inputHostLabelsSelector).type('{enter}'); // Host labels -> 'cmk/site:cmk' (one entry)
-      cy.contains('cmk/site:cmk').should('exist');
+    cy.get(inputHostLabelsSelector).type('{enter}'); // Host labels -> 'cmk/site:cmk' (one entry)
+    cy.contains('cmk/site:cmk').should('exist');
 
-      cy.get(inputGraphTypeSelector).click(); // Graph type -> 'Single metric'
-      cy.contains('Single metric').click();
-      cy.contains('Single metric').should('exist');
+    cy.get(inputGraphTypeSelector).click(); // Graph type -> 'Single metric'
+    cy.contains('Single metric').click();
+    cy.contains('Single metric').should('exist');
 
-      cy.get(inputTemplateSelector).should('not.exist');
+    cy.get(inputTemplateSelector).should('not.exist');
 
-      cy.get(inputMetricSelector).click(); // Metric -> 'RAM used'
-      cy.contains('RAM used').click();
-      cy.contains('RAM used').should('exist');
+    cy.get(inputMetricSelector).click(); // Metric -> 'RAM used'
+    cy.contains('RAM used').click();
+    cy.contains('RAM used').should('exist');
 
-      cy.contains(hostName0).should('be.visible');
-      cy.contains(hostName1).should('be.visible');
+    cy.contains(hostName0).should('be.visible');
+    cy.contains(hostName1).should('be.visible');
 
-      const randInt = Math.floor(Math.random() * 1000);
-      saveDashboard(randInt.toString());
-    }
-  );
+    const randInt = Math.floor(Math.random() * 1000);
+    saveDashboard(randInt.toString());
+  });
 
   after(function () {
     deleteCmkHost(hostName0);
