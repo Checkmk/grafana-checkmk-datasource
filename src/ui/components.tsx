@@ -155,7 +155,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
         }
       : { ...props.value };
 
-  const onValueChange = (newValue: string) => {
+  const onValueChange = (newValue: string | undefined) => {
     if (newValue === undefined) {
       throw 'this is an internal error, please report';
     }
@@ -171,7 +171,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
   return (
     <HorizontalGroup>
       <InlineField label={label} labelWidth={14}>
-        <CheckMkAsyncSelect
+        <CheckMkAsyncSelect<string | undefined>
           inputId={`input_${props.label}`}
           label={label}
           autocompleter={autocompleter}
@@ -179,7 +179,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
           value={value.value}
         />
       </InlineField>
-      <Checkbox label="Negate" value={value !== undefined ? value.negated : false} onChange={onNegateChange} />
+      <Checkbox label="Negate" value={value.negated} onChange={onNegateChange} />
     </HorizontalGroup>
   );
 };
@@ -227,7 +227,7 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
       <InlineField label={label} labelWidth={14}>
         <Input width={32} type="text" value={textValue} onChange={onValueChange} placeholder="none" />
       </InlineField>
-      <Checkbox label="Negate" value={value !== undefined ? value.negated : false} onChange={onNegateChange} />
+      <Checkbox label="Negate" value={value.negated} onChange={onNegateChange} />
     </HorizontalGroup>
   );
 };
