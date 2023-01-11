@@ -10,7 +10,10 @@ import {
   addCmkDatasource,
   addNewPanel,
   inputFilterSelector,
+  inputGraphTypeSelector,
+  inputHostLabelsSelector,
   inputHostSelector,
+  inputMetricSelector,
   inputServiceRegexSelector,
   inputServiceSelector,
   inputTemplateSelector,
@@ -101,6 +104,37 @@ describe('e2e tests', () => {
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
   });
+
+  it(
+    'RAM-used panel by host labels (multiple hosts, single metric)',
+    { defaultCommandTimeout: 10000, retries: 2 },
+    () => {
+      loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+      addNewPanel();
+
+      cy.get(inputFilterSelector).type('Host labels{enter}'); // Filter -> 'Host labels'
+      cy.contains('Host labels').should('exist');
+
+      cy.get(inputHostLabelsSelector).type('{enter}'); // Host labels -> 'cmk/site:cmk' (one entry)
+      cy.contains('cmk/site:cmk').should('exist');
+
+      cy.get(inputGraphTypeSelector).click(); // Graph type -> 'Single metric'
+      cy.contains('Single metric').click();
+      cy.contains('Single metric').should('exist');
+
+      cy.get(inputTemplateSelector).should('not.exist');
+
+      cy.get(inputMetricSelector).click(); // Metric -> 'RAM used'
+      cy.contains('RAM used').click();
+      cy.contains('RAM used').should('exist');
+
+      cy.contains(hostName0).should('be.visible');
+      cy.contains(hostName1).should('be.visible');
+
+      const randInt = Math.floor(Math.random() * 1000);
+      saveDashboard(randInt.toString());
+    }
+  );
 
   after(function () {
     deleteCmkHost(hostName0);
