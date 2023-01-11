@@ -1,5 +1,5 @@
 export interface NegatableOption {
-  value: string;
+  value?: string;
   negated: boolean;
 }
 
