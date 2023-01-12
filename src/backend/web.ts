@@ -149,7 +149,6 @@ export default class WebApiBackend implements Backend {
       ],
     });
 
-    //TODO: uncomplicate this.
     zip(...curves.map((x: { rrddata: Array<{ i: number; d: Record<string, unknown> }> }) => x.rrddata)).forEach(
       (d, i) => frame.appendRow([(start_time + i * step) * 1000, ...d])
     );
