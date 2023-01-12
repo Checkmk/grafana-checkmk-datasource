@@ -223,7 +223,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
       <VerticalGroup>
         <InlineFieldRow>
           <OnlyActiveChildren requestSpec={requestSpec}>
-            <CheckMkSelect<'site'>
+            <CheckMkSelect
               requestSpecKey={'site'}
               label={'Site'}
               value={qSite}
@@ -232,7 +232,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
               onChange={setQSite}
               autocompleter={siteAutocompleter}
             />
-            <CheckMkSelect<'host_name'>
+            <CheckMkSelect
               requestSpecKey={'host_name'}
               label={'Hostname'}
               value={qHost.host_name}
@@ -266,7 +266,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
               onChange={(host_tags) => setQHost({ ...qHost, host_tags: host_tags })}
               autocompleter={hostTagAutocompleter}
             />
-            <CheckMkSelect<'service'>
+            <CheckMkSelect
               requestSpecKey={'service'}
               label={'Service'}
               value={qService.service}

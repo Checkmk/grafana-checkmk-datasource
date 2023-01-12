@@ -23,7 +23,7 @@ interface AutoCompleteConfig {
 }
 
 export function createAutocompleteConfig(
-  requestSpec: RequestSpec,
+  requestSpec: Partial<RequestSpec>,
   ident: string,
   value: string,
   params: Record<string, string | boolean>

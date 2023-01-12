@@ -46,8 +46,8 @@ function transform_negated(
   };
 }
 
-export function requestSpecFromLegacy(context: Context, params: Params): RequestSpec {
-  const rs: RequestSpec = {};
+export function requestSpecFromLegacy(context: Context, params: Params): Partial<RequestSpec> {
+  const rs: Partial<RequestSpec> = {};
   if (context.host !== undefined) {
     rs.host_name = context.host.host;
   }
@@ -96,7 +96,7 @@ export function requestSpecFromLegacy(context: Context, params: Params): Request
   return rs;
 }
 
-export function createCmkContext(requestSpec: RequestSpec): Record<string, unknown> {
+export function createCmkContext(requestSpec: Partial<RequestSpec>): Record<string, unknown> {
   const context: Record<string, unknown> = {};
 
   if (!isUndefined(requestSpec.site)) {
@@ -167,7 +167,7 @@ export function createCmkContext(requestSpec: RequestSpec): Record<string, unkno
 }
 
 export function createWebApiRequestSpecification(
-  requestSpec: RequestSpec,
+  requestSpec: Partial<RequestSpec>,
   edition: Edition
 ): [string, Record<string, unknown>] {
   if (edition === 'RAW') {
