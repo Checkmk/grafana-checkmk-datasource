@@ -13,7 +13,7 @@ import {
   VerticalGroup,
 } from '@grafana/ui';
 import { debounce } from 'lodash';
-import React from 'react';
+import React, { JSXElementConstructor } from 'react';
 
 import {
   FullRequestSpec,
@@ -365,6 +365,11 @@ export const HostLabelFilter: React.FC<{
 };
 
 export const OnlyActiveChildren = (props: { children: JSX.Element[]; requestSpec: RequestSpec }): JSX.Element => {
+  type ChildComponent = React.ReactElement<
+    { label: string; onChange(value: unknown): void },
+    JSXElementConstructor<unknown>
+  >;
+
   const allComponents: string[] = [];
   const initialActiveComponents = [];
   for (const child of props.children) {
@@ -390,9 +395,7 @@ export const OnlyActiveChildren = (props: { children: JSX.Element[]; requestSpec
     return result;
   }
 
-  // TODO: better typing
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function getLabel(elem: any) {
+  function getLabel(elem: ChildComponent) {
     return elem.props['label'];
   }
 
@@ -407,15 +410,14 @@ export const OnlyActiveChildren = (props: { children: JSX.Element[]; requestSpec
         />
       </InlineField>
       <VerticalGroup>
-        {React.Children.toArray(props.children)
-          // TODO: this is a legacy API: https://beta.reactjs.org/apis/react/Children
-          .filter((elem) => {
+        {props.children
+          .filter((elem: ChildComponent) => {
             if (!React.isValidElement(elem)) {
               return false;
             }
             return activeComponents.includes(getLabel(elem));
           })
-          .map((elem) => (
+          .map((elem: ChildComponent) => (
             <HorizontalGroup key={getLabel(elem)}>
               <Button
                 icon="minus"
