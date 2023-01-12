@@ -1,3 +1,5 @@
+// TODO: See top of api_helpers.ts
+
 export const inputFilterSelector = 'input[id="react-select-7-input"]';
 export const inputGraphTypeSelector = 'input[id="input_Graph type"]';
 export const inputHostLabelsSelector = 'input[id="react-select-15-input"]';
