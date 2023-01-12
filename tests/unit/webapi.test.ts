@@ -39,7 +39,7 @@ const params: Params = {
   selections: {},
 };
 
-const rs_graph: RequestSpec = {
+const rs_graph: Partial<RequestSpec> = {
   aggregation: 'lines',
   graph_type: 'template',
   graph: 'cmk_cpu_time_by_phase',

@@ -16,7 +16,7 @@ import { debounce } from 'lodash';
 import React, { JSXElementConstructor } from 'react';
 
 import {
-  FullRequestSpec,
+  FilterEditorKeys,
   NegatableOption,
   RequestSpec,
   RequestSpecNegatableOptionKeys,
@@ -24,19 +24,25 @@ import {
   TagValue,
 } from '../RequestSpec';
 
-interface CheckMkAsyncSelectProps<T> {
+interface CommonProps<Key extends keyof RequestSpec, Value = RequestSpec[Key]> {
   label?: string;
-  requestSpecKey?: T;
+  requestSpecKey?: Key;
+  onChange(value: Value): void;
+  value: Value;
+}
+
+interface CheckMkAsyncSelectProps<Key extends keyof RequestSpec, Value = RequestSpec[Key]>
+  extends CommonProps<Key, Value> {
   width?: number;
-  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<T>>>>;
-  onChange: (value: T) => void;
-  value: T;
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<Value>>>>;
   inputId: string; // make the InlineField magic do its work // TODO: find better solution
 }
 
-export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>) {
+export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value = RequestSpec[Key]>(
+  props: CheckMkAsyncSelectProps<Key, Value>
+) {
   const { autocompleter, width, value, onChange, label, inputId } = props;
-  const [options, setOptions] = React.useState([] as Array<SelectableValue<T>>);
+  const [options, setOptions] = React.useState([] as Array<SelectableValue<Value>>);
   const [counter, setCounter] = React.useState(0);
   const [autocompleteError, setAutocompleteError] = React.useState('');
 
@@ -62,7 +68,7 @@ export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>
   }
 
   const loadOptions = React.useCallback(
-    (inputValue: string): Promise<Array<SelectableValue<T>>> => {
+    (inputValue: string): Promise<Array<SelectableValue<Value>>> => {
       return autocompleter(inputValue).then(
         (data) => {
           setAutocompleteError('');
@@ -85,7 +91,7 @@ export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>
     setCounter((c) => c + 1);
   }, [autocompleter, label]);
 
-  const changed = (newValue: SelectableValue<T>) => {
+  const changed = (newValue: SelectableValue<Value>) => {
     if (newValue.value === undefined) {
       throw new Error('Please report this error!');
     }
@@ -108,12 +114,9 @@ export const CheckMkAsyncSelect = function <T>(props: CheckMkAsyncSelectProps<T>
   );
 };
 
-interface CheckMkSelectProps<Key extends RequestSpecStringKeys> {
-  label?: string;
-  requestSpecKey?: Key;
-  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<FullRequestSpec[Key]>>>>;
-  onChange: (value: FullRequestSpec[Key]) => void;
-  value: FullRequestSpec[Key];
+interface CheckMkSelectProps<Key extends RequestSpecStringKeys, Value = RequestSpec[Key]>
+  extends CommonProps<Key, Value> {
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<Value>>>>;
 }
 
 export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkSelectProps<Key>) => {
@@ -137,7 +140,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkS
 interface CheckMkSelectNegatableProps<Key extends RequestSpecNegatableOptionKeys> {
   label: string;
   requestSpecKey: Key;
-  onChange: (value: FullRequestSpec[Key]) => void;
+  onChange: (value: RequestSpec[Key]) => void;
   value: RequestSpec[Key];
   autocompleter: (prefix: string) => Promise<Array<SelectableValue<string>>>;
 }
@@ -171,7 +174,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
   return (
     <HorizontalGroup>
       <InlineField label={label} labelWidth={14}>
-        <CheckMkAsyncSelect<string | undefined>
+        <CheckMkAsyncSelect
           inputId={`input_${props.label}`}
           label={label}
           autocompleter={autocompleter}
@@ -184,11 +187,8 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
   );
 };
 
-interface FilterProps<Key extends RequestSpecNegatableOptionKeys> {
-  label: string;
+interface FilterProps<Key extends RequestSpecNegatableOptionKeys> extends CommonProps<Key> {
   requestSpecKey: Key;
-  onChange: (value: FullRequestSpec[Key]) => void;
-  value: RequestSpec[Key];
 }
 
 export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterProps<T>) => {
@@ -296,18 +296,15 @@ const SingleTag = (props: {
   );
 };
 
-export const HostTagFilter: React.FC<{
-  label: string;
-  requestSpecKey: string;
-  onChange: (newValue: [TagValue, TagValue, TagValue]) => void;
-  value: [TagValue, TagValue, TagValue] | undefined;
+interface HostTagFilterProps extends CommonProps<'host_tags'> {
   autocompleter: (
     prefix: string,
     mode: 'groups' | 'choices',
     context: Record<string, unknown>
   ) => Promise<Array<SelectableValue<string>>>;
-  //dependantOn: unknown[];
-}> = (props) => {
+}
+
+export const HostTagFilter: React.FC<HostTagFilterProps> = (props) => {
   const { value, autocompleter, onChange } = props;
 
   return (
@@ -329,13 +326,11 @@ export const HostTagFilter: React.FC<{
   );
 };
 
-export const HostLabelFilter: React.FC<{
-  label: string;
-  requestSpecKey: string;
-  onChange: (newValue: string[]) => void;
-  value: string[] | undefined;
+interface HostLabelProps extends CommonProps<'host_labels'> {
   autocompleter: (value: string) => Promise<Array<SelectableValue<string>>>;
-}> = (props) => {
+}
+
+export const HostLabelFilter: React.FC<HostLabelProps> = (props) => {
   const { value, autocompleter, label, onChange } = props;
 
   const onLabelsChange = (items: Array<SelectableValue<string>>) => {
@@ -371,18 +366,20 @@ export const HostLabelFilter: React.FC<{
   );
 };
 
-export const OnlyActiveChildren = (props: { children: JSX.Element[]; requestSpec: RequestSpec }): JSX.Element => {
-  type ChildComponent = React.ReactElement<
-    { label: string; onChange(value: unknown): void },
-    JSXElementConstructor<unknown>
-  >;
+interface TopLevelComponentProps<Key extends keyof RequestSpec, Value = RequestSpec[Key]> {
+  label: string;
+  requestSpecKey: Key;
+  onChange(value: Value): void;
+}
 
+type ChildComponent = React.ReactElement<TopLevelComponentProps<FilterEditorKeys>, JSXElementConstructor<unknown>>;
+
+export const OnlyActiveChildren = (props: { children: ChildComponent[]; requestSpec: RequestSpec }): JSX.Element => {
   const allComponents: string[] = [];
   const initialActiveComponents = [];
   for (const child of props.children) {
     allComponents.push(child.props.label);
-    // TODO: would be cool to have a better typing here
-    const requestSpecKey: keyof RequestSpec = child.props.requestSpecKey;
+    const requestSpecKey = child.props.requestSpecKey;
     const requestSpecValue = props.requestSpec[requestSpecKey];
     if (requestSpecValue !== undefined && requestSpecValue !== '') {
       initialActiveComponents.push(child.props.label);
@@ -412,7 +409,10 @@ export const OnlyActiveChildren = (props: { children: JSX.Element[]; requestSpec
         <GrafanaSelect
           width={32}
           options={availableComponentsOptions()}
-          onChange={(value) => setActiveComponents((c) => [...c, value.value])}
+          // We know that the `value` prop will always be defined since `availableComponentsOptions` returns
+          // an array of type `{value: string; label: string}`.
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
           value={{ label: 'Add Filter' }}
         />
       </InlineField>

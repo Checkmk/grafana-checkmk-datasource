@@ -41,7 +41,7 @@ export interface Params {
 }
 
 export interface CmkQuery extends DataQuery {
-  requestSpec: RequestSpec;
+  requestSpec: Partial<RequestSpec>;
   /**
    * @deprecated legacy interface context should not be used, use requestSpec
    */
