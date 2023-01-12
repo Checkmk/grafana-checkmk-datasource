@@ -1,3 +1,13 @@
+/* TODO:
+ * - Inline arguments as much as possible.
+ *   e.g. `cmkUsername` as param -> Cypress.env('cmkUsername') in function body.
+ *   (we can't call it with anything else, so I don't see the point in having to
+ *   specify them at each call site.)
+ * - Move these helpers to custom Cypress commands.
+ *   See https://docs.cypress.io/api/cypress-api/custom-commands
+ *   This way, they integrate better into the framework.
+ */
+
 export function createCmkAutomationUser(cmkUser: string, cmkPassword: string) {
   cy.request({
     method: 'POST',
