@@ -5,8 +5,7 @@ import React from 'react';
 import { DataSource } from '../DataSource';
 import { RequestSpec } from '../RequestSpec';
 import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
-import { titleCase } from '../utils';
-import { updateQuery } from '../webapi';
+import { titleCase, updateQuery } from '../utils';
 import { Presentation, createAutocompleteConfig } from './autocomplete';
 import {
   CheckMkSelect,
