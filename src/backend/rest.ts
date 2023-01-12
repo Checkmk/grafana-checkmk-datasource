@@ -66,9 +66,7 @@ export default class RestApiBackend implements Backend {
   }
 
   async testDatasource(): Promise<unknown> {
-    // TODO: fix next line
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await this.api<any>({
+    const result = await this.api<{ versions: { checkmk: string }; edition: string }>({
       url: '/version',
       method: 'GET',
     });
