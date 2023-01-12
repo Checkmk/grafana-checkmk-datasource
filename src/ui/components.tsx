@@ -192,7 +192,7 @@ interface FilterProps<Key extends RequestSpecNegatableOptionKeys> {
 }
 
 export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterProps<T>) => {
-  const { onChange, label } = props;
+  const { onChange, label, requestSpecKey } = props;
 
   const value: NegatableOption =
     props.value === undefined
@@ -225,7 +225,14 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
   return (
     <HorizontalGroup>
       <InlineField label={label} labelWidth={14}>
-        <Input width={32} type="text" value={textValue} onChange={onValueChange} placeholder="none" />
+        <Input
+          width={32}
+          type="text"
+          value={textValue}
+          onChange={onValueChange}
+          placeholder="none"
+          data-test-id={`${requestSpecKey}-filter-input`}
+        />
       </InlineField>
       <Checkbox label="Negate" value={value.negated} onChange={onNegateChange} />
     </HorizontalGroup>
