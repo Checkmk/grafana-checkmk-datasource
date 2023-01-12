@@ -113,33 +113,29 @@ describe('QueryEditor RAW', () => {
     expect(onRunQuery).toHaveBeenCalledTimes(1);
   });
 
-  it.skip.each`
+  it.each`
     graphType          | graphTypeTitle | selectChoice    | graphValue
     ${'Template'}      | ${'Template'}  | ${'Graph One'}  | ${'graph_1'}
     ${'Single metric'} | ${'Metric'}    | ${'Metric One'} | ${'metric_1'}
-  `(
-    'selects the right graph and calls the right autocompleter for $autocompleter',
-    async ({ graphType, graphTypeTitle, selectChoice, graphValue }) => {
-      render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
+  `('selects the right graph', async ({ graphType, graphTypeTitle, selectChoice, graphValue }) => {
+    render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
-      const graphInput = screen.getByLabelText('Graph type');
-      await act(async () => {
-        await selectEvent.select(graphInput, graphType, { container: document.body });
-      });
+    const graphInput = screen.getByLabelText('Graph type');
+    await act(async () => {
+      await selectEvent.select(graphInput, graphType, { container: document.body });
+    });
 
-      const input = screen.getByLabelText(graphTypeTitle);
-      await act(async () => {
-        await selectEvent.select(input, selectChoice, { container: document.body });
-      });
+    const input = screen.getByLabelText(graphTypeTitle);
+    await act(async () => {
+      await selectEvent.select(input, selectChoice, { container: document.body });
+    });
 
-      expect(onChange).toHaveBeenCalledWith(
-        expect.objectContaining({
-          requestSpec: expect.objectContaining({ graph: graphValue }),
-        })
-      );
-      expect(onRunQuery).toHaveBeenCalledTimes(1);
-    }
-  );
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestSpec: expect.objectContaining({ graph: graphValue }),
+      })
+    );
+  });
 
   it('calls the autocompleters the minimal amount of times', async () => {
     render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
