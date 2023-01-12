@@ -1,6 +1,7 @@
 import { RequestSpec } from '../../src/RequestSpec';
 import { Context, Params } from '../../src/types';
-import { createCmkContext, requestSpecFromLegacy } from '../../src/webapi';
+import { createCmkContext } from '../../src/utils';
+import { requestSpecFromLegacy } from '../../src/webapi';
 
 const rs: RequestSpec = {
   aggregation: 'lines',

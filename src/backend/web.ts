@@ -3,6 +3,7 @@ import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtim
 import { defaults, get, isUndefined, zip } from 'lodash';
 
 import { CmkQuery, defaultQuery } from '../types';
+import { updateQuery } from '../utils';
 import {
   WebAPiGetGraphResult,
   WebApiResponse,
@@ -10,7 +11,6 @@ import {
   buildUrlWithParams,
   createWebApiRequestBody,
   createWebApiRequestSpecification,
-  updateQuery,
 } from './../webapi';
 import { Backend, DatasourceOptions } from './types';
 

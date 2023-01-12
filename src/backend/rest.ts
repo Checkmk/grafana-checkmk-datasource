@@ -13,8 +13,7 @@ import {
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
 
 import { CmkQuery } from '../types';
-// TODO: move to neutral place
-import { createCmkContext, updateQuery } from '../webapi';
+import { createCmkContext, updateQuery } from '../utils';
 import { Backend, DatasourceOptions } from './types';
 
 type RestApiGraphResponse = {

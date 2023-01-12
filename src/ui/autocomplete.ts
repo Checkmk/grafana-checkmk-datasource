@@ -1,6 +1,6 @@
 import { RequestSpec } from '../RequestSpec';
 import { ContextHTTPVars } from '../types';
-import { createCmkContext } from '../webapi';
+import { createCmkContext } from '../utils';
 
 type Context = Record<string, ContextHTTPVars>;
 
