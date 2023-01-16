@@ -14,7 +14,7 @@ import {
   inputHostLabelsSelector,
   inputHostSelector,
   inputMetricSelector,
-  inputServiceRegexSelector,
+  inputRegexSelector,
   inputServiceSelector,
   inputTemplateSelector,
   loginGrafana,
@@ -91,7 +91,7 @@ describe('e2e tests', () => {
     cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
     cy.contains('Service regex').should('exist');
 
-    cy.get(inputServiceRegexSelector).first().type('Memory{enter}'); // Service regex -> 'Memory'
+    cy.get(inputRegexSelector).first().type('Memory{enter}'); // Service regex -> 'Memory'
     cy.get('input[value="Memory"]').should('exist');
 
     cy.get(inputTemplateSelector).click(); // Template -> 'RAM used'
@@ -130,6 +130,46 @@ describe('e2e tests', () => {
 
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
+  });
+
+  it('RAM-used panel by service regex and hostname regex', {}, () => {
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+    addNewPanel();
+
+    cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
+    cy.contains('Service regex').should('exist');
+
+    cy.get(inputRegexSelector).first().type('Memory{enter}'); // Service regex -> 'Memory'
+    cy.get('input[value="Memory"]').should('exist');
+
+    cy.get(inputTemplateSelector).click(); // Template -> 'RAM used'
+    cy.contains('RAM used').click();
+    cy.contains('RAM used').should('exist');
+
+    cy.get('[class="panel-content"]').contains(hostName0).should('be.visible');
+    cy.get('[class="panel-content"]').contains(hostName1).should('be.visible');
+
+    cy.get(inputFilterSelector).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
+    cy.contains('Hostname regex').should('exist');
+
+    cy.get(inputRegexSelector)
+      .first()
+      .type(hostName0 + '{enter}'); // Hostname regex -> {hostname0}
+    cy.get('input[value="' + hostName0 + '"]').should('exist');
+
+    // expecting a change in the panel
+    cy.get('[class="panel-content"]').contains('RAM used').should('be.visible');
+
+    cy.get(inputRegexSelector)
+      .first()
+      .type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
+    cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
+
+    // expecting a change in the panel
+    cy.get('[class="panel-content"]').contains(hostName0).should('be.visible');
+    cy.get('[class="panel-content"]').contains(hostName1).should('be.visible');
+
+    // TODO: perform assertion over changing in plotted data, once available
   });
 
   after(function () {

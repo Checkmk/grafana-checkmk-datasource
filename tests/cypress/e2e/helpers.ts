@@ -3,8 +3,8 @@ export const inputGraphTypeSelector = 'input[id="input_Graph type"]';
 export const inputHostLabelsSelector = 'input[id="react-select-15-input"]';
 export const inputHostSelector = 'input[id="input_Hostname"]';
 export const inputMetricSelector = 'input[id="input_Metric"]';
+export const inputRegexSelector = 'input[class="css-1mlczho-input-input"]'; //TODO: introduce id for this input selector.
 export const inputServiceSelector = 'input[id="input_Service"]';
-export const inputServiceRegexSelector = 'input[class="css-1mlczho-input-input"]'; //TODO: introduce id for this input selector.
 export const inputTemplateSelector = 'input[id="input_Template"]';
 
 export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
