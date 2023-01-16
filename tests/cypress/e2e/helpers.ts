@@ -6,6 +6,7 @@ export const inputMetricSelector = 'input[id="input_Metric"]';
 export const inputRegexSelector = 'input[class="css-1mlczho-input-input"]'; //TODO: introduce id for this input selector.
 export const inputServiceSelector = 'input[id="input_Service"]';
 export const inputTemplateSelector = 'input[id="input_Template"]';
+export const panelContentSelector = '[class="panel-content"]';
 
 export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
   cy.visit('/login');
