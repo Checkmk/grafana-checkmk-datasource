@@ -19,6 +19,7 @@ import {
   inputServiceSelector,
   inputTemplateSelector,
   loginGrafana,
+  panelContentSelector,
   saveDashboard,
 } from './helpers';
 
@@ -59,8 +60,7 @@ describe('e2e tests', () => {
     cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
-    cy.get('[class="panel-content"]').should('be.visible');
-    cy.contains('CPU time in user space').should('be.visible');
+    cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
@@ -78,8 +78,12 @@ describe('e2e tests', () => {
     cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
-    cy.contains('CPU time in user space, ' + hostName0).should('be.visible');
-    cy.contains('CPU time in user space, ' + hostName1).should('be.visible');
+    cy.get(panelContentSelector)
+      .contains('CPU time in user space, ' + hostName0)
+      .should('be.visible');
+    cy.get(panelContentSelector)
+      .contains('CPU time in user space, ' + hostName1)
+      .should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
@@ -99,8 +103,8 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
-    cy.contains(hostName0).should('be.visible');
-    cy.contains(hostName1).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
@@ -126,8 +130,8 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
-    cy.contains(hostName0).should('be.visible');
-    cy.contains(hostName1).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     const randInt = Math.floor(Math.random() * 1000);
     saveDashboard(randInt.toString());
@@ -147,8 +151,8 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
-    cy.get('[class="panel-content"]').contains(hostName0).should('be.visible');
-    cy.get('[class="panel-content"]').contains(hostName1).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     cy.get(inputFilterSelector).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
     cy.contains('Hostname regex').should('exist');
@@ -157,14 +161,14 @@ describe('e2e tests', () => {
     cy.get('input[value="' + hostName0 + '"]').should('exist');
 
     // expecting a change in the panel
-    cy.get('[class="panel-content"]').contains('RAM used').should('be.visible');
+    cy.get(panelContentSelector).contains('RAM used').should('be.visible');
 
     cy.get(inputHostRegexSelector).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
     cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
 
     // expecting a change in the panel
-    cy.get('[class="panel-content"]').contains(hostName0).should('be.visible');
-    cy.get('[class="panel-content"]').contains(hostName1).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
+    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // TODO: perform assertion over changing in plotted data, once available
   });

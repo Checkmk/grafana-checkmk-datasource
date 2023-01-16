@@ -9,6 +9,7 @@ export const inputMetricSelector = 'input[id="input_Single metric"]';
 export const inputServiceRegexSelector = 'input[data-test-id="service_regex-filter-input"]';
 export const inputServiceSelector = 'input[id="input_Service"]';
 export const inputTemplateSelector = 'input[id="input_Predefined graph"]';
+export const panelContentSelector = '[class="panel-content"]';
 
 export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
   cy.visit('/login');
