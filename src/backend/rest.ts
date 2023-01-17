@@ -23,18 +23,18 @@ type RestApiGraphResponse = {
     end: string;
   };
   step: number;
-  curves: Array<{
+  metrics: Array<{
     color: string;
-    rrd_data: number[];
+    data_points: number[];
     line_type: string;
     title: string;
   }>;
 };
 
 type CommonRequest = {
-  type: 'metric' | 'graph';
-  metric_name?: string;
-  graph_name?: string;
+  type: 'single_metric' | 'graph';
+  metric_id?: string;
+  graph_id?: string;
   time_range: {
     start: string;
     end: string;
@@ -42,7 +42,7 @@ type CommonRequest = {
 };
 type RestApiGetRequest =
   | {
-      site: string;
+      site?: string;
       host_name: string;
       service_description: string;
     }
@@ -142,16 +142,16 @@ export default class RestApiBackend implements Backend {
     }
 
     const commonRequest: CommonRequest = {
-      type: query.requestSpec.graph_type === 'metric' ? 'metric' : 'graph',
+      type: query.requestSpec.graph_type === 'metric' ? 'single_metric' : 'graph',
       time_range: {
         start: range.from.toISOString(),
         end: range.to.toISOString(),
       },
     };
     if (query.requestSpec.graph_type === 'metric') {
-      commonRequest['metric_name'] = query.requestSpec.graph;
+      commonRequest['metric_id'] = query.requestSpec.graph;
     } else {
-      commonRequest['graph_name'] = query.requestSpec.graph;
+      commonRequest['graph_id'] = query.requestSpec.graph;
     }
 
     let response: FetchResponse<RestApiGraphResponse>;
@@ -182,13 +182,12 @@ export default class RestApiBackend implements Backend {
         method: 'POST',
         data: {
           filter: createCmkContext(query.requestSpec),
-          only_from: ['host'],
           ...commonRequest,
         },
       });
     }
 
-    const { time_range, step, curves } = response.data;
+    const { time_range, step, metrics } = response.data;
 
     const timeValues = [];
     let currentTime: DateTime = dateTime(time_range.start);
@@ -199,11 +198,11 @@ export default class RestApiBackend implements Backend {
     }
 
     const fields: Field[] = [{ name: 'Time', type: FieldType.time, values: new ArrayVector(timeValues), config: {} }];
-    for (const curve of curves) {
+    for (const curve of metrics) {
       fields.push({
         name: curve.title,
         type: FieldType.number,
-        values: new ArrayVector(curve.rrd_data),
+        values: new ArrayVector(curve.data_points),
         config: { color: { mode: 'fixed', fixedColor: curve.color } },
       });
     }
@@ -216,7 +215,7 @@ export default class RestApiBackend implements Backend {
     if (fields.length > 1) {
       return frame;
     } else {
-      // a request for a metric with a template name returns empty curves.
+      // a request for a metric with a template name returns empty metrics.
       // this will result in a grafana note that suggests the graph should be
       // changed to a table. By returning an empty MutableDataFrame grafana
       // shows "no data" as expected.
