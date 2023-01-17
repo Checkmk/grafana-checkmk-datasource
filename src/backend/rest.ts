@@ -165,11 +165,15 @@ export default class RestApiBackend implements Backend {
         throw 'Query is missing required fields';
       }
       const request: RestApiGetRequest = {
-        site: query.requestSpec.site,
         host_name: query.requestSpec.host_name,
         service_description: query.requestSpec.service,
         ...commonRequest,
       };
+      if (query.requestSpec.site !== '') {
+        // the autocompleter has an additional element "All Sites" with value = ''
+        // the rest-api does not accept an empty string for the site value, but a missing site key
+        request.site = query.requestSpec.site;
+      }
       response = await this.api<RestApiGraphResponse>({
         url: '/domain-types/graph/actions/get/invoke',
         method: 'POST',
