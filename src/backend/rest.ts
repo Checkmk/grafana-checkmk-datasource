@@ -80,7 +80,7 @@ export default class RestApiBackend implements Backend {
     }
     if (checkMkVersion.startsWith('2.1')) {
       throw new Error(
-        `Checkmk version 2.1.0 has been detected, but this plugin is configured to use version 2.2.0 and above. Please set the backend option to '< 2.2' and make sure to have the Web Api enabled on the server.`
+        `Checkmk version 2.1.0 has been detected, but this plugin is configured to use version 2.2.0 and above. Please set the backend option to '< 2.2'.`
       );
     }
     if (this.datasource.getEdition() === 'CEE' && result.data.edition === 'raw') {
