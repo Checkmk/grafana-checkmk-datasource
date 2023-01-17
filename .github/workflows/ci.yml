@@ -23,6 +23,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install tests' dependencies
+        run: yarn install --frozen-lockfile
+        working-directory: tests/
+
       - name: Run prettier
         run: yarn prettier -c '{**/*,*}.{js,ts,jsx,tsx,json,yml}'
 

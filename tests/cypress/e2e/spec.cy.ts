@@ -1,3 +1,5 @@
+import { faker } from '@faker-js/faker';
+
 import {
   activateCmkChanges,
   createCmkAutomationUser,
@@ -61,8 +63,7 @@ describe('e2e tests', () => {
 
     cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    saveDashboard(faker.name.fullName());
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -84,8 +85,7 @@ describe('e2e tests', () => {
       .contains('CPU time in user space, ' + hostName1)
       .should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    saveDashboard(faker.name.fullName());
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
@@ -105,8 +105,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    saveDashboard(faker.name.fullName());
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
@@ -132,8 +131,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    saveDashboard(faker.name.fullName());
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
@@ -174,6 +172,8 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // TODO: perform assertion over changing in plotted data, once available
+
+    saveDashboard(faker.name.fullName());
   });
 
   after(function () {
