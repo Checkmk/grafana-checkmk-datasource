@@ -34,6 +34,7 @@ export function addCmkDatasource(
   cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
   cy.get('[data-test-id="checkmk-username"]').type(cmkUsername);
   cy.get('[data-test-id="checkmk-password"]').type(cmkPassword);
+  cy.get('[id="checkmk-version"]').type('<{enter}');
 
   cy.get('[aria-label="Data source settings page Save and Test button"]').click();
 

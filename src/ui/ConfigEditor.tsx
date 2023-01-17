@@ -94,8 +94,8 @@ export class ConfigEditor extends PureComponent<Props, State> {
       this.onEditionChange(cmkEditions[0]);
     }
     const cmkBackends: Array<SelectableValue<Backend>> = [
-      { value: 'web', label: '< 2.2' },
       { value: 'rest', label: '>= 2.2' },
+      { value: 'web', label: '< 2.2' },
     ];
     if (!jsonData.backend) {
       this.onBackendChange(cmkBackends[0]);
@@ -135,6 +135,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
               onChange={this.onBackendChange}
               value={jsonData.backend}
               placeholder="Select your checkmk version"
+              inputId="checkmk-version"
             />
           </InlineField>
         </FieldSet>
