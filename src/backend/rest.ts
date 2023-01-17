@@ -171,14 +171,14 @@ export default class RestApiBackend implements Backend {
         ...commonRequest,
       };
       response = await this.api<RestApiGraphResponse>({
-        url: '/domain-types/graph/actions/get/invoke',
+        url: '/domain-types/metric/actions/get/invoke',
         method: 'POST',
         data: request,
       });
     } else {
       // send request for cee
       response = await this.api<RestApiGraphResponse>({
-        url: '/domain-types/graph/actions/filter/invoke',
+        url: '/domain-types/metric/actions/filter/invoke',
         method: 'POST',
         data: {
           filter: createCmkContext(query.requestSpec),
