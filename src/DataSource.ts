@@ -38,12 +38,14 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return this.instanceSettings.url;
   }
 
+  // TODO: Move config default values to a central place instead of scattering it in getEdition and getBackendType
+
   getEdition(): Edition {
     return this.instanceSettings.jsonData.edition ?? 'RAW';
   }
 
   getBackendType(): BackendType {
-    return this.instanceSettings.jsonData.backend ?? 'web';
+    return this.instanceSettings.jsonData.backend ?? 'rest';
   }
 
   getBackend(): Backend {
