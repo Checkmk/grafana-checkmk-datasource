@@ -111,7 +111,7 @@ export default class RestApiBackend implements Backend {
       // but we may have a more detailed error message
       if (error.status === 404) {
         throw new Error(
-          'REST API graph endpoints are unavailable. Please make sure you have at least Checkmk 2.2.0 installed.'
+          'REST API graph endpoints are unavailable. Choose correct checkmk version in data source settings.'
         );
       }
 
