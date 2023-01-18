@@ -39,13 +39,11 @@ type CommonRequest = {
     end: string;
   };
 };
-type RestApiGetRequest =
-  | {
-      site?: string;
-      host_name: string;
-      service_description: string;
-    }
-  | CommonRequest;
+type RestApiGetRequest = {
+  site?: string;
+  host_name: string;
+  service_description: string;
+} & CommonRequest;
 
 export default class RestApiBackend implements Backend {
   datasource: DatasourceOptions;
