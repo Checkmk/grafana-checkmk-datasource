@@ -5,7 +5,7 @@ import { requestSpecFromLegacy } from '../../src/webapi';
 
 const rs: RequestSpec = {
   aggregation: 'off',
-  graph_type: 'metric',
+  graph_type: 'single_metric',
   graph: 'ut_metric_id',
 
   site: 'ut_site',
@@ -42,7 +42,7 @@ const params: Params = {
 
 const rs_graph: Partial<RequestSpec> = {
   aggregation: 'off',
-  graph_type: 'template',
+  graph_type: 'predefined_graph',
   graph: 'cmk_cpu_time_by_phase',
 
   site: 'cmk210dr',

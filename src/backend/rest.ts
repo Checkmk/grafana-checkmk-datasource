@@ -11,7 +11,7 @@ import {
   dateTime,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
-import { Aggregation } from 'RequestSpec';
+import { Aggregation, GraphType } from 'RequestSpec';
 
 import { CmkQuery } from '../types';
 import { createCmkContext, updateQuery } from '../utils';
@@ -32,7 +32,7 @@ type RestApiGraphResponse = {
 };
 
 type CommonRequest = {
-  type: 'single_metric' | 'graph';
+  type: GraphType;
   metric_id?: string;
   graph_id?: string;
   time_range: {
@@ -136,20 +136,20 @@ export default class RestApiBackend implements Backend {
     // prepare data required by cre and cee
     if (
       query.requestSpec === undefined ||
-      (query.requestSpec.graph_type !== 'metric' && query.requestSpec.graph_type !== 'template') ||
+      (query.requestSpec.graph_type !== 'single_metric' && query.requestSpec.graph_type !== 'predefined_graph') ||
       query.requestSpec.graph === undefined
     ) {
       throw 'Query is missing required fields';
     }
 
     const commonRequest: CommonRequest = {
-      type: query.requestSpec.graph_type === 'metric' ? 'single_metric' : 'graph',
+      type: query.requestSpec.graph_type,
       time_range: {
         start: range.from.toISOString(),
         end: range.to.toISOString(),
       },
     };
-    if (query.requestSpec.graph_type === 'metric') {
+    if (commonRequest.type === 'single_metric') {
       commonRequest['metric_id'] = query.requestSpec.graph;
     } else {
       commonRequest['graph_id'] = query.requestSpec.graph;

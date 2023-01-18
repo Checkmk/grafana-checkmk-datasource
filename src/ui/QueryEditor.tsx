@@ -3,9 +3,9 @@ import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
-import { Aggregation, RequestSpec } from '../RequestSpec';
-import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
-import { aggregationToPresentation, titleCase, updateQuery } from '../utils';
+import { Aggregation, GraphType, RequestSpec } from '../RequestSpec';
+import { CmkQuery, DataSourceOptions, ResponseDataAutocomplete } from '../types';
+import { aggregationToPresentation, updateQuery } from '../utils';
 import { createAutocompleteConfig } from './autocomplete';
 import {
   CheckMkSelect,
@@ -50,7 +50,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
   updateQuery(query);
   const rs = query.requestSpec || {};
   const [qAggregation, setQAggregation] = React.useState(rs.aggregation || 'off');
-  const [qGraphType, setQGraphType] = React.useState(rs.graph_type || 'template');
+  const [qGraphType, setQGraphType] = React.useState(rs.graph_type || 'predefined_graph');
   const [qSite, setQSite] = React.useState(rs.site);
   const [qHost, setQHost] = React.useState({
     host_name: rs.host_name,
@@ -94,9 +94,9 @@ export const QueryEditor = (props: Props): JSX.Element => {
     { value: 'maximum', label: 'Maximum' },
   ];
 
-  const graphTypeCompleter = async (): Promise<Array<SelectableValue<GraphKind>>> => [
-    { value: 'template', label: 'Template' },
-    { value: 'metric', label: 'Single metric' },
+  const graphTypeCompleter = async (): Promise<Array<SelectableValue<GraphType>>> => [
+    { value: 'predefined_graph', label: 'Predefined graph' },
+    { value: 'single_metric', label: 'Single metric' },
   ];
 
   const siteAutocompleter = React.useCallback(
@@ -161,7 +161,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
       let ident: string;
       let params = {};
       if (datasource.getEdition() === 'RAW') {
-        ident = qGraphType === 'metric' ? 'monitored_metrics' : 'available_graphs';
+        ident = qGraphType === 'single_metric' ? 'monitored_metrics' : 'available_graphs';
         params = { strict: 'with_source' };
         // 2.1.0 changed { strict: 'with_source' } to:
         // strict: true,
@@ -171,7 +171,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
         ident = 'combined_graphs';
         params = {
           presentation: aggregationToPresentation(qAggregation), // TODO: not 100% sure if this is needed, but 2.0.1 does it that way
-          mode: qGraphType,
+          mode: qGraphType === 'single_metric' ? 'metric' : 'template',
           datasource: 'services',
           single_infos: ['host'],
         };
@@ -210,7 +210,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           autocompleter={graphTypeCompleter}
         />
         <CheckMkSelect
-          label={titleCase(qGraphType)}
+          label={qGraphType === 'predefined_graph' ? 'Predefined graph' : 'Single metric'}
           value={qGraph}
           onChange={setQGraph}
           autocompleter={graphAutocompleter}
@@ -302,7 +302,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           autocompleter={graphTypeCompleter}
         />
         <CheckMkSelect
-          label={titleCase(qGraphType)}
+          label={qGraphType === 'predefined_graph' ? 'Predefined graph' : 'Single metric'}
           value={qGraph}
           onChange={setQGraph}
           autocompleter={graphAutocompleter}
