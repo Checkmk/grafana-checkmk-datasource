@@ -4,7 +4,7 @@ import { createCmkContext } from '../../src/utils';
 import { requestSpecFromLegacy } from '../../src/webapi';
 
 const rs: RequestSpec = {
-  aggregation: 'lines',
+  aggregation: 'off',
   graph_type: 'metric',
   graph: 'ut_metric_id',
 
@@ -41,7 +41,7 @@ const params: Params = {
 };
 
 const rs_graph: Partial<RequestSpec> = {
-  aggregation: 'lines',
+  aggregation: 'off',
   graph_type: 'template',
   graph: 'cmk_cpu_time_by_phase',
 
