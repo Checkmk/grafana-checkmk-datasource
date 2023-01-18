@@ -150,7 +150,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
   const value: NegatableOption =
     props.value === undefined
       ? {
-          value: '',
+          value: undefined,
           negated: false,
         }
       : { ...props.value };
