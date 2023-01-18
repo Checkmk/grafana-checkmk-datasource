@@ -7,7 +7,7 @@ export interface RequestSpec {
   // TODO: we need to rename graph_type, as the graph_type differentiates between graph and metric.
   // TODO: we also need to rename graph, as this could contain a metric name.
   // my suggestion: entity_type and entity then it should be clear that they influence each other.
-  graph_type: string;
+  graph_type: GraphType;
 
   aggregation: Aggregation;
 
@@ -32,6 +32,8 @@ export interface TagValue {
   operator?: string;
 }
 
+export type GraphType = 'single_metric' | 'predefined_graph';
+
 export type Aggregation = 'off' | 'sum' | 'average' | 'minimum' | 'maximum';
 
 export type RequestSpecStringKeys = 'host_name' | 'site' | 'service' | 'graph' | 'graph_type' | 'aggregation';
@@ -40,7 +42,7 @@ export type RequestSpecNegatableOptionKeys = 'host_name_regex' | 'service_regex'
 
 export const defaultRequestSpec: Partial<RequestSpec> = {
   aggregation: 'off',
-  graph_type: 'template',
+  graph_type: 'predefined_graph',
 };
 export type FilterEditorKeys =
   | 'site'

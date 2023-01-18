@@ -1,4 +1,4 @@
-import { NegatableOption, RequestSpec, TagValue } from './RequestSpec';
+import { GraphType, NegatableOption, RequestSpec, TagValue } from './RequestSpec';
 import { Context, Edition, Params } from './types';
 import { aggregationToPresentation, createCmkContext, presentationToAggregation } from './utils';
 
@@ -32,6 +32,16 @@ function transform_negated(
     value: context_property[key_name] || '',
     negated: context_property[`neg_${key_name}`] === 'on',
   };
+}
+
+function graphModeToGraphType(graph_mode: 'template' | 'metric'): GraphType {
+  if (graph_mode === 'template') {
+    return 'predefined_graph';
+  }
+  if (graph_mode === 'metric') {
+    return 'single_metric';
+  }
+  throw Error(`graph_mode ${graph_mode} is not known`);
 }
 
 export function requestSpecFromLegacy(context: Context, params: Params): Partial<RequestSpec> {
@@ -74,8 +84,8 @@ export function requestSpecFromLegacy(context: Context, params: Params): Partial
     rs.host_tags = result;
   }
 
-  rs.graph_type = params.graphMode;
-  if (rs.graph_type === 'metric') {
+  rs.graph_type = graphModeToGraphType(params.graphMode);
+  if (rs.graph_type === 'single_metric') {
     rs.graph = params.graph_name;
   } else {
     rs.graph = params.graph_name; // TODO: make this happen!
@@ -90,7 +100,7 @@ export function createWebApiRequestSpecification(
 ): [string, Record<string, unknown>] {
   if (edition === 'RAW') {
     const specification: Record<string, unknown> = {};
-    if (requestSpec.graph_type === 'metric') {
+    if (requestSpec.graph_type === 'single_metric') {
       specification.graph_id = 'METRIC_' + requestSpec.graph;
     } else {
       specification.graph_name = requestSpec.graph;
@@ -108,7 +118,7 @@ export function createWebApiRequestSpecification(
   const context = createCmkContext(requestSpec);
   let graph_template: string | undefined = undefined;
   if (requestSpec.graph && requestSpec.graph !== '') {
-    if (requestSpec.graph_type === 'metric') {
+    if (requestSpec.graph_type === 'single_metric') {
       graph_template = 'METRIC_' + requestSpec.graph;
     } else {
       graph_template = requestSpec.graph;

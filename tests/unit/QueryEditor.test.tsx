@@ -107,16 +107,16 @@ describe('QueryEditor RAW', () => {
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({
-        requestSpec: expect.objectContaining({ graph_type: 'metric' }),
+        requestSpec: expect.objectContaining({ graph_type: 'single_metric' }),
       })
     );
     expect(onRunQuery).toHaveBeenCalledTimes(1);
   });
 
   it.each`
-    graphType          | graphTypeTitle | selectChoice    | graphValue
-    ${'Template'}      | ${'Template'}  | ${'Graph One'}  | ${'graph_1'}
-    ${'Single metric'} | ${'Metric'}    | ${'Metric One'} | ${'metric_1'}
+    graphType             | graphTypeTitle        | selectChoice    | graphValue
+    ${'Predefined graph'} | ${'Predefined graph'} | ${'Graph One'}  | ${'graph_1'}
+    ${'Single metric'}    | ${'Single metric'}    | ${'Metric One'} | ${'metric_1'}
   `('selects the right graph', async ({ graphType, graphTypeTitle, selectChoice, graphValue }) => {
     render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
@@ -200,7 +200,7 @@ describe('QueryEditor RAW', () => {
     );
     autocompleterRequest.mockClear();
 
-    const graphInput = screen.getByLabelText('Template');
+    const graphInput = screen.getByLabelText('Predefined graph');
     await act(async () => {
       await selectEvent.select(graphInput, 'Graph One', { container: document.body });
     });
