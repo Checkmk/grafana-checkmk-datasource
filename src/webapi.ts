@@ -1,6 +1,6 @@
 import { NegatableOption, RequestSpec, TagValue } from './RequestSpec';
 import { Context, Edition, Params } from './types';
-import { createCmkContext } from './utils';
+import { aggregationToPresentation, createCmkContext, presentationToAggregation } from './utils';
 
 export interface WebAPiGetGraphResult {
   start_time: number;
@@ -80,7 +80,7 @@ export function requestSpecFromLegacy(context: Context, params: Params): Partial
   } else {
     rs.graph = params.graph_name; // TODO: make this happen!
   }
-  rs.aggregation = params.presentation;
+  rs.aggregation = presentationToAggregation(params.presentation);
   return rs;
 }
 
@@ -114,6 +114,11 @@ export function createWebApiRequestSpecification(
       graph_template = requestSpec.graph;
     }
   }
+
+  if (requestSpec.aggregation === undefined) {
+    throw new Error('web api: aggregation not defined!');
+  }
+
   return [
     'combined',
     {
@@ -121,7 +126,7 @@ export function createWebApiRequestSpecification(
       datasource: 'services',
       single_infos: ['host'],
       graph_template: graph_template,
-      presentation: requestSpec.aggregation,
+      presentation: aggregationToPresentation(requestSpec.aggregation),
     },
   ];
 }

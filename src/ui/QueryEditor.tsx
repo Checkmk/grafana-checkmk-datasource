@@ -3,10 +3,10 @@ import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
-import { RequestSpec } from '../RequestSpec';
+import { Aggregation, RequestSpec } from '../RequestSpec';
 import { CmkQuery, DataSourceOptions, GraphKind, ResponseDataAutocomplete } from '../types';
-import { titleCase, updateQuery } from '../utils';
-import { Presentation, createAutocompleteConfig } from './autocomplete';
+import { aggregationToPresentation, titleCase, updateQuery } from '../utils';
+import { createAutocompleteConfig } from './autocomplete';
 import {
   CheckMkSelect,
   CheckMkSelectNegatable,
@@ -49,7 +49,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
   updateQuery(query);
   const rs = query.requestSpec || {};
-  const [qAggregation, setQAggregation] = React.useState(rs.aggregation || 'lines');
+  const [qAggregation, setQAggregation] = React.useState(rs.aggregation || 'off');
   const [qGraphType, setQGraphType] = React.useState(rs.graph_type || 'template');
   const [qSite, setQSite] = React.useState(rs.site);
   const [qHost, setQHost] = React.useState({
@@ -86,12 +86,12 @@ export const QueryEditor = (props: Props): JSX.Element => {
     onRunQuery();
   }
 
-  const presentationCompleter = async (): Promise<Array<SelectableValue<Presentation>>> => [
-    { value: 'lines', label: 'Lines' },
+  const aggregationCompleter = async (): Promise<Array<SelectableValue<Aggregation>>> => [
+    { value: 'off', label: 'Off' },
     { value: 'sum', label: 'Sum' },
     { value: 'average', label: 'Average' },
-    { value: 'min', label: 'Minimum' },
-    { value: 'max', label: 'Maximum' },
+    { value: 'minimum', label: 'Minimum' },
+    { value: 'maximum', label: 'Maximum' },
   ];
 
   const graphTypeCompleter = async (): Promise<Array<SelectableValue<GraphKind>>> => [
@@ -170,7 +170,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
       } else {
         ident = 'combined_graphs';
         params = {
-          presentation: qAggregation, // TODO: not 100% sure if this is needed, but 2.0.1 does it that way
+          presentation: aggregationToPresentation(qAggregation), // TODO: not 100% sure if this is needed, but 2.0.1 does it that way
           mode: qGraphType,
           datasource: 'services',
           single_infos: ['host'],
@@ -292,7 +292,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           label={'Aggregation'}
           value={qAggregation}
           onChange={setQAggregation}
-          autocompleter={presentationCompleter}
+          autocompleter={aggregationCompleter}
         />
         <CheckMkSelect<'graph_type'>
           // TODO: duplicate with RAW edition!

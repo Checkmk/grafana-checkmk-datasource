@@ -4,8 +4,10 @@ import { RequestSpec, defaultRequestSpec } from './RequestSpec';
 
 export type ContextHTTPVars = Record<string, string>;
 
+// TODO: should be moved to webapi types
 type Negative = undefined | 'on' | '';
 
+// TODO: should be moved to webapi types
 export interface Context {
   host?: {
     host: string;
@@ -32,10 +34,10 @@ export interface Context {
   };
 }
 
+// TODO: should be moved to webapi types
 export interface Params {
   graphMode: 'metric' | 'template';
   graph_name: string;
-  // TODO: duplicate with definition in autocomplete
   presentation: 'lines' | 'sum' | 'average' | 'min' | 'max';
   selections: unknown;
 }

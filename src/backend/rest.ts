@@ -11,6 +11,7 @@ import {
   dateTime,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
+import { Aggregation } from 'RequestSpec';
 
 import { CmkQuery } from '../types';
 import { createCmkContext, updateQuery } from '../utils';
@@ -43,6 +44,11 @@ type RestApiGetRequest = {
   site?: string;
   host_name: string;
   service_description: string;
+} & CommonRequest;
+
+type RestApiFilterRequest = {
+  aggregation?: Aggregation;
+  filter: unknown;
 } & CommonRequest;
 
 export default class RestApiBackend implements Backend {
@@ -176,13 +182,15 @@ export default class RestApiBackend implements Backend {
       });
     } else {
       // send request for cee
+      const request: RestApiFilterRequest = {
+        filter: createCmkContext(query.requestSpec),
+        aggregation: query.requestSpec.aggregation,
+        ...commonRequest,
+      };
       response = await this.api<RestApiGraphResponse>({
         url: '/domain-types/metric/actions/filter/invoke',
         method: 'POST',
-        data: {
-          filter: createCmkContext(query.requestSpec),
-          ...commonRequest,
-        },
+        data: request,
       });
     }
 

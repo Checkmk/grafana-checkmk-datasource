@@ -1,7 +1,8 @@
 import { isUndefined } from 'lodash';
 
-import { NegatableOption, RequestSpec } from './RequestSpec';
+import { Aggregation, NegatableOption, RequestSpec } from './RequestSpec';
 import { CmkQuery } from './types';
+import { Presentation } from './ui/autocomplete';
 import { requestSpecFromLegacy } from './webapi';
 
 export const titleCase = (str: string): string => str[0].toUpperCase() + str.slice(1).toLowerCase();
@@ -76,4 +77,32 @@ export function updateQuery(query: CmkQuery): void {
     delete query.context;
     delete query.params;
   }
+}
+
+export function presentationToAggregation(presentation: Presentation): Aggregation {
+  let result: Aggregation = 'off';
+  if (presentation === 'lines') {
+    result = 'off';
+  } else if (presentation === 'min') {
+    result = 'minimum';
+  } else if (presentation === 'max') {
+    result = 'maximum';
+  } else {
+    result = presentation;
+  }
+  return result;
+}
+
+export function aggregationToPresentation(aggregation: Aggregation): Presentation {
+  let result: Presentation = 'lines';
+  if (aggregation === 'off') {
+    result = 'lines';
+  } else if (aggregation === 'minimum') {
+    result = 'min';
+  } else if (aggregation === 'maximum') {
+    result = 'max';
+  } else {
+    result = aggregation;
+  }
+  return result;
 }

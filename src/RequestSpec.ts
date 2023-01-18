@@ -9,7 +9,7 @@ export interface RequestSpec {
   // my suggestion: entity_type and entity then it should be clear that they influence each other.
   graph_type: string;
 
-  aggregation: string;
+  aggregation: Aggregation;
 
   site: string | undefined;
 
@@ -32,15 +32,14 @@ export interface TagValue {
   operator?: string;
 }
 
-// TODO: is unused.
-export type Aggregation = 'lines' | 'sum' | 'average' | 'min' | 'max';
+export type Aggregation = 'off' | 'sum' | 'average' | 'minimum' | 'maximum';
 
 export type RequestSpecStringKeys = 'host_name' | 'site' | 'service' | 'graph' | 'graph_type' | 'aggregation';
 
 export type RequestSpecNegatableOptionKeys = 'host_name_regex' | 'service_regex' | 'host_in_group' | 'service_in_group';
 
 export const defaultRequestSpec: Partial<RequestSpec> = {
-  aggregation: 'lines',
+  aggregation: 'off',
   graph_type: 'template',
 };
 export type FilterEditorKeys =
