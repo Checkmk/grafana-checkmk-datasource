@@ -20,6 +20,7 @@ import {
   inputTemplateSelector,
   loginGrafana,
   panelContentSelector,
+  rmCmkDatasource,
   saveDashboard,
 } from './helpers';
 
@@ -174,6 +175,8 @@ describe('e2e tests', () => {
   });
 
   after(function () {
+    rmCmkDatasource();
+
     deleteCmkHost(hostName0);
     deleteCmkHost(hostName1);
 
