@@ -188,7 +188,7 @@ export default class RestApiBackend implements Backend {
         ...commonRequest,
       };
       response = await this.api<RestApiGraphResponse>({
-        url: '/domain-types/metric/actions/filter/invoke',
+        url: '/domain-types/metric_internal/actions/filter/invoke',
         method: 'POST',
         data: request,
       });
