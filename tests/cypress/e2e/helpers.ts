@@ -11,19 +11,6 @@ export const inputServiceSelector = 'input[id="input_Service"]';
 export const inputTemplateSelector = 'input[id="input_Predefined graph"]';
 export const panelContentSelector = '[class="panel-content"]';
 
-export function loginGrafana(grafanaUsername: string, passwordGrafana: string) {
-  cy.visit('/login');
-  cy.get('input[name="user"]').type(grafanaUsername);
-  cy.get('input[name="password"]').type(passwordGrafana);
-  cy.get('[aria-label="Login button"]').click();
-}
-
-export function addNewPanel() {
-  // add a new panel in a new dashboard
-  cy.visit('/dashboard/new');
-  cy.get('button[aria-label="Add new panel"]').click();
-}
-
 export function addCmkDatasource(cmkUsername: string, cmkPassword: string) {
   cy.visit('/datasources/new');
   cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
