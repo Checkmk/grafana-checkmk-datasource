@@ -46,6 +46,20 @@ export function addCmkDatasource(
   cy.contains('Data source is working').should('be.visible');
 }
 
+export function rmCmkDatasource() {
+  // Remove the previously-created datasource as teardown process.
+  // This makes sure the tests use the newly generated datasource in each execution.
+  // Important especially when running the tests locally if docker images are up during multiple tests' executions.
+
+  cy.visit('/datasources/');
+
+  cy.get('[class="page-container page-body"]').contains('Checkmk').click();
+  cy.contains('Delete').click();
+  cy.get('button[aria-label="Confirm Modal Danger Button"]').click();
+
+  cy.contains('No data sources defined').should('be.visible');
+}
+
 export function saveDashboard(dashboardID: string) {
   cy.get('button[title="Apply changes and save dashboard"]').contains('Save').click();
   cy.get('input[aria-label="Save dashboard title field"]').type(' ' + dashboardID);
