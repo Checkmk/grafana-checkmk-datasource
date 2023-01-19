@@ -42,7 +42,8 @@ describe('e2e tests', () => {
     executeServiceDiscovery(hostName1, 'new');
     activateCmkChanges('cmk');
 
-    addCmkDatasource(cmkUser, cmkPassword, Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+    addCmkDatasource(cmkUser, cmkPassword);
   });
 
   it('time-usage panel by service (single host)', {}, () => {

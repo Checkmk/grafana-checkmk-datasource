@@ -24,14 +24,7 @@ export function addNewPanel() {
   cy.get('button[aria-label="Add new panel"]').click();
 }
 
-export function addCmkDatasource(
-  cmkUsername: string,
-  cmkPassword: string,
-  grafanaUsername: string,
-  passwordGrafana: string
-) {
-  loginGrafana(grafanaUsername, passwordGrafana);
-
+export function addCmkDatasource(cmkUsername: string, cmkPassword: string) {
   cy.visit('/datasources/new');
   cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
 
