@@ -1,3 +1,4 @@
+import '../support/commands';
 import {
   activateCmkChanges,
   createCmkAutomationUser,
@@ -8,7 +9,6 @@ import {
 } from './api_helpers';
 import {
   addCmkDatasource,
-  addNewPanel,
   inputFilterSelector,
   inputGraphTypeSelector,
   inputHostLabelsSelector,
@@ -18,7 +18,6 @@ import {
   inputServiceRegexSelector,
   inputServiceSelector,
   inputTemplateSelector,
-  loginGrafana,
   panelContentSelector,
   rmCmkDatasource,
   saveDashboard,
@@ -42,13 +41,13 @@ describe('e2e tests', () => {
     executeServiceDiscovery(hostName1, 'new');
     activateCmkChanges('cmk');
 
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
+    cy.loginGrafana();
     addCmkDatasource(cmkUser, cmkPassword);
   });
 
   it('time-usage panel by service (single host)', {}, () => {
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-    addNewPanel();
+    cy.loginGrafana();
+    cy.addNewPanel();
 
     cy.get(inputFilterSelector).type('Hostname{enter}'); // Filter -> 'Host name'
     cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
@@ -69,8 +68,8 @@ describe('e2e tests', () => {
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-    addNewPanel();
+    cy.loginGrafana();
+    cy.addNewPanel();
 
     cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
 
@@ -92,8 +91,8 @@ describe('e2e tests', () => {
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-    addNewPanel();
+    cy.loginGrafana();
+    cy.addNewPanel();
 
     cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
     cy.contains('Service regex').should('exist');
@@ -113,8 +112,8 @@ describe('e2e tests', () => {
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-    addNewPanel();
+    cy.loginGrafana();
+    cy.addNewPanel();
 
     cy.get(inputFilterSelector).type('Host labels{enter}'); // Filter -> 'Host labels'
     cy.contains('Host labels').should('exist');
@@ -140,8 +139,8 @@ describe('e2e tests', () => {
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
-    loginGrafana(Cypress.env('grafanaUsername'), Cypress.env('grafanaPassword'));
-    addNewPanel();
+    cy.loginGrafana();
+    cy.addNewPanel();
 
     cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
     cy.contains('Service regex').should('exist');
