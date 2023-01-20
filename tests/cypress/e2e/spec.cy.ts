@@ -19,7 +19,7 @@ describe('e2e tests', () => {
   const inputTemplateSelector = 'input[id="input_Predefined graph"]';
   const panelContentSelector = '[class="panel-content"]';
 
-  before(function () {
+  before(() => {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
     cy.createCmkAutomationUser();
 
@@ -34,10 +34,27 @@ describe('e2e tests', () => {
     cy.addCmkDatasource(cmkUser, cmkPassword);
   });
 
-  it('time-usage panel by service (single host)', {}, () => {
+  after(() => {
+    cy.rmCmkDatasource();
+
+    cy.deleteCmkHost(hostName0);
+    cy.deleteCmkHost(hostName1);
+
+    cy.deleteCmkAutomationUser(true);
+    cy.activateCmkChanges('cmk');
+  });
+
+  beforeEach(() => {
     cy.loginGrafana();
     cy.addNewPanel();
+  });
 
+  afterEach(() => {
+    cy.saveDashboard();
+    // TODO: remove created dashboard. Once done, pseuso-random dashboard name can be removed.
+  });
+
+  it('time-usage panel by service (single host)', {}, () => {
     cy.get(inputFilterSelector).type('Hostname{enter}'); // Filter -> 'Host name'
     cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
 
@@ -51,14 +68,9 @@ describe('e2e tests', () => {
     cy.contains('Time usage by phase').should('exist');
 
     cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
-
-    cy.saveDashboard();
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
-    cy.loginGrafana();
-    cy.addNewPanel();
-
     cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
 
     cy.get(inputServiceSelector).type('{enter}'); // Service -> 'Check_MK' (first entry)
@@ -73,14 +85,9 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector)
       .contains('CPU time in user space, ' + hostName1)
       .should('be.visible');
-
-    cy.saveDashboard();
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
-    cy.loginGrafana();
-    cy.addNewPanel();
-
     cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
     cy.contains('Service regex').should('exist');
 
@@ -93,14 +100,9 @@ describe('e2e tests', () => {
 
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
-
-    cy.saveDashboard();
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
-    cy.loginGrafana();
-    cy.addNewPanel();
-
     cy.get(inputFilterSelector).type('Host labels{enter}'); // Filter -> 'Host labels'
     cy.contains('Host labels').should('exist');
 
@@ -119,14 +121,9 @@ describe('e2e tests', () => {
 
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
-
-    cy.saveDashboard();
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
-    cy.loginGrafana();
-    cy.addNewPanel();
-
     cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service'
     cy.contains('Service regex').should('exist');
 
@@ -157,15 +154,5 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // TODO: perform assertion over changing in plotted data, once available
-  });
-
-  after(function () {
-    cy.rmCmkDatasource();
-
-    cy.deleteCmkHost(hostName0);
-    cy.deleteCmkHost(hostName1);
-
-    cy.deleteCmkAutomationUser(true);
-    cy.activateCmkChanges('cmk');
   });
 });
