@@ -1,17 +1,5 @@
 import '../support/api_commands';
 import '../support/commands';
-import {
-  inputFilterSelector,
-  inputGraphTypeSelector,
-  inputHostLabelsSelector,
-  inputHostRegexSelector,
-  inputHostSelector,
-  inputMetricSelector,
-  inputServiceRegexSelector,
-  inputServiceSelector,
-  inputTemplateSelector,
-  panelContentSelector,
-} from './helpers';
 
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
@@ -19,6 +7,17 @@ describe('e2e tests', () => {
 
   const hostName0 = 'localhost_grafana0';
   const hostName1 = 'localhost_grafana1';
+
+  const inputFilterSelector = 'input[id="react-select-7-input"]';
+  const inputGraphTypeSelector = 'input[id="input_Graph type"]';
+  const inputHostLabelsSelector = 'input[id="react-select-15-input"]';
+  const inputHostRegexSelector = 'input[data-test-id="host_name_regex-filter-input"]';
+  const inputHostSelector = 'input[id="input_Hostname"]';
+  const inputMetricSelector = 'input[id="input_Single metric"]';
+  const inputServiceRegexSelector = 'input[data-test-id="service_regex-filter-input"]';
+  const inputServiceSelector = 'input[id="input_Service"]';
+  const inputTemplateSelector = 'input[id="input_Predefined graph"]';
+  const panelContentSelector = '[class="panel-content"]';
 
   before(function () {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
