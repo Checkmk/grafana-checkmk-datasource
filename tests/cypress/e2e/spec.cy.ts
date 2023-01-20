@@ -1,12 +1,5 @@
+import '../support/api_commands';
 import '../support/commands';
-import {
-  activateCmkChanges,
-  createCmkAutomationUser,
-  createCmkHost,
-  deleteCmkAutomationUser,
-  deleteCmkHost,
-  executeServiceDiscovery,
-} from './api_helpers';
 import {
   inputFilterSelector,
   inputGraphTypeSelector,
@@ -28,15 +21,15 @@ describe('e2e tests', () => {
   const hostName1 = 'localhost_grafana1';
 
   before(function () {
-    deleteCmkAutomationUser(cmkUser, cmkPassword, false); // clean-up possible existing user
-    createCmkAutomationUser(cmkUser, cmkPassword);
+    cy.deleteCmkAutomationUser(false); // clean-up possible existing user
+    cy.createCmkAutomationUser();
 
-    createCmkHost(hostName0);
-    createCmkHost(hostName1);
+    cy.createCmkHost(hostName0);
+    cy.createCmkHost(hostName1);
 
-    executeServiceDiscovery(hostName0, 'new');
-    executeServiceDiscovery(hostName1, 'new');
-    activateCmkChanges('cmk');
+    cy.executeServiceDiscovery(hostName0, 'new');
+    cy.executeServiceDiscovery(hostName1, 'new');
+    cy.activateCmkChanges('cmk');
 
     cy.loginGrafana();
     cy.addCmkDatasource(cmkUser, cmkPassword);
@@ -170,10 +163,10 @@ describe('e2e tests', () => {
   after(function () {
     cy.rmCmkDatasource();
 
-    deleteCmkHost(hostName0);
-    deleteCmkHost(hostName1);
+    cy.deleteCmkHost(hostName0);
+    cy.deleteCmkHost(hostName1);
 
-    deleteCmkAutomationUser(cmkUser, cmkPassword);
-    activateCmkChanges('cmk');
+    cy.deleteCmkAutomationUser(true);
+    cy.activateCmkChanges('cmk');
   });
 });
