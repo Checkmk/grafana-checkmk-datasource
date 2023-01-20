@@ -8,7 +8,6 @@ import {
   executeServiceDiscovery,
 } from './api_helpers';
 import {
-  addCmkDatasource,
   inputFilterSelector,
   inputGraphTypeSelector,
   inputHostLabelsSelector,
@@ -19,8 +18,6 @@ import {
   inputServiceSelector,
   inputTemplateSelector,
   panelContentSelector,
-  rmCmkDatasource,
-  saveDashboard,
 } from './helpers';
 
 describe('e2e tests', () => {
@@ -42,7 +39,7 @@ describe('e2e tests', () => {
     activateCmkChanges('cmk');
 
     cy.loginGrafana();
-    addCmkDatasource(cmkUser, cmkPassword);
+    cy.addCmkDatasource(cmkUser, cmkPassword);
   });
 
   it('time-usage panel by service (single host)', {}, () => {
@@ -63,8 +60,7 @@ describe('e2e tests', () => {
 
     cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    cy.saveDashboard();
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -86,8 +82,7 @@ describe('e2e tests', () => {
       .contains('CPU time in user space, ' + hostName1)
       .should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    cy.saveDashboard();
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
@@ -107,8 +102,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    cy.saveDashboard();
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
@@ -134,8 +128,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
-    const randInt = Math.floor(Math.random() * 1000);
-    saveDashboard(randInt.toString());
+    cy.saveDashboard();
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
@@ -175,7 +168,7 @@ describe('e2e tests', () => {
   });
 
   after(function () {
-    rmCmkDatasource();
+    cy.rmCmkDatasource();
 
     deleteCmkHost(hostName0);
     deleteCmkHost(hostName1);
