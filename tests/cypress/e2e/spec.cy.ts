@@ -67,10 +67,14 @@ describe('e2e tests', () => {
     cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
+    // assert legend elements
     cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
     cy.get(panelContentSelector).contains('CPU time in operating system').should('be.visible');
     cy.get(panelContentSelector).contains('Time spent waiting for Checkmk agent').should('be.visible');
     cy.get(panelContentSelector).contains('Total execution time').should('be.visible');
+
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 4);
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -82,6 +86,7 @@ describe('e2e tests', () => {
     cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
+    // assert legend elements (not all plots have a legend)
     cy.get(panelContentSelector)
       .contains('CPU time in user space, ' + hostName0)
       .should('be.visible');
@@ -89,13 +94,15 @@ describe('e2e tests', () => {
       .contains('CPU time in operating system, ' + hostName0)
       .should('be.visible');
     cy.get(panelContentSelector);
-
     cy.get(panelContentSelector)
       .contains('CPU time in user space, ' + hostName1)
       .should('be.visible');
     cy.get(panelContentSelector)
       .contains('CPU time in operating system, ' + hostName1)
       .should('be.visible');
+
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 8);
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
@@ -109,8 +116,12 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
+    // assert legend elements
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
@@ -130,8 +141,12 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
+    // assert legend elements
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
@@ -145,8 +160,12 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
+    // assert legend elements
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
 
     cy.get(inputFilterSelector).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
     cy.contains('Hostname regex').should('exist');
@@ -154,16 +173,20 @@ describe('e2e tests', () => {
     cy.get(inputHostRegexSelector).type(hostName0 + '{enter}'); // Hostname regex -> {hostname0}
     cy.get('input[value="' + hostName0 + '"]').should('exist');
 
-    // expecting a change in the panel
+    // assert legend elements (expecting a change in the panel)
     cy.get(panelContentSelector).contains('RAM used').should('be.visible');
+
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 1);
 
     cy.get(inputHostRegexSelector).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
     cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
 
-    // expecting a change in the panel
+    // assert legend elements (expecting a change in the panel)
     cy.get(panelContentSelector).contains(hostName0).should('be.visible');
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
-    // TODO: perform assertion over changing in plotted data, once available
+    // assert number of plots via hover elements
+    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
   });
 });
