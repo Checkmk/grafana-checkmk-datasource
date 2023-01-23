@@ -18,6 +18,7 @@ describe('e2e tests', () => {
   const inputServiceSelector = 'input[id="input_Service"]';
   const inputTemplateSelector = 'input[id="input_Predefined graph"]';
   const panelContentSelector = '[class="panel-content"]';
+  const plottedHoverSelector = '[class="u-cursor-pt u-off"]';
 
   before(() => {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
@@ -74,7 +75,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains('Total execution time').should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 4);
+    cy.get(plottedHoverSelector).should('have.length', 4);
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -102,7 +103,7 @@ describe('e2e tests', () => {
       .should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 8);
+    cy.get(plottedHoverSelector).should('have.length', 8);
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
@@ -121,7 +122,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
+    cy.get(plottedHoverSelector).should('have.length', 2);
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
@@ -146,7 +147,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
+    cy.get(plottedHoverSelector).should('have.length', 2);
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
@@ -165,7 +166,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
+    cy.get(plottedHoverSelector).should('have.length', 2);
 
     cy.get(inputFilterSelector).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
     cy.contains('Hostname regex').should('exist');
@@ -177,7 +178,7 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains('RAM used').should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 1);
+    cy.get(plottedHoverSelector).should('have.length', 1);
 
     cy.get(inputHostRegexSelector).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
     cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
@@ -187,6 +188,6 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get('[class="u-cursor-pt u-off"]').should('have.length', 2);
+    cy.get(plottedHoverSelector).should('have.length', 2);
   });
 });
