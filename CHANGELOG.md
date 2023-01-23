@@ -2,6 +2,15 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 3.0.0-beta.1
+
+When using Checkmk < 2.2.0 you will have to choose the correct version in the
+data source settings.
+
+- Add support for REST API endpoints of Checkmk 2.2.0
+- Many UI-improvements
+- Graphs in Grafana now show the same colors as in Checkmk
+
 ## 2.0.3
 
 - Provide better error message on wrong authentication.
