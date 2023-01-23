@@ -68,6 +68,9 @@ describe('e2e tests', () => {
     cy.contains('Time usage by phase').should('exist');
 
     cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
+    cy.get(panelContentSelector).contains('CPU time in operating system').should('be.visible');
+    cy.get(panelContentSelector).contains('Time spent waiting for Checkmk agent').should('be.visible');
+    cy.get(panelContentSelector).contains('Total execution time').should('be.visible');
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -83,7 +86,15 @@ describe('e2e tests', () => {
       .contains('CPU time in user space, ' + hostName0)
       .should('be.visible');
     cy.get(panelContentSelector)
+      .contains('CPU time in operating system, ' + hostName0)
+      .should('be.visible');
+    cy.get(panelContentSelector);
+
+    cy.get(panelContentSelector)
       .contains('CPU time in user space, ' + hostName1)
+      .should('be.visible');
+    cy.get(panelContentSelector)
+      .contains('CPU time in operating system, ' + hostName1)
       .should('be.visible');
   });
 
