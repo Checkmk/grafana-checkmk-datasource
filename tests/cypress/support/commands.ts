@@ -83,6 +83,10 @@ Cypress.Commands.add('assertHoverSelectorsOn', (nSelectors: number) => {
   cy.assertHoverSelectorsOff(0);
 });
 
+Cypress.Commands.add('assertLegendElement', (text: string) => {
+  cy.get(panelContentSelector).contains(text).should('be.visible');
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -94,6 +98,7 @@ declare global {
       passOnException(errorMessage: string): Chainable<void>;
       assertHoverSelectorsOff(nSelectors: number): Chainable<void>;
       assertHoverSelectorsOn(nSelectors: number): Chainable<void>;
+      assertLegendElement(text: string): Chainable<void>;
     }
   }
 }

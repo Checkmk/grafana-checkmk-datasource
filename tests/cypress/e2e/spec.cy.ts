@@ -17,7 +17,6 @@ describe('e2e tests', () => {
   const inputServiceRegexSelector = 'input[data-test-id="service_regex-filter-input"]';
   const inputServiceSelector = 'input[id="input_Service"]';
   const inputTemplateSelector = 'input[id="input_Predefined graph"]';
-  const panelContentSelector = '[class="panel-content"]';
 
   before(() => {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
@@ -67,11 +66,10 @@ describe('e2e tests', () => {
     cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
-    // assert legend elements
-    cy.get(panelContentSelector).contains('CPU time in user space').should('be.visible');
-    cy.get(panelContentSelector).contains('CPU time in operating system').should('be.visible');
-    cy.get(panelContentSelector).contains('Time spent waiting for Checkmk agent').should('be.visible');
-    cy.get(panelContentSelector).contains('Total execution time').should('be.visible');
+    cy.assertLegendElement('CPU time in user space');
+    cy.assertLegendElement('CPU time in operating system');
+    cy.assertLegendElement('Time spent waiting for Checkmk agent');
+    cy.assertLegendElement('Total execution time');
 
     cy.assertHoverSelectorsOff(4);
     cy.assertHoverSelectorsOn(4);
@@ -87,19 +85,10 @@ describe('e2e tests', () => {
     cy.contains('Time usage by phase').should('exist');
 
     // assert legend elements (not all plots have a legend)
-    cy.get(panelContentSelector)
-      .contains('CPU time in user space, ' + hostName0)
-      .should('be.visible');
-    cy.get(panelContentSelector)
-      .contains('CPU time in operating system, ' + hostName0)
-      .should('be.visible');
-    cy.get(panelContentSelector);
-    cy.get(panelContentSelector)
-      .contains('CPU time in user space, ' + hostName1)
-      .should('be.visible');
-    cy.get(panelContentSelector)
-      .contains('CPU time in operating system, ' + hostName1)
-      .should('be.visible');
+    cy.assertLegendElement('CPU time in user space, ' + hostName0);
+    cy.assertLegendElement('CPU time in operating system, ' + hostName0);
+    cy.assertLegendElement('CPU time in user space, ' + hostName1);
+    cy.assertLegendElement('CPU time in operating system, ' + hostName1);
 
     cy.assertHoverSelectorsOff(8);
     cy.assertHoverSelectorsOn(8);
@@ -116,9 +105,8 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
-    // assert legend elements
-    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
-    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+    cy.assertLegendElement(hostName0);
+    cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
     cy.assertHoverSelectorsOn(2);
@@ -141,9 +129,8 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
-    // assert legend elements
-    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
-    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+    cy.assertLegendElement(hostName0);
+    cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
     cy.assertHoverSelectorsOn(2);
@@ -160,9 +147,8 @@ describe('e2e tests', () => {
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
-    // assert legend elements
-    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
-    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+    cy.assertLegendElement(hostName0);
+    cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
     cy.assertHoverSelectorsOn(2);
@@ -174,7 +160,7 @@ describe('e2e tests', () => {
     cy.get('input[value="' + hostName0 + '"]').should('exist');
 
     // assert legend elements (expecting a change in the panel)
-    cy.get(panelContentSelector).contains('RAM used').should('be.visible');
+    cy.assertLegendElement('RAM used');
 
     cy.assertHoverSelectorsOff(1);
     cy.assertHoverSelectorsOn(1);
@@ -183,8 +169,8 @@ describe('e2e tests', () => {
     cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
 
     // assert legend elements (expecting a change in the panel)
-    cy.get(panelContentSelector).contains(hostName0).should('be.visible');
-    cy.get(panelContentSelector).contains(hostName1).should('be.visible');
+    cy.assertLegendElement(hostName0);
+    cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
     cy.assertHoverSelectorsOn(2);
