@@ -1,3 +1,5 @@
+import '../support/commands';
+
 export {};
 
 const cmkAutomationUser = 'cmkuser';
@@ -85,18 +87,13 @@ Cypress.Commands.add('waitForActivation', (activationID: string, waitingTime: nu
 });
 
 Cypress.Commands.add('activateCmkChanges', (siteName: string) => {
-  cy.on('uncaught:exception', (err, runnable) => {
-    // activating changes is raising an uncaught exception
-    // with no error message.
-    // We are here avoiding to listen to uncaught exceptions
-    // with no error messages.
-    // TODO: investigate the root cause of such exception and
-    // remove this.
-
-    if (err.message.match('')) {
-      return false;
-    }
-  });
+  // activating changes is raising an uncaught exception
+  // with no error message.
+  // We are here avoiding to listen to uncaught exceptions
+  // with no error messages.
+  // TODO: investigate the root cause of such exception and
+  // remove this.
+  cy.passOnException('');
 
   cy.request({
     method: 'POST',
