@@ -1,5 +1,9 @@
 export {};
 
+const panelContentSelector = '[class="panel-content"]';
+const plottedHoverSelectorOff = '[class="u-cursor-pt u-off"]';
+const plottedHoverSelectorOn = '[class="u-cursor-pt"]';
+
 Cypress.Commands.add('loginGrafana', () => {
   cy.visit('/login');
   cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
@@ -63,6 +67,21 @@ Cypress.Commands.add('passOnException', (errorMessage: string) => {
   });
 });
 
+Cypress.Commands.add('assertHoverSelectorsOff', (nSelectors: number) => {
+  // assert number of plotlines via hover elements
+  cy.get(plottedHoverSelectorOff).should('have.length', nSelectors);
+});
+
+Cypress.Commands.add('assertHoverSelectorsOn', (nSelectors: number) => {
+  // click on the panel (uncaught exception raised in the CI)
+  cy.passOnException('ResizeObserver loop limit exceeded');
+  cy.get(panelContentSelector).click();
+
+  // assert changes in the hover elements
+  cy.get(plottedHoverSelectorOn).should('have.length', nSelectors);
+  cy.assertHoverSelectorsOff(0);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -72,6 +91,8 @@ declare global {
       rmCmkDatasource(): Chainable<void>;
       saveDashboard(): Chainable<string>;
       passOnException(errorMessage: string): Chainable<void>;
+      assertHoverSelectorsOff(nSelectors: number): Chainable<void>;
+      assertHoverSelectorsOn(nSelectors: number): Chainable<void>;
     }
   }
 }
