@@ -54,6 +54,15 @@ Cypress.Commands.add('saveDashboard', () => {
   return cy.wrap(randInt);
 });
 
+Cypress.Commands.add('passOnException', (errorMessage: string) => {
+  // Make the test pass if an uncaught exception with errorMessage is raised
+  cy.on('uncaught:exception', (err, runnable) => {
+    if (err.message.match(errorMessage)) {
+      return false;
+    }
+  });
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -62,6 +71,7 @@ declare global {
       addCmkDatasource(cmkUser: string, cmkPass: string): Chainable<void>;
       rmCmkDatasource(): Chainable<void>;
       saveDashboard(): Chainable<string>;
+      passOnException(errorMessage: string): Chainable<void>;
     }
   }
 }
