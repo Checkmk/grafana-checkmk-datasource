@@ -18,7 +18,8 @@ describe('e2e tests', () => {
   const inputServiceSelector = 'input[id="input_Service"]';
   const inputTemplateSelector = 'input[id="input_Predefined graph"]';
   const panelContentSelector = '[class="panel-content"]';
-  const plottedHoverSelector = '[class="u-cursor-pt u-off"]';
+  const plottedHoverSelectorOff = '[class="u-cursor-pt u-off"]';
+  const plottedHoverSelectorOn = '[class="u-cursor-pt"]';
 
   before(() => {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
@@ -75,7 +76,15 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains('Total execution time').should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 4);
+    cy.get(plottedHoverSelectorOff).should('have.length', 4);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 4);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -103,7 +112,15 @@ describe('e2e tests', () => {
       .should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 8);
+    cy.get(plottedHoverSelectorOff).should('have.length', 8);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 8);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
@@ -122,7 +139,15 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 2);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
@@ -147,7 +172,15 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 2);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
@@ -166,7 +199,15 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 2);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
 
     cy.get(inputFilterSelector).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
     cy.contains('Hostname regex').should('exist');
@@ -178,7 +219,15 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains('RAM used').should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 1);
+    cy.get(plottedHoverSelectorOff).should('have.length', 1);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 1);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
 
     cy.get(inputHostRegexSelector).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
     cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
@@ -188,6 +237,14 @@ describe('e2e tests', () => {
     cy.get(panelContentSelector).contains(hostName1).should('be.visible');
 
     // assert number of plots via hover elements
-    cy.get(plottedHoverSelector).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 2);
+
+    // click on the panel (uncaught exception raised in the CI)
+    cy.passOnException('ResizeObserver loop limit exceeded');
+    cy.get(panelContentSelector).click();
+
+    // assert changes in the hover elements
+    cy.get(plottedHoverSelectorOn).should('have.length', 2);
+    cy.get(plottedHoverSelectorOff).should('have.length', 0);
   });
 });
