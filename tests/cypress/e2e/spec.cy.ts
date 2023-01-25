@@ -175,4 +175,27 @@ describe('e2e tests', () => {
     cy.assertHoverSelectorsOff(2);
     cy.assertHoverSelectorsOn(2);
   });
+
+  it('Uptime panel by hostname', {}, () => {
+    cy.get(inputFilterSelector).type('Hostname{enter}'); // Filter -> 'Host name'
+
+    cy.get(inputHostSelector).type('{enter}'); // Hostname -> hostName0 (first entry)
+    cy.contains(hostName0).should('exist');
+
+    cy.get(inputTemplateSelector).type('Uptime{enter}'); // Template -> 'Uptime' (no entry expected)
+    cy.contains('No options found').should('exist');
+    cy.get('body').click();
+
+    cy.get(inputGraphTypeSelector).click();
+    cy.contains('Single metric').click();
+
+    cy.get(inputMetricSelector).click(); // Single metric input -> 'Uptime' (single entry expected)
+    cy.contains('Uptime').click();
+    cy.contains('Uptime').should('be.visible');
+
+    cy.assertLegendElement('Uptime');
+
+    cy.assertHoverSelectorsOff(1);
+    cy.assertHoverSelectorsOn(1);
+  });
 });
