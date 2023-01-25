@@ -35,10 +35,8 @@ describe('e2e tests', () => {
 
   after(() => {
     cy.rmCmkDatasource();
-
     cy.deleteCmkHost(hostName0);
     cy.deleteCmkHost(hostName1);
-
     cy.deleteCmkAutomationUser(true);
     cy.activateCmkChanges('cmk');
   });
@@ -81,17 +79,32 @@ describe('e2e tests', () => {
     cy.get(inputServiceSelector).type('{enter}'); // Service -> 'Check_MK' (first entry)
     cy.contains('Check_MK').should('exist');
 
-    cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
-    cy.contains('Time usage by phase').should('exist');
+    cy.get(inputTemplateSelector).click();
+    cy.get('[class="scrollbar-view"]')
+      .children()
+      .its('length')
+      .then(($dropdownLength) => {
+        cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
+        cy.contains('Time usage by phase').should('exist');
 
-    // assert legend elements (not all plots have a legend)
-    cy.assertLegendElement('CPU time in user space, ' + hostName0);
-    cy.assertLegendElement('CPU time in operating system, ' + hostName0);
-    cy.assertLegendElement('CPU time in user space, ' + hostName1);
-    cy.assertLegendElement('CPU time in operating system, ' + hostName1);
+        // assert legend elements (not all plots have a legend)
+        cy.assertLegendElement('CPU time in user space, ' + hostName0);
+        cy.assertLegendElement('CPU time in operating system, ' + hostName0);
+        cy.assertLegendElement('CPU time in user space, ' + hostName1);
+        cy.assertLegendElement('CPU time in operating system, ' + hostName1);
 
-    cy.assertHoverSelectorsOff(8);
-    cy.assertHoverSelectorsOn(8);
+        cy.assertHoverSelectorsOff(8);
+        cy.assertHoverSelectorsOn(8);
+
+        cy.get('[class="css-1a8393j-button"]').eq(3).click(); // Remove filter by service (TODO: introduce new button ID)
+
+        cy.get(inputFilterSelector).type('Service regex{enter}'); // Filter -> 'Service regex'
+        cy.contains('Service regex').should('exist');
+
+        cy.get(inputServiceRegexSelector).type('CPU{enter}'); // Service regex -> 'CPU utilization (one entry only)'
+        cy.contains('CPU').should('exist');
+        cy.get('[class="scrollbar-view"]').children().its('length').should('be.gte', $dropdownLength);
+      });
   });
 
   it('RAM-used panel by service regex (multiple hosts)', {}, () => {
