@@ -1,6 +1,7 @@
 export {};
 
 const panelContentSelector = '[class="panel-content"]';
+const panelHoverSelector = '[class="u-over"]';
 const plottedHoverSelectorOff = '[class="u-cursor-pt u-off"]';
 const plottedHoverSelectorOn = '[class="u-cursor-pt"]';
 
@@ -75,7 +76,7 @@ Cypress.Commands.add('assertHoverSelectorsOff', (nSelectors: number) => {
 Cypress.Commands.add('assertHoverSelectorsOn', (nSelectors: number) => {
   // click on the panel (uncaught exception raised in the CI)
   cy.passOnException('ResizeObserver loop limit exceeded');
-  cy.get(panelContentSelector).click();
+  cy.get(panelHoverSelector).click();
 
   // assert changes in the hover elements
   cy.get(plottedHoverSelectorOn).should('have.length', nSelectors);
