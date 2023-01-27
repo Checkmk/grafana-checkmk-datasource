@@ -16,7 +16,7 @@ describe('e2e tests', () => {
   const inputMetricSelector = 'input[id="input_Single metric"]';
   const inputServiceRegexSelector = 'input[data-test-id="service_regex-filter-input"]';
   const inputServiceSelector = 'input[id="input_Service"]';
-  const inputTemplateSelector = 'input[id="input_Predefined graph"]';
+  const inputGraphSelector = 'input[id="input_Predefined graph"]';
   const queryEditorSelector = '[class="query-editor-row"]';
 
   before(() => {
@@ -62,7 +62,7 @@ describe('e2e tests', () => {
     cy.get(inputServiceSelector).type('{enter}'); // Service -> 'Check_MK' (first entry)
     cy.contains('Check_MK').should('exist');
 
-    cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
+    cy.get(inputGraphSelector).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
     cy.contains('Time usage by phase').should('exist');
 
     cy.assertLegendElement('CPU time in user space');
@@ -90,12 +90,12 @@ describe('e2e tests', () => {
     cy.get(inputServiceSelector).type('{enter}'); // Service -> 'Check_MK' (first entry)
     cy.contains('Check_MK').should('exist');
 
-    cy.get(inputTemplateSelector).click();
+    cy.get(inputGraphSelector).click();
     cy.get('[class="scrollbar-view"]')
       .children()
       .its('length')
       .then(($dropdownLength) => {
-        cy.get(inputTemplateSelector).type('{enter}'); // Template -> 'Time usage by phase' (one entry)
+        cy.get(inputGraphSelector).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
         cy.contains('Time usage by phase').should('exist');
 
         // assert legend elements (not all plots have a legend)
@@ -125,7 +125,7 @@ describe('e2e tests', () => {
     cy.get(inputServiceRegexSelector).type('Memory{enter}'); // Service regex -> 'Memory'
     cy.get('input[value="Memory"]').should('exist');
 
-    cy.get(inputTemplateSelector).click(); // Template -> 'RAM used'
+    cy.get(inputGraphSelector).click(); // Predefined graph -> 'RAM used'
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
@@ -147,7 +147,7 @@ describe('e2e tests', () => {
     cy.contains('Single metric').click();
     cy.contains('Single metric').should('exist');
 
-    cy.get(inputTemplateSelector).should('not.exist');
+    cy.get(inputGraphSelector).should('not.exist');
 
     cy.get(inputMetricSelector).click(); // Metric -> 'RAM used'
     cy.contains('RAM used').click();
@@ -167,7 +167,7 @@ describe('e2e tests', () => {
     cy.get(inputServiceRegexSelector).type('Memory{enter}'); // Service regex -> 'Memory'
     cy.get('input[value="Memory"]').should('exist');
 
-    cy.get(inputTemplateSelector).click(); // Template -> 'RAM used'
+    cy.get(inputGraphSelector).click(); // Predefined graph -> 'RAM used'
     cy.contains('RAM used').click();
     cy.contains('RAM used').should('exist');
 
@@ -206,7 +206,7 @@ describe('e2e tests', () => {
     cy.get(inputHostSelector).type('{enter}'); // Hostname -> hostName0 (first entry)
     cy.contains(hostName0).should('exist');
 
-    cy.get(inputTemplateSelector).type('Uptime{enter}'); // Template -> 'Uptime' (no entry expected)
+    cy.get(inputGraphSelector).type('Uptime{enter}'); // Predefined graph -> 'Uptime' (no entry expected)
     cy.contains('No options found').should('exist');
     cy.get('body').click();
 
