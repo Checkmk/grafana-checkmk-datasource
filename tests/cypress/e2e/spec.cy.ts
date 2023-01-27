@@ -17,6 +17,7 @@ describe('e2e tests', () => {
   const inputServiceRegexSelector = 'input[data-test-id="service_regex-filter-input"]';
   const inputServiceSelector = 'input[id="input_Service"]';
   const inputTemplateSelector = 'input[id="input_Predefined graph"]';
+  const queryEditorSelector = '[class="query-editor-row"]';
 
   before(() => {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
@@ -71,6 +72,16 @@ describe('e2e tests', () => {
 
     cy.assertHoverSelectorsOff(4);
     cy.assertHoverSelectorsOn(4);
+
+    // Assert all filters are set
+    cy.get(queryEditorSelector).contains('Type to trigger search').should('not.exist');
+
+    cy.get(queryEditorSelector).find('button').eq(0).click(); // Remove filter by hostname
+    cy.get(queryEditorSelector).find('button').click(); // Remove filter by service
+    cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
+
+    // Assert the filter is not set
+    cy.get(queryEditorSelector).contains('Type to trigger search').should('exist');
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
