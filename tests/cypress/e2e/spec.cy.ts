@@ -222,4 +222,18 @@ describe('e2e tests', () => {
     cy.assertHoverSelectorsOff(1);
     cy.assertHoverSelectorsOn(1);
   });
+
+  it('Graph-dropdown menu entries', {}, () => {
+    cy.get('[class="scrollbar-view"]')
+      .children()
+      .its('length')
+      .then(($dropdownLength) => {
+        cy.get(inputFilterSelector).type('Service{enter}'); // Filter -> 'Service'
+        cy.get(inputServiceSelector).click();
+        cy.contains('Disk IO SUMMARY').click();
+        cy.contains('Disk IO SUMMARY').should('exist');
+
+        cy.get('[class="scrollbar-view"]').children().its('length').should('be.gte', $dropdownLength);
+      });
+  });
 });
