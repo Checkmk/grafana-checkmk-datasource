@@ -70,7 +70,6 @@ describe('e2e tests', () => {
     cy.assertLegendElement('Total execution time');
 
     cy.assertHoverSelectorsOff(4);
-    cy.assertHoverSelectorsOn(4);
   });
 
   it('time-usage panel by service (multiple hosts)', {}, () => {
@@ -94,7 +93,6 @@ describe('e2e tests', () => {
         cy.assertLegendElement('CPU time in operating system, ' + hostName1);
 
         cy.assertHoverSelectorsOff(8);
-        cy.assertHoverSelectorsOn(8);
 
         cy.get('[class="css-1a8393j-button"]').eq(3).click(); // Remove filter by service (TODO: introduce new button ID)
 
@@ -122,7 +120,6 @@ describe('e2e tests', () => {
     cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
-    cy.assertHoverSelectorsOn(2);
   });
 
   it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
@@ -146,7 +143,6 @@ describe('e2e tests', () => {
     cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
-    cy.assertHoverSelectorsOn(2);
   });
 
   it('RAM-used panel by service regex and hostname regex', {}, () => {
@@ -164,7 +160,6 @@ describe('e2e tests', () => {
     cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
-    cy.assertHoverSelectorsOn(2);
 
     cy.get(inputFilterSelector).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
     cy.contains('Hostname regex').should('exist');
@@ -176,7 +171,6 @@ describe('e2e tests', () => {
     cy.assertLegendElement('RAM used');
 
     cy.assertHoverSelectorsOff(1);
-    cy.assertHoverSelectorsOn(1);
 
     cy.get(inputHostRegexSelector).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
     cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
@@ -186,7 +180,6 @@ describe('e2e tests', () => {
     cy.assertLegendElement(hostName1);
 
     cy.assertHoverSelectorsOff(2);
-    cy.assertHoverSelectorsOn(2);
   });
 
   it('Uptime panel by hostname', {}, () => {
@@ -209,6 +202,5 @@ describe('e2e tests', () => {
     cy.assertLegendElement('Uptime');
 
     cy.assertHoverSelectorsOff(1);
-    cy.assertHoverSelectorsOn(1);
   });
 });

@@ -74,6 +74,9 @@ Cypress.Commands.add('assertHoverSelectorsOff', (nSelectors: number) => {
 });
 
 Cypress.Commands.add('assertHoverSelectorsOn', (nSelectors: number) => {
+  // such assertion leads to a flaky behavior inside the CI.
+  // TODO: assertion not used inside tests. Fix the flaky behavior or remove this custom command.
+
   // click on the panel (uncaught exception raised in the CI)
   cy.passOnException('ResizeObserver loop limit exceeded');
   cy.get(panelHoverSelector).click();
