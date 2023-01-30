@@ -48,7 +48,9 @@ jobs:
           path: dist
 
       - name: run the e2e tests
-        run: docker compose up --exit-code-from=cypress --pull always
+        run: |
+          docker compose rm -f
+          docker compose up --exit-code-from=cypress --pull always
         working-directory: tests/
 
       - name: upload cypress artifacts
