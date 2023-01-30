@@ -48,34 +48,12 @@ def clone(original_rrd, clone_rrd):
     info = rrdtool.info(original_rrd)
 
     metrics = set()
-    for key, value in info.items():
+    for key in info.keys():
         match = re.match(r"^ds\[([0-9]+)\]\.([^.]+)$", key)
         if match:
-            id, ds_key = match.groups()
+            id, _ds_key = match.groups()
             metrics.add(id)
-            if ds_key == "type" and value != "GAUGE":
-                raise NotImplementedError(value)
-            if ds_key == "minimal_heartbeat" and value != 8460:
-                raise NotImplementedError(value)
     metrics_count = len(metrics)
-
-    rra_info = defaultdict(dict)
-    for key, value in info.items():
-        match = re.match(r"^rra\[([0-9]+)\]\.([^.]+)$", key)
-        if match:
-            id, rra_key = match.groups()
-            rra_info[id][rra_key] = value
-
-    dss = []
-    for i in range(1, metrics_count + 1):
-        dss.append(f"DS:{i}:GAUGE:8460:U:U")  # assuming fixed value here, see above
-    rras = []
-    for id, rra_info in rra_info.items():
-        cf = rra_info["cf"]
-        xff = rra_info["xff"]
-        rows = rra_info["rows"]
-        steps = rra_info["pdp_per_row"]
-        rras.append(f"RRA:{cf}:{xff}:{steps}:{rows}")
 
     rrdtool.create(
         clone_rrd,
@@ -83,8 +61,8 @@ def clone(original_rrd, clone_rrd):
         "0",
         "--step",
         "60",
-        *dss,
-        *rras,
+        "--template",
+        original_rrd,
     )
 
     return metrics_count
@@ -92,11 +70,14 @@ def clone(original_rrd, clone_rrd):
 
 def modify_in_place(filename):
     filename_clone = "/tmp/clone.rrd"
+    if os.path.exists(filename_clone):
+        os.unlink(filename_clone)
     metrics_count = clone(filename, filename_clone)
 
     random.seed(filename)
 
     now = int(time.time())
+    print(now)
     randoms = [random_random_function() for _ in range(metrics_count)]
     for t in range(now - 5 * 60 * 60, now, 60):
         metrics = ":".join(str(r(t)) for r in randoms)
