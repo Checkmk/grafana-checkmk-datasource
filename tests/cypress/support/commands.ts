@@ -18,11 +18,15 @@ Cypress.Commands.add('addNewPanel', () => {
   cy.get('button[aria-label="Add new panel"]').click();
 });
 
-Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string) => {
+Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edition: string) => {
   cy.visit('/datasources/new');
   cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
 
+  cy.get('input[id="basic-settings-name"]').type(' ' + edition + '{enter}');
   cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
+  cy.get('input[id="react-select-2-input"]').type(edition + '{enter}'); // TODO: introduce an id for the input selector
+  cy.contains(edition).should('exist');
+
   cy.get('[data-test-id="checkmk-username"]').type(cmkUser);
   cy.get('[data-test-id="checkmk-password"]').type(cmkPass);
   cy.get('[id="checkmk-version"]').type('<{enter}');
@@ -33,18 +37,18 @@ Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string) => {
   cy.contains('Data source is working').should('be.visible');
 });
 
-Cypress.Commands.add('rmCmkDatasource', () => {
+Cypress.Commands.add('rmCmkDatasource', (edition: string) => {
   // Remove the previously-created datasource as teardown process.
   // This makes sure the tests use the newly generated datasource in each execution.
   // Important especially when running the tests locally if docker images are up during multiple tests' executions.
 
   cy.visit('/datasources/');
 
-  cy.get('[class="page-container page-body"]').contains('Checkmk').click();
+  cy.get('[class="page-container page-body"]')
+    .contains('Checkmk ' + edition)
+    .click();
   cy.contains('Delete').click();
   cy.get('button[aria-label="Confirm Modal Danger Button"]').click();
-
-  cy.contains('No data sources defined').should('be.visible');
 });
 
 Cypress.Commands.add('saveDashboard', () => {
@@ -92,8 +96,8 @@ declare global {
     interface Chainable {
       loginGrafana(): Chainable<void>;
       addNewPanel(): Chainable<void>;
-      addCmkDatasource(cmkUser: string, cmkPass: string): Chainable<void>;
-      rmCmkDatasource(): Chainable<void>;
+      addCmkDatasource(cmkUser: string, cmkPass: string, edition: string): Chainable<void>;
+      rmCmkDatasource(edition: string): Chainable<void>;
       saveDashboard(): Chainable<string>;
       passOnException(errorMessage: string): Chainable<void>;
       assertHoverSelectorsOff(nSelectors: number): Chainable<void>;
