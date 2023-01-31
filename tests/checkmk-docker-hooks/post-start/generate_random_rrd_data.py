@@ -58,7 +58,7 @@ def clone(original_rrd, clone_rrd):
     rrdtool.create(
         clone_rrd,
         "--start",
-        "0",
+        "20220101",
         "--step",
         "60",
         "--template",
@@ -77,7 +77,6 @@ def modify_in_place(filename):
     random.seed(filename)
 
     now = int(time.time())
-    print(now)
     randoms = [random_random_function() for _ in range(metrics_count)]
     for t in range(now - 5 * 60 * 60, now, 60):
         metrics = ":".join(str(r(t)) for r in randoms)
