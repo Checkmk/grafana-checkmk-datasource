@@ -95,6 +95,10 @@ Cypress.Commands.add('inputLocatorById', (id: string) => {
   return cy.get(`input[id="${id}"]`);
 });
 
+Cypress.Commands.add('inputLocatorByDataTestId', (dataTestId: string) => {
+  return cy.get(`input[data-test-id="${dataTestId}"]`);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -108,6 +112,7 @@ declare global {
       assertHoverSelectorsOn(nSelectors: number): Chainable<void>;
       assertLegendElement(text: string): Chainable<void>;
       inputLocatorById(id: string): Chainable<JQuery>;
+      inputLocatorByDataTestId(dataTestId: string): Chainable<JQuery>;
     }
   }
 }

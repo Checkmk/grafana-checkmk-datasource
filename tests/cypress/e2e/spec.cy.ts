@@ -20,8 +20,8 @@ describe('e2e tests', () => {
   const inputServiceId = 'input_Service';
   const inputSiteId = 'input_Site';
 
-  const inputHostRegexSelector = 'input[data-test-id="host_name_regex-filter-input"]';
-  const inputServiceRegexSelector = 'input[data-test-id="service_regex-filter-input"]';
+  const inputHostRegexDataTestId = 'host_name_regex-filter-input';
+  const inputServiceRegexDataTestId = 'service_regex-filter-input';
 
   const queryEditorSelector = '[class="query-editor-row"]';
 
@@ -125,7 +125,7 @@ describe('e2e tests', () => {
           cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service regex'
           cy.contains('Service regex').should('exist');
 
-          cy.get(inputServiceRegexSelector).type('CPU{enter}'); // Service regex -> 'CPU utilization (one entry only)'
+          cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('CPU{enter}'); // Service regex -> 'CPU utilization (one entry only)'
           cy.contains('CPU').should('exist');
           cy.get('[class="scrollbar-view"]').children().its('length').should('be.gte', $dropdownLength);
         });
@@ -136,7 +136,7 @@ describe('e2e tests', () => {
       cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service'
       cy.contains('Service regex').should('exist');
 
-      cy.get(inputServiceRegexSelector).type('Memory{enter}'); // Service regex -> 'Memory'
+      cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('Memory{enter}'); // Service regex -> 'Memory'
       cy.get('input[value="Memory"]').should('exist');
 
       cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
@@ -180,7 +180,7 @@ describe('e2e tests', () => {
       cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service'
       cy.contains('Service regex').should('exist');
 
-      cy.get(inputServiceRegexSelector).type('Memory{enter}'); // Service regex -> 'Memory'
+      cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('Memory{enter}'); // Service regex -> 'Memory'
       cy.get('input[value="Memory"]').should('exist');
 
       cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
@@ -196,7 +196,7 @@ describe('e2e tests', () => {
       cy.inputLocatorById(inputFilterId).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
       cy.contains('Hostname regex').should('exist');
 
-      cy.get(inputHostRegexSelector).type(hostName0 + '{enter}'); // Hostname regex -> {hostname0}
+      cy.inputLocatorByDataTestId(inputHostRegexDataTestId).type(hostName0 + '{enter}'); // Hostname regex -> {hostname0}
       cy.get('input[value="' + hostName0 + '"]').should('exist');
 
       // assert legend elements (expecting a change in the panel)
@@ -205,7 +205,7 @@ describe('e2e tests', () => {
       cy.assertHoverSelectorsOff(1);
       cy.assertHoverSelectorsOn(1);
 
-      cy.get(inputHostRegexSelector).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
+      cy.inputLocatorByDataTestId(inputHostRegexDataTestId).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
       cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
 
       // assert legend elements (expecting a change in the panel)
