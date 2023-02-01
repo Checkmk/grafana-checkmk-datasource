@@ -273,5 +273,28 @@ describe('e2e tests', () => {
 
       cy.contains("Could not find 'cmk_cpu_time_by_phase'").should('be.visible'); // Assert previous graph input not visible
     });
+    it('Used-RAM panel by service (single host)', {}, () => {
+      cy.passOnException('ResizeObserver loop limit exceeded');
+      cy.inputLocatorById(inputDatasourceId).type('Checkmk ' + CmkCRE + '{enter}');
+      cy.contains('Checkmk ' + CmkCRE).should('be.visible');
+
+      cy.inputLocatorById(inputSiteId).type('{enter}'); // Site -> All Sites (first entry)
+
+      cy.inputLocatorById(inputHostId).type('{enter}'); // Hostname -> hostName0 (first entry)
+      cy.contains(hostName0).should('exist');
+
+      cy.inputLocatorById(inputServiceId).click(); // Service -> 'Memory'
+      cy.contains('Memory').click();
+      cy.contains('Memory').should('exist');
+
+      cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'Used RAM'
+      cy.contains('Used RAM').click();
+      cy.contains('used RAM').should('exist');
+
+      cy.assertLegendElement('Used RAM'); // TODO: Getting 'RAM used %'. Should the graph name match the metric?
+
+      cy.assertHoverSelectorsOff(1);
+      cy.assertHoverSelectorsOn(1);
+    });
   });
 });
