@@ -264,6 +264,14 @@ describe('e2e tests', () => {
 
       cy.assertHoverSelectorsOff(4);
       cy.assertHoverSelectorsOn(4);
+
+      cy.contains("Could not find 'cmk_cpu_time_by_phase'").should('not.exist');
+
+      cy.inputLocatorById(inputServiceId).click(); // Service -> 'Memory'
+      cy.contains('Memory').click();
+      cy.contains('Memory').should('exist');
+
+      cy.contains("Could not find 'cmk_cpu_time_by_phase'").should('be.visible'); // Assert previous graph input not visible
     });
   });
 });
