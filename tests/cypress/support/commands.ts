@@ -91,6 +91,10 @@ Cypress.Commands.add('assertLegendElement', (text: string) => {
   cy.get(panelContentSelector).contains(text).should('be.visible');
 });
 
+Cypress.Commands.add('inputLocatorById', (id: string) => {
+  return cy.get(`input[id="${id}"]`);
+});
+
 declare global {
   namespace Cypress {
     interface Chainable {
@@ -103,6 +107,7 @@ declare global {
       assertHoverSelectorsOff(nSelectors: number): Chainable<void>;
       assertHoverSelectorsOn(nSelectors: number): Chainable<void>;
       assertLegendElement(text: string): Chainable<void>;
+      inputLocatorById(id: string): Chainable<JQuery>;
     }
   }
 }
