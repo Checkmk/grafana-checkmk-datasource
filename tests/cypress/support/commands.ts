@@ -22,7 +22,7 @@ Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edit
   cy.visit('/datasources/new');
   cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
 
-  cy.get('input[id="basic-settings-name"]').type(' ' + edition + '{enter}');
+  cy.get('input[id="basic-settings-name"]').type(' ' + edition);
   cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
   cy.get('input[id="react-select-2-input"]').type(edition + '{enter}'); // TODO: introduce an id for the input selector
   cy.contains(edition).should('exist');
