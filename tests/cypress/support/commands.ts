@@ -12,6 +12,10 @@ Cypress.Commands.add('loginGrafana', () => {
   cy.get('[aria-label="Login button"]').click();
 });
 
+Cypress.Commands.add('logoutGrafana', () => {
+  cy.visit('/logout');
+});
+
 Cypress.Commands.add('addNewPanel', () => {
   // add a new panel in a new dashboard
   cy.visit('/dashboard/new');
@@ -103,6 +107,7 @@ declare global {
   namespace Cypress {
     interface Chainable {
       loginGrafana(): Chainable<void>;
+      logoutGrafana(): Chainable<void>;
       addNewPanel(): Chainable<void>;
       addCmkDatasource(cmkUser: string, cmkPass: string, edition: string): Chainable<void>;
       rmCmkDatasource(edition: string): Chainable<void>;
