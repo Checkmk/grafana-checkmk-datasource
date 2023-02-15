@@ -39,6 +39,7 @@ describe('e2e tests', () => {
     cy.loginGrafana();
     cy.addCmkDatasource(cmkUser, cmkPassword, CmkCEE);
     cy.addCmkDatasource(cmkUser, cmkPassword, CmkCRE);
+    cy.logoutGrafana();
   });
 
   after(() => {
