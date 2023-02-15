@@ -86,6 +86,31 @@ Cypress.Commands.add('waitForActivation', (activationID: string, waitingTime: nu
   });
 });
 
+Cypress.Commands.add('waitForPendingServices', (waitingTime: number) => {
+  cy.wait(waitingTime);
+  cy.request({
+    method: 'GET',
+    url: Cypress.env('cypressToCheckmkUrl') + '/check_mk/api/1.0/domain-types/host/collections/all',
+    followRedirect: false,
+    headers: { accept: 'application/json' },
+    qs: { columns: 'num_services_pending' },
+    auth: {
+      bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
+    },
+  }).then((response) => {
+    expect(response.status).is.equal(200);
+    let totalPending = 0;
+    for (const host of response.body.value) {
+      totalPending += host.extensions.num_services_pending;
+    }
+    console.log(`waiting for ${totalPending} pending services.`);
+    if (totalPending === 0) {
+      return;
+    }
+    cy.waitForPendingServices(waitingTime);
+  });
+});
+
 Cypress.Commands.add('activateCmkChanges', (siteName: string) => {
   // activating changes is raising an uncaught exception
   // with no error message.
@@ -147,6 +172,7 @@ declare global {
       createCmkHost(hostName: string): Chainable<void>;
       deleteCmkHost(hostName: string): Chainable<void>;
       waitForActivation(activationID: string, waitingTime: number): Chainable<void>;
+      waitForPendingServices(waitingTime: number): Chainable<void>;
       activateCmkChanges(siteName: string): Chainable<void>;
       executeServiceDiscovery(hotname: string, mode: string): Chainable<void>;
     }

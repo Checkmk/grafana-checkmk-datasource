@@ -35,6 +35,7 @@ describe('e2e tests', () => {
     cy.executeServiceDiscovery(hostName0, 'new');
     cy.executeServiceDiscovery(hostName1, 'new');
     cy.activateCmkChanges('cmk');
+    cy.waitForPendingServices(2000);
 
     cy.loginGrafana();
     cy.addCmkDatasource(cmkUser, cmkPassword, CmkCEE);
