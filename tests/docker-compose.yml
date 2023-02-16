@@ -33,6 +33,7 @@ services:
       CYPRESS_cypressToCheckmkUrl: http://checkmk:5000/cmk
       CYPRESS_grafanaToCheckmkUrl: http://checkmk:5000/cmk
       DEBUG: cypress:server:browsers:firefox-util,cypress:server:util:process_profiler
+      ELECTRON_ENABLE_LOGGING: 1
     volumes:
       - ./cypress:/cypress
       - ./cypress.config.js:/cypress.config.js

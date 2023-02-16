@@ -145,7 +145,29 @@ Cypress.Commands.add('activateCmkChanges', (siteName: string) => {
   });
 });
 
+Cypress.Commands.add('waitForDiscovery', (hostName: string) => {
+  cy.wait(1000);
+  cy.request({
+    method: 'GET',
+    url: Cypress.env('cypressToCheckmkUrl') + '/check_mk/api/1.0/objects/service_discovery_run/' + hostName,
+    followRedirect: false,
+    headers: { accept: 'application/json' },
+    auth: {
+      bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
+    },
+  }).then((response) => {
+    if (response.body.extensions.state !== 'finished') {
+      console.log(`discovery ${response.body.extensions.state}`);
+      console.log(JSON.stringify(response.body.extensions.logs, undefined, 4));
+      cy.waitForDiscovery(hostName);
+    } else {
+      console.log(`discovery ${response.body.extensions.state}`);
+    }
+  });
+});
+
 Cypress.Commands.add('executeServiceDiscovery', (hostName: string, mode: string) => {
+  console.log(`executing service discovery ${hostName} ${mode}`);
   cy.request({
     method: 'POST',
     url:
@@ -161,6 +183,7 @@ Cypress.Commands.add('executeServiceDiscovery', (hostName: string, mode: string)
     },
   }).then((response) => {
     expect(response.status).is.equal(200);
+    cy.waitForDiscovery(hostName);
   });
 });
 
@@ -175,6 +198,7 @@ declare global {
       waitForPendingServices(waitingTime: number): Chainable<void>;
       activateCmkChanges(siteName: string): Chainable<void>;
       executeServiceDiscovery(hotname: string, mode: string): Chainable<void>;
+      waitForDiscovery(hotname: string): Chainable<void>;
     }
   }
 }

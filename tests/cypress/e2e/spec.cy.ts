@@ -32,8 +32,10 @@ describe('e2e tests', () => {
     cy.createCmkHost(hostName0);
     cy.createCmkHost(hostName1);
 
-    cy.executeServiceDiscovery(hostName0, 'new');
-    cy.executeServiceDiscovery(hostName1, 'new');
+    cy.executeServiceDiscovery(hostName0, 'refresh');
+    cy.executeServiceDiscovery(hostName0, 'fix_all');
+    cy.executeServiceDiscovery(hostName1, 'refresh');
+    cy.executeServiceDiscovery(hostName1, 'fix_all');
     cy.activateCmkChanges('cmk');
     cy.waitForPendingServices(2000);
 
