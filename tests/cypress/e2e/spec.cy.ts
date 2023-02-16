@@ -140,6 +140,7 @@ describe('e2e tests', () => {
 
       cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('Memory{enter}'); // Service regex -> 'Memory'
       cy.get('input[value="Memory"]').should('exist');
+      cy.expectSpinners();
 
       cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
       cy.contains('RAM used').click();
@@ -159,6 +160,7 @@ describe('e2e tests', () => {
 
       cy.inputLocatorById('react-select-15-input').type('{enter}'); // Host labels -> 'cmk/site:cmk' (one entry)
       cy.contains('cmk/site:cmk').should('exist');
+      cy.expectSpinners();
 
       cy.inputLocatorById(inputGraphTypeId).click(); // Graph type -> 'Single metric'
       cy.contains('Single metric').click();
@@ -184,6 +186,7 @@ describe('e2e tests', () => {
 
       cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('Memory{enter}'); // Service regex -> 'Memory'
       cy.get('input[value="Memory"]').should('exist');
+      cy.expectSpinners();
 
       cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
       cy.contains('RAM used').click();
@@ -231,6 +234,7 @@ describe('e2e tests', () => {
 
       cy.inputLocatorById(inputGraphTypeId).click();
       cy.contains('Single metric').click();
+      cy.expectSpinners();
 
       cy.inputLocatorById(inputMetricId).click(); // Single metric input -> 'Uptime' (single entry expected)
       cy.contains('Uptime').click();
