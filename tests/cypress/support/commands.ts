@@ -10,6 +10,8 @@ Cypress.Commands.add('loginGrafana', () => {
   cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
   cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
   cy.get('[aria-label="Login button"]').click();
+  // wait until page after logged in is fully loaded
+  cy.contains('Recently viewed dashboards').should('be.visible');
 });
 
 Cypress.Commands.add('logoutGrafana', () => {
