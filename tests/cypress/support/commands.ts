@@ -78,6 +78,13 @@ Cypress.Commands.add('passOnException', (errorMessage: string) => {
   });
 });
 
+Cypress.Commands.add('expectSpinners', () => {
+  // wait until spinner is visible (dropdown is waiting for data)
+  cy.get('div[data-testid="Spinner"]').should('be.visible');
+  // wait until spinner is gone (dropdown is populated)
+  cy.get('div[data-testid="Spinner"]').should('not.exist');
+});
+
 Cypress.Commands.add('assertHoverSelectorsOff', (nSelectors: number) => {
   // assert number of plotlines via hover elements
   cy.get(plottedHoverSelectorOff).should('have.length', nSelectors);
@@ -115,6 +122,7 @@ declare global {
       rmCmkDatasource(edition: string): Chainable<void>;
       saveDashboard(): Chainable<string>;
       passOnException(errorMessage: string): Chainable<void>;
+      expectSpinners(): Chainable<void>;
       assertHoverSelectorsOff(nSelectors: number): Chainable<void>;
       assertHoverSelectorsOn(nSelectors: number): Chainable<void>;
       assertLegendElement(text: string): Chainable<void>;
