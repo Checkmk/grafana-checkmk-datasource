@@ -142,8 +142,8 @@ describe('e2e tests', () => {
       cy.expectSpinners();
 
       cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
-      cy.contains('RAM used').click();
-      cy.contains('RAM used').should('exist');
+      cy.get('[aria-label="Select options menu"]').contains('RAM used').click();
+      cy.contains(/^RAM used$/).should('exist');
 
       cy.assertLegendElement(hostName0);
       cy.assertLegendElement(hostName1);
@@ -157,9 +157,10 @@ describe('e2e tests', () => {
       cy.inputLocatorById(inputFilterId).type('Host labels{enter}'); // Filter -> 'Host labels'
       cy.contains('Host labels').should('exist');
 
-      cy.inputLocatorById('react-select-15-input').type('{enter}'); // Host labels -> 'cmk/site:cmk' (one entry)
+      cy.inputLocatorById('react-select-15-input').type('cmk/site:cm'); // Host labels -> 'cmk/site:cm' (one entry)
+      // TODO: should only contain a single lable, but shows all?
       cy.contains('cmk/site:cmk').should('exist');
-      cy.expectSpinners();
+      cy.contains('cmk/site:cmk').click();
 
       cy.inputLocatorById(inputGraphTypeId).click(); // Graph type -> 'Single metric'
       cy.contains('Single metric').click();
@@ -168,8 +169,8 @@ describe('e2e tests', () => {
       cy.inputLocatorById(inputGraphId).should('not.exist');
 
       cy.inputLocatorById(inputMetricId).click(); // Metric -> 'RAM used'
-      cy.contains('RAM used').click();
-      cy.contains('RAM used').should('exist');
+      cy.get('[aria-label="Select options menu"]').contains('RAM used').click();
+      cy.contains(/^RAM used$/).should('exist');
 
       cy.assertLegendElement(hostName0);
       cy.assertLegendElement(hostName1);
@@ -188,8 +189,8 @@ describe('e2e tests', () => {
       cy.expectSpinners();
 
       cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
-      cy.contains('RAM used').click();
-      cy.contains('RAM used').should('exist');
+      cy.get('[aria-label="Select options menu"]').contains('RAM used').click();
+      cy.contains(/^RAM used$/).should('exist');
 
       cy.assertLegendElement(hostName0);
       cy.assertLegendElement(hostName1);
