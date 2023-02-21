@@ -43,18 +43,33 @@ Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edit
   cy.contains('Data source is working').should('be.visible');
 });
 
-Cypress.Commands.add('rmCmkDatasource', (edition: string) => {
+Cypress.Commands.add('rmAllDataSources', () => {
   // Remove the previously-created datasource as teardown process.
   // This makes sure the tests use the newly generated datasource in each execution.
   // Important especially when running the tests locally if docker images are up during multiple tests' executions.
 
-  cy.visit('/datasources/');
-
-  cy.get('[class="page-container page-body"]')
-    .contains('Checkmk ' + edition)
-    .click();
-  cy.contains('Delete').click();
-  cy.get('button[aria-label="Confirm Modal Danger Button"]').click();
+  cy.request({
+    method: 'GET',
+    url: '/api/datasources',
+    auth: {
+      user: Cypress.env('grafanaUsername'),
+      pass: Cypress.env('grafanaPassword'),
+    },
+  }).then((response) => {
+    expect(response.status).is.equal(200);
+    for (const ds of response.body) {
+      cy.request({
+        method: 'DELETE',
+        url: `/api/datasources/uid/${ds.uid}`,
+        auth: {
+          user: Cypress.env('grafanaUsername'),
+          pass: Cypress.env('grafanaPassword'),
+        },
+      }).then((response) => {
+        expect(response.status).is.equal(200);
+      });
+    }
+  });
 });
 
 Cypress.Commands.add('saveDashboard', () => {
@@ -119,7 +134,7 @@ declare global {
       logoutGrafana(): Chainable<void>;
       addNewPanel(): Chainable<void>;
       addCmkDatasource(cmkUser: string, cmkPass: string, edition: string): Chainable<void>;
-      rmCmkDatasource(edition: string): Chainable<void>;
+      rmAllDataSources(): Chainable<void>;
       saveDashboard(): Chainable<string>;
       passOnException(errorMessage: string): Chainable<void>;
       expectSpinners(): Chainable<void>;

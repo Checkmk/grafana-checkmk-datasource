@@ -46,10 +46,7 @@ describe('e2e tests', () => {
   });
 
   after(() => {
-    cy.rmCmkDatasource(CmkCEE);
-    cy.rmCmkDatasource(CmkCRE);
-    cy.contains('No data sources defined').should('be.visible');
-
+    cy.rmAllDataSources();
     cy.deleteCmkHost(hostName0);
     cy.deleteCmkHost(hostName1);
     cy.deleteCmkAutomationUser(true);
