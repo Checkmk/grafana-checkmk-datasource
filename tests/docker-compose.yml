@@ -12,16 +12,18 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: password
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: tribe-29-checkmk-datasource
-    ports:
-      - '3000:3000'
+#    ports:
+#      - '3000:3000'
     depends_on:
       - checkmk
+    network_mode: host
   checkmk:
     image: checkmk/check-mk-free:2.1.0-latest
-    ports:
-      - '12345:5000'
+#    ports:
+#      - '12345:5000'
     volumes:
       - ./checkmk-docker-hooks:/docker-entrypoint.d
+    network_mode: host
   cypress:
     image: cypress/included:10.6.0
     depends_on:

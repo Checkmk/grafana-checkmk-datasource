@@ -89,11 +89,24 @@ export default class RestApiBackend implements Backend {
         'The data source specified the Checkmk Enterprise Edition, but Checkmk Raw Edition was detected. Please choose the raw edition in the data source settings.'
       );
     }
+    // The REST API would be ok with other users, but the autocompleter are not
+    if (!await this.isAutomationUser(this.datasource.getUsername())) {
+      throw new Error(
+        'This data source must authenticate against Checkmk using an automation user.'
+      )
+    }
     return {
       status: 'success',
       message: `Data source is working, reached version ${checkMkVersion} of checkmk`,
       title: 'Success',
     };
+  }
+
+  async isAutomationUser(username: string): Promise<boolean> {
+    const response = await this.api<any>({
+      url: `/objects/user_config/${username}`
+    })
+    return response.data["extensions"]["auth_type"] === "automation"
   }
 
   async api<T>(request: BackendSrvRequest): Promise<FetchResponse<T>> {
