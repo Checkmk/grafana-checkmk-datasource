@@ -12,7 +12,7 @@ import {
   Label,
   VerticalGroup,
 } from '@grafana/ui';
-import { debounce } from 'lodash';
+import { debounce, isNull } from 'lodash';
 import React, { JSXElementConstructor } from 'react';
 
 import {
@@ -38,6 +38,14 @@ interface CheckMkAsyncSelectProps<Key extends keyof RequestSpec, Value = Request
   inputId: string; // make the InlineField magic do its work // TODO: find better solution
 }
 
+function findValueInOptions<Value>(lookupOptions: Array<NonNullable<SelectableValue<Value>>>, value: Value) {
+  const result = lookupOptions.find((opt) => opt.value === value);
+  if (result !== undefined) {
+    return result;
+  }
+  return null;
+}
+
 export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value = RequestSpec[Key]>(
   props: CheckMkAsyncSelectProps<Key, Value>
 ) {
@@ -45,14 +53,6 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
   const [options, setOptions] = React.useState([] as Array<SelectableValue<Value>>);
   const [counter, setCounter] = React.useState(0);
   const [autocompleteError, setAutocompleteError] = React.useState('');
-
-  function findValueInOptions() {
-    const result = options.find((opt) => opt.value === value);
-    if (result) {
-      return result;
-    }
-    return null;
-  }
 
   function getPlaceholder() {
     if (autocompleteError !== '') {
@@ -68,22 +68,32 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
   }
 
   const loadOptions = React.useCallback(
-    (inputValue: string): Promise<Array<SelectableValue<Value>>> => {
-      return autocompleter(inputValue).then(
-        (data) => {
-          setAutocompleteError('');
-          setOptions(data);
-          return data;
-        },
-        (error) => {
-          if (error && error.message) {
-            setAutocompleteError(error.message);
-          }
-          throw error;
+    async (inputValue: string): Promise<Array<SelectableValue<Value>>> => {
+      try {
+        const data = await autocompleter(inputValue);
+        setAutocompleteError('');
+        if (value !== null && value !== undefined && inputValue === '' && isNull(findValueInOptions(data, value))) {
+          // when we load the query editor with a saved configuration it is
+          // possible, that the value saved is not present in the autocompleter
+          // values which got queried with an empty string. (the autocompleter
+          // only returns the first 100 matching elements).
+          // this would mean we would display an error "could not find element 'xxx'"
+          // in order to prevent that, we do an additional query, with the
+          // value to make sure we receive the value (and label).
+          const specificData = await autocompleter(value as string);
+          data.push(...specificData);
         }
-      );
+        setOptions(data);
+        return data;
+      } catch (e) {
+        const error = e as Error;
+        if (error && error.message) {
+          setAutocompleteError(error.message);
+        }
+        throw error;
+      }
     },
-    [autocompleter]
+    [autocompleter, value]
   );
 
   React.useEffect(() => {
@@ -108,7 +118,7 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
       key={`${Math.max(1, counter)}`} // ignore the first update
       loadOptions={loadOptions}
       width={width || 32}
-      value={findValueInOptions()}
+      value={findValueInOptions(options, value)}
       placeholder={getPlaceholder()}
     />
   );
