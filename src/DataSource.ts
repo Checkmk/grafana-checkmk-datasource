@@ -54,4 +54,8 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     }
     return this.restBackend;
   }
+
+  getUsername(): string {
+    return this.instanceSettings.jsonData.username!;
+  }
 }
