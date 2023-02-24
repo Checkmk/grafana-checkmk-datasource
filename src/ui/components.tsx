@@ -43,6 +43,7 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
 ) {
   const { autocompleter, width, value, onChange, label, inputId } = props;
   const [options, setOptions] = React.useState([] as Array<SelectableValue<Value>>);
+  const [searchedOptions, setSearchedOptions] = React.useState([] as Array<SelectableValue<Value>>);
   const [counter, setCounter] = React.useState(0);
   const [autocompleteError, setAutocompleteError] = React.useState('');
 
@@ -50,6 +51,9 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
     const result = options.find((opt) => opt.value === value);
     if (result) {
       return result;
+    }
+    if (searchedOptions.length === 1) {
+      return searchedOptions[0];
     }
     return null;
   }
@@ -68,7 +72,7 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
   }
 
   const loadOptions = React.useCallback(
-    (inputValue: string): Promise<Array<SelectableValue<Value>>> => {
+    async (inputValue: string): Promise<Array<SelectableValue<Value>>> => {
       return autocompleter(inputValue).then(
         (data) => {
           setAutocompleteError('');
@@ -90,6 +94,17 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
     setOptions([]);
     setCounter((c) => c + 1);
   }, [autocompleter, label]);
+
+  React.useEffect(() => {
+    async function inner() {
+      if (typeof value === 'string') {
+        const stringValue = value as string;
+        const specificOptions = await autocompleter(stringValue);
+        setSearchedOptions(specificOptions);
+      }
+    }
+    inner();
+  }, [autocompleter, value]);
 
   const changed = (newValue: SelectableValue<Value>) => {
     if (newValue.value === undefined) {

@@ -56,6 +56,6 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   }
 
   getUsername(): string {
-    return this.instanceSettings.jsonData.username!
+    return this.instanceSettings.jsonData.username!;
   }
 }

@@ -90,10 +90,8 @@ export default class RestApiBackend implements Backend {
       );
     }
     // The REST API would be ok with other users, but the autocompleter are not
-    if (!await this.isAutomationUser(this.datasource.getUsername())) {
-      throw new Error(
-        'This data source must authenticate against Checkmk using an automation user.'
-      )
+    if (!(await this.isAutomationUser(this.datasource.getUsername()))) {
+      throw new Error('This data source must authenticate against Checkmk using an automation user.');
     }
     return {
       status: 'success',
@@ -104,9 +102,9 @@ export default class RestApiBackend implements Backend {
 
   async isAutomationUser(username: string): Promise<boolean> {
     const response = await this.api<any>({
-      url: `/objects/user_config/${username}`
-    })
-    return response.data["extensions"]["auth_type"] === "automation"
+      url: `/objects/user_config/${username}`,
+    });
+    return response.data['extensions']['auth_type'] === 'automation';
   }
 
   async api<T>(request: BackendSrvRequest): Promise<FetchResponse<T>> {
