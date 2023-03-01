@@ -428,6 +428,7 @@ export const OnlyActiveChildren = (props: { children: ChildComponent[]; requestS
             <HorizontalGroup key={getLabel(elem)}>
               <Button
                 icon="minus"
+                data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
                 variant="secondary"
                 onClick={() =>
                   setActiveComponents((c) => {
