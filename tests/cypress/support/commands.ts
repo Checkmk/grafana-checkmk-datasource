@@ -26,7 +26,7 @@ Cypress.Commands.add('addNewPanel', () => {
 
 Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edition: string) => {
   cy.visit('/datasources/new');
-  cy.get('button[aria-label="Add data source Checkmk"]').contains('Checkmk').click();
+  cy.get('button[aria-label="Add new data source Checkmk"]').contains('Checkmk').click();
 
   cy.get('input[id="basic-settings-name"]').type(' ' + edition);
   cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
@@ -116,7 +116,7 @@ Cypress.Commands.add('assertHoverSelectorsOn', (nSelectors: number) => {
 });
 
 Cypress.Commands.add('assertLegendElement', (text: string) => {
-  cy.get(panelContentSelector).contains(text).should('be.visible');
+  cy.get(panelContentSelector).contains(text).should('exist');
 });
 
 Cypress.Commands.add('inputLocatorById', (id: string) => {

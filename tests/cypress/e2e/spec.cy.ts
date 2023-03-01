@@ -121,7 +121,7 @@ describe('e2e tests', () => {
           cy.assertHoverSelectorsOff(8);
           cy.assertHoverSelectorsOn(8);
 
-          cy.get('[class="css-1a8393j-button"]').eq(3).click(); // Remove filter by service (TODO: introduce new button ID)
+          cy.get('[data-test-id="cmk-oac-minus-button-Service"]').click(); // Remove filter by service
 
           cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service regex'
           cy.contains('Service regex').should('exist');
