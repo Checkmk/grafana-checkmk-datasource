@@ -24,15 +24,21 @@ import {
   TagValue,
 } from '../RequestSpec';
 
-interface CommonProps<Key extends keyof RequestSpec, Value = RequestSpec[Key]> {
+interface CommonProps<T> {
   label?: string;
-  requestSpecKey?: Key;
-  onChange(value: Value): void;
-  value: Value;
+  requestSpecKey?: string;
+  onChange(value: T): void;
+  value: T;
 }
 
-interface CheckMkAsyncSelectProps<Key extends keyof RequestSpec, Value = RequestSpec[Key]>
-  extends CommonProps<Key, Value> {
+interface CheckMkAsyncSelectProps<Key extends keyof RequestSpec> extends CommonProps<RequestSpec[Key]> {
+  width?: number;
+  requestSpecKey?: Key;
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<RequestSpec[Key]>>>>;
+  inputId: string; // make the InlineField magic do its work // TODO: find better solution
+}
+
+interface CheckMkGenericAsyncSelectProps<Value> extends CommonProps<Value> {
   width?: number;
   autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<Value>>>>;
   inputId: string; // make the InlineField magic do its work // TODO: find better solution
@@ -46,8 +52,8 @@ function findValueInOptions<Value>(lookupOptions: Array<NonNullable<SelectableVa
   return null;
 }
 
-export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value = RequestSpec[Key]>(
-  props: CheckMkAsyncSelectProps<Key, Value>
+export const CheckMkGenericAsyncSelect = function <Value extends string | (string | undefined)>(
+  props: CheckMkGenericAsyncSelectProps<Value>
 ) {
   const { autocompleter, width, value, onChange, label, inputId } = props;
   const [options, setOptions] = React.useState([] as Array<SelectableValue<Value>>);
@@ -80,7 +86,7 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
           // this would mean we would display an error "could not find element 'xxx'"
           // in order to prevent that, we do an additional query, with the
           // value to make sure we receive the value (and label).
-          const specificData = await autocompleter(value as string);
+          const specificData = await autocompleter(value);
           data.push(...specificData);
         }
         setOptions(data);
@@ -123,10 +129,12 @@ export const CheckMkAsyncSelect = function <Key extends keyof RequestSpec, Value
     />
   );
 };
+export const CheckMkAsyncSelect = function <Key extends RequestSpecStringKeys>(props: CheckMkAsyncSelectProps<Key>) {
+  return CheckMkGenericAsyncSelect<RequestSpec[Key]>(props);
+};
 
-interface CheckMkSelectProps<Key extends RequestSpecStringKeys, Value = RequestSpec[Key]>
-  extends CommonProps<Key, Value> {
-  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<Value>>>>;
+interface CheckMkSelectProps<Key extends RequestSpecStringKeys> extends CommonProps<RequestSpec[Key]> {
+  autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<RequestSpec[Key]>>>>;
 }
 
 export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkSelectProps<Key>) => {
@@ -197,7 +205,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
   );
 };
 
-interface FilterProps<Key extends RequestSpecNegatableOptionKeys> extends CommonProps<Key> {
+interface FilterProps<Key extends RequestSpecNegatableOptionKeys> extends CommonProps<RequestSpec[Key]> {
   requestSpecKey: Key;
 }
 
@@ -281,7 +289,7 @@ const SingleTag = (props: {
   return (
     <HorizontalGroup>
       <Label>Host tag {props.index}: </Label>
-      <CheckMkAsyncSelect
+      <CheckMkGenericAsyncSelect<string | undefined>
         onChange={(val) => {
           onChange({ ...value, group: val ?? '' });
         }}
@@ -289,14 +297,14 @@ const SingleTag = (props: {
         inputId={'group'}
         autocompleter={groupAutocompleter}
       />
-      <CheckMkAsyncSelect
+      <CheckMkGenericAsyncSelect<string | undefined>
         width={8}
         onChange={(val) => onChange({ ...value, operator: val ?? 'is' })}
         value={value.operator}
         autocompleter={operatorAutocompleter}
         inputId={'operator'}
       />
-      <CheckMkAsyncSelect
+      <CheckMkGenericAsyncSelect<string | undefined>
         onChange={(val) => onChange({ ...value, tag: val ?? '' })}
         value={value.tag}
         inputId={'tag'}
@@ -306,7 +314,7 @@ const SingleTag = (props: {
   );
 };
 
-interface HostTagFilterProps extends CommonProps<'host_tags'> {
+interface HostTagFilterProps extends CommonProps<RequestSpec['host_tags']> {
   autocompleter: (
     prefix: string,
     mode: 'groups' | 'choices',
@@ -336,7 +344,7 @@ export const HostTagFilter: React.FC<HostTagFilterProps> = (props) => {
   );
 };
 
-interface HostLabelProps extends CommonProps<'host_labels'> {
+interface HostLabelProps extends CommonProps<RequestSpec['host_labels']> {
   autocompleter: (value: string) => Promise<Array<SelectableValue<string>>>;
 }
 
@@ -376,10 +384,10 @@ export const HostLabelFilter: React.FC<HostLabelProps> = (props) => {
   );
 };
 
-interface TopLevelComponentProps<Key extends keyof RequestSpec, Value = RequestSpec[Key]> {
+interface TopLevelComponentProps<Key extends keyof RequestSpec> {
   label: string;
   requestSpecKey: Key;
-  onChange(value: Value): void;
+  onChange(value: RequestSpec[Key]): void;
 }
 
 type ChildComponent = React.ReactElement<TopLevelComponentProps<FilterEditorKeys>, JSXElementConstructor<unknown>>;
