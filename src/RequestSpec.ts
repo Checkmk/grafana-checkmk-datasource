@@ -36,21 +36,14 @@ export type GraphType = 'single_metric' | 'predefined_graph';
 
 export type Aggregation = 'off' | 'sum' | 'average' | 'minimum' | 'maximum';
 
-export type RequestSpecStringKeys = 'host_name' | 'site' | 'service' | 'graph' | 'graph_type' | 'aggregation';
+export type PickByValue<T, V> = Pick<T, { [K in keyof T]: T[K] extends V ? K : never }[keyof T]>;
 
-export type RequestSpecNegatableOptionKeys = 'host_name_regex' | 'service_regex' | 'host_in_group' | 'service_in_group';
+export type RequestSpecStringKeys = keyof PickByValue<RequestSpec, string | undefined>;
+
+export type RequestSpecNegatableOptionKeys = keyof PickByValue<RequestSpec, NegatableOption | undefined>;
 
 export const defaultRequestSpec: Partial<RequestSpec> = {
   aggregation: 'off',
   graph_type: 'predefined_graph',
 };
-export type FilterEditorKeys =
-  | 'site'
-  | 'host_name'
-  | 'host_name_regex'
-  | 'host_in_group'
-  | 'host_labels'
-  | 'host_tags'
-  | 'service'
-  | 'service_regex'
-  | 'service_in_group';
+export type FilterEditorKeys = Exclude<keyof RequestSpec, 'graph_type' | 'aggregation' | 'graph'>;
