@@ -4,7 +4,7 @@
 
 const standard = require('@grafana/toolkit/src/config/jest.plugin.config');
 
-const extraTestPath = '**/tests/unit/*';
+const extraTestPath = '**/tests/unit/**/*';
 const config = standard.jestConfig();
 config.testMatch.push(extraTestPath);
 
