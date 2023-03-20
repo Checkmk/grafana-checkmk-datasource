@@ -3,10 +3,9 @@ import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
-import { Aggregation, GraphType, RequestSpec } from '../RequestSpec';
+import { Aggregation, GraphType } from '../RequestSpec';
 import { CmkQuery, DataSourceOptions, ResponseDataAutocomplete } from '../types';
 import { aggregationToPresentation, updateQuery } from '../utils';
-import { createAutocompleteConfig } from './autocomplete';
 import {
   CheckMkSelect,
   CheckMkSelectNegatable,
@@ -17,33 +16,6 @@ import {
 } from './components';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
-
-async function contextAutocomplete(
-  datasource: DataSource,
-  ident: string,
-  partialRequestSpec: Partial<RequestSpec>,
-  prefix: string,
-  params: Record<string, string | boolean>
-) {
-  const response = await datasource.autocompleterRequest<ResponseDataAutocomplete>(
-    'ajax_vs_autocomplete.py',
-    createAutocompleteConfig(partialRequestSpec, ident, prefix, params)
-  );
-  return response.data.result.choices.map(([value, label]: [string, string]) => ({
-    value,
-    label,
-    isDisabled: value === null,
-  }));
-}
-
-async function labelAutocomplete(datasource: DataSource, prefix: string) {
-  // TODO: would have expected that the site is used as context!
-  const response = await datasource.autocompleterRequest<Array<{ value: string }>>('ajax_autocomplete_labels.py', {
-    world: 'core',
-    search_label: prefix,
-  });
-  return response.data.result.map((val: { value: string }) => ({ value: val.value, label: val.value }));
-}
 
 export const QueryEditor = (props: Props): JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
@@ -100,29 +72,30 @@ export const QueryEditor = (props: Props): JSX.Element => {
   ];
 
   const siteAutocompleter = React.useCallback(
-    (prefix: string) => {
-      return contextAutocomplete(datasource, 'sites', {}, prefix, { strict: false });
+    async (prefix: string) => {
+      return await datasource.contextAutocomplete('sites', {}, prefix, { strict: false });
     },
     [datasource]
   );
   const hostAutocompleter = React.useCallback(
     (prefix: string) =>
-      contextAutocomplete(datasource, 'monitored_hostname', { site: qSite }, prefix, { strict: 'with_source' }),
+      datasource.contextAutocomplete('monitored_hostname', { site: qSite }, prefix, { strict: 'with_source' }),
     [datasource, qSite]
   );
   const hostLabelAutocompleter = React.useCallback(
-    (prefix: string) => labelAutocomplete(datasource, prefix),
+    // TODO: would have expected that the site is used as context!
+    (prefix: string) => datasource.contextAutocomplete('label', {}, prefix, { world: 'core' }),
     [datasource]
   );
   const hostGroupAutocompleter = React.useCallback(
     (prefix: string) =>
-      contextAutocomplete(datasource, 'allgroups', { site: qSite }, prefix, { group_type: 'host', strict: true }),
+      datasource.contextAutocomplete('allgroups', { site: qSite }, prefix, { group_type: 'host', strict: true }),
     [datasource, qSite]
   );
   const hostTagAutocompleter = React.useCallback(
     (prefix: string, mode: 'groups' | 'choices', context: Record<string, unknown>) => {
       if (mode === 'groups') {
-        return contextAutocomplete(datasource, 'tag_groups', { site: qSite, ...context }, prefix, { strict: true });
+        return datasource.contextAutocomplete('tag_groups', { site: qSite, ...context }, prefix, { strict: true });
       } else {
         return (async function () {
           // TODO: would have expected that this is dependent on the site, but does not look like that?
@@ -143,14 +116,14 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   const serviceAutocompleter = React.useCallback(
     (prefix: string) =>
-      contextAutocomplete(datasource, 'monitored_service_description', { site: qSite, ...qHost }, prefix, {
+      datasource.contextAutocomplete('monitored_service_description', { site: qSite, ...qHost }, prefix, {
         strict: true,
       }),
     [datasource, qSite, qHost]
   );
   const serviceGroupAutocompleter = React.useCallback(
     (prefix: string) =>
-      contextAutocomplete(datasource, 'allgroups', { site: qSite, ...qHost }, prefix, {
+      datasource.contextAutocomplete('allgroups', { site: qSite, ...qHost }, prefix, {
         group_type: 'service',
         strict: true,
       }),
@@ -176,8 +149,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
           single_infos: ['host'],
         };
       }
-      return contextAutocomplete(
-        datasource,
+      return datasource.contextAutocomplete(
         ident,
         { site: qSite, ...qHost, ...qService, graph_type: qGraphType },
         prefix,
