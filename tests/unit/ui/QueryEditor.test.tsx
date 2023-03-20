@@ -7,38 +7,32 @@ import { defaultRequestSpec } from '../../../src/RequestSpec';
 import { CmkQuery } from '../../../src/types';
 import { QueryEditor } from '../../../src/ui/QueryEditor';
 
-const completions: Record<string, string[][]> = {
+const completions: Record<string, Array<{ value: string; label: string }>> = {
   sites: [
-    ['site_1', 'Site One'],
-    ['site_2', 'Site Two'],
+    { value: 'site_1', label: 'Site One' },
+    { value: 'site_2', label: 'Site Two' },
   ],
   monitored_hostname: [
-    ['host_name_1', 'Hostname One'],
-    ['host_name_2', 'Hostname Two'],
+    { value: 'host_name_1', label: 'Hostname One' },
+    { value: 'host_name_2', label: 'Hostname Two' },
   ],
   monitored_service_description: [
-    ['service_1', 'Service One'],
-    ['service_2', 'Service Two'],
+    { value: 'service_1', label: 'Service One' },
+    { value: 'service_2', label: 'Service Two' },
   ],
   monitored_metrics: [
-    ['metric_1', 'Metric One'],
-    ['metric_2', 'Metric Two'],
+    { value: 'metric_1', label: 'Metric One' },
+    { value: 'metric_2', label: 'Metric Two' },
   ],
   available_graphs: [
-    ['graph_1', 'Graph One'],
-    ['graph_2', 'Graph Two'],
+    { value: 'graph_1', label: 'Graph One' },
+    { value: 'graph_2', label: 'Graph Two' },
   ],
 };
 
 describe('QueryEditor RAW', () => {
-  const autocompleterRequest = jest.fn(async (_, { ident }) => {
-    return {
-      data: {
-        result: {
-          choices: completions[ident],
-        },
-      },
-    };
+  const contextAutocomplete = jest.fn(async (ident, _partialRequestSpec, _prefix, _params) => {
+    return completions[ident];
   });
 
   const mockDatasource = {
@@ -47,7 +41,7 @@ describe('QueryEditor RAW', () => {
         edition: 'RAW',
       },
     },
-    autocompleterRequest,
+    contextAutocomplete,
     getEdition() {
       return 'RAW';
     },
@@ -75,9 +69,11 @@ describe('QueryEditor RAW', () => {
     async ({ label, attribute, autocomplete }) => {
       render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
-      expect(autocompleterRequest).toHaveBeenCalledWith(
-        'ajax_vs_autocomplete.py',
-        expect.objectContaining({ ident: autocomplete })
+      expect(contextAutocomplete).toHaveBeenCalledWith(
+        autocomplete,
+        expect.anything(),
+        expect.anything(),
+        expect.anything()
       );
 
       const input = screen.getByLabelText(label);
@@ -140,70 +136,85 @@ describe('QueryEditor RAW', () => {
   it('calls the autocompleters the minimal amount of times', async () => {
     render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'sites' })
+    expect(contextAutocomplete).toHaveBeenCalledWith('sites', expect.anything(), expect.anything(), expect.anything());
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'monitored_hostname',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'monitored_hostname' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'monitored_service_description',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'monitored_service_description' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'available_graphs',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'available_graphs' })
-    );
-    autocompleterRequest.mockClear();
+    contextAutocomplete.mockClear();
 
     const siteInput = screen.getByLabelText('Site');
     await act(async () => {
       await selectEvent.select(siteInput, 'Site One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'monitored_hostname' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'monitored_hostname',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'monitored_service_description' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'monitored_service_description',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'available_graphs' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'available_graphs',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    autocompleterRequest.mockClear();
+    contextAutocomplete.mockClear();
 
     const hostInput = screen.getByLabelText('Hostname');
     await act(async () => {
       await selectEvent.select(hostInput, 'Hostname One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'monitored_service_description' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'monitored_service_description',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'available_graphs' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'available_graphs',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    autocompleterRequest.mockClear();
+    contextAutocomplete.mockClear();
 
     const serviceInput = screen.getByLabelText('Service');
     await act(async () => {
       await selectEvent.select(serviceInput, 'Service One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledWith(
-      'ajax_vs_autocomplete.py',
-      expect.objectContaining({ ident: 'available_graphs' })
+    expect(contextAutocomplete).toHaveBeenCalledWith(
+      'available_graphs',
+      expect.anything(),
+      expect.anything(),
+      expect.anything()
     );
-    autocompleterRequest.mockClear();
+    contextAutocomplete.mockClear();
 
     const graphInput = screen.getByLabelText('Predefined graph');
     await act(async () => {
       await selectEvent.select(graphInput, 'Graph One', { container: document.body });
     });
-    expect(autocompleterRequest).toHaveBeenCalledTimes(0);
+    expect(contextAutocomplete).toHaveBeenCalledTimes(0);
   });
 });
