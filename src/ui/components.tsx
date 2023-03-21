@@ -24,6 +24,8 @@ import {
   TagValue,
 } from '../RequestSpec';
 
+const LABEL_WIDTH = 16;
+
 interface CommonProps<T> {
   label?: string;
   requestSpecKey?: string;
@@ -141,7 +143,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkS
   const { autocompleter, value, onChange, label } = props;
 
   return (
-    <InlineField labelWidth={14} label={props.label}>
+    <InlineField labelWidth={LABEL_WIDTH} label={props.label}>
       <CheckMkAsyncSelect
         inputId={`input_${props.label}`}
         label={label}
@@ -191,7 +193,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
 
   return (
     <HorizontalGroup>
-      <InlineField label={label} labelWidth={14}>
+      <InlineField label={label} labelWidth={LABEL_WIDTH}>
         <CheckMkAsyncSelect
           inputId={`input_${props.label}`}
           label={label}
@@ -242,7 +244,7 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
 
   return (
     <HorizontalGroup>
-      <InlineField label={label} labelWidth={14}>
+      <InlineField label={label} labelWidth={LABEL_WIDTH}>
         <Input
           width={32}
           type="text"
@@ -371,7 +373,7 @@ export const HostLabelFilter: React.FC<HostLabelProps> = (props) => {
   };
 
   return (
-    <InlineField label={label} labelWidth={14}>
+    <InlineField label={label} labelWidth={LABEL_WIDTH}>
       <AsyncMultiSelect
         width={32}
         defaultOptions
