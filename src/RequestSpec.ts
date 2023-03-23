@@ -3,6 +3,13 @@ export interface NegatableOption {
   negated: boolean;
 }
 
+export type ObjectType = 'host' | 'site' | 'service';
+
+export interface MetricFindQuery {
+  filter: Partial<FiltersRequestSpec>;
+  objectType: ObjectType;
+}
+
 export interface RequestSpec {
   // TODO: we need to rename graph_type, as the graph_type differentiates between graph and metric.
   // TODO: we also need to rename graph, as this could contain a metric name.

@@ -7,6 +7,15 @@ import { defaultRequestSpec } from '../../../src/RequestSpec';
 import { CmkQuery } from '../../../src/types';
 import { QueryEditor } from '../../../src/ui/QueryEditor';
 
+const mockTemplateSrv = {
+  getVariables: () => [],
+  replaceValue: (value) => value,
+};
+jest.mock('@grafana/runtime', () => ({
+  ...(jest.requireActual('@grafana/runtime') as unknown as object),
+  getTemplateSrv: () => mockTemplateSrv,
+}));
+
 const completions: Record<string, Array<{ value: string; label: string }>> = {
   sites: [
     { value: 'site_1', label: 'Site One' },

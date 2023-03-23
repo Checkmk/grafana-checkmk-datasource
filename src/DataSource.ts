@@ -1,7 +1,14 @@
-import { DataQueryRequest, DataQueryResponse, DataSourceApi, DataSourceInstanceSettings } from '@grafana/data';
+import {
+  DataQueryRequest,
+  DataQueryResponse,
+  DataSourceApi,
+  DataSourceInstanceSettings,
+  MetricFindValue,
+} from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
+import { replaceVariables } from 'utils';
 
-import { RequestSpec } from './RequestSpec';
+import { MetricFindQuery, RequestSpec } from './RequestSpec';
 import RestApiBackend from './backend/rest';
 import { Backend } from './backend/types';
 import WebApiBackend from './backend/web';
@@ -21,7 +28,20 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   }
 
   async query(dataQueryRequest: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
+    for (const target of dataQueryRequest.targets) {
+      target.requestSpec = replaceVariables(target.requestSpec, dataQueryRequest.scopedVars);
+    }
     return this.getBackend().query(dataQueryRequest);
+  }
+
+  async metricFindQuery(query: MetricFindQuery, options?: any): Promise<MetricFindValue[]> {
+    if (query.objectType === 'site') {
+      // rest-api site endpoint were added in 2.2.0 so we have to use the web-api here
+      // TODO: clean up (remove filterSites from Backend) with end of 2.1.0
+      return await this.getBackend().listSites();
+    }
+    // we use the rest backend for both web and rest backend, because those endpoints are already implement in 2.1.0
+    return await this.restBackend.metricFindQuery(query);
   }
 
   async testDatasource(): Promise<unknown> {
@@ -51,7 +71,10 @@ export class DataSource extends DataSourceApi<CmkQuery> {
         isDisabled: false,
       }));
     }
-    const context = createCmkContext(partialRequestSpec, this.getBackendType() === 'rest' ? 'latest' : '2.1.0');
+    const context = createCmkContext(
+      replaceVariables(partialRequestSpec),
+      this.getBackendType() === 'rest' ? 'latest' : '2.1.0'
+    );
     const response = await this.autocompleterRequest<ResponseDataAutocomplete>('ajax_vs_autocomplete.py', {
       ident,
       value: prefix,

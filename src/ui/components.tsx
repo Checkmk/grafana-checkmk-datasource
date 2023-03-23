@@ -1,4 +1,5 @@
 import { SelectableValue } from '@grafana/data';
+import { getTemplateSrv } from '@grafana/runtime';
 import {
   AsyncMultiSelect,
   AsyncSelect,
@@ -44,6 +45,8 @@ interface CheckMkGenericAsyncSelectProps<Value> extends CommonProps<Value> {
   width?: number;
   autocompleter: (prefix: string) => Promise<Array<SelectableValue<NonNullable<Value>>>>;
   inputId: string; // make the InlineField magic do its work // TODO: find better solution
+  showVariables?: false; // most of the dropdowns should show the variables,
+  // but there are some exceptions we have to set manually.
 }
 
 function findValueInOptions<Value>(lookupOptions: Array<NonNullable<SelectableValue<Value>>>, value: Value) {
@@ -57,7 +60,7 @@ function findValueInOptions<Value>(lookupOptions: Array<NonNullable<SelectableVa
 export const CheckMkGenericAsyncSelect = function <Value extends string | (string | undefined)>(
   props: CheckMkGenericAsyncSelectProps<Value>
 ) {
-  const { autocompleter, width, value, onChange, label, inputId } = props;
+  const { showVariables, autocompleter, width, value, onChange, label, inputId } = props;
   const [options, setOptions] = React.useState([] as Array<SelectableValue<Value>>);
   const [counter, setCounter] = React.useState(0);
   const [autocompleteError, setAutocompleteError] = React.useState('');
@@ -79,6 +82,15 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
     async (inputValue: string): Promise<Array<SelectableValue<Value>>> => {
       try {
         const data = await autocompleter(inputValue);
+        if (showVariables !== false) {
+          for (const variable of getTemplateSrv().getVariables()) {
+            data.splice(0, 0, {
+              value: `$${variable.id}` as Value,
+              label: `$${variable.id}`,
+              isGrafanaVariable: true,
+            });
+          }
+        }
         setAutocompleteError('');
         if (value !== null && value !== undefined && inputValue === '' && isNull(findValueInOptions(data, value))) {
           // when we load the query editor with a saved configuration it is
@@ -101,7 +113,10 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
         throw error;
       }
     },
-    [autocompleter, value]
+    // in order to show the current value in formatOptionLabel callback, we
+    // would need to trigger this function whenever the value of getVariables()
+    // changes, which seems to be impossible?
+    [autocompleter, value, showVariables]
   );
 
   React.useEffect(() => {
@@ -116,6 +131,18 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
     onChange(newValue.value);
   };
 
+  const formatOptionLabel = React.useCallback((option: SelectableValue<Value>) => {
+    if (option.isGrafanaVariable !== true) {
+      return option.label;
+    }
+    return (
+      <span>
+        {option.label}&nbsp;
+        <i>(Variable)</i>
+      </span>
+    );
+  }, []);
+
   return (
     <AsyncSelect
       inputId={inputId}
@@ -128,9 +155,11 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
       width={width || 32}
       value={findValueInOptions(options, value)}
       placeholder={getPlaceholder()}
+      formatOptionLabel={formatOptionLabel}
     />
   );
 };
+
 export const CheckMkAsyncSelect = function <Key extends RequestSpecStringKeys>(props: CheckMkAsyncSelectProps<Key>) {
   return CheckMkGenericAsyncSelect<RequestSpec[Key]>(props);
 };

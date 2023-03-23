@@ -4,6 +4,15 @@ import * as React from 'react';
 
 import { CheckMkAsyncSelect } from '../../../src/ui/components';
 
+const mockTemplateSrv = {
+  getVariables: () => [],
+  replaceValue: (value) => value,
+};
+jest.mock('@grafana/runtime', () => ({
+  ...(jest.requireActual('@grafana/runtime') as unknown as object),
+  getTemplateSrv: () => mockTemplateSrv,
+}));
+
 describe('CheckMkAsyncSelect', () => {
   const autocompleter = jest.fn(async (prefix: string): Promise<Array<SelectableValue<string>>> => {
     if (prefix === 'sentinel') {
