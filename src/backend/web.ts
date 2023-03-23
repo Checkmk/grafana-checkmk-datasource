@@ -1,5 +1,6 @@
-import { DataQueryRequest, DataQueryResponse, FieldType, MutableDataFrame } from '@grafana/data';
+import { DataQueryRequest, DataQueryResponse, FieldType, MetricFindValue, MutableDataFrame } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
+import { MetricFindQuery } from 'RequestSpec';
 import { defaults, get, isUndefined, zip } from 'lodash';
 
 import { CmkQuery, defaultQuery } from '../types';
@@ -19,6 +20,9 @@ export default class WebApiBackend implements Backend {
 
   constructor(datasource: DatasourceOptions) {
     this.datasource = datasource;
+  }
+  async metricFindQuery(query: MetricFindQuery): Promise<MetricFindValue[]> {
+    throw new Error('Not implemented. Use metricFindQuery from rest Backend, and filterSites from this backend.');
   }
   async testDatasource(): Promise<unknown> {
     return this.cmkRequest<unknown>({
@@ -54,6 +58,22 @@ export default class WebApiBackend implements Backend {
         };
       });
   }
+
+  async listSites(): Promise<MetricFindValue[]> {
+    const response = (
+      await getBackendSrv()
+        .fetch({
+          url:
+            `${this.datasource.getUrl()}/cmk/check_mk/webapi.py?` +
+            new URLSearchParams({ action: 'get_user_sites' }).toString(),
+        })
+        .toPromise()
+    )?.data as WebApiResponse<Array<[string, string]>>;
+    return response.result.map((element) => {
+      return { text: element[1], value: element[0], expandable: false };
+    });
+  }
+
   async query(options: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
     const { range } = options;
     const from = range.from.unix();

@@ -6,16 +6,17 @@ import {
   DateTime,
   Field,
   FieldType,
+  MetricFindValue,
   MutableDataFrame,
   TimeRange,
   dateTime,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
-import { Aggregation, GraphType } from 'RequestSpec';
+import { Aggregation, GraphType, MetricFindQuery } from 'RequestSpec';
 import * as process from 'process';
 
 import { CmkQuery } from '../types';
-import { createCmkContext, updateQuery } from '../utils';
+import { createCmkContext, replaceVariables, toLiveStatusQuery, updateQuery } from '../utils';
 import { Backend, DatasourceOptions } from './types';
 
 type RestApiError = {
@@ -58,11 +59,91 @@ type RestApiFilterRequest = {
   filter: unknown;
 } & CommonRequest;
 
+type RestApiSiteConnectionResponse = {
+  value: Array<{
+    extensions: {
+      basic_settings: {
+        alias: string;
+        site_id: string;
+      };
+    };
+  }>;
+};
+
+type RestApiLivestatusResponse<T> = {
+  value: Array<{
+    id: string;
+    extensions: T;
+  }>;
+};
+
+type RestApiHostResponse = RestApiLivestatusResponse<{ name: string }>;
+
+type RestApiServiceResponse = RestApiLivestatusResponse<{ description: string }>;
+
 export default class RestApiBackend implements Backend {
   datasource: DatasourceOptions;
 
   constructor(datasource: DatasourceOptions) {
     this.datasource = datasource;
+  }
+
+  async listSites(): Promise<MetricFindValue[]> {
+    const query = {};
+    const response = await this.api<RestApiSiteConnectionResponse>({
+      url: '/domain-types/site_connection/collections/all',
+      method: 'GET',
+      params: {
+        query: JSON.stringify(query),
+      },
+    });
+    return response.data.value.map((element) => {
+      const bs = element.extensions.basic_settings;
+      return { text: bs.alias, value: bs.site_id, expandable: false };
+    });
+  }
+
+  async listHosts(query: MetricFindQuery): Promise<MetricFindValue[]> {
+    const liveStatusQuery = toLiveStatusQuery(replaceVariables(query.filter), 'host');
+    const response = await this.api<RestApiHostResponse>({
+      url: '/domain-types/host/collections/all',
+      method: 'GET',
+      params: {
+        query: JSON.stringify(liveStatusQuery.query),
+        sites: liveStatusQuery.sites,
+        columns: 'name',
+      },
+    });
+    return response.data.value.map((element) => {
+      return { text: element.extensions.name, value: element.id, expandable: false };
+    });
+  }
+
+  async listServices(query: MetricFindQuery): Promise<MetricFindValue[]> {
+    const liveStatusQuery = toLiveStatusQuery(replaceVariables(query.filter), 'service');
+    const response = await this.api<RestApiServiceResponse>({
+      url: '/domain-types/service/collections/all',
+      method: 'GET',
+      params: {
+        query: JSON.stringify(liveStatusQuery.query),
+        sites: liveStatusQuery.sites,
+        columns: 'description',
+      },
+    });
+    return response.data.value.map((element) => {
+      return { text: element.extensions.description, value: element.extensions.description, expandable: false };
+    });
+  }
+
+  async metricFindQuery(query: MetricFindQuery): Promise<MetricFindValue[]> {
+    if (query.objectType === 'site') {
+      return await this.listSites();
+    } else if (query.objectType === 'host') {
+      return await this.listHosts(query);
+    } else if (query.objectType === 'service') {
+      return await this.listServices(query);
+    }
+    throw new Error(`objectType ${query.objectType} not known!`);
   }
 
   async query(request: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
