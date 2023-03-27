@@ -2,7 +2,7 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
-## 3.0.0-beta.1
+## 3.0.0-beta.2
 
 When using Checkmk < 2.2.0 you will have to choose the correct version in the
 data source settings.
