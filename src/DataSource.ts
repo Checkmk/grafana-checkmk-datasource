@@ -6,7 +6,8 @@ import RestApiBackend from './backend/rest';
 import { Backend } from './backend/types';
 import WebApiBackend from './backend/web';
 import { Backend as BackendType, CmkQuery, DataSourceOptions, Edition, ResponseDataAutocomplete } from './types';
-import { createAutocompleteConfig } from './ui/autocomplete';
+import { AutoCompleteParams } from './ui/autocomplete';
+import { createCmkContext } from './utils';
 import { WebApiResponse, buildRequestBody } from './webapi';
 
 export class DataSource extends DataSourceApi<CmkQuery> {
@@ -40,13 +41,13 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     ident: string,
     partialRequestSpec: Partial<RequestSpec>,
     prefix: string,
-    params: Record<string, string | boolean>
+    params: Partial<AutoCompleteParams>
   ): Promise<Array<{ value: string; label: string; isDisabled: boolean }>> {
     if (ident === 'label' && this.getBackendType() === 'web') {
       // we have a 2.1.0 version without werk #15074 so label autocompleter is a special edge case
       // can be removed after we stop supporting 2.1.0
       const response = await this.autocompleterRequest<Array<{ value: string }>>('ajax_autocomplete_labels.py', {
-        world: params['world'],
+        world: params.world,
         search_label: prefix,
       });
       return response.data.result.map((val: { value: string }) => ({
@@ -55,10 +56,15 @@ export class DataSource extends DataSourceApi<CmkQuery> {
         isDisabled: false,
       }));
     }
-    const response = await this.autocompleterRequest<ResponseDataAutocomplete>(
-      'ajax_vs_autocomplete.py',
-      createAutocompleteConfig(partialRequestSpec, ident, prefix, params)
-    );
+    const context = createCmkContext(partialRequestSpec, this.getBackendType() === 'rest' ? 'latest' : '2.1.0');
+    const response = await this.autocompleterRequest<ResponseDataAutocomplete>('ajax_vs_autocomplete.py', {
+      ident,
+      value: prefix,
+      params: {
+        ...params,
+        context,
+      },
+    });
     return response.data.result.choices.map(([value, label]: [string, string]) => ({
       value,
       label,

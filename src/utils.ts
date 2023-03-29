@@ -15,7 +15,10 @@ export function contextEntryFromNegatableOption(option: NegatableOption, keyName
   return result;
 }
 
-export function createCmkContext(requestSpec: Partial<RequestSpec>): Record<string, unknown> {
+export function createCmkContext(
+  requestSpec: Partial<RequestSpec>,
+  checkmkVersion: 'latest' | '2.1.0' = 'latest'
+): Record<string, unknown> {
   const context: Record<string, unknown> = {};
 
   if (!isUndefined(requestSpec.site)) {
@@ -28,15 +31,34 @@ export function createCmkContext(requestSpec: Partial<RequestSpec>): Record<stri
     context['service'] = { service: requestSpec.service };
   }
   if (!isUndefined(requestSpec.host_labels) && requestSpec.host_labels.length !== 0) {
-    context['host_labels'] = {
-      host_label: JSON.stringify(
-        requestSpec.host_labels.map((v: string) => {
-          return {
-            value: v,
-          };
-        })
-      ),
-    };
+    if (checkmkVersion === 'latest') {
+      const count = requestSpec.host_labels.length;
+      const hl: Record<string, string> = {
+        host_labels_count: '1',
+        host_labels_1_bool: 'and',
+        host_labels_1_vs_count: `${count}`,
+      };
+      for (let i = 1; i < count + 1; i++) {
+        const label = requestSpec.host_labels[i - 1];
+        hl[`host_labels_1_vs_${i}_bool`] = 'and';
+        if (label !== undefined) {
+          hl[`host_labels_1_vs_${i}_vs`] = label;
+        }
+      }
+      context['host_labels'] = hl;
+    } else if (checkmkVersion === '2.1.0') {
+      context['host_labels'] = {
+        host_label: JSON.stringify(
+          requestSpec.host_labels.map((v: string) => {
+            return {
+              value: v,
+            };
+          })
+        ),
+      };
+    } else {
+      throw new Error(`checkmk version ${checkmkVersion} not known`);
+    }
   }
 
   if (!isUndefined(requestSpec.service_in_group) && requestSpec.service_in_group.value !== '') {

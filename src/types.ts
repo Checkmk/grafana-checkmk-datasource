@@ -18,7 +18,7 @@ export interface Context {
   hostregex?: { host_regex: string; neg_host_regex?: Negative };
   service?: { service: string };
   serviceregex?: { neg_service_regex?: Negative; service_regex: string };
-  host_labels?: { host_label: string };
+  host_labels?: Record<string, string>;
   opthostgroup?: { opthost_group: string; neg_opthost_group?: Negative };
   optservicegroup?: { optservice_group: string; neg_optservice_group?: Negative };
   host_tags?: {
