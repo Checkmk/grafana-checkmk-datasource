@@ -1,5 +1,5 @@
 import { SelectableValue } from '@grafana/data';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 import * as React from 'react';
 
 import { CheckMkAsyncSelect } from '../../../src/ui/components';
@@ -13,10 +13,11 @@ describe('CheckMkAsyncSelect', () => {
   });
 
   it("uses the specific options if the default ones don't include the value", async () => {
-    const screen = await render(
-      <CheckMkAsyncSelect autocompleter={autocompleter} inputId={'foo'} onChange={() => undefined} value="sentinel" />
-    );
-
+    await act(async () => {
+      await render(
+        <CheckMkAsyncSelect autocompleter={autocompleter} inputId={'foo'} onChange={() => undefined} value="sentinel" />
+      );
+    });
     expect(autocompleter).toHaveBeenCalledWith('');
     expect(autocompleter).toHaveBeenCalledWith('sentinel');
   });
