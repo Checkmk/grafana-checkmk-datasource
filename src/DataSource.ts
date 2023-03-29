@@ -94,6 +94,10 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   }
 
   getUsername(): string {
-    return this.instanceSettings.jsonData.username!;
+    const username = this.instanceSettings.jsonData.username;
+    if (typeof username === 'string') {
+      return username;
+    }
+    throw Error('Impossible');
   }
 }

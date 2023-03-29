@@ -101,7 +101,7 @@ export default class RestApiBackend implements Backend {
   }
 
   async isAutomationUser(username: string): Promise<boolean> {
-    const response = await this.api<any>({
+    const response = await this.api<{ extensions: { auth_option: { auth_type: string } } }>({
       url: `/objects/user_config/${username}`,
     });
     return response.data['extensions']['auth_option']['auth_type'] === 'automation';
