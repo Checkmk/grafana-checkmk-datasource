@@ -96,13 +96,7 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
       } catch (e) {
         const error = e as Error;
         if (error && error.message) {
-          if (error.message === 'Sorry, you cannot create combined graphs for more than 100 objects') {
-            setAutocompleteError(
-              'Result size limit reached. Please add more filters to reduce the number of elements in the result.'
-            );
-          } else {
-            setAutocompleteError(error.message);
-          }
+          setAutocompleteError(error.message);
         }
         throw error;
       }
