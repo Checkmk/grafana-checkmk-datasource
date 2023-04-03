@@ -10,12 +10,18 @@ import {
   TimeRange,
   dateTime,
 } from '@grafana/data';
-import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
+import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { Aggregation, GraphType } from 'RequestSpec';
 
 import { CmkQuery } from '../types';
 import { createCmkContext, updateQuery } from '../utils';
 import { Backend, DatasourceOptions } from './types';
+
+type RestApiError = {
+  detail: string;
+  status: number;
+  title: string;
+};
 
 type RestApiGraphResponse = {
   time_range: {
@@ -118,7 +124,8 @@ export default class RestApiBackend implements Backend {
     try {
       result = await getBackendSrv().fetch<T>(request).toPromise();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as FetchError<RestApiError>;
       // grafana error handling is only showing status code and status message,
       // but we may have a more detailed error message
       if (error.status === 404) {
@@ -128,6 +135,12 @@ export default class RestApiBackend implements Backend {
       }
 
       if (error.data && error.data.title && error.data.detail) {
+        // TODO: error message is translated, see CMK-12886
+        if (error.data.detail === 'Sorry, you cannot create combined graphs for more than 100 objects') {
+          throw new Error(
+            'Result size limit reached. Please add more filters to reduce the number of elements in the result.'
+          );
+        }
         throw new Error(`${error.data.title} ${error.data.detail}`);
       }
       throw error;

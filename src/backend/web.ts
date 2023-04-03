@@ -1,5 +1,5 @@
 import { DataQueryRequest, DataQueryResponse, FieldType, MutableDataFrame } from '@grafana/data';
-import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
+import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { defaults, get, isUndefined, zip } from 'lodash';
 
 import { CmkQuery, defaultQuery } from '../types';
@@ -77,11 +77,13 @@ export default class WebApiBackend implements Backend {
       data: buildRequestBody(data),
     });
   }
+
   async cmkRequest<T>(request: BackendSrvRequest): Promise<FetchResponse<WebApiResponse<T>>> {
     const result = await getBackendSrv()
       .fetch<WebApiResponse<T>>(request)
       .toPromise()
-      .catch((error) => {
+      .catch((e) => {
+        const error = e as FetchError<unknown>;
         if (error.cancelled) {
           throw new Error(
             `API request was cancelled. This has either happened because no 'Access-Control-Allow-Origin' header is present, or because of a ssl protocol error. Make sure you are running at least Checkmk version 2.0.`
@@ -101,9 +103,16 @@ export default class WebApiBackend implements Backend {
     if (typeof result.data === 'string') {
       throw new Error(`${result.data}`);
     } else if (result.data.result_code !== 0) {
+      // error handling in web api: error is not transported via http-status codes :-/
       let message = `${result.data}`;
       if (result.data.result !== undefined) {
         message = `${result.data.result}`;
+      }
+      // TODO: error message is translated, see CMK-12886
+      if (message === 'Sorry, you cannot create combined graphs for more than 100 objects') {
+        throw new Error(
+          'Result size limit reached. Please add more filters to reduce the number of elements in the result.'
+        );
       }
       throw new Error(message);
     } else {
