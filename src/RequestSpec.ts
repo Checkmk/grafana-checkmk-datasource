@@ -26,6 +26,20 @@ export interface RequestSpec {
   graph: string | undefined;
 }
 
+// subset of RequestSpec used with the Filters Component
+export type FiltersRequestSpec = Pick<
+  RequestSpec,
+  | 'site'
+  | 'host_name'
+  | 'host_name_regex'
+  | 'host_in_group'
+  | 'host_labels'
+  | 'host_tags'
+  | 'service'
+  | 'service_regex'
+  | 'service_in_group'
+>;
+
 export interface TagValue {
   group?: string;
   tag?: string;

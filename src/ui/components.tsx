@@ -394,15 +394,32 @@ interface TopLevelComponentProps<Key extends keyof RequestSpec> {
 
 type ChildComponent = React.ReactElement<TopLevelComponentProps<FilterEditorKeys>, JSXElementConstructor<unknown>>;
 
-export const OnlyActiveChildren = (props: { children: ChildComponent[]; requestSpec: RequestSpec }): JSX.Element => {
-  const allComponents: string[] = [];
+export interface OnlyActiveChildrenProps {
+  children: ChildComponent[];
+  requestSpec: Partial<RequestSpec>;
+  restrictedChildrenChoice?: Array<keyof RequestSpec>;
+  showRemoveButton?: boolean;
+  showAddFilterDropdown?: boolean;
+}
+
+export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element => {
+  function isAllowedChild(child: keyof RequestSpec) {
+    if (props.restrictedChildrenChoice === undefined) {
+      return true;
+    }
+    return props.restrictedChildrenChoice.indexOf(child) !== -1;
+  }
+
+  const allComponents: Partial<Record<keyof RequestSpec, string>> = {};
   const initialActiveComponents = [];
   for (const child of props.children) {
-    allComponents.push(child.props.label);
     const requestSpecKey = child.props.requestSpecKey;
     const requestSpecValue = props.requestSpec[requestSpecKey];
-    if (requestSpecValue !== undefined && requestSpecValue !== '') {
-      initialActiveComponents.push(child.props.label);
+    allComponents[requestSpecKey] = getLabel(child);
+    if ((requestSpecValue !== undefined && requestSpecValue !== '') || props.showAddFilterDropdown === false) {
+      if (isAllowedChild(requestSpecKey)) {
+        initialActiveComponents.push(requestSpecKey);
+      }
     }
   }
 
@@ -410,11 +427,13 @@ export const OnlyActiveChildren = (props: { children: ChildComponent[]; requestS
 
   function availableComponentsOptions() {
     const result = [];
-    for (const component of allComponents) {
-      if (activeComponents.includes(component)) {
+    for (const [componentKey, componentLabel] of Object.entries(allComponents)) {
+      if (activeComponents.includes(componentKey)) {
         continue;
       }
-      result.push({ value: component, label: component });
+      if (isAllowedChild(componentKey as keyof RequestSpec)) {
+        result.push({ value: componentKey, label: componentLabel });
+      }
     }
     return result;
   }
@@ -423,48 +442,60 @@ export const OnlyActiveChildren = (props: { children: ChildComponent[]; requestS
     return elem.props['label'];
   }
 
+  function getKey(elem: ChildComponent) {
+    return elem.props['requestSpecKey'];
+  }
+
   return (
     <InlineFieldRow>
-      <InlineField label="Filter" labelWidth={8}>
-        <GrafanaSelect
-          width={32}
-          options={availableComponentsOptions()}
-          // We know that the `value` prop will always be defined since `availableComponentsOptions` returns
-          // an array of type `{value: string; label: string}`.
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
-          value={{ label: 'Add Filter' }}
-        />
-      </InlineField>
+      {(props.showAddFilterDropdown === undefined || props.showAddFilterDropdown === true) && (
+        <InlineField label="Filter" labelWidth={8}>
+          <GrafanaSelect
+            width={32}
+            options={availableComponentsOptions()}
+            // We know that the `value` prop will always be defined since `availableComponentsOptions` returns
+            // an array of type `{value: string; label: string}`.
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
+            value={{ label: 'Add Filter' }}
+          />
+        </InlineField>
+      )}
       <VerticalGroup>
         {props.children
           .filter((elem: ChildComponent) => {
             if (!React.isValidElement(elem)) {
               return false;
             }
-            return activeComponents.includes(getLabel(elem));
+            return activeComponents.includes(getKey(elem));
           })
-          .map((elem: ChildComponent) => (
-            <HorizontalGroup key={getLabel(elem)}>
-              <Button
-                icon="minus"
-                data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
-                variant="secondary"
-                onClick={() =>
-                  setActiveComponents((c) => {
-                    if (!React.isValidElement(elem)) {
-                      return c;
+          .map((elem: ChildComponent) => {
+            if (props.showRemoveButton === undefined || props.showRemoveButton === true) {
+              return (
+                <HorizontalGroup key={getKey(elem)}>
+                  <Button
+                    icon="minus"
+                    data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
+                    variant="secondary"
+                    onClick={() =>
+                      setActiveComponents((c) => {
+                        if (!React.isValidElement(elem)) {
+                          return c;
+                        }
+                        const result = [...c];
+                        result.splice(result.indexOf(elem.props.requestSpecKey), 1);
+                        elem.props.onChange(undefined);
+                        return result;
+                      })
                     }
-                    const result = [...c];
-                    result.splice(result.indexOf(elem.props.label), 1);
-                    elem.props.onChange(undefined);
-                    return result;
-                  })
-                }
-              />
-              {elem}
-            </HorizontalGroup>
-          ))}
+                  />
+                  {elem}
+                </HorizontalGroup>
+              );
+            } else {
+              return elem;
+            }
+          })}
       </VerticalGroup>
     </InlineFieldRow>
   );
