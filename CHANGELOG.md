@@ -2,14 +2,28 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
-## 3.0.0-beta.2
+## 3.0.0
 
-When using Checkmk < 2.2.0 you will have to choose the correct version in the
-data source settings.
+### Highlights
 
 - Add support for REST API endpoints of Checkmk 2.2.0
-- Many UI-improvements
-- Graphs in Grafana now show the same colors as in Checkmk
+- Many UI improvements:
+    - Clearer layout for both the RAW and CEE Query Editor
+    - RAW filters are now displayed vertically aligned
+    - The filter type of existing filters can no longer be changed, they have
+      to be removed, and another filter can be added.
+    - Errors in the Query Editor Fields are more prominently featured in the
+      inputs themselves
+- Graphs in Grafana now show the same color as in Checkmk
+
+### (Breaking) Changes
+
+* When using Checkmk < 2.2.0 you will have to choose the correct version in the
+  data source settings, as this defaults to ">= 2.2"
+* Graph Types have been renamed, existing configuration is not affect by this.
+    * "Template" Graphs are now called "Predefined Graphs"
+    * "Metric" Graphs are now called "Single Metric"
+
 
 ## 2.0.3
 
