@@ -45,6 +45,7 @@ yarn upgrade --latest
 
 ## Release
 
+- update dependencies
 - create pull request:
   - adapt version in package.json to `X.Y.Z`
   - add section in CHANGELOG.md: `## X.Y.Z`
