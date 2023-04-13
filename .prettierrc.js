@@ -1,6 +1,7 @@
 module.exports = {
-  ...require('./node_modules/@grafana/toolkit/src/config/prettier.plugin.config.json'),
+  // Prettier configuration provided by Grafana scaffolding
+  ...require('./.config/.prettierrc.js'),
+  importOrder: ['^components/(.*)$', '^[./]'],
+  importOrderSeparation: true,
+  importOrderSortSpecifiers: true,
 };
-module.exports.importOrder = ['^components/(.*)$', '^[./]'];
-module.exports.importOrderSeparation = true;
-module.exports.importOrderSortSpecifiers = true;
