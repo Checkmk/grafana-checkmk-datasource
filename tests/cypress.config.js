@@ -1,3 +1,6 @@
+/* eslint-env node */
+
+// eslint-disable-next-line  @typescript-eslint/no-var-requires
 module.exports = require('cypress').defineConfig({
   e2e: {
     baseUrl: 'http://localhost:3000',

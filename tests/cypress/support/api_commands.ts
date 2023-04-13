@@ -81,7 +81,9 @@ Cypress.Commands.add('waitForActivation', (activationID: string, waitingTime: nu
       bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
     },
   }).then((response) => {
-    if (response.status === 204) return;
+    if (response.status === 204) {
+      return;
+    }
 
     cy.waitForActivation(activationID, 1000);
   });
@@ -189,6 +191,7 @@ Cypress.Commands.add('executeServiceDiscovery', (hostName: string, mode: string)
 });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
       createCmkAutomationUser(): Chainable<void>;
