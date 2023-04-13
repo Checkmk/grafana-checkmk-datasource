@@ -8,19 +8,13 @@ you are looking to use the plugin please head over to [README.md](README.md).
 1. Install dependencies
 
 ```BASH
-yarn install
+yarn install --immutable
 ```
 
 2. Build plugin in development mode or run in watch mode
 
 ```BASH
 yarn dev
-```
-
-or
-
-```BASH
-yarn watch
 ```
 
 3. Build plugin in production mode
@@ -34,7 +28,7 @@ yarn build
 Code formatting
 
 ```BASH
-yarn prettier --write src
+yarn pretty
 ```
 
 Update dependencies
@@ -51,7 +45,7 @@ yarn upgrade --latest
   - add section in CHANGELOG.md: `## X.Y.Z`
 - merge pull request into main branch
 - tag commit in the main branch with `vX.Y.Z`
-- save release draft on github
+- save release draft on GitHub
 
 ## E2E Tests
 

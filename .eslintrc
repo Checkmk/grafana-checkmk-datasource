@@ -1,0 +1,7 @@
+{
+  "extends": "./.config/.eslintrc",
+  "env": {
+        "node": true,
+        "commonjs": true
+    }
+}
