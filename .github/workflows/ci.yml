@@ -17,16 +17,22 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '16'
           cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable --prefer-offline
 
       - name: Run prettier
         run: yarn prettier -c '{**/*,*}.{js,ts,jsx,tsx,json,yml}'
 
-      - name: Build and test frontend
+      - name: Check types
+        run: yarn typecheck
+      - name: Lint
+        run: yarn lint
+      - name: Unit tests
+        run: yarn test:ci
+      - name: Build frontend
         run: yarn build
 
       - name: Upload package for e2e tests
