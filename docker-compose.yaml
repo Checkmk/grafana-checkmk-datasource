@@ -2,13 +2,16 @@ version: '3.0'
 
 services:
   grafana:
-    container_name: 'tribe-29-checkmk-datasource'
     build:
       context: ./.config
       args:
         grafana_version: ${GRAFANA_VERSION:-9.3.8}
-    ports:
-      - 3000:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/tribe-29-checkmk-datasource
       - ./provisioning:/etc/grafana/provisioning
+    network_mode: host
+  checkmk:
+    image: checkmk/check-mk-free:2.1.0-latest
+    volumes:
+      - ./cypress/checkmk-docker-hooks:/docker-entrypoint.d
+    network_mode: host

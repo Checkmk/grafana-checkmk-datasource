@@ -1,0 +1,6 @@
+name: CheckMK Enterprise
+url: http://localhost:5000/cmk
+username: cmkuser
+backend: '< 2.2'
+edition: 'Enterprise Editions'
+secret: somepassword123457

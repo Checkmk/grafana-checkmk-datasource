@@ -86,10 +86,8 @@ Cypress.Commands.add('saveDashboard', () => {
 
 Cypress.Commands.add('passOnException', (errorMessage: string) => {
   // Make the test pass if an uncaught exception with errorMessage is raised
-  cy.on('uncaught:exception', (err, runnable) => {
-    if (err.message.match(errorMessage)) {
-      return false;
-    }
+  cy.on('uncaught:exception', (err: Error, runnable: Mocha.Runnable) => {
+    return !err.message.match(errorMessage);
   });
 });
 

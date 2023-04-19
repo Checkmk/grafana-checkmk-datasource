@@ -1,5 +1,5 @@
-import '../support/api_commands';
-import '../support/commands';
+import '../../../cypress/support/api_commands';
+import '../../../cypress/support/commands';
 
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
@@ -24,26 +24,6 @@ describe('e2e tests', () => {
   const inputServiceRegexDataTestId = 'service_regex-filter-input';
 
   const queryEditorSelector = '[class="query-editor-row"]';
-
-  before(() => {
-    cy.deleteCmkAutomationUser(false); // clean-up possible existing user
-    cy.createCmkAutomationUser();
-
-    cy.createCmkHost(hostName0);
-    cy.createCmkHost(hostName1);
-
-    cy.executeServiceDiscovery(hostName0, 'refresh');
-    cy.executeServiceDiscovery(hostName0, 'fix_all');
-    cy.executeServiceDiscovery(hostName1, 'refresh');
-    cy.executeServiceDiscovery(hostName1, 'fix_all');
-    cy.activateCmkChanges('cmk');
-    cy.waitForPendingServices(2000);
-
-    cy.loginGrafana();
-    cy.addCmkDatasource(cmkUser, cmkPassword, CmkCEE);
-    cy.addCmkDatasource(cmkUser, cmkPassword, CmkCRE);
-    cy.logoutGrafana();
-  });
 
   after(() => {
     cy.rmAllDataSources();

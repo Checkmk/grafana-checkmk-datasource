@@ -434,6 +434,7 @@ export const OnlyActiveChildren = (props: { children: ChildComponent[]; requestS
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
           value={{ label: 'Add Filter' }}
+          data-testid="addFilter"
         />
       </InlineField>
       <VerticalGroup>

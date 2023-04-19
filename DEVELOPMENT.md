@@ -20,7 +20,7 @@ yarn dev
 or
 
 ```BASH
-yarn watch
+yarn dev
 ```
 
 3. Build plugin in production mode

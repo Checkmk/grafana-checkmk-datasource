@@ -33,5 +33,7 @@ e2e-results/
 # cypress atrifacts
 tests/cypress/screenshots/
 tests/cypress/videos/
+cypress/videos/
+cypress/report.json
 
 .eslintcache

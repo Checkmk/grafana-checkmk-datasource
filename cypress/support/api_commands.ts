@@ -1,4 +1,4 @@
-import '../support/commands';
+import './commands';
 
 export {};
 
@@ -48,13 +48,13 @@ Cypress.Commands.add('createCmkHost', (hostName: string) => {
       folder: '/',
       host_name: hostName,
       attributes: {
-        ipaddress: '127.0.0.1',
+        ipaddress: 'localhost',
       },
     },
   });
 });
 
-Cypress.Commands.add('deleteCmkHost', (hostName: string) => {
+Cypress.Commands.add('deleteCmkHost', (hostName: string, failOnStatusCode = true) => {
   cy.request({
     method: 'DELETE',
     url: Cypress.env('cypressToCheckmkUrl') + '/check_mk/api/1.0/objects/host_config/' + hostName,
@@ -62,6 +62,7 @@ Cypress.Commands.add('deleteCmkHost', (hostName: string) => {
     auth: {
       bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
     },
+    failOnStatusCode: failOnStatusCode,
   });
 });
 
@@ -105,7 +106,7 @@ Cypress.Commands.add('waitForPendingServices', (waitingTime: number) => {
     for (const host of response.body.value) {
       totalPending += host.extensions.num_services_pending;
     }
-    console.log(`waiting for ${totalPending} pending services.`);
+    cy.log(`waiting for ${totalPending} pending services.`);
     if (totalPending === 0) {
       return;
     }
@@ -159,17 +160,17 @@ Cypress.Commands.add('waitForDiscovery', (hostName: string) => {
     },
   }).then((response) => {
     if (response.body.extensions.state !== 'finished') {
-      console.log(`discovery ${response.body.extensions.state}`);
-      console.log(JSON.stringify(response.body.extensions.logs, undefined, 4));
+      cy.log(`discovery ${response.body.extensions.state}`);
+      cy.log(JSON.stringify(response.body.extensions.logs, undefined, 4));
       cy.waitForDiscovery(hostName);
     } else {
-      console.log(`discovery ${response.body.extensions.state}`);
+      cy.log(`discovery ${response.body.extensions.state}`);
     }
   });
 });
 
 Cypress.Commands.add('executeServiceDiscovery', (hostName: string, mode: string) => {
-  console.log(`executing service discovery ${hostName} ${mode}`);
+  cy.log(`executing service discovery ${hostName} ${mode}`);
   cy.request({
     method: 'POST',
     url:
@@ -185,7 +186,9 @@ Cypress.Commands.add('executeServiceDiscovery', (hostName: string, mode: string)
     },
   }).then((response) => {
     expect(response.status).is.equal(200);
-    cy.waitForDiscovery(hostName);
+    if (response.status === 200) {
+      cy.waitForDiscovery(hostName);
+    }
   });
 });
 
@@ -196,7 +199,7 @@ declare global {
       createCmkAutomationUser(): Chainable<void>;
       deleteCmkAutomationUser(failOnStatusCode: boolean): Chainable<void>;
       createCmkHost(hostName: string): Chainable<void>;
-      deleteCmkHost(hostName: string): Chainable<void>;
+      deleteCmkHost(hostName: string, failOnStatusCode: boolean): Chainable<void>;
       waitForActivation(activationID: string, waitingTime: number): Chainable<void>;
       waitForPendingServices(waitingTime: number): Chainable<void>;
       activateCmkChanges(siteName: string): Chainable<void>;

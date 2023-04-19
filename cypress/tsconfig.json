@@ -1,0 +1,9 @@
+{
+  "extends": "../.config/tsconfig.json",
+  "include": ["**/*.ts"],
+  "compilerOptions": {
+    "baseUrl": "../node_modules",
+    "rootDir": "..",
+    "types": ["cypress", "@grafana/e2e/cypress/support"]
+  }
+}
