@@ -10,7 +10,7 @@
     "sign": "grafana-toolkit plugin:sign",
     "start": "yarn watch"
   },
-  "author": "tribe29 GmbH",
+  "author": "Checkmk GmbH",
   "license": "GPL-2.0-only",
   "devDependencies": {
     "@grafana/data": "^9.4.7",
