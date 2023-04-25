@@ -87,7 +87,7 @@ updated connector. **PLEASE BACKUP THIS FILE BEFORE UPDATING.**
 
 4. After the update completes start your Grafana server again.
 
-[github]: https://github.com/tribe29/grafana-checkmk-datasource/
+[github]: https://github.com/checkmk/grafana-checkmk-datasource/
 
 ## 2.0.0b3
 

@@ -1,6 +1,6 @@
 # Checkmk's Grafana Data Source Plugin
 
-![CI](https://github.com/tribe29/grafana-checkmk-datasource/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/checmk/grafana-checkmk-datasource/actions/workflows/ci.yml/badge.svg)
 
 This is a [Grafana][1] [data source][2] plugin for visualizing Checkmk metrics
 in Grafana.
@@ -16,7 +16,7 @@ interface as the Enterprise Edition has a more comprehensive filtering engine.
 Please consult the chapter ["Integrating Checkmk in Grafana"][3] in the
 official Checkmk documentation on how to use this plugin.
 
-![Checkmk Grafana Data Source Plugin](https://github.com/tribe29/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png)
+![Checkmk Grafana Data Source Plugin](https://github.com/checkmk/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png)
 
 See [CHANGELOG.md][4] for information about updating from previous
 versions.
@@ -27,5 +27,5 @@ release this software.
 [1]: https://grafana.com/grafana/
 [2]: https://grafana.com/docs/grafana/latest/datasources/
 [3]: https://docs.checkmk.com/latest/en/grafana.html
-[4]: https://github.com/tribe29/grafana-checkmk-datasource/blob/main/CHANGELOG.md
-[5]: https://github.com/tribe29/grafana-checkmk-datasource/blob/main/DEVELOPMENT.md
+[4]: https://github.com/checkmk/grafana-checkmk-datasource/blob/main/CHANGELOG.md
+[5]: https://github.com/checkmk/grafana-checkmk-datasource/blob/main/DEVELOPMENT.md
