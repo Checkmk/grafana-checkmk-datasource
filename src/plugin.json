@@ -8,7 +8,7 @@
     "description": "Checkmk data source",
     "author": {
       "name": "Tribe29 GmbH",
-      "url": "https://github.com/tribe29/"
+      "url": "https://github.com/checkmk/"
     },
     "keywords": ["checkmk"],
     "logos": {
@@ -16,13 +16,13 @@
       "large": "img/checkmk_logo.svg"
     },
     "links": [
-      { "name": "GitHub", "url": "https://github.com/tribe29/grafana-checkmk-datasource" },
+      { "name": "GitHub", "url": "https://github.com/checkmk/grafana-checkmk-datasource" },
       { "name": "Checkmk", "url": "https://checkmk.com" }
     ],
     "screenshots": [
       {
         "name": "Checkmk metrics shown in Grafana",
-        "path": "https://github.com/tribe29/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png"
+        "path": "https://github.com/checkmk/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png"
       }
     ],
     "version": "%VERSION%",
