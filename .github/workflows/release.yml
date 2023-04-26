@@ -33,19 +33,18 @@ jobs:
           export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
           export GRAFANA_PLUGIN_ARTIFACT_CHECKSUM=${GRAFANA_PLUGIN_ARTIFACT}.md5
 
-          echo "plugin-id=${GRAFANA_PLUGIN_ID}"                       >> $GITHUB_OUTPUT
-          echo "plugin-version=${GRAFANA_PLUGIN_VERSION}"             >> $GITHUB_OUTPUT
-          echo "plugin-type=${GRAFANA_PLUGIN_TYPE}"                   >> $GITHUB_OUTPUT
-          echo "archive=${GRAFANA_PLUGIN_ARTIFACT}"                   >> $GITHUB_OUTPUT
-          echo "archive-checksum=${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" >> $GITHUB_OUTPUT
-
-          echo "github-tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+          echo "plugin-id=${GRAFANA_PLUGIN_ID}"                       >> $env:GITHUB_OUTPUT
+          echo "plugin-version=${GRAFANA_PLUGIN_VERSION}"             >> $env:GITHUB_OUTPUT
+          echo "plugin-type=${GRAFANA_PLUGIN_TYPE}"                   >> $env:GITHUB_OUTPUT
+          echo "archive=${GRAFANA_PLUGIN_ARTIFACT}"                   >> $env:GITHUB_OUTPUT
+          echo "archive-checksum=${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" >> $env:GITHUB_OUTPUT
+          echo "github-tag=${GITHUB_REF#refs/*/}"                     >> $env:GITHUB_OUTPUT
 
       - name: Read changelog
         id: changelog
         run: |
           awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
-          echo "path=release_notes.md"  >> $GITHUB_OUTPUT
+          echo "path=release_notes.md"  >> $env:GITHUB_OUTPUT
 
       - name: Check package version
         run: if [ "v${{ steps.metadata.outputs.plugin-version }}" != "${{ steps.metadata.outputs.github-tag }}" ]; then printf "\033[0;31mPlugin version doesn't match tag name\033[0m\n"; exit 1; fi
@@ -56,7 +55,7 @@ jobs:
           mv dist ${{ steps.metadata.outputs.plugin-id }}
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
           md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
-          echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $env:GITHUB_OUTPUT
 
       # does not work with unsigned plugins!
       # - name: Lint plugin
@@ -70,25 +69,16 @@ jobs:
 
       - name: Create release
         id: create_release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body_path: ${{ steps.changelog.outputs.path }}
+          tag: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          body: ${{ steps.changelog.outputs.path }}
           draft: true
-
-      - name: Add plugin to release
-        id: upload-plugin-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.metadata.outputs.archive }}
-          asset_name: ${{ steps.metadata.outputs.archive }}
-          asset_content_type: application/zip
+          artifacts: ./${{ steps.metadata.outputs.archive }}
+          artifactContentType: application/zip
 
       - name: Add checksum to release
         id: upload-checksum-asset
