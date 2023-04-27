@@ -50,13 +50,13 @@ yarn upgrade --latest
 ## E2E Tests
 
 There are serval ways to run the e2e tests.
-Make sure to have a up to date `dist/` folder using `yarn build`.
+Make sure to have an up to date `dist/` folder using `yarn build`.
 
 ### Local development use case
 
 ```BASH
 cd tests/
-docker-compose up -d checkmk grafana
+docker compose up -d checkmk grafana
 yarn run cypress open
 ```
 
@@ -67,7 +67,7 @@ See the official [docs](https://docs.cypress.io/guides/overview/why-cypress) for
 
 ```BASH
 cd tests/
-docker-compose up --exit-code-from=cypress
+docker compose up --exit-code-from=cypress
 ```
 
 This will run all tests without any further interaction necessary.
@@ -100,3 +100,10 @@ yarn run cypress run
 
 Please note that the test have side effects on your Grafana and CheckMK instance,
 such as creating a new automation user.
+
+### Making sure you use the latest Grafana image
+Docker (compose) reuses already downloaded images as much as it can. So in order to get the latest Grafana image
+you need to remove the current image you have. The following snipped does a clean sweep.
+```BASH
+docker compose down --rmi all
+```
