@@ -9,6 +9,6 @@
   "author": "",
   "license": "GPL-2.0-only",
   "dependencies": {
-    "cypress": "^10.6.0"
+    "cypress": "^12.11.0"
   }
 }
