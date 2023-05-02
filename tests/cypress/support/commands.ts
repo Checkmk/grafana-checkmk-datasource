@@ -1,6 +1,6 @@
 export {};
 
-const panelContentSelector = '[class="panel-content"]';
+const panelContentSelector = '[class$="panel-content"]';
 const panelHoverSelector = '[class="u-over"]';
 const plottedHoverSelectorOff = '[class="u-cursor-pt u-off"]';
 const plottedHoverSelectorOn = '[class="u-cursor-pt"]';
