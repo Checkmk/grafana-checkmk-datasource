@@ -29,7 +29,9 @@ describe('e2e tests', () => {
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
     cy.createCmkAutomationUser();
 
+    cy.deleteCmkHost(hostName0, false);
     cy.createCmkHost(hostName0);
+    cy.deleteCmkHost(hostName1, false);
     cy.createCmkHost(hostName1);
 
     cy.executeServiceDiscovery(hostName0, 'refresh');
