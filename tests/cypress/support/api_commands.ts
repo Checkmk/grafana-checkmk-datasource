@@ -54,7 +54,7 @@ Cypress.Commands.add('createCmkHost', (hostName: string) => {
   });
 });
 
-Cypress.Commands.add('deleteCmkHost', (hostName: string) => {
+Cypress.Commands.add('deleteCmkHost', (hostName: string, failOnStatusCode = true) => {
   cy.request({
     method: 'DELETE',
     url: Cypress.env('cypressToCheckmkUrl') + '/check_mk/api/1.0/objects/host_config/' + hostName,
@@ -62,6 +62,7 @@ Cypress.Commands.add('deleteCmkHost', (hostName: string) => {
     auth: {
       bearer: `${Cypress.env('cmkUsername')} ${Cypress.env('cmkPassword')}`,
     },
+    failOnStatusCode: failOnStatusCode,
   });
 });
 
@@ -193,7 +194,7 @@ declare global {
       createCmkAutomationUser(): Chainable<void>;
       deleteCmkAutomationUser(failOnStatusCode: boolean): Chainable<void>;
       createCmkHost(hostName: string): Chainable<void>;
-      deleteCmkHost(hostName: string): Chainable<void>;
+      deleteCmkHost(hostName: string, failOnStatusCode?: boolean): Chainable<void>;
       waitForActivation(activationID: string, waitingTime: number): Chainable<void>;
       waitForPendingServices(waitingTime: number): Chainable<void>;
       activateCmkChanges(siteName: string): Chainable<void>;
