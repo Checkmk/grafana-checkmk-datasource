@@ -6,5 +6,7 @@ module.exports = require('cypress').defineConfig({
     retries: 2,
     defaultCommandTimeout: 10000,
     videoCompression: 15,
+    viewportHeight: 1080,
+    viewportWidth: 1920,
   },
 });
