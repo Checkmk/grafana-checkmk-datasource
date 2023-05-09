@@ -12,6 +12,7 @@ import {
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { Aggregation, GraphType } from 'RequestSpec';
+import * as process from 'process';
 
 import { CmkQuery } from '../types';
 import { createCmkContext, updateQuery } from '../utils';
@@ -148,6 +149,14 @@ export default class RestApiBackend implements Backend {
     if (result === undefined) {
       throw new Error('observable is undefined');
     }
+
+    // check for cloud edition header
+    if (result.headers.get('X-Checkmk-Edition') !== 'cce' && process.env.BUILD_EDITION === 'CLOUD') {
+      throw new Error(
+        'Checkmk data source for Checkmk Cloud Edition« is only compatible with Checkmk Cloud Edition, but you are trying to connect to another edition.'
+      );
+    }
+
     return result;
   }
 
