@@ -115,29 +115,35 @@ export class ConfigEditor extends PureComponent<Props, State> {
               data-test-id="checkmk-url"
             />
           </div>
-          <InlineField label="Edition" labelWidth={12}>
-            <Select
-              width={32}
-              options={cmkEditions}
-              onChange={this.onEditionChange}
-              value={jsonData.edition}
-              placeholder="Select your checkmk edition"
-            />
-          </InlineField>
-          <InlineField
-            label="Version"
-            labelWidth={12}
-            tooltip="Choose the appropriate version for your Checkmk installation"
-          >
-            <Select
-              width={32}
-              options={cmkBackends}
-              onChange={this.onBackendChange}
-              value={jsonData.backend}
-              placeholder="Select your checkmk version"
-              inputId="checkmk-version"
-            />
-          </InlineField>
+          {process.env.BUILD_EDITION !== 'CLOUD' ? (
+            <>
+              <InlineField label="Edition" labelWidth={12}>
+                <Select
+                  width={32}
+                  options={cmkEditions}
+                  onChange={this.onEditionChange}
+                  value={jsonData.edition}
+                  placeholder="Select your checkmk edition"
+                />
+              </InlineField>
+              <InlineField
+                label="Version"
+                labelWidth={12}
+                tooltip="Choose the appropriate version for your Checkmk installation"
+              >
+                <Select
+                  width={32}
+                  options={cmkBackends}
+                  onChange={this.onBackendChange}
+                  value={jsonData.backend}
+                  placeholder="Select your checkmk version"
+                  inputId="checkmk-version"
+                />
+              </InlineField>
+            </>
+          ) : (
+            <></>
+          )}
         </FieldSet>
         <FieldSet label="Authentication">
           <div className="gf-form">
