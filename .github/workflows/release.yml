@@ -16,47 +16,8 @@ jobs:
           node-version: '16'
           cache: 'yarn'
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build and test frontend
-        run: yarn build
-
-      - name: Get plugin metadata
-        id: metadata
-        run: |
-          sudo apt-get install jq
-
-          export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
-          export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
-          export GRAFANA_PLUGIN_TYPE=$(cat dist/plugin.json | jq -r .type)
-          export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
-          export GRAFANA_PLUGIN_ARTIFACT_CHECKSUM=${GRAFANA_PLUGIN_ARTIFACT}.md5
-
-          echo "plugin-id=${GRAFANA_PLUGIN_ID}"                       >> $GITHUB_OUTPUT
-          echo "plugin-version=${GRAFANA_PLUGIN_VERSION}"             >> $GITHUB_OUTPUT
-          echo "plugin-type=${GRAFANA_PLUGIN_TYPE}"                   >> $GITHUB_OUTPUT
-          echo "archive=${GRAFANA_PLUGIN_ARTIFACT}"                   >> $GITHUB_OUTPUT
-          echo "archive-checksum=${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" >> $GITHUB_OUTPUT
-
-          echo "github-tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-
-      - name: Read changelog
-        id: changelog
-        run: |
-          awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
-          echo "path=release_notes.md" >> $GITHUB_OUTPUT
-
-      - name: Check package version
-        run: if [ "v${{ steps.metadata.outputs.plugin-version }}" != "${{ steps.metadata.outputs.github-tag }}" ]; then printf "\033[0;31mPlugin version doesn't match tag name\033[0m\n"; exit 1; fi
-
-      - name: Package plugin
-        id: package-plugin
-        run: |
-          mv dist ${{ steps.metadata.outputs.plugin-id }}
-          zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
-          md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
-          echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: build
+        uses: ./.github/build/
 
       # does not work with unsigned plugins!
       # - name: Lint plugin
@@ -66,7 +27,7 @@ jobs:
       #     pushd ./plugin-validator/pkg/cmd/plugincheck
       #     go build -o $BIN_PATH/plugincheck
       #     popd
-      #     ./plugincheck ${{ steps.metadata.outputs.archive }}
+      #     ./plugincheck ${{ steps.build.plugin_path }}
 
       - name: Create release
         id: create_release
@@ -76,9 +37,9 @@ jobs:
         with:
           tag: ${{ github.ref }}
           name: Release ${{ github.ref }}
-          body: ${{ steps.changelog.outputs.path }}
+          body: ${{ steps.build.changelog_path }}
           draft: true
-          artifacts: ./${{ steps.metadata.outputs.archive }}
+          artifacts: ./${{ steps.build.plugin_path }}
           artifactContentType: application/zip
 
       - name: Add checksum to release
@@ -88,6 +49,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.metadata.outputs.archive-checksum }}
-          asset_name: ${{ steps.metadata.outputs.archive-checksum }}
+          asset_path: ./${{ steps.build.plugin_checksum }}
+          asset_name: ${{ steps.build.plugin_checksum }}
           asset_content_type: text/plain
