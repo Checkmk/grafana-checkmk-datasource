@@ -22,7 +22,7 @@
     "screenshots": [
       {
         "name": "Checkmk metrics shown in Grafana",
-        "path": "https://github.com/Checkmk/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png"
+        "path": "img/screenshot.png"
       }
     ],
     "version": "%VERSION%",
