@@ -16,7 +16,7 @@
     "pretty": "prettier -w '{**/*,*}.{js,ts,jsx,tsx,json,yml}'"
   },
   "author": "Checkmk GmbH",
-  "license": "GPL-2.0-only",
+  "license": "Apache-2.0",
   "devDependencies": {
     "@babel/core": "^7.16.7",
     "@grafana/eslint-config": "^5.1.0",
