@@ -1,0 +1,76 @@
+name: 'Build'
+inputs:
+  build_identifier:
+    description: 'If specified will be added to the version in order to identify non official releases'
+    required: false
+    default: ''
+outputs:
+  changelog_path:
+    description: 'path to checklog'
+    value: '${{ steps.changelog.outputs.path }}'
+  plugin_path:
+    description: 'path to the plugin archive'
+    value: '${{ steps.metadata.outputs.archive }}'
+  plugin_checksum:
+    description: 'checksum of plugin archive'
+    value: '${{ steps.metadata.outputs.archive-checksum }}'
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      shell: bash
+      run: yarn install --frozen-lockfile
+
+    - name: Build and test frontend
+      shell: bash
+      run: yarn build
+
+    - name: Get plugin metadata
+      shell: bash
+      id: metadata
+      run: |
+        sudo apt-get install jq
+
+        export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
+        export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
+        export GRAFANA_PLUGIN_TYPE=$(cat dist/plugin.json | jq -r .type)
+        export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
+        export GRAFANA_PLUGIN_ARTIFACT_CHECKSUM=${GRAFANA_PLUGIN_ARTIFACT}.md5
+
+        if [ -n "${{ inputs.build_identifier }}" ]; then
+          export GRAFANA_PLUGIN_VERSION=$GRAFANA_PLUGIN_VERSION+${{ inputs.build_identifier }}
+        fi
+
+        echo "plugin-id=${GRAFANA_PLUGIN_ID}"                       >> $GITHUB_OUTPUT
+        echo "plugin-version=${GRAFANA_PLUGIN_VERSION}"             >> $GITHUB_OUTPUT
+        echo "plugin-type=${GRAFANA_PLUGIN_TYPE}"                   >> $GITHUB_OUTPUT
+        echo "archive=${GRAFANA_PLUGIN_ARTIFACT}"                   >> $GITHUB_OUTPUT
+        echo "archive-checksum=${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" >> $GITHUB_OUTPUT
+
+        echo "github-tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+    - name: Read changelog
+      shell: bash
+      id: changelog
+      run: |
+        awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
+        echo "path=release_notes.md" >> $GITHUB_OUTPUT
+
+    - name: Check package version
+      shell: bash
+      run: |
+        if [ -z "${{ inputs.build_identifier }}" ]; then
+          if [ "v${{ steps.metadata.outputs.plugin-version }}" != "${{ steps.metadata.outputs.github-tag }}" ]; then
+            printf "\033[0;31mPlugin version doesn't match tag name\033[0m\n"
+            exit 1
+          fi
+        fi
+
+    - name: Package plugin
+      shell: bash
+      id: package-plugin
+      run: |
+        mv dist ${{ steps.metadata.outputs.plugin-id }}
+        zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
+        md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
+        echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
