@@ -32,17 +32,21 @@ jobs:
         run: yarn lint
       - name: Unit tests
         run: yarn test:ci
-      - name: Build frontend
-        run: yarn build
 
       - name: Compatibility check
         run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime
+
+      - name: Build frontend
+        id: build
+        uses: ./github/workflows/build.yml
+        with:
+          build_identifier: dev.${{ github.run_id }}
 
       - name: Upload package for e2e tests
         uses: actions/upload-artifact@v3
         with:
           name: plugin-build-result
-          path: dist
+          path: ${{ steps.build.metadata_outputs_archive }}
 
   e2e:
     runs-on: ubuntu-latest
