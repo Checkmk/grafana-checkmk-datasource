@@ -16,8 +16,19 @@ jobs:
           node-version: '16'
           cache: 'yarn'
 
-      - name: build
+      - name: build signed
+        id: build-signed
         uses: ./.github/build/
+        with:
+          release: true
+          signed: true
+
+      - name: build unsigned
+        id: build-unsigned
+        uses: ./.github/build/
+        with:
+          release: true
+          signed: true
 
       # does not work with unsigned plugins!
       # - name: Lint plugin
