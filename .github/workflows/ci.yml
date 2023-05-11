@@ -36,6 +36,9 @@ jobs:
       - name: Compatibility check
         run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime
 
+      - name: clean up repo
+        uses: actions/checkout@v3
+
       - name: Build frontend unsigned
         id: build-unsigned
         uses: ./.github/build/
@@ -43,18 +46,21 @@ jobs:
           release: false
           signed: false
 
+      - name: Upload unsigned package
+        uses: actions/upload-artifact@v3
+        with:
+          name: checkmk-datasource-unsigned
+          path: '${{ steps.build-unsigned.outputs.plugin_path }}'
+
+      - name: clean up repo
+        uses: actions/checkout@v3
+
       - name: Build frontend signed
         id: build-signed
         uses: ./.github/build/
         with:
           release: false
           signed: true
-
-      - name: Upload unsigned package
-        uses: actions/upload-artifact@v3
-        with:
-          name: checkmk-datasource-unsigned
-          path: '${{ steps.build-unsigned.outputs.plugin_path }}'
 
       - name: Upload signed package
         uses: actions/upload-artifact@v3
