@@ -7,7 +7,7 @@
   "info": {
     "description": "Checkmk data source",
     "author": {
-      "name": "Tribe29 GmbH",
+      "name": "Checkmk GmbH",
       "url": "https://github.com/checkmk/"
     },
     "keywords": ["checkmk"],
