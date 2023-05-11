@@ -28,9 +28,6 @@ runs:
       run: |
         sudo apt-get install jq
 
-        # reset previous run: TODO: think about better solution
-        git checkout src/plugin.json
-
         VERSION=$(jq -r .info.version src/plugin.json)
         if [ "${{ inputs.signed }}" == "true" ]; then
           VERSION=$VERSION+signed
@@ -98,9 +95,6 @@ runs:
       shell: bash
       id: package-plugin
       run: |
-        # clean up previous build # TODO: think about better solution
-        rm -rf ${{ steps.metadata.outputs.plugin-id }}
-
         mv dist ${{ steps.metadata.outputs.plugin-id }}
         zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
         md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
