@@ -58,6 +58,8 @@ jobs:
       - name: Build frontend signed
         id: build-signed
         uses: ./.github/build/
+        env:
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
         with:
           release: false
           signed: true
