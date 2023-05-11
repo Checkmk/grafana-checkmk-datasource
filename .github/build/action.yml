@@ -13,7 +13,7 @@ outputs:
   plugin_path:
     description: 'path to the plugin archive'
     value: '${{ steps.metadata.outputs.archive }}'
-  plugin_checksum:
+  plugin_checksum_path:
     description: 'checksum of plugin archive'
     value: '${{ steps.metadata.outputs.archive-checksum }}'
 runs:

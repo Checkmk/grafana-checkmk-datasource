@@ -28,17 +28,7 @@ jobs:
         uses: ./.github/build/
         with:
           release: true
-          signed: true
-
-      # does not work with unsigned plugins!
-      # - name: Lint plugin
-      #   run: |
-      #     git clone https://github.com/grafana/plugin-validator
-      #     BIN_PATH=`pwd`
-      #     pushd ./plugin-validator/pkg/cmd/plugincheck
-      #     go build -o $BIN_PATH/plugincheck
-      #     popd
-      #     ./plugincheck ${{ steps.build.plugin_path }}
+          signed: false
 
       - name: Create release
         id: create_release
@@ -50,16 +40,4 @@ jobs:
           name: Release ${{ github.ref }}
           body: ${{ steps.build.changelog_path }}
           draft: true
-          artifacts: ./${{ steps.build.plugin_path }}
-          artifactContentType: application/zip
-
-      - name: Add checksum to release
-        id: upload-checksum-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.build.plugin_checksum }}
-          asset_name: ${{ steps.build.plugin_checksum }}
-          asset_content_type: text/plain
+          artifacts: ${{ steps.build-signed.plugin_path }},${{ steps.build-unsigned.plugin_path }},${{ steps.build-signed.plugin_checksum_path }},${{ steps.build-unsigned.plugin_checksum_path }}
