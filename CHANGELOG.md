@@ -2,6 +2,10 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 3.0.1-alpha.1
+
+Test if new release pipeline is working.
+
 ## 3.0.0
 
 ### Highlights
