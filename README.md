@@ -1,4 +1,4 @@
-# Checkmk's Grafana Data Source Plugin
+# Checkmk data source
 
 ![CI](https://github.com/Checkmk/grafana-checkmk-datasource/actions/workflows/ci.yml/badge.svg)
 

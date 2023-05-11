@@ -91,7 +91,7 @@ jobs:
 
       - name: Validate plugin
         run: |
-          plugincheck2 -config ./plugin-validator/config/default.yaml checkmk-checkmk-datasource-*.zip
+          plugincheck2 -config ./plugin-validator/config/default.yaml checkmk-cloud-datasource-*.zip
 
   e2e:
     runs-on: ubuntu-latest
@@ -106,8 +106,8 @@ jobs:
 
       - name: unpack and move plugin
         run: |
-          unzip checkmk-checkmk-datasource*.zip
-          mv checkmk-checkmk-datasource dist
+          unzip tribe-29-checkmk-datasource*.zip
+          mv tribe-29-checkmk-datasource dist
 
       - name: run the e2e tests
         run: |

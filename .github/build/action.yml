@@ -21,25 +21,32 @@ runs:
   steps:
     - name: Install dependencies
       shell: bash
-      run: yarn install --frozen-lockfile
-
-    - name: Adapt version of plugin
-      shell: bash
       run: |
+        yarn install --frozen-lockfile
         sudo apt-get install jq
 
+    - name: Adapt version of plugin to indicate this is not a official release
+      shell: bash
+      run: |
         VERSION=$(jq -r .info.version src/plugin.json)
-        if [ "${{ inputs.signed }}" == "true" ]; then
-          VERSION=$VERSION+signed
-        else
-          VERSION=$VERSION+unsigned
-        fi
-
-        if [ "${{ inputs.release }}" != "true" ]; then
-          VERSION=$VERSION.testbuild.${{ github.run_id }}
-        fi
+        VERSION=$VERSION.testbuild.${{ github.run_id }}
         jq ".info.version |= \"$VERSION\"" ./src/plugin.json > ./src/plugin.new.json
         mv ./src/plugin.new.json ./src/plugin.json
+      if: ${{ inputs.release == 'false' }}
+
+    - name: Adapt plugin id and name of plugin
+      shell: bash
+      run: |
+        OLD_NAME="Checkmk data source"
+        NEW_NAME="Checkmk data source for Checkmk Cloud Edition"
+        jq ".name |= \"$NEW_NAME\"" ./src/plugin.json > ./src/plugin.new.json
+        mv ./src/plugin.new.json ./src/plugin.json
+        jq '.id |= "checkmk-cloud-datasource"' ./src/plugin.json > ./src/plugin.new.json
+        mv ./src/plugin.new.json ./src/plugin.json
+        # make sure we can actually find and replace OLD_NAME in README.md
+        grep "$OLD_NAME" README.md
+        sed "s/$OLD_NAME/$NEW_NAME/g" -i README.md
+      if: ${{ inputs.signed == 'true' }}
 
     - name: Build signed plugin and test frontend
       shell: bash
