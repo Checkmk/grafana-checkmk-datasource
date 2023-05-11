@@ -36,17 +36,31 @@ jobs:
       - name: Compatibility check
         run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime
 
-      - name: Build frontend
-        id: build
+      - name: Build frontend unsigned
+        id: build-unsigned
         uses: ./.github/build/
         with:
-          build_identifier: dev.${{ github.run_id }}
+          release: false
+          signed: false
 
-      - name: Upload package
+      - name: Build frontend signed
+        id: build-signed
+        uses: ./.github/build/
+        with:
+          release: false
+          signed: true
+
+      - name: Upload unsigned package
         uses: actions/upload-artifact@v3
         with:
-          name: plugin
-          path: '${{ steps.build.outputs.plugin_path }}'
+          name: checkmk-datasource-unsigned
+          path: '${{ steps.build-unsigned.outputs.plugin_path }}'
+
+      - name: Upload signed package
+        uses: actions/upload-artifact@v3
+        with:
+          name: checkmk-datasource-signed
+          path: '${{ steps.build-signed.outputs.plugin_path }}'
 
   e2e:
     runs-on: ubuntu-latest
@@ -57,7 +71,7 @@ jobs:
       - name: Download package from build job
         uses: actions/download-artifact@v3
         with:
-          name: plugin
+          name: checkmk-datasource-unsigned
 
       - name: unpack and move plugin
         run: |

@@ -1,9 +1,11 @@
 name: 'Build'
 inputs:
-  build_identifier:
-    description: 'If specified will be added to the version in order to identify non official releases'
-    required: false
-    default: ''
+  release:
+    description: 'Boolean to specify if this is a release (true), or test build (false)'
+    required: true
+  signed:
+    description: 'Boolean to specify if this build should be signed'
+    required: true
 outputs:
   changelog_path:
     description: 'path to checklog'
@@ -21,25 +23,50 @@ runs:
       shell: bash
       run: yarn install --frozen-lockfile
 
-    - name: Build and test frontend
+    - name: Adapt version of plugin
       shell: bash
-      run: yarn build
+      run: |
+        sudo apt-get install jq
+
+        # reset previous run: TODO: think about better solution
+        git checkout src/plugin.json
+
+        VERSION=$(jq -r .info.version src/plugin.json)
+        if [ "${{ inputs.signed }}" == "true" ]; then
+          VERSION=$VERSION+signed
+        else
+          VERSION=$VERSION+unsigned
+        fi
+
+        if [ "${{ inputs.release }}" != "true" ]; then
+          VERSION=$VERSION.testbuild.${{ github.run_id }}
+        fi
+        jq ".info.version |= \"$VERSION\"" ./src/plugin.json > ./src/plugin.new.json
+        mv ./src/plugin.new.json ./src/plugin.json
+
+    - name: Build signed plugin and test frontend
+      shell: bash
+      run: |
+        yarn run build:cloud
+        yarn run sign
+      if: ${{ inputs.signed == 'true'}}
+
+    - name: Build unsigned plugin and test frontend
+      shell: bash
+      run: |
+        yarn run build
+      if: ${{ inputs.signed == 'false' }}
 
     - name: Get plugin metadata
       shell: bash
       id: metadata
       run: |
-        sudo apt-get install jq
 
         export GRAFANA_PLUGIN_ID=$(cat dist/plugin.json | jq -r .id)
         export GRAFANA_PLUGIN_VERSION=$(cat dist/plugin.json | jq -r .info.version)
         export GRAFANA_PLUGIN_TYPE=$(cat dist/plugin.json | jq -r .type)
         export GRAFANA_PLUGIN_ARTIFACT=${GRAFANA_PLUGIN_ID}-${GRAFANA_PLUGIN_VERSION}.zip
         export GRAFANA_PLUGIN_ARTIFACT_CHECKSUM=${GRAFANA_PLUGIN_ARTIFACT}.md5
-
-        if [ -n "${{ inputs.build_identifier }}" ]; then
-          export GRAFANA_PLUGIN_VERSION=$GRAFANA_PLUGIN_VERSION+${{ inputs.build_identifier }}
-        fi
 
         echo "plugin-id=${GRAFANA_PLUGIN_ID}"                       >> $GITHUB_OUTPUT
         echo "plugin-version=${GRAFANA_PLUGIN_VERSION}"             >> $GITHUB_OUTPUT
@@ -59,8 +86,9 @@ runs:
     - name: Check package version
       shell: bash
       run: |
-        if [ -z "${{ inputs.build_identifier }}" ]; then
-          if [ "v${{ steps.metadata.outputs.plugin-version }}" != "${{ steps.metadata.outputs.github-tag }}" ]; then
+        if [ "${{ inputs.release }}" == "true" ]; then
+          # we add .signed or .unsigned to the version, so the version is slighly different to the tag:
+          if [[ ! "v${{ steps.metadata.outputs.plugin-version }}" =~ "^${{ steps.metadata.outputs.github-tag }}\.?.*$" ]]; then
             printf "\033[0;31mPlugin version doesn't match tag name\033[0m\n"
             exit 1
           fi
@@ -70,6 +98,9 @@ runs:
       shell: bash
       id: package-plugin
       run: |
+        # clean up previous build # TODO: think about better solution
+        rm -rf ${{ steps.metadata.outputs.plugin-id }}
+
         mv dist ${{ steps.metadata.outputs.plugin-id }}
         zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
         md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
