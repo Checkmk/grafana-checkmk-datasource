@@ -8,7 +8,7 @@
     "description": "Checkmk data source",
     "author": {
       "name": "Checkmk GmbH",
-      "url": "https://github.com/checkmk/"
+      "url": "https://github.com/Checkmk/"
     },
     "keywords": ["checkmk"],
     "logos": {
@@ -16,13 +16,13 @@
       "large": "img/checkmk_logo.svg"
     },
     "links": [
-      { "name": "GitHub", "url": "https://github.com/checkmk/grafana-checkmk-datasource" },
-      { "name": "Checkmk", "url": "https://checkmk.com" }
+      { "name": "GitHub", "url": "https://github.com/Checkmk/grafana-checkmk-datasource" },
+      { "name": "Checkmk", "url": "https://Checkmk.com" }
     ],
     "screenshots": [
       {
         "name": "Checkmk metrics shown in Grafana",
-        "path": "https://github.com/checkmk/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png"
+        "path": "https://github.com/Checkmk/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png"
       }
     ],
     "version": "%VERSION%",
