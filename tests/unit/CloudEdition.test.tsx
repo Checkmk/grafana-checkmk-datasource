@@ -23,8 +23,6 @@ jest.mock('@grafana/runtime', () => {
 });
 
 describe('Cloud Edition Restrictions', () => {
-  // let's not put a bunch of properties in there we're not going to test for anyway
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const options = { jsonData: {}, secureJsonData: {} } as any;
   const onOptionsChange = jest.fn();
 
@@ -58,7 +56,6 @@ describe('Cloud Edition Restrictions', () => {
       getUrl() {
         return 'http://no.where/';
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     let subject: RestApiBackend;
