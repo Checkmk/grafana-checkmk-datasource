@@ -281,7 +281,7 @@ const SingleTag = (props: {
   const operatorAutocompleter = (prefix: string) =>
     Promise.resolve([
       { value: 'is', label: '=' },
-      { value: 'is not', label: '≠' },
+      { value: 'isnot', label: '≠' },
     ]);
   const tagAutocompleter = React.useCallback(
     (prefix: string) => autocompleter(prefix, 'choices', { groupId: groupId || '' }),
@@ -301,7 +301,7 @@ const SingleTag = (props: {
       />
       <CheckMkGenericAsyncSelect<string | undefined>
         width={8}
-        onChange={(val) => onChange({ ...value, operator: val ?? 'is' })}
+        onChange={(val: 'is' | 'isnot') => onChange({ ...value, operator: val ?? 'is' })}
         value={value.operator}
         autocompleter={operatorAutocompleter}
         inputId={'operator'}
