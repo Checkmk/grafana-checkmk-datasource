@@ -43,7 +43,7 @@ export type FiltersRequestSpec = Pick<
 export interface TagValue {
   group?: string;
   tag?: string;
-  operator?: string;
+  operator?: 'is' | 'isnot';
 }
 
 export type GraphType = 'single_metric' | 'predefined_graph';
