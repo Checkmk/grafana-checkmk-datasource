@@ -8,7 +8,7 @@ import WebApiBackend from './backend/web';
 import { Backend as BackendType, CmkQuery, DataSourceOptions, Edition, ResponseDataAutocomplete } from './types';
 import { AutoCompleteParams } from './ui/autocomplete';
 import { createCmkContext } from './utils';
-import { WebApiResponse, buildRequestBody } from './webapi';
+import { WebApiResponse } from './webapi';
 
 export class DataSource extends DataSourceApi<CmkQuery> {
   webBackend: WebApiBackend;
@@ -29,12 +29,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   }
 
   async autocompleterRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<WebApiResponse<T>>> {
-    return this.webBackend.cmkRequest<T>({
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      url: `${this.instanceSettings.url}/cmk/check_mk/${api_url}`,
-      data: buildRequestBody(data),
-    });
+    return this.webBackend.autocompleterRequest(api_url, data);
   }
 
   async contextAutocomplete(
