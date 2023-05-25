@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      signed-plugin-name: '${{ steps.build-signed.outputs.plugin_path }}'
+      unsigned-plugin-name: '${{ steps.build-unsigned.outputs.plugin_path }}'
     steps:
       - uses: actions/checkout@v3
 
@@ -49,7 +52,7 @@ jobs:
       - name: Upload unsigned package
         uses: actions/upload-artifact@v3
         with:
-          name: checkmk-datasource-unsigned
+          name: '${{ steps.build-unsigned.outputs.plugin_path }}'
           path: '${{ steps.build-unsigned.outputs.plugin_path }}'
 
       - name: clean up repo
@@ -67,7 +70,7 @@ jobs:
       - name: Upload signed package
         uses: actions/upload-artifact@v3
         with:
-          name: checkmk-datasource-signed
+          name: '${{ steps.build-signed.outputs.plugin_path }}'
           path: '${{ steps.build-signed.outputs.plugin_path }}'
 
   validate-plugin:
@@ -77,7 +80,7 @@ jobs:
       - name: Download package from build job
         uses: actions/download-artifact@v3
         with:
-          name: checkmk-datasource-signed
+          name: '${{ needs.build.outputs.signed-plugin-name }}'
 
       - name: Setup Go environment
         uses: actions/setup-go@v3
@@ -104,7 +107,7 @@ jobs:
       - name: Download package from build job
         uses: actions/download-artifact@v3
         with:
-          name: checkmk-datasource-unsigned
+          name: '${{ needs.build.outputs.unsigned-plugin-name }}'
 
       - name: unpack and move plugin
         run: |
