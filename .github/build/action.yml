@@ -37,12 +37,18 @@ runs:
     - name: Adapt plugin id and name of plugin
       shell: bash
       run: |
+        # rename plugin description
+        jq ".info.description = \"Checkmk data source for Checkmk Cloud Edition\"" ./src/plugin.json > ./src/plugin.new.json
+        mv ./src/plugin.new.json ./src/plugin.json
+        # rename plugin name
+        jq ".name = \"Checkmk for Cloud Edition\"" ./src/plugin.json > ./src/plugin.new.json
+        mv ./src/plugin.new.json ./src/plugin.json
+        # rename plugin id
+        jq '.id = "checkmk-cloud-datasource"' ./src/plugin.json > ./src/plugin.new.json
+        mv ./src/plugin.new.json ./src/plugin.json
+        # rename README.md
         OLD_NAME="Checkmk data source"
         NEW_NAME="Checkmk data source for Checkmk Cloud Edition"
-        jq ".name |= \"$NEW_NAME\"" ./src/plugin.json > ./src/plugin.new.json
-        mv ./src/plugin.new.json ./src/plugin.json
-        jq '.id |= "checkmk-cloud-datasource"' ./src/plugin.json > ./src/plugin.new.json
-        mv ./src/plugin.new.json ./src/plugin.json
         # make sure we can actually find and replace OLD_NAME in README.md
         grep "$OLD_NAME" README.md
         sed "s/$OLD_NAME/$NEW_NAME/g" -i README.md
