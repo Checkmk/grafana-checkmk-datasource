@@ -8,6 +8,7 @@ import { CmkQuery, DataSourceOptions } from '../types';
 import { aggregationToPresentation, updateQuery } from '../utils';
 import { CheckMkSelect } from './components';
 import { Filters } from './filters';
+import { labelForRequestSpecKey } from './utils';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
@@ -93,7 +94,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   const graphTypeSelect = (
     <CheckMkSelect<'graph_type'>
-      label={'Graph type'}
+      label={labelForRequestSpecKey('graph_type', requestSpec)}
       value={qGraphType}
       onChange={setQGraphType}
       autocompleter={graphTypeCompleter}
@@ -101,7 +102,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
   );
   const graphSelect = (
     <CheckMkSelect
-      label={qGraphType === 'predefined_graph' ? 'Predefined graph' : 'Single metric'}
+      label={labelForRequestSpecKey('graph', requestSpec)}
       value={qGraph}
       onChange={setQGraph}
       autocompleter={graphAutocompleter}
@@ -131,7 +132,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
         </InlineFieldRow>
 
         <CheckMkSelect<'aggregation'>
-          label={'Aggregation'}
+          label={labelForRequestSpecKey('aggregation', requestSpec)}
           value={qAggregation}
           onChange={setQAggregation}
           autocompleter={aggregationCompleter}
