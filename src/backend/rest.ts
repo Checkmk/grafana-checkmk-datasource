@@ -18,6 +18,7 @@ import * as process from 'process';
 import { CmkQuery } from '../types';
 import { createCmkContext, replaceVariables, toLiveStatusQuery, updateQuery } from '../utils';
 import { Backend, DatasourceOptions } from './types';
+import { validateRequestSpec } from './validate';
 
 type RestApiError = {
   detail: string;
@@ -147,13 +148,16 @@ export default class RestApiBackend implements Backend {
   }
 
   async query(request: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
+    request.targets.forEach((query) => {
+      validateRequestSpec(query.requestSpec, this.datasource.getEdition());
+    });
+
     const promises = request.targets
       .filter((target) => !target.hide)
       .map((target) => {
         return this.getSingleGraph(request.range, target);
       });
-    const result = await Promise.all(promises).then((data) => ({ data }));
-    return result;
+    return await Promise.all(promises).then((data) => ({ data }));
   }
 
   async testDatasource(): Promise<unknown> {
