@@ -14,6 +14,7 @@ import {
   createWebApiRequestSpecification,
 } from './../webapi';
 import { Backend, DatasourceOptions } from './types';
+import { validateRequestSpec } from './validate';
 
 export default class WebApiBackend implements Backend {
   datasource: DatasourceOptions;
@@ -75,6 +76,10 @@ export default class WebApiBackend implements Backend {
   }
 
   async query(options: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
+    options.targets.forEach((query) => {
+      validateRequestSpec(query.requestSpec, this.datasource.getEdition());
+    });
+
     const { range } = options;
     const from = range.from.unix();
     const to = range.to.unix();
@@ -140,7 +145,7 @@ export default class WebApiBackend implements Backend {
     }
   }
 
-  getGraphQuery = async (range: number[], query: CmkQuery): Promise<MutableDataFrame<unknown>> => {
+  async getGraphQuery(range: number[], query: CmkQuery): Promise<MutableDataFrame<unknown>> {
     updateQuery(query);
     const graph = get(query, 'requestSpec.graph');
     if (isUndefined(graph) || graph === '') {
@@ -183,5 +188,5 @@ export default class WebApiBackend implements Backend {
     );
 
     return frame;
-  };
+  }
 }
