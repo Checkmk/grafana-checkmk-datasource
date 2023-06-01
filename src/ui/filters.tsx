@@ -12,6 +12,7 @@ import {
   OnlyActiveChildren,
   OnlyActiveChildrenProps,
 } from './components';
+import { labelForRequestSpecKey } from './utils';
 
 interface FiltersProp extends Omit<OnlyActiveChildrenProps, 'children'> {
   datasource: DataSource;
@@ -122,7 +123,7 @@ export const Filters = (props: FiltersProp): JSX.Element => {
     >
       <CheckMkSelect
         requestSpecKey={'site'}
-        label={'Site'}
+        label={labelForRequestSpecKey('site', requestSpec)}
         value={qSite}
         // TODO: onChange is used by OnlyActiveChildren with undefined as value
         // this should be reflected by the type system.
@@ -131,33 +132,33 @@ export const Filters = (props: FiltersProp): JSX.Element => {
       />
       <CheckMkSelect
         requestSpecKey={'host_name'}
-        label={'Hostname'}
+        label={labelForRequestSpecKey('host_name', requestSpec)}
         value={qHost.host_name}
         onChange={(host) => setHostFilter({ ...qHost, host_name: host })}
         autocompleter={hostAutocompleter}
       />
       <Filter
         requestSpecKey="host_name_regex"
-        label="Hostname regex"
+        label={labelForRequestSpecKey('host_name_regex', requestSpec)}
         value={qHost.host_name_regex}
         onChange={(host_name_regex) => setHostFilter({ ...qHost, host_name_regex: host_name_regex })}
       />
       <CheckMkSelectNegatable
         requestSpecKey="host_in_group"
-        label="Host in group"
+        label={labelForRequestSpecKey('host_in_group', requestSpec)}
         value={qHost.host_in_group}
         onChange={(host_in_group) => setHostFilter({ ...qHost, host_in_group: host_in_group })}
         autocompleter={hostGroupAutocompleter}
       />
       <HostLabelFilter
-        label="Host labels"
+        label={labelForRequestSpecKey('host_labels', requestSpec)}
         requestSpecKey="host_labels"
         value={qHost.host_labels}
         onChange={(host_labels: string[]) => setHostFilter({ ...qHost, host_labels: host_labels })}
         autocompleter={hostLabelAutocompleter}
       />
       <HostTagFilter
-        label="Host tags"
+        label={labelForRequestSpecKey('host_tags', requestSpec)}
         requestSpecKey="host_tags"
         value={qHost.host_tags}
         onChange={(host_tags) => setHostFilter({ ...qHost, host_tags: host_tags })}
@@ -165,20 +166,20 @@ export const Filters = (props: FiltersProp): JSX.Element => {
       />
       <CheckMkSelect
         requestSpecKey={'service'}
-        label={'Service'}
+        label={labelForRequestSpecKey('service', requestSpec)}
         value={qService.service}
         onChange={(service) => setServiceFilter({ ...qService, service: service })}
         autocompleter={serviceAutocompleter}
       />
       <Filter
         requestSpecKey="service_regex"
-        label="Service regex"
+        label={labelForRequestSpecKey('service_regex', requestSpec)}
         value={qService.service_regex}
         onChange={(service_regex) => setServiceFilter({ ...qService, service_regex: service_regex })}
       />
       <CheckMkSelectNegatable
         requestSpecKey="service_in_group"
-        label="Service in group"
+        label={labelForRequestSpecKey('service_in_group', requestSpec)}
         value={qService.service_in_group}
         onChange={(service_in_group) => setServiceFilter({ ...qService, service_in_group: service_in_group })}
         autocompleter={serviceGroupAutocompleter}
