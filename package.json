@@ -3,8 +3,8 @@
   "version": "3.0.1",
   "description": "",
   "scripts": {
-    "build": "webpack -c ./webpack.config.ts --env production",
-    "build:cloud": "BUILD_EDITION=CLOUD webpack -c ./webpack.config.ts --env production",
+    "build": "bash utils/plugin_json_to_unsigned.sh && webpack -c ./webpack.config.ts --env production",
+    "build:cloud": "bash utils/plugin_json_to_cloud.sh && BUILD_EDITION=CLOUD webpack -c ./webpack.config.ts --env production",
     "dev": "webpack -w -c ./webpack.config.ts --env development",
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn lint --fix",

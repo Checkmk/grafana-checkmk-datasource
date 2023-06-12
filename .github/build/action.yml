@@ -34,19 +34,9 @@ runs:
         mv ./src/plugin.new.json ./src/plugin.json
       if: ${{ inputs.release == 'false' }}
 
-    - name: Adapt plugin id and name of plugin
+    - name: Adapt README.md
       shell: bash
       run: |
-        # rename plugin description
-        jq ".info.description = \"Checkmk data source for Checkmk Cloud Edition\"" ./src/plugin.json > ./src/plugin.new.json
-        mv ./src/plugin.new.json ./src/plugin.json
-        # rename plugin name
-        jq ".name = \"Checkmk for Cloud Edition\"" ./src/plugin.json > ./src/plugin.new.json
-        mv ./src/plugin.new.json ./src/plugin.json
-        # rename plugin id
-        jq '.id = "checkmk-cloud-datasource"' ./src/plugin.json > ./src/plugin.new.json
-        mv ./src/plugin.new.json ./src/plugin.json
-        # rename README.md
         OLD_NAME="Checkmk data source"
         NEW_NAME="Checkmk data source for Checkmk Cloud Edition"
         # make sure we can actually find and replace OLD_NAME in README.md
@@ -57,6 +47,7 @@ runs:
     - name: Build signed plugin and test frontend
       shell: bash
       run: |
+        # yarn build script will adapt src/plugin.json via utils/plugin_json*.sh
         yarn run build:cloud
         yarn run sign
       if: ${{ inputs.signed == 'true'}}
@@ -64,6 +55,7 @@ runs:
     - name: Build unsigned plugin and test frontend
       shell: bash
       run: |
+        # yarn build script will adapt src/plugin.json via utils/plugin_json*.sh
         yarn run build
       if: ${{ inputs.signed == 'false' }}
 
