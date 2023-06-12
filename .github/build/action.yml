@@ -29,7 +29,7 @@ runs:
       shell: bash
       run: |
         VERSION=$(jq -r .info.version src/plugin.json)
-        VERSION=$VERSION.testbuild.${{ github.run_id }}
+        VERSION=$VERSION-testbuild.${{ github.run_id }}
         jq ".info.version |= \"$VERSION\"" ./src/plugin.json > ./src/plugin.new.json
         mv ./src/plugin.new.json ./src/plugin.json
       if: ${{ inputs.release == 'false' }}
