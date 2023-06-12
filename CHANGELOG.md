@@ -2,9 +2,19 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
-## 3.0.1-alpha.1
+## 3.0.1
 
-Test if new release pipeline is working.
+- We now build and ship a signed version of this plugin:
+    - The signed plugin "Checkmk data source for Checkmk Cloud Edition" will
+      only talk to the Cloud Edition of checkmk
+    - the plugin id is `checkmk-cloud-datasource`, so dashboards created with
+      the unsigned data source (id=`tribe-29-checkmk-datasource`) needs to be
+      recreated. We will try to provide a script to automatically transfer
+      existing dashboards in the near future.
+    - The unsigned plugin (id=`tribe-29-checkmk-datasource`) will continue to
+      work and will still be maintained.
+- Adapted the build process of the plugin to use `@grafana/create-plugin`
+- "tribe29 GmbH" is now "Checkmk GmbH"
 
 ## 3.0.0
 
