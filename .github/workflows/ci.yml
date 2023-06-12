@@ -18,13 +18,13 @@ jobs:
         run: |
           sudo apt-get install jq
 
-      - name: plugin_json_to_unsigned.sh should not change src.plugin.json
+      - name: plugin_json_to_cloud.sh should not change src.plugin.json
         run: |
           # src/plugin.json and plugin_json_to_cloud.sh 
           # should contain the same ids and strings
           # this test makes sure they stay in sync
           jq --sort-keys . src/plugin.json > /tmp/before.json
-          bash utils/plugin_json_to_unsigned.sh
+          bash utils/plugin_json_to_cloud.sh
           jq --sort-keys . src/plugin.json > /tmp/after.json
           diff /tmp/before.json /tmp/after.json
 
