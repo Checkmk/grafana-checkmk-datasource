@@ -58,7 +58,7 @@ runs:
       shell: bash
       run: |
         yarn run build:cloud
-        # yarn run sign
+        yarn run sign
       if: ${{ inputs.signed == 'true'}}
 
     - name: Build unsigned plugin and test frontend
