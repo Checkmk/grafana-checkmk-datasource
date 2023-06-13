@@ -2,6 +2,11 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 3.1.0-beta.1
+
+- added support for query variables
+- better error message for missing mandatory fields
+
 ## 3.0.1
 
 - We now build and ship a signed version of this plugin:
