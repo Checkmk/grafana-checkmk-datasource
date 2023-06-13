@@ -31,9 +31,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag: ${{ github.ref }}
-          name: Release ${{ github.ref }}
-          body: ${{ steps.build.changelog_path }}
+          body: ${{ steps.build-signed.changelog_path }}
           draft: true
           artifacts: ${{ steps.build-signed.outputs.plugin_path }},${{ steps.build-signed.outputs.plugin_checksum_path }}
 
