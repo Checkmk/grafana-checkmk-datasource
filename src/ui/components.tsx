@@ -410,6 +410,7 @@ export const HostLabelFilter: React.FC<HostLabelProps> = (props) => {
         onChange={onLabelsChange}
         value={toMultiSelectValue(value)}
         placeholder="Type to trigger search"
+        inputId="checkmk-filter-host-label-select-input"
       />
     </InlineField>
   );
@@ -487,6 +488,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
             value={{ label: 'Add Filter' }}
+            inputId="checkmk-add-filter-input"
           />
         </InlineField>
       )}

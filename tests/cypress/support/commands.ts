@@ -22,6 +22,7 @@ Cypress.Commands.add('addNewPanel', () => {
   // add a new panel in a new dashboard
   cy.visit('/dashboard/new');
   cy.get('button[aria-label="Add new panel"]').click();
+  cy.get('[role=dialog]').type('{esc}');
 });
 
 Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edition: string) => {
@@ -37,7 +38,7 @@ Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edit
   cy.get('[data-test-id="checkmk-password"]').type(cmkPass);
   cy.get('[id="checkmk-version"]').type('<{enter}');
 
-  cy.get('[aria-label="Data source settings page Save and Test button"]').click();
+  cy.get('[data-testid="data-testid Data source settings page Save and Test button"]').click();
 
   cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
   cy.contains('Data source is working').should('be.visible');

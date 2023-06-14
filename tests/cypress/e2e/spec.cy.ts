@@ -12,7 +12,7 @@ describe('e2e tests', () => {
   const CmkCRE = 'RAW Edition';
 
   const inputDatasourceId = 'data-source-picker';
-  const inputFilterId = 'react-select-7-input';
+  const inputFilterId = 'checkmk-add-filter-input';
   const inputGraphId = 'input_Predefined graph';
   const inputGraphTypeId = 'input_Graph type';
   const inputHostId = 'input_Hostname';
@@ -159,7 +159,7 @@ describe('e2e tests', () => {
       cy.inputLocatorById(inputFilterId).type('Host labels{enter}'); // Filter -> 'Host labels'
       cy.contains('Host labels').should('exist');
 
-      cy.inputLocatorById('react-select-15-input').type('cmk/site:cm'); // Host labels -> 'cmk/site:cm' (one entry)
+      cy.inputLocatorById('checkmk-filter-host-label-select-input').type('cmk/site:cm'); // Host labels -> 'cmk/site:cm' (one entry)
       // TODO: should only contain a single lable, but shows all?
       cy.contains('cmk/site:cmk').should('exist');
       cy.contains('cmk/site:cmk').click();
