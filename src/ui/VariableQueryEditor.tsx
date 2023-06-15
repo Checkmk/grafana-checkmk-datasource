@@ -43,8 +43,11 @@ export const VariableQueryEditor = function (props: VariableQueryProps) {
   }
 
   const objectTypeChange = (value: ObjectType) => {
-    query.objectType = value;
-    props.onChange(query, formatDefinition(query));
+    const newQuery: MetricFindQuery = {
+      ...query,
+      objectType: value,
+    };
+    props.onChange(newQuery, formatDefinition(newQuery));
   };
 
   const filtersChange = (value: FiltersRequestSpec) => {
