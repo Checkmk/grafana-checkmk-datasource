@@ -238,7 +238,7 @@ export default class RestApiBackend implements Backend {
     // check for cloud edition header
     if (result.headers.get('X-Checkmk-Edition') !== 'cce' && process.env.BUILD_EDITION === 'CLOUD') {
       throw new Error(
-        'Checkmk data source for Checkmk Cloud Edition« is only compatible with Checkmk Cloud Edition, but you are trying to connect to another edition.'
+        '»Checkmk data source for Checkmk Cloud Edition« is only compatible with Checkmk Cloud Edition, but you are trying to connect to another edition.'
       );
     }
 
