@@ -27,7 +27,7 @@ The signed plug-in can be installed from the [Grafana marketplace][6] or by usin
 grafana-cli plugins install checkmk-cloud-datasource
 ```
 
-For the installation of the unsigned plugin, please take a look at the official [Checkmk user guide][3].
+For the installation of the unsigned plugin, please take a look at the official [Checkmk User Guide][3].
 
 ## Official documentation
 
