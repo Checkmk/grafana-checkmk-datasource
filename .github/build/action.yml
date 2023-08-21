@@ -28,10 +28,12 @@ runs:
     - name: Adapt version of plugin to indicate this is not a official release
       shell: bash
       run: |
-        VERSION=$(jq -r .info.version src/plugin.json)
+        VERSION=$(jq -r .version package.json)
+        # increase patch version, otherwise grafana plugin validator will fail:
+        VERSION=$(echo "$VERSION" | perl -pe 's/^((\d+\.)*)(\d+)(.*)$/$1.($3+1).$4/e')
         VERSION=$VERSION-testbuild.${{ github.run_id }}
-        jq ".info.version |= \"$VERSION\"" ./src/plugin.json > ./src/plugin.new.json
-        mv ./src/plugin.new.json ./src/plugin.json
+        jq ".version |= \"$VERSION\"" ./package.json > ./package.new.json
+        mv ./package.new.json ./package.json
       if: ${{ inputs.release == 'false' }}
 
     - name: Adapt README.md
