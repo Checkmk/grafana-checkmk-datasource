@@ -33,8 +33,13 @@ yarn pretty
 
 Update dependencies
 
+https://grafana.com/developers/plugin-tools/migration-guides/update-create-plugin-versions
+
 ```BASH
-yarn upgrade --latest
+npx @grafana/create-plugin@latest update
+yarn install
+yarn upgrade
+yarn pretty
 ```
 
 ## Release

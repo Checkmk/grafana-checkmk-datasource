@@ -166,7 +166,7 @@ export function replaceVariables(
       result['host_tags'] = tags as [TagValue, TagValue, TagValue];
     } else if (typeof value === 'object' && 'value' in value) {
       // NegatableOption
-      result[key] = { ...value, value: t.replace(value.value, scopedVars) } as RequestSpec[T];
+      result[key] = { ...(value as object), value: t.replace(value.value, scopedVars) } as RequestSpec[T];
     } else {
       result[key] = value;
     }
