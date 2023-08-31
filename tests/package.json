@@ -8,7 +8,7 @@
   },
   "author": "",
   "license": "GPL-2.0-only",
-  "dependencies": {
+  "devDependencies": {
     "cypress": "^12.11.0"
   }
 }
