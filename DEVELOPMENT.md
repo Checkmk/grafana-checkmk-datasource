@@ -40,6 +40,8 @@ npx @grafana/create-plugin@latest update
 yarn install
 yarn upgrade
 yarn pretty
+cd tests
+yarn upgrade
 ```
 
 ## Release
