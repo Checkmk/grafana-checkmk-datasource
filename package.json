@@ -1,6 +1,6 @@
 {
   "name": "tribe-29-checkmk-datasource",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "",
   "scripts": {
     "build": "bash utils/plugin_json_to_unsigned.sh && webpack -c ./webpack.config.ts --env production",
