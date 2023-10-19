@@ -8,8 +8,8 @@ describe('e2e tests', () => {
   const hostName0 = 'localhost_grafana0';
   const hostName1 = 'localhost_grafana1';
 
-  const CmkCEE = 'Enterprise Editions';
-  const CmkCRE = 'RAW Edition';
+  const CmkCEE = 'Commercial editions';
+  const CmkCRE = 'Raw Edition';
 
   const inputDatasourceId = 'data-source-picker';
   const inputFilterId = 'react-select-7-input';
