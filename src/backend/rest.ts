@@ -176,9 +176,14 @@ export default class RestApiBackend implements Backend {
         `Checkmk version 2.1.0 has been detected, but this plugin is configured to use version 2.2.0 and above. Please set the backend option to '< 2.2'.`
       );
     }
-    if (this.datasource.getEdition() === 'CEE' && result.data.edition === 'raw') {
+    if (this.datasource.getEdition() !== 'RAW' && result.data.edition === 'cre') {
       throw new Error(
-        'The data source specified the Checkmk Enterprise Edition, but Checkmk Raw Edition was detected. Please choose the raw edition in the data source settings.'
+        'The data source specified the Checkmk commercial editions, but Checkmk Raw Edition was detected. Choose the raw edition in the data source settings.'
+      );
+    }
+    if (this.datasource.getEdition() === 'RAW' && result.data.edition !== 'cre') {
+      throw new Error(
+        'The data source specified the Checkmk Raw Edition, but a Checkmk commercial edition was detected. Some functionality may not be available. Choose commercial editions in the data source settings to enable all features.'
       );
     }
     // The REST API would be ok with other users, but the autocompleter are not
