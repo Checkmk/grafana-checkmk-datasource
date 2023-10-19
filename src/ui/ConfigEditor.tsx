@@ -87,8 +87,8 @@ export class ConfigEditor extends PureComponent<Props, State> {
     }
 
     const cmkEditions: EditionOption[] = [
-      { value: 'CEE', label: 'Enterprise Editions' },
-      { value: 'RAW', label: 'RAW Edition' },
+      { value: 'CEE', label: 'Commercial editions' },
+      { value: 'RAW', label: 'Raw Edition' },
     ];
     if (!jsonData.edition) {
       this.onEditionChange(cmkEditions[0]);
