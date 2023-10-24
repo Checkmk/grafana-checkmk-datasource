@@ -1,6 +1,6 @@
 # Checkmk data source
 
-[![Grafana 8.0](https://img.shields.io/badge/Grafana-8.0-orange)](https://www.grafana.com)
+[![Grafana 9.0](https://img.shields.io/badge/Grafana-9.0-orange)](https://www.grafana.com)
 [![Checkmk cloud data source](https://img.shields.io/badge/dynamic/json?color=blue&label=Checkmk%20for%20Cloud%20Edition&query=%24.version&url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fcheckmk-cloud-datasource)](https://grafana.com/grafana/plugins/checkmk-cloud-datasource)
 [![Checkmk unsigned data source](https://img.shields.io/badge/dynamic/json?color=blue&label=Checkmk&query=tag_name&url=https%3A%2F%2Fapi.github.com%2Frepos%2Ftribe29%2Fgrafana-checkmk-datasource%2Freleases%2Flatest)](https://github.com/Checkmk/grafana-checkmk-datasource)
 [![CI](https://github.com/Checkmk/grafana-checkmk-datasource/actions/workflows/ci.yml/badge.svg)](https://github.com/Checkmk/grafana-checkmk-datasource/actions/workflows/ci.yml?query=event%3Aschedule)
@@ -15,7 +15,7 @@ This [data source][2] plugin for [Grafana][1] allows to address Checkmk as sourc
 
 To make use of the plugin, you need to take care the correct versions are installed. You need to match both, the Grafana and the Checkmk version:
 
-- **Grafana 8.0.0 or higher**
+- **Grafana 9.0.0 or higher** Current and previous major version of Grafana
 - **Checkmk Cloud Edition 2.2.0 or higher** for the signed plugin available from [Grafana][6]
 - **Checkmk 2.1.0 or higher** for the unsigned plugin available from [Github][8]
 
