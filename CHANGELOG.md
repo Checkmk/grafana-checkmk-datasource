@@ -2,6 +2,10 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## next
+
+- at least Grafana 9.0.0 is required.
+
 ## 3.1.1
 
 - update dependencies
