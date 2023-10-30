@@ -174,7 +174,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkS
   return (
     <InlineField labelWidth={LABEL_WIDTH} label={props.label}>
       <CheckMkAsyncSelect
-        inputId={`input_${props.label}`}
+        inputId={`input_${props.label?.replace(/ /g, "_")}`}
         label={label}
         autocompleter={autocompleter}
         onChange={onChange}
@@ -487,6 +487,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
             value={{ label: 'Add Filter' }}
+            inputId="input_add_filter"
           />
         </InlineField>
       )}
