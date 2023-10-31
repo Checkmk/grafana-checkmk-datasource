@@ -174,7 +174,7 @@ export const CheckMkSelect = <Key extends RequestSpecStringKeys>(props: CheckMkS
   return (
     <InlineField labelWidth={LABEL_WIDTH} label={props.label}>
       <CheckMkAsyncSelect
-        inputId={`input_${props.label}`}
+        inputId={`input_${props.label?.replace(/ /g, '_')}`}
         label={label}
         autocompleter={autocompleter}
         onChange={onChange}
@@ -376,11 +376,12 @@ export const HostTagFilter: React.FC<HostTagFilterProps> = (props) => {
 };
 
 interface HostLabelProps extends CommonProps<RequestSpec['host_labels']> {
+  inputId: string;
   autocompleter: (value: string) => Promise<Array<SelectableValue<string>>>;
 }
 
 export const HostLabelFilter: React.FC<HostLabelProps> = (props) => {
-  const { value, autocompleter, label, onChange } = props;
+  const { value, autocompleter, label, onChange, inputId } = props;
 
   const onLabelsChange = (items: Array<SelectableValue<string>>) => {
     const result: string[] = [];
@@ -410,6 +411,7 @@ export const HostLabelFilter: React.FC<HostLabelProps> = (props) => {
         onChange={onLabelsChange}
         value={toMultiSelectValue(value)}
         placeholder="Type to trigger search"
+        inputId={inputId}
       />
     </InlineField>
   );
@@ -487,6 +489,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element 
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
             value={{ label: 'Add Filter' }}
+            inputId="input_add_filter"
           />
         </InlineField>
       )}

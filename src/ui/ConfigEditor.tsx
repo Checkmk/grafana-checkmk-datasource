@@ -124,6 +124,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
                   onChange={this.onEditionChange}
                   value={jsonData.edition}
                   placeholder="Select your checkmk edition"
+                  inputId="checkmk-edition"
                 />
               </InlineField>
               <InlineField

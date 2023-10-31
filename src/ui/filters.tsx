@@ -156,6 +156,7 @@ export const Filters = (props: FiltersProp): JSX.Element => {
         value={qHost.host_labels}
         onChange={(host_labels: string[]) => setHostFilter({ ...qHost, host_labels: host_labels })}
         autocompleter={hostLabelAutocompleter}
+        inputId="input_host_label"
       />
       <HostTagFilter
         label={labelForRequestSpecKey('host_tags', requestSpec)}
