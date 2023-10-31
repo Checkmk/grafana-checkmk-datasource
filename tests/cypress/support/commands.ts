@@ -1,3 +1,6 @@
+import CheckMkSelectors from './checkmk_selectors';
+import GrafanaSelectors from './grafana_selectors';
+
 export {};
 
 const panelContentSelector = '[class$="panel-content"]';
@@ -7,9 +10,9 @@ const plottedHoverSelectorOn = '[class="u-cursor-pt"]';
 
 Cypress.Commands.add('loginGrafana', () => {
   cy.visit('/login');
-  cy.get('input[name="user"]').type(Cypress.env('grafanaUsername'));
-  cy.get('input[name="password"]').type(Cypress.env('grafanaPassword'));
-  cy.get('[aria-label="Login button"]').click();
+  cy.get(GrafanaSelectors.Login.username_input).type(Cypress.env('grafanaUsername'));
+  cy.get(GrafanaSelectors.Login.password_input).type(Cypress.env('grafanaPassword'));
+  cy.get(GrafanaSelectors.Login.login_button).click();
   // wait until page after logged in is fully loaded
   cy.contains('Recently viewed dashboards').should('be.visible');
 });
@@ -21,23 +24,29 @@ Cypress.Commands.add('logoutGrafana', () => {
 Cypress.Commands.add('addNewPanel', () => {
   // add a new panel in a new dashboard
   cy.visit('/dashboard/new');
-  cy.get('button[aria-label="Add new panel"]').click();
+  cy.get(GrafanaSelectors.AddDashboard.add_new_panel_button).click();
+});
+
+Cypress.Commands.add('selectDataSource', (edition: string) => {
+  if (GrafanaSelectors.grafanaVersion >= 10) {
+    cy.get(`${GrafanaSelectors.AddDashboard.datasources_list}`).contains('button', `Checkmk ${edition}`).click();
+  }
 });
 
 Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edition: string) => {
   cy.visit('/datasources/new');
-  cy.get('button[aria-label="Add new data source Checkmk"]').contains('Checkmk').click();
+  cy.get(GrafanaSelectors.AddDataSource.select_datasource_button('Checkmk')).contains('Checkmk').click();
 
-  cy.get('input[id="basic-settings-name"]').type(' ' + edition);
-  cy.get('[data-test-id="checkmk-url"]').type(Cypress.env('grafanaToCheckmkUrl'));
-  cy.get('input[id="react-select-2-input"]').type(edition + '{enter}'); // TODO: introduce an id for the input selector
+  cy.get(CheckMkSelectors.SetupForm.name).type(' ' + edition);
+  cy.get(CheckMkSelectors.SetupForm.url).type(Cypress.env('grafanaToCheckmkUrl'));
+  cy.get(CheckMkSelectors.SetupForm.edition).type(edition + '{enter}');
   cy.contains(edition).should('exist');
 
-  cy.get('[data-test-id="checkmk-username"]').type(cmkUser);
-  cy.get('[data-test-id="checkmk-password"]').type(cmkPass);
-  cy.get('[id="checkmk-version"]').type('<{enter}');
+  cy.get(CheckMkSelectors.SetupForm.username).type(cmkUser);
+  cy.get(CheckMkSelectors.SetupForm.password).type(cmkPass);
+  cy.get(CheckMkSelectors.SetupForm.version).type('<{enter}');
 
-  cy.get('[aria-label="Data source settings page Save and Test button"]').click();
+  cy.get(GrafanaSelectors.AddDataSource.save_and_test_button).click();
 
   cy.get('[data-testid="data-testid Alert success"]').should('be.visible');
   cy.contains('Data source is working').should('be.visible');
@@ -144,6 +153,7 @@ declare global {
       assertLegendElement(text: string): Chainable<void>;
       inputLocatorById(id: string): Chainable<JQuery>;
       inputLocatorByDataTestId(dataTestId: string): Chainable<JQuery>;
+      selectDataSource(edition: string): Chainable<JQuery>;
     }
   }
 }

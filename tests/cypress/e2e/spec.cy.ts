@@ -1,4 +1,5 @@
 import '../support/api_commands';
+import CheckmkSelectors from '../support/checkmk_selectors';
 import '../support/commands';
 
 describe('e2e tests', () => {
@@ -12,20 +13,41 @@ describe('e2e tests', () => {
   const CmkCRE = 'Raw Edition';
 
   const inputDatasourceId = 'data-source-picker';
-  const inputFilterId = 'react-select-7-input';
-  const inputGraphId = 'input_Predefined graph';
-  const inputGraphTypeId = 'input_Graph type';
+  const inputFilterId = CheckmkSelectors.AddDashboard.filterFieldId;
+  const inputGraphId = 'input_Predefined_graph';
+  const inputGraphTypeId = 'input_Graph_type';
   const inputHostId = 'input_Hostname';
-  const inputMetricId = 'input_Single metric';
+  const inputMetricId = 'input_Single_metric';
   const inputServiceId = 'input_Service';
   const inputSiteId = 'input_Site';
+  const inputHostLabelId = CheckmkSelectors.AddDashboard.hostLabelFieldId;
 
   const inputHostRegexDataTestId = 'host_name_regex-filter-input';
   const inputServiceRegexDataTestId = 'service_regex-filter-input';
 
   const queryEditorSelector = '[class="query-editor-row"]';
 
+  let cmkSite = 'cmk';
+
   before(() => {
+    //Determine site name from variables
+    const grafanaCMKSite = Cypress.env('grafanaToCheckmkUrl')
+      ? new URL(Cypress.env('grafanaToCheckmkUrl')).pathname.split('/').pop()
+      : 'cmk';
+
+    const cypressCMKSite = Cypress.env('cypressToCheckmkUrl')
+      ? new URL(Cypress.env('cypressToCheckmkUrl')).pathname.split('/').pop()
+      : 'cmk';
+
+    if (grafanaCMKSite !== cypressCMKSite) {
+      console.log('Site name mismatch between grafanaToCheckmkUrl and cypressToCheckmkUrl');
+      console.log({ grafanaCMKSite, cypressCMKSite });
+      throw new Error('grafanaToCheckmkUrl and cypressToCheckmkUrl must have the same site name');
+    }
+
+    cmkSite = grafanaCMKSite;
+    console.log(`Site name is "${cmkSite}"`);
+
     cy.deleteCmkAutomationUser(false); // clean-up possible existing user
     cy.createCmkAutomationUser();
 
@@ -38,7 +60,7 @@ describe('e2e tests', () => {
     cy.executeServiceDiscovery(hostName0, 'fix_all');
     cy.executeServiceDiscovery(hostName1, 'refresh');
     cy.executeServiceDiscovery(hostName1, 'fix_all');
-    cy.activateCmkChanges('cmk');
+    cy.activateCmkChanges(cmkSite);
     cy.waitForPendingServices(2000);
 
     cy.loginGrafana();
@@ -52,7 +74,7 @@ describe('e2e tests', () => {
     cy.deleteCmkHost(hostName0);
     cy.deleteCmkHost(hostName1);
     cy.deleteCmkAutomationUser(true);
-    cy.activateCmkChanges('cmk');
+    cy.activateCmkChanges(cmkSite);
   });
 
   beforeEach(() => {
@@ -66,6 +88,8 @@ describe('e2e tests', () => {
   });
   describe('CEE tests', () => {
     it('time-usage panel by service (single host)', {}, () => {
+      cy.selectDataSource(CmkCEE);
+
       cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
 
       cy.inputLocatorById(inputFilterId).type('Hostname{enter}'); // Filter -> 'Host name'
@@ -100,11 +124,16 @@ describe('e2e tests', () => {
     });
 
     it('time-usage panel by service (multiple hosts)', {}, () => {
+      cy.selectDataSource(CmkCEE);
+
       cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
       cy.inputLocatorById(inputFilterId).type('Service{enter}'); // Filter -> 'Service'
 
       cy.inputLocatorById(inputServiceId).type('{enter}'); // Service -> 'Check_MK' (first entry)
       cy.contains('Check_MK').should('exist');
+
+      cy.inputLocatorById(inputFilterId).type('regex{enter}'); // Filter -> 'Hostname regex'
+      cy.get('input[data-test-id="host_name_regex-filter-input"]').type('localhost_grafana[0-9]+{enter}');
 
       cy.inputLocatorById(inputGraphId).click();
       cy.get('[class="scrollbar-view"]')
@@ -135,6 +164,7 @@ describe('e2e tests', () => {
     });
 
     it('RAM-used panel by service regex (multiple hosts)', {}, () => {
+      cy.selectDataSource(CmkCEE);
       cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
       cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service'
       cy.contains('Service regex').should('exist');
@@ -155,14 +185,15 @@ describe('e2e tests', () => {
     });
 
     it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
+      cy.selectDataSource(CmkCEE);
       cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
       cy.inputLocatorById(inputFilterId).type('Host labels{enter}'); // Filter -> 'Host labels'
       cy.contains('Host labels').should('exist');
 
-      cy.inputLocatorById('react-select-15-input').type('cmk/site:cm'); // Host labels -> 'cmk/site:cm' (one entry)
+      cy.inputLocatorById(inputHostLabelId).type('cmk/site:cm'); // Host labels -> 'cmk/site:cm' (one entry)
       // TODO: should only contain a single lable, but shows all?
-      cy.contains('cmk/site:cmk').should('exist');
-      cy.contains('cmk/site:cmk').click();
+      cy.contains(`cmk/site:${cmkSite}`).should('exist');
+      cy.contains(`cmk/site:${cmkSite}`).click();
 
       cy.inputLocatorById(inputGraphTypeId).click(); // Graph type -> 'Single metric'
       cy.contains('Single metric').click();
@@ -182,6 +213,7 @@ describe('e2e tests', () => {
     });
 
     it('RAM-used panel by service regex and hostname regex', {}, () => {
+      cy.selectDataSource(CmkCEE);
       cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
       cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service'
       cy.contains('Service regex').should('exist');
@@ -224,6 +256,7 @@ describe('e2e tests', () => {
     });
 
     it('Uptime panel by hostname', {}, () => {
+      cy.selectDataSource(CmkCEE);
       cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
       cy.inputLocatorById(inputFilterId).type('Hostname{enter}'); // Filter -> 'Host name'
 
@@ -250,6 +283,8 @@ describe('e2e tests', () => {
   });
   describe('CRE tests', () => {
     it('time-usage panel by service (single host)', {}, () => {
+      cy.selectDataSource(CmkCRE);
+
       cy.passOnException('ResizeObserver loop limit exceeded');
       cy.inputLocatorById(inputDatasourceId).type('Checkmk ' + CmkCRE + '{enter}');
       cy.contains('Checkmk ' + CmkCRE).should('be.visible');
@@ -282,6 +317,8 @@ describe('e2e tests', () => {
       cy.contains("Could not find 'cmk_cpu_time_by_phase'").should('be.visible'); // Assert previous graph input not visible
     });
     it('Used-RAM panel by service (single host)', {}, () => {
+      cy.selectDataSource(CmkCRE);
+
       cy.passOnException('ResizeObserver loop limit exceeded');
       cy.inputLocatorById(inputDatasourceId).type('Checkmk ' + CmkCRE + '{enter}');
       cy.contains('Checkmk ' + CmkCRE).should('be.visible');
