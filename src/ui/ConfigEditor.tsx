@@ -1,5 +1,5 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+import { Alert, FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
 import React, { ChangeEvent, PureComponent } from 'react';
 
 import { Backend, DataSourceOptions, Edition, SecureJsonData } from '../types';
@@ -140,6 +140,15 @@ export class ConfigEditor extends PureComponent<Props, State> {
                   inputId="checkmk-version"
                 />
               </InlineField>
+              {jsonData.backend === 'web' && (
+                <Alert title="Feature degration warning" severity="warning">
+                  Note that versions older than 2.1.0 are not officially supported:
+                  <ul>
+                    <li>- Version 2.0.0 may work, but not all features are available.</li>
+                    <li>- Version 1.6.0 and earlier will not work at all.</li>
+                  </ul>
+                </Alert>
+              )}
             </>
           ) : (
             <></>
