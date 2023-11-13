@@ -265,6 +265,9 @@ export default class RestApiBackend implements Backend {
       throw 'Query is missing required fields';
     }
 
+    range.from.set('milliseconds', 0);
+    range.to.set('milliseconds', 0);
+
     const commonRequest: CommonRequest = {
       type: query.requestSpec.graph_type,
       time_range: {
