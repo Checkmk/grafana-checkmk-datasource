@@ -8,6 +8,7 @@ module.exports = require('cypress').defineConfig({
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     retries: 2,
     defaultCommandTimeout: 10000,
+    video: true,
     videoCompression: 15,
     viewportHeight: 1080,
     viewportWidth: 1920,

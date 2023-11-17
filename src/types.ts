@@ -1,4 +1,5 @@
-import { DataQuery, DataSourceJsonData } from '@grafana/data';
+import { DataSourceJsonData } from '@grafana/data';
+import { DataQuery } from '@grafana/schema';
 
 import { RequestSpec, defaultRequestSpec } from './RequestSpec';
 
@@ -77,4 +78,13 @@ export interface SecureJsonData {
 
 export interface ResponseDataAutocomplete {
   choices: Array<[string, string]>;
+}
+
+export enum LabelVariableNames {
+  ORIGINAL = '$label',
+  SITE = '$filter_site',
+  HOSTNAME = '$filter_host_name',
+  HOST_IN_GROUP = '$filter_host_in_group',
+  SERVICE = '$filter_service',
+  SERVICE_IN_GROUP = '$filter_service_in_group',
 }

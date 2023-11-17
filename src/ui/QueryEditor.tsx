@@ -1,12 +1,12 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { InlineFieldRow, VerticalGroup } from '@grafana/ui';
+import { Button, Icon, InlineFieldRow, Toggletip, VerticalGroup } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
 import { Aggregation, GraphType, RequestSpec } from '../RequestSpec';
-import { CmkQuery, DataSourceOptions } from '../types';
+import { CmkQuery, DataSourceOptions, LabelVariableNames } from '../types';
 import { aggregationToPresentation, updateQuery } from '../utils';
-import { CheckMkSelect } from './components';
+import { CheckMkSelect, GenericField } from './components';
 import { Filters } from './filters';
 import { labelForRequestSpecKey } from './utils';
 
@@ -19,6 +19,8 @@ export const QueryEditor = (props: Props): JSX.Element => {
   const [qAggregation, setQAggregation] = React.useState(rs.aggregation || 'off');
   const [qGraphType, setQGraphType] = React.useState(rs.graph_type || 'predefined_graph');
   const [qGraph, setQGraph] = React.useState(rs.graph);
+  const [qLabel, setQLabel] = React.useState(rs.label);
+
   const filters: Partial<RequestSpec> = {
     // make sure to only include keys filters should change, otherwise they could
     // overwrite other fields!
@@ -43,6 +45,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
     graph_type: qGraphType,
     graph: qGraph,
     aggregation: qAggregation,
+    label: qLabel,
   };
 
   // TODO: not sure if this is a dirty hack or a great solution:
@@ -109,6 +112,55 @@ export const QueryEditor = (props: Props): JSX.Element => {
     />
   );
 
+  const LabelsTooltip = (
+    <Toggletip
+      content={
+        <>
+          In addition to the variables provided by Grafana, the following variables hold the values provided in the
+          filters:
+          <ul style={{ paddingLeft: '20px' }}>
+            {[
+              [LabelVariableNames.SITE, 'Site name'],
+              [LabelVariableNames.HOSTNAME, 'Host name'],
+              [LabelVariableNames.HOST_IN_GROUP, 'Group containing the host'],
+              [LabelVariableNames.SERVICE, 'Service name'],
+              [LabelVariableNames.SERVICE_IN_GROUP, 'Group containing the service'],
+            ].map((lbl) => (
+              <li key={lbl[0]}>
+                <strong>{lbl[0]}</strong>: {lbl[1]}
+              </li>
+            ))}
+          </ul>
+          <br />
+          Also, the original label is available as
+          <ul style={{ paddingLeft: '20px' }}>
+            <li>
+              <strong>{LabelVariableNames.ORIGINAL}</strong>
+            </li>
+          </ul>
+        </>
+      }
+      closeButton={false}
+      placement="right-end"
+    >
+      <Button type="button" fill="text" size="sm" tooltip={'Variables support information'}>
+        <Icon name="question-circle" />
+      </Button>
+    </Toggletip>
+  );
+
+  const labelField = (
+    <GenericField
+      requestSpecKey="label"
+      label={labelForRequestSpecKey('label', requestSpec)}
+      value={qLabel}
+      onChange={setQLabel}
+      dataTestId="custom-label-field"
+      placeholder={LabelVariableNames.ORIGINAL}
+      suffix={LabelsTooltip}
+    ></GenericField>
+  );
+
   if (editionMode === 'RAW') {
     return (
       <VerticalGroup>
@@ -122,6 +174,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
         />
         {graphTypeSelect}
         {graphSelect}
+        {labelField}
       </VerticalGroup>
     );
   } else {
@@ -139,6 +192,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
         />
         {graphTypeSelect}
         {graphSelect}
+        {labelField}
       </VerticalGroup>
     );
   }

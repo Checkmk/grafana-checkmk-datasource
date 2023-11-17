@@ -1,6 +1,7 @@
 import '../support/api_commands';
 import CheckmkSelectors from '../support/checkmk_selectors';
 import '../support/commands';
+import { LabelVariableNames } from '../types';
 
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
@@ -21,6 +22,8 @@ describe('e2e tests', () => {
   const inputServiceId = 'input_Service';
   const inputSiteId = 'input_Site';
   const inputHostLabelId = CheckmkSelectors.AddDashboard.hostLabelFieldId;
+  const inputCustomLabelSelector = 'input[data-test-id="custom-label-field"]';
+  const refreshQueryButtonSelector = 'button[data-test-id="data-testid RefreshPicker run button"]';
 
   const inputHostRegexDataTestId = 'host_name_regex-filter-input';
   const inputServiceRegexDataTestId = 'service_regex-filter-input';
@@ -114,9 +117,8 @@ describe('e2e tests', () => {
 
       // Assert all filters are set
       cy.get(queryEditorSelector).contains('Type to trigger search').should('not.exist');
-
       cy.get(queryEditorSelector).find('button').eq(0).click(); // Remove filter by hostname
-      cy.get(queryEditorSelector).find('button').click(); // Remove filter by service
+      cy.get(queryEditorSelector).find('button').eq(0).click(); // Remove filter by service
       cy.inputLocatorById(inputFilterId).type('Service{enter}'); // Filter -> 'Service'
 
       // Assert the filter is not set
@@ -279,6 +281,39 @@ describe('e2e tests', () => {
 
       cy.assertHoverSelectorsOff(1);
       cy.assertHoverSelectorsOn(1);
+    });
+    it('Custom labels', {}, () => {
+      cy.selectDataSource(CmkCEE);
+
+      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
+
+      cy.inputLocatorById(inputFilterId).type('Hostname').type('{enter}'); // Filter -> 'Host name'
+      cy.inputLocatorById(inputHostId).type(hostName0).type('{enter}'); // Hostname -> hostName0
+      cy.contains(hostName0).should('exist');
+      cy.contains('Predefined graph').should('exist');
+
+      cy.get(`#${inputGraphId}`).type('time usage by phase').wait(2000).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
+      cy.contains('Time usage by phase').should('exist');
+      cy.wait(2000);
+      cy.assertLegendElement(`CPU time in user space`);
+
+      //Label $label
+      cy.get(inputCustomLabelSelector).clear().type(LabelVariableNames.ORIGINAL).type('{enter}');
+      cy.refreshGraph();
+      cy.assertLegendElement(`CPU time in user space`);
+
+      //Label $label + constant
+      cy.get(inputCustomLabelSelector).clear().type(`${LabelVariableNames.ORIGINAL} - LMP`).type('{enter}');
+      cy.refreshGraph();
+      cy.assertLegendElement(`CPU time in user space - LMP`);
+
+      //Label $host_name + $label
+      cy.get(inputCustomLabelSelector)
+        .clear()
+        .type(`${LabelVariableNames.ORIGINAL} - ${LabelVariableNames.HOSTNAME}`)
+        .type('{enter}');
+      cy.refreshGraph();
+      cy.assertLegendElement(`CPU time in user space - ${hostName0}`);
     });
   });
   describe('CRE tests', () => {
