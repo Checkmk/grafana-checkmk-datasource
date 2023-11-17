@@ -38,3 +38,5 @@ services:
       - ./cypress:/cypress
       - ./cypress.config.js:/cypress.config.js
       - ./cypress.env.json:/cypress.env.json
+      - ../src/types.ts:/cypress/types.ts:ro
+      - ../src/RequestSpec.ts:/cypress/RequestSpec.ts:ro

@@ -1,10 +1,17 @@
-import { DataQueryRequest, DataQueryResponse, FieldType, MetricFindValue, MutableDataFrame } from '@grafana/data';
+import {
+  DataQueryRequest,
+  DataQueryResponse,
+  FieldType,
+  MetricFindValue,
+  MutableDataFrame,
+  ScopedVars,
+} from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { MetricFindQuery } from 'RequestSpec';
 import { defaults, get, isUndefined, zip } from 'lodash';
 
 import { CmkQuery, defaultQuery } from '../types';
-import { updateQuery } from '../utils';
+import { updateMetricTitles, updateQuery } from '../utils';
 import {
   WebAPiGetGraphResult,
   WebApiResponse,
@@ -89,7 +96,7 @@ export default class WebApiBackend implements Backend {
       .map((target) => {
         // TODO: check if the defaults call is still necessary.
         const query = defaults(target, defaultQuery);
-        return this.getGraphQuery([from, to], query);
+        return this.getGraphQuery([from, to], query, options.scopedVars);
       });
     return Promise.all(promises).then((data) => ({ data }));
   }
@@ -145,7 +152,11 @@ export default class WebApiBackend implements Backend {
     }
   }
 
-  async getGraphQuery(range: number[], query: CmkQuery): Promise<MutableDataFrame<unknown>> {
+  async getGraphQuery(
+    range: number[],
+    query: CmkQuery,
+    scopedVars: ScopedVars = {}
+  ): Promise<MutableDataFrame<unknown>> {
     updateQuery(query);
     const graph = get(query, 'requestSpec.graph');
     if (isUndefined(graph) || graph === '') {
@@ -173,7 +184,10 @@ export default class WebApiBackend implements Backend {
     if (response.result_code !== 0) {
       throw new Error(`${response.result}`);
     }
+
     const { start_time, step, curves } = response.result;
+
+    updateMetricTitles(curves, query, scopedVars);
 
     const frame = new MutableDataFrame({
       refId: query.refId,

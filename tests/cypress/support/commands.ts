@@ -136,6 +136,14 @@ Cypress.Commands.add('inputLocatorByDataTestId', (dataTestId: string) => {
   return cy.get(`input[data-test-id="${dataTestId}"]`);
 });
 
+Cypress.Commands.add('getById', (id: string) => {
+  return cy.get(`#${id}`);
+});
+
+Cypress.Commands.add('refreshGraph', () => {
+  cy.get('button[data-testid="data-testid RefreshPicker run button"]').click();
+});
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -154,6 +162,8 @@ declare global {
       inputLocatorById(id: string): Chainable<JQuery>;
       inputLocatorByDataTestId(dataTestId: string): Chainable<JQuery>;
       selectDataSource(edition: string): Chainable<JQuery>;
+      getById(id: string): Chainable<JQuery>;
+      refreshGraph(): Chainable<void>;
     }
   }
 }

@@ -288,6 +288,67 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
   );
 };
 
+interface GenericFieldProps<Key extends RequestSpecStringKeys> extends CommonProps<RequestSpec[Key]> {
+  requestSpecKey: Key;
+  children?: React.ReactNode;
+  width?: number;
+  tooltip?: string;
+  dataTestId?: string;
+  placeholder?: string;
+  prefix?: React.ReactNode;
+  suffix?: React.ReactNode;
+}
+export const GenericField = <T extends RequestSpecStringKeys>(props: GenericFieldProps<T>) => {
+  const {
+    label,
+    width = 32,
+    onChange,
+    value,
+    requestSpecKey,
+    children = null,
+    tooltip,
+    placeholder = 'none',
+    prefix,
+    suffix,
+  } = props;
+  const { dataTestId = `${requestSpecKey}-filter-input` } = props;
+
+  const [textValue, setTextValue] = React.useState(value !== undefined ? value : '');
+
+  const debouncedOnChange = React.useMemo(
+    () =>
+      debounce((newValue) => {
+        onChange(newValue);
+      }, 1000),
+    [onChange]
+  );
+
+  const onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTextValue(event.target.value); // update text input
+    debouncedOnChange(event.target.value); // only the last debounce call comes through
+  };
+
+  return (
+    <HorizontalGroup>
+      <InlineField label={label} labelWidth={LABEL_WIDTH} tooltip={tooltip}>
+        <>
+          <Input
+            width={width}
+            type="text"
+            value={textValue}
+            onChange={onValueChange}
+            placeholder={placeholder}
+            data-test-id={dataTestId}
+            prefix={prefix}
+            suffix={suffix}
+          />
+          {children}
+        </>
+      </InlineField>
+    </HorizontalGroup>
+  );
+};
+
 const SingleTag = (props: {
   index: number;
   onChange: (newValue: TagValue) => void;

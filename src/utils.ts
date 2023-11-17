@@ -3,9 +3,10 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { isUndefined } from 'lodash';
 
 import { Aggregation, FiltersRequestSpec, NegatableOption, RequestSpec, TagValue } from './RequestSpec';
-import { CmkQuery } from './types';
+import { MetricResponse } from './backend/rest';
+import { CmkQuery, LabelVariableNames } from './types';
 import { Presentation } from './ui/autocomplete';
-import { requestSpecFromLegacy } from './webapi';
+import { WebApiCurve, requestSpecFromLegacy } from './webapi';
 
 export const titleCase = (str: string): string => str[0].toUpperCase() + str.slice(1).toLowerCase();
 
@@ -275,4 +276,31 @@ export function toLiveStatusQuery(filter: Partial<FiltersRequestSpec>, table: 'h
     sites: sites,
     query: query,
   };
+}
+
+type GrapResponse = WebApiCurve | MetricResponse;
+
+export function updateMetricTitles(metrics: GrapResponse[], query: CmkQuery, scopedVars: ScopedVars = {}) {
+  const titleTemplate = query.requestSpec?.label || LabelVariableNames.ORIGINAL;
+  if (titleTemplate !== LabelVariableNames.ORIGINAL) {
+    scopedVars = {
+      ...scopedVars,
+      [LabelVariableNames.SITE.substring(1)]: { value: query.requestSpec?.site },
+      [LabelVariableNames.HOSTNAME.substring(1)]: { value: query.requestSpec?.host_name },
+      [LabelVariableNames.HOST_IN_GROUP.substring(1)]: { value: query.requestSpec?.host_in_group?.value },
+      [LabelVariableNames.SERVICE.substring(1)]: { value: query.requestSpec?.service },
+      [LabelVariableNames.SERVICE_IN_GROUP.substring(1)]: { value: query.requestSpec?.service_in_group?.value },
+    };
+
+    Object.keys(scopedVars).forEach((key) => {
+      if (scopedVars[key] === undefined) {
+        delete scopedVars[key];
+      }
+    });
+
+    metrics.forEach((metric) => {
+      scopedVars[LabelVariableNames.ORIGINAL.substring(1)] = { value: metric.title };
+      metric.title = getTemplateSrv().replace(titleTemplate, scopedVars);
+    });
+  }
 }

@@ -8,6 +8,7 @@ import {
   FieldType,
   MetricFindValue,
   MutableDataFrame,
+  ScopedVars,
   TimeRange,
   dateTime,
 } from '@grafana/data';
@@ -16,7 +17,7 @@ import { Aggregation, GraphType, MetricFindQuery } from 'RequestSpec';
 import * as process from 'process';
 
 import { CmkQuery } from '../types';
-import { createCmkContext, replaceVariables, toLiveStatusQuery, updateQuery } from '../utils';
+import { createCmkContext, replaceVariables, toLiveStatusQuery, updateMetricTitles, updateQuery } from '../utils';
 import { Backend, DatasourceOptions } from './types';
 import { validateRequestSpec } from './validate';
 
@@ -26,18 +27,20 @@ type RestApiError = {
   title: string;
 };
 
+export type MetricResponse = {
+  color: string;
+  data_points: number[];
+  line_type: string;
+  title: string;
+};
+
 type RestApiGraphResponse = {
   time_range: {
     start: string;
     end: string;
   };
   step: number;
-  metrics: Array<{
-    color: string;
-    data_points: number[];
-    line_type: string;
-    title: string;
-  }>;
+  metrics: MetricResponse[];
 };
 
 type CommonRequest = {
@@ -155,7 +158,7 @@ export default class RestApiBackend implements Backend {
     const promises = request.targets
       .filter((target) => !target.hide)
       .map((target) => {
-        return this.getSingleGraph(request.range, target);
+        return this.getSingleGraph(request.range, target, request.scopedVars);
       });
     return await Promise.all(promises).then((data) => ({ data }));
   }
@@ -250,7 +253,7 @@ export default class RestApiBackend implements Backend {
     return result;
   }
 
-  async getSingleGraph(range: TimeRange, query: CmkQuery): Promise<DataQueryResponseData> {
+  async getSingleGraph(range: TimeRange, query: CmkQuery, scopedVars: ScopedVars = {}): Promise<DataQueryResponseData> {
     // it's not about a single graph line, but a single chart. grafana supports
     // to query multiple graphs in one request, but we have to unwind this, as
     // our api only supports a single chart/query per api call.
@@ -321,6 +324,8 @@ export default class RestApiBackend implements Backend {
     }
 
     const { time_range, step, metrics } = response.data;
+
+    updateMetricTitles(metrics, query, scopedVars);
 
     const timeValues = [];
     let currentTime: DateTime = dateTime(time_range.start);

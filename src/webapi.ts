@@ -2,17 +2,18 @@ import { GraphType, NegatableOption, RequestSpec, TagValue } from './RequestSpec
 import { Context, Edition, Params } from './types';
 import { aggregationToPresentation, createCmkContext, presentationToAggregation } from './utils';
 
+export interface WebApiCurve {
+  title: string;
+  rrddata: Array<{
+    i: number;
+    d: Record<string, unknown>;
+  }>;
+}
 export interface WebAPiGetGraphResult {
   start_time: number;
   end_time: number;
   step: number;
-  curves: Array<{
-    title: string;
-    rrddata: Array<{
-      i: number;
-      d: Record<string, unknown>;
-    }>;
-  }>;
+  curves: WebApiCurve[];
 }
 
 export interface WebApiResponse<Result> {

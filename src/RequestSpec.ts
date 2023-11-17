@@ -31,6 +31,8 @@ export interface RequestSpec {
   service_in_group: NegatableOption | undefined;
 
   graph: string | undefined;
+
+  label: string | undefined;
 }
 
 // subset of RequestSpec used with the Filters Component

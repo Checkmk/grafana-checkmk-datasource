@@ -14,6 +14,7 @@ export const labelForRequestSpecKey = (key: keyof RequestSpec, rq: Partial<Reque
     aggregation: 'Aggregation',
     graph_type: 'Graph type',
     graph: rq.graph_type === 'predefined_graph' ? 'Predefined graph' : 'Single metric',
+    label: 'Custom label',
   };
   return table[key];
 };
