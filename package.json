@@ -78,5 +78,5 @@
     "react-dom": "17.0.2",
     "tslib": "2.5.3"
   },
-  "packageManager": "yarn@"
+  "packageManager": "yarn@1.22.21"
 }
