@@ -11,7 +11,7 @@ const Selectors = {
   Login: {
     username_input: 'input[name="user"]',
     password_input: 'input[name="password"]',
-    login_button: 'button[aria-label="Login button"]',
+    login_button: 'button[data-testid="data-testid Login button"]',
   },
 
   AddDataSource: {
