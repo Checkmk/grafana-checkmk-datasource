@@ -37,7 +37,7 @@ Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edit
   cy.visit('/datasources/new');
   cy.get(GrafanaSelectors.AddDataSource.select_datasource_button('Checkmk')).contains('Checkmk').click();
 
-  cy.get(CheckMkSelectors.SetupForm.name).type(' ' + edition);
+  cy.get(CheckMkSelectors.SetupForm.name).clear().type(`Checkmk ${edition}`);
   cy.get(CheckMkSelectors.SetupForm.url).type(Cypress.env('grafanaToCheckmkUrl'));
   cy.get(CheckMkSelectors.SetupForm.edition).type(edition + '{enter}');
   cy.contains(edition).should('exist');
