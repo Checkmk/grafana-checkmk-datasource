@@ -2,9 +2,16 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
-## next
+## 3.2.0
 
-- at least Grafana 9.0.0 is required.
+- Dropped support for Grafana prior 9.0.0
+- At custom label field:
+    - Filter values can be used as variables
+- Bugfix: Remove decimals from time periods as Checkmk does not support sub-second accuracy
+- Datasource configuration:
+    - Mention feature degratadtion for older versions of Checkmk
+    - Display an error message on edition mismatch
+    - Update non-RAW editions name
 
 ## 3.1.1
 
