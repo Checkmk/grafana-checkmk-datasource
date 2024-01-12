@@ -65,3 +65,16 @@ jobs:
           asset_path: ./${{ steps.build-unsigned.outputs.plugin_checksum_path }}
           asset_name: ${{ steps.build-unsigned.outputs.plugin_checksum_path }}
           asset_content_type: text/plain
+
+      - uses: adelynx/github-actions-nodemailer@v1.0.3
+        with:
+          host: ${{ secrets.NOTIFICATION_SMTP_SERVER }}
+          port: 465
+          username: '${{ secrets.NOTIFICATION_SMTP_USER }}'
+          password: '${{ secrets.NOTIFICATION_SMTP_PASSWORD }}'
+          from: 'Grafana notifications <${{ secrets.NOTIFICATION_SMTP_USER }}>'
+          to: '${{ secrets.NOTIFICATION_DESTINATION }}'
+          subject: '✅ New release of Grafana data source plugin'
+
+          body: |
+            <p>A new release of the Grafana data source plugin has been published!</p>
