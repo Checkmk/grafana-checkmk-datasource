@@ -3,6 +3,30 @@ import CheckmkSelectors from '../support/checkmk_selectors';
 import '../support/commands';
 import { LabelVariableNames } from '../types';
 
+enum FilterTypes {
+  HOSTNAME = 'Hostname',
+  HOSTNAME_REGEX = 'Hostname regex',
+  HOST_LABELS = 'Host labels',
+  SERVICE = 'Service',
+  SERVICE_REGEX = 'Service regex',
+}
+
+enum Services {
+  CHECK_MK = 'Check_MK',
+  CPU_REGEX = 'CPU',
+  MEMORY_REGEX = 'Memory',
+}
+
+enum GraphTypes {
+  TIME_BY_PHASE = 'Time usage by phase',
+  RAM_USED = 'RAM used',
+  UPTIME = 'Uptime',
+}
+
+enum Sites {
+  ALL_SITES = 'All Sites',
+}
+
 describe('e2e tests', () => {
   const cmkUser = 'cmkuser';
   const cmkPassword = 'somepassword123457';
@@ -13,20 +37,11 @@ describe('e2e tests', () => {
   const CmkCEE = 'Commercial editions';
   const CmkCRE = 'Raw Edition';
 
-  const inputDatasourceId = 'data-source-picker';
-  const inputFilterId = CheckmkSelectors.AddDashboard.filterFieldId;
   const inputGraphId = 'input_Predefined_graph';
   const inputGraphTypeId = 'input_Graph_type';
-  const inputHostId = 'input_Hostname';
   const inputMetricId = 'input_Single_metric';
-  const inputServiceId = 'input_Service';
-  const inputSiteId = 'input_Site';
   const inputHostLabelId = CheckmkSelectors.AddDashboard.hostLabelFieldId;
   const inputCustomLabelSelector = 'input[data-test-id="custom-label-field"]';
-  const refreshQueryButtonSelector = 'button[data-test-id="data-testid RefreshPicker run button"]';
-
-  const inputHostRegexDataTestId = 'host_name_regex-filter-input';
-  const inputServiceRegexDataTestId = 'service_regex-filter-input';
 
   const queryEditorSelector = '[class="query-editor-row"]';
 
@@ -93,19 +108,13 @@ describe('e2e tests', () => {
     it('time-usage panel by service (single host)', {}, () => {
       cy.selectDataSource(CmkCEE);
 
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
+      cy.addFilter(FilterTypes.HOSTNAME);
+      cy.filterByHostname(hostName0);
 
-      cy.inputLocatorById(inputFilterId).type('Hostname{enter}'); // Filter -> 'Host name'
-      cy.inputLocatorById(inputFilterId).type('Service{enter}'); // Filter -> 'Service'
+      cy.addFilter(FilterTypes.SERVICE);
+      cy.filterByService(Services.CHECK_MK);
 
-      cy.inputLocatorById(inputHostId).type('{enter}'); // Hostname -> hostName0 (first entry)
-      cy.contains(hostName0).should('exist');
-
-      cy.inputLocatorById(inputServiceId).type('{enter}'); // Service -> 'Check_MK' (first entry)
-      cy.contains('Check_MK').should('exist');
-
-      cy.inputLocatorById(inputGraphId).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
-      cy.contains('Time usage by phase').should('exist');
+      cy.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
 
       cy.assertLegendElement('CPU time in user space');
       cy.assertLegendElement('CPU time in operating system');
@@ -119,7 +128,7 @@ describe('e2e tests', () => {
       cy.get(queryEditorSelector).contains('Type to trigger search').should('not.exist');
       cy.get(queryEditorSelector).find('button').eq(0).click(); // Remove filter by hostname
       cy.get(queryEditorSelector).find('button').eq(0).click(); // Remove filter by service
-      cy.inputLocatorById(inputFilterId).type('Service{enter}'); // Filter -> 'Service'
+      cy.addFilter(FilterTypes.SERVICE);
 
       // Assert the filter is not set
       cy.get(queryEditorSelector).contains('Type to trigger search').should('exist');
@@ -128,22 +137,18 @@ describe('e2e tests', () => {
     it('time-usage panel by service (multiple hosts)', {}, () => {
       cy.selectDataSource(CmkCEE);
 
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
-      cy.inputLocatorById(inputFilterId).type('Service{enter}'); // Filter -> 'Service'
+      cy.addFilter(FilterTypes.SERVICE);
+      cy.filterByService(Services.CHECK_MK);
 
-      cy.inputLocatorById(inputServiceId).type('{enter}'); // Service -> 'Check_MK' (first entry)
-      cy.contains('Check_MK').should('exist');
+      cy.addFilter(FilterTypes.HOSTNAME_REGEX);
+      cy.filterByHostnameRegex('localhost_grafana[0-9]+').wait(1000);
 
-      cy.inputLocatorById(inputFilterId).type('regex{enter}'); // Filter -> 'Hostname regex'
-      cy.get('input[data-test-id="host_name_regex-filter-input"]').type('localhost_grafana[0-9]+{enter}');
-
-      cy.inputLocatorById(inputGraphId).click();
+      cy.inputLocatorById(CheckmkSelectors.AddDashboard.predefinedGraphFieldId).click();
       cy.get('[class="scrollbar-view"]')
         .children()
         .its('length')
         .then(($dropdownLength) => {
-          cy.inputLocatorById(inputGraphId).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
-          cy.contains('Time usage by phase').should('exist');
+          cy.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
 
           // assert legend elements (not all plots have a legend)
           cy.assertLegendElement('CPU time in user space, ' + hostName0);
@@ -154,29 +159,24 @@ describe('e2e tests', () => {
           cy.assertHoverSelectorsOff(8);
           cy.assertHoverSelectorsOn(8);
 
-          cy.get('[data-test-id="cmk-oac-minus-button-Service"]').click(); // Remove filter by service
+          cy.removeFilterByService();
 
-          cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service regex'
-          cy.contains('Service regex').should('exist');
+          cy.addFilter(FilterTypes.SERVICE_REGEX);
+          cy.filterByServiceRegex(Services.CPU_REGEX);
 
-          cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('CPU{enter}'); // Service regex -> 'CPU utilization (one entry only)'
-          cy.contains('CPU').should('exist');
           cy.get('[class="scrollbar-view"]').children().its('length').should('be.gte', $dropdownLength);
         });
     });
 
     it('RAM-used panel by service regex (multiple hosts)', {}, () => {
       cy.selectDataSource(CmkCEE);
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
-      cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service'
-      cy.contains('Service regex').should('exist');
 
-      cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('Memory{enter}'); // Service regex -> 'Memory'
-      cy.get('input[value="Memory"]').should('exist');
+      cy.addFilter(FilterTypes.SERVICE_REGEX);
+      cy.filterByServiceRegex(Services.MEMORY_REGEX);
       cy.expectSpinners();
 
-      cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
-      cy.get('[aria-label="Select options menu"]').contains('RAM used').click();
+      cy.selectPredefinedGraphType(GraphTypes.RAM_USED);
+
       cy.contains(/^RAM used$/).should('exist');
 
       cy.assertLegendElement(hostName0);
@@ -188,9 +188,8 @@ describe('e2e tests', () => {
 
     it('RAM-used panel by host labels (multiple hosts, single metric)', {}, () => {
       cy.selectDataSource(CmkCEE);
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
-      cy.inputLocatorById(inputFilterId).type('Host labels{enter}'); // Filter -> 'Host labels'
-      cy.contains('Host labels').should('exist');
+
+      cy.addFilter(FilterTypes.HOST_LABELS);
 
       cy.inputLocatorById(inputHostLabelId).type('cmk/site:cm'); // Host labels -> 'cmk/site:cm' (one entry)
       // TODO: should only contain a single lable, but shows all?
@@ -216,16 +215,12 @@ describe('e2e tests', () => {
 
     it('RAM-used panel by service regex and hostname regex', {}, () => {
       cy.selectDataSource(CmkCEE);
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
-      cy.inputLocatorById(inputFilterId).type('Service regex{enter}'); // Filter -> 'Service'
-      cy.contains('Service regex').should('exist');
 
-      cy.inputLocatorByDataTestId(inputServiceRegexDataTestId).type('Memory{enter}'); // Service regex -> 'Memory'
-      cy.get('input[value="Memory"]').should('exist');
+      cy.addFilter(FilterTypes.SERVICE_REGEX);
+      cy.filterByServiceRegex(Services.MEMORY_REGEX);
       cy.expectSpinners();
 
-      cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'RAM used'
-      cy.get('[aria-label="Select options menu"]').contains('RAM used').click();
+      cy.selectPredefinedGraphType(GraphTypes.RAM_USED);
       cy.contains(/^RAM used$/).should('exist');
 
       cy.assertLegendElement(hostName0);
@@ -234,11 +229,8 @@ describe('e2e tests', () => {
       cy.assertHoverSelectorsOff(2);
       cy.assertHoverSelectorsOn(2);
 
-      cy.inputLocatorById(inputFilterId).type('Hostname regex{enter}'); // Filter -> 'Hostname regex'
-      cy.contains('Hostname regex').should('exist');
-
-      cy.inputLocatorByDataTestId(inputHostRegexDataTestId).type(hostName0 + '{enter}'); // Hostname regex -> {hostname0}
-      cy.get('input[value="' + hostName0 + '"]').should('exist');
+      cy.addFilter(FilterTypes.HOSTNAME_REGEX);
+      cy.filterByHostnameRegex(hostName0);
 
       // assert legend elements (expecting a change in the panel)
       cy.assertLegendElement('RAM used');
@@ -246,8 +238,7 @@ describe('e2e tests', () => {
       cy.assertHoverSelectorsOff(1);
       cy.assertHoverSelectorsOn(1);
 
-      cy.inputLocatorByDataTestId(inputHostRegexDataTestId).type('|' + hostName1 + '{enter}'); // Hostname regex -> '{hostname0}|{hostname1}'
-      cy.get('input[value="' + hostName0 + '|' + hostName1 + '"]').should('exist');
+      cy.filterByHostnameRegex(hostName0 + '|' + hostName1);
 
       // assert legend elements (expecting a change in the panel)
       cy.assertLegendElement(hostName0);
@@ -259,14 +250,12 @@ describe('e2e tests', () => {
 
     it('Uptime panel by hostname', {}, () => {
       cy.selectDataSource(CmkCEE);
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
-      cy.inputLocatorById(inputFilterId).type('Hostname{enter}'); // Filter -> 'Host name'
 
-      cy.inputLocatorById(inputHostId).type('{enter}'); // Hostname -> hostName0 (first entry)
-      cy.contains(hostName0).should('exist');
+      cy.addFilter(FilterTypes.HOSTNAME);
+      cy.filterByHostname(hostName0);
 
-      cy.inputLocatorById(inputGraphId).type('Uptime{enter}'); // Predefined graph -> 'Uptime' (no entry expected)
-      cy.contains('No options found').should('exist');
+      // Predefined graph -> 'Uptime' (no entry expected)
+      cy.selectNonExistentPredefinedGraphType(GraphTypes.UPTIME);
       cy.get('body').click();
 
       cy.inputLocatorById(inputGraphTypeId).click();
@@ -285,16 +274,12 @@ describe('e2e tests', () => {
     it('Custom labels', {}, () => {
       cy.selectDataSource(CmkCEE);
 
-      cy.contains('Checkmk ' + CmkCEE).should('be.visible'); // Assert Cmk CEE datasource is used
+      cy.addFilter(FilterTypes.HOSTNAME);
+      cy.filterByHostname(hostName0);
 
-      cy.inputLocatorById(inputFilterId).type('Hostname').type('{enter}'); // Filter -> 'Host name'
-      cy.inputLocatorById(inputHostId).type(hostName0).type('{enter}'); // Hostname -> hostName0
-      cy.contains(hostName0).should('exist');
       cy.contains('Predefined graph').should('exist');
 
-      cy.get(`#${inputGraphId}`).type('time usage by phase').wait(2000).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
-      cy.contains('Time usage by phase').should('exist');
-      cy.wait(2000);
+      cy.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
       cy.assertLegendElement(`CPU time in user space`);
 
       //Label $label
@@ -318,22 +303,14 @@ describe('e2e tests', () => {
   });
   describe('CRE tests', () => {
     it('time-usage panel by service (single host)', {}, () => {
+      cy.passOnException('ResizeObserver loop limit exceeded');
       cy.selectDataSource(CmkCRE);
 
-      cy.passOnException('ResizeObserver loop limit exceeded');
-      cy.inputLocatorById(inputDatasourceId).type('Checkmk ' + CmkCRE + '{enter}');
-      cy.contains('Checkmk ' + CmkCRE).should('be.visible');
+      cy.filterBySite(Sites.ALL_SITES);
+      cy.filterByHostname(hostName0);
+      cy.filterByService(Services.CHECK_MK);
 
-      cy.inputLocatorById(inputSiteId).type('{enter}'); // Site -> All Sites (first entry)
-
-      cy.inputLocatorById(inputHostId).type('{enter}'); // Hostname -> hostName0 (first entry)
-      cy.contains(hostName0).should('exist');
-
-      cy.inputLocatorById(inputServiceId).type('{enter}'); // Service -> 'Check_MK' (first entry)
-      cy.contains('Check_MK').should('exist');
-
-      cy.inputLocatorById(inputGraphId).type('{enter}'); // Predefined graph -> 'Time usage by phase' (one entry)
-      cy.contains('Time usage by phase').should('exist');
+      cy.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
 
       cy.assertLegendElement('CPU time in user space');
       cy.assertLegendElement('CPU time in operating system');
@@ -345,31 +322,18 @@ describe('e2e tests', () => {
 
       cy.contains("Could not find 'cmk_cpu_time_by_phase'").should('not.exist');
 
-      cy.inputLocatorById(inputServiceId).click(); // Service -> 'Memory'
-      cy.contains('Memory').click();
-      cy.contains('Memory').should('exist');
+      cy.filterByService(Services.MEMORY_REGEX);
 
       cy.contains("Could not find 'cmk_cpu_time_by_phase'").should('be.visible'); // Assert previous graph input not visible
     });
     it('Used-RAM panel by service (single host)', {}, () => {
-      cy.selectDataSource(CmkCRE);
-
       cy.passOnException('ResizeObserver loop limit exceeded');
-      cy.inputLocatorById(inputDatasourceId).type('Checkmk ' + CmkCRE + '{enter}');
-      cy.contains('Checkmk ' + CmkCRE).should('be.visible');
+      cy.selectDataSource(CmkCRE);
+      cy.filterBySite(Sites.ALL_SITES);
+      cy.filterByHostname(hostName0);
+      cy.filterByService(Services.MEMORY_REGEX);
 
-      cy.inputLocatorById(inputSiteId).type('{enter}'); // Site -> All Sites (first entry)
-
-      cy.inputLocatorById(inputHostId).type('{enter}'); // Hostname -> hostName0 (first entry)
-      cy.contains(hostName0).should('exist');
-
-      cy.inputLocatorById(inputServiceId).click(); // Service -> 'Memory'
-      cy.contains('Memory').click();
-      cy.contains('Memory').should('exist');
-
-      cy.inputLocatorById(inputGraphId).click(); // Predefined graph -> 'Used RAM'
-      cy.contains('Used RAM').click();
-      cy.contains('Used RAM').should('exist');
+      cy.selectPredefinedGraphType(GraphTypes.RAM_USED);
 
       cy.assertLegendElement('RAM used %'); // TODO: Getting 'RAM used %'. Should the graph name match the metric?
 
