@@ -1,0 +1,40 @@
+name: Notify when daily build fails
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [main]
+
+jobs:
+  on-failure:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion != 'success' && github.event.workflow_run.event == 'schedule'
+    steps:
+      - uses: actions/github-script@v6
+        id: job-url
+        with:
+          script: |
+            const { data } = await github.rest.actions.listJobsForWorkflowRunAttempt({
+              ...context.repo,
+              run_id: context.runId,
+              attempt_number: process.env.GITHUB_RUN_ATTEMPT
+            });
+            return data.jobs[0].html_url
+          result-encoding: string
+      - uses: adelynx/github-actions-nodemailer@v1.0.3
+        with:
+          host: ${{ secrets.NOTIFICATION_SMTP_SERVER }}
+          port: 465
+          username: '${{ secrets.NOTIFICATION_SMTP_USER }}'
+          password: '${{ secrets.NOTIFICATION_SMTP_PASSWORD }}'
+          from: 'Grafana notifications <${{ secrets.NOTIFICATION_SMTP_USER }}>'
+          to: '${{ secrets.NOTIFICATION_DESTINATION }}'
+          subject: '🔴 Grafana data source plugin nightly build failed'
+
+          body: |
+            <p>The latest Grafana's data source plugin nightly build has failed and needs manual intervention. Additional information:</p>
+            <ul>
+            <li><strong>Process conclussion</strong>: ${{ github.event.workflow_run.conclusion }}</li>
+            <li><strong>More information</strong>: ${{ steps.job-url.outputs.result }}</li>
+            </ul>
+            <p>Thank you!</p>
