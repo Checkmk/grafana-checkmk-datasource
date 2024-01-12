@@ -7,6 +7,9 @@ const panelContentSelector = '[class$="panel-content"]';
 const panelHoverSelector = '[class="u-over"]';
 const plottedHoverSelectorOff = '[class="u-cursor-pt u-off"]';
 const plottedHoverSelectorOn = '[class="u-cursor-pt"]';
+const spinnerSelector = 'div[data-testid="Spinner"]';
+
+const inputFilterId = CheckMkSelectors.AddDashboard.filterFieldId;
 
 Cypress.Commands.add('loginGrafana', () => {
   cy.visit('/login');
@@ -31,6 +34,7 @@ Cypress.Commands.add('selectDataSource', (edition: string) => {
   if (GrafanaSelectors.grafanaVersion >= 10) {
     cy.get(`${GrafanaSelectors.AddDashboard.datasources_list}`).contains('button', `Checkmk ${edition}`).click();
   }
+  cy.contains('Checkmk ' + edition).should('be.visible');
 });
 
 Cypress.Commands.add('addCmkDatasource', (cmkUser: string, cmkPass: string, edition: string) => {
@@ -104,9 +108,9 @@ Cypress.Commands.add('passOnException', (errorMessage: string) => {
 
 Cypress.Commands.add('expectSpinners', () => {
   // wait until spinner is visible (dropdown is waiting for data)
-  cy.get('div[data-testid="Spinner"]').should('be.visible');
+  cy.get(spinnerSelector).should('be.visible');
   // wait until spinner is gone (dropdown is populated)
-  cy.get('div[data-testid="Spinner"]').should('not.exist');
+  cy.get(spinnerSelector).should('not.exist');
 });
 
 Cypress.Commands.add('assertHoverSelectorsOff', (nSelectors: number) => {
@@ -144,6 +148,67 @@ Cypress.Commands.add('refreshGraph', () => {
   cy.get('button[data-testid="data-testid RefreshPicker run button"]').click();
 });
 
+Cypress.Commands.add('addFilter', (filter: string) => {
+  cy.inputLocatorById(inputFilterId).type(`${filter}{enter}`);
+  cy.contains(filter).should('exist');
+});
+
+Cypress.Commands.add('removeFilterByService', () => {
+  cy.get(CheckMkSelectors.AddDashboard.removeFilterByServiceButtonSelector).click();
+});
+
+Cypress.Commands.add('addFilterBy', (fieldSelector: string, value: string) => {
+  const field = cy.get(fieldSelector);
+  field.clear().type(value).wait(2000).type('{enter}');
+  cy.get(spinnerSelector).should('not.exist');
+  cy.contains(value).should('exist');
+});
+
+Cypress.Commands.add('filterByHostname', (hostname: string) => {
+  const selector = `input[id="${CheckMkSelectors.AddDashboard.hostnameFilterFieldId}"]`;
+  return cy.addFilterBy(selector, hostname);
+});
+
+Cypress.Commands.add('filterByHostnameRegex', (hostnameRegex: string) => {
+  const field = cy.get(CheckMkSelectors.AddDashboard.hostnameRegexFilterFieldSelector);
+  field.clear().type(hostnameRegex).type('{enter}');
+  cy.get(`input[value="${hostnameRegex}"]`).should('exist');
+});
+
+Cypress.addListener('filterByHostLabel', (hostLabel: string) => {
+  const selector = `input[id="${CheckMkSelectors.AddDashboard.hostLabelFieldId}"]`;
+  return cy.addFilterBy(selector, hostLabel);
+});
+
+Cypress.Commands.add('filterByService', (service: string) => {
+  const selector = `input[id="${CheckMkSelectors.AddDashboard.serviceFilterFieldId}"]`;
+  return cy.addFilterBy(selector, service);
+});
+
+Cypress.Commands.add('filterByServiceRegex', (serviceRegex: string) => {
+  const field = cy.get(CheckMkSelectors.AddDashboard.serviceRegexFilterFieldId);
+  field.clear().type(serviceRegex).type('{enter}');
+  cy.get(`input[value="${serviceRegex}"]`).should('exist');
+});
+
+Cypress.Commands.add('filterBySite', (site: string) => {
+  const selector = `input[id="${CheckMkSelectors.AddDashboard.siteFilterFieldId}"]`;
+  return cy.addFilterBy(selector, site);
+});
+
+Cypress.Commands.add('selectNonExistentPredefinedGraphType', (graphType: string) => {
+  const selector = `input[id="${CheckMkSelectors.AddDashboard.predefinedGraphFieldId}"]`;
+  cy.get(selector).clear().type(graphType).wait(2000).type('{enter}');
+  cy.contains('No options found').should('exist');
+});
+
+Cypress.Commands.add('selectPredefinedGraphType', (graphType: string) => {
+  const selector = `input[id="${CheckMkSelectors.AddDashboard.predefinedGraphFieldId}"]`;
+  cy.get(selector).clear().type(graphType).wait(2000).type('{enter}');
+  cy.contains(graphType).should('exist');
+  cy.wait(2000);
+});
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -164,6 +229,20 @@ declare global {
       selectDataSource(edition: string): Chainable<JQuery>;
       getById(id: string): Chainable<JQuery>;
       refreshGraph(): Chainable<void>;
+
+      addFilter(filter: string): Chainable<void>;
+      removeFilterByService(): Chainable<void>;
+      addFilterBy(fieldSelector: string, value: string): Chainable<void>;
+
+      filterByHostname(hostname: string): Chainable<void>;
+      filterByHostnameRegex(hostnameRegex: string): Chainable<void>;
+      filterByHostLabel(hostLabel: string): Chainable<void>;
+      filterByService(hostname: string): Chainable<void>;
+      filterByServiceRegex(serviceRegex: string): Chainable<void>;
+      filterBySite(site: string): Chainable<void>;
+
+      selectPredefinedGraphType(graphType: string): Chainable<void>;
+      selectNonExistentPredefinedGraphType(graphType: string): Chainable<void>;
     }
   }
 }
