@@ -2,6 +2,7 @@ import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/da
 import { Alert, FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
 import React, { ChangeEvent, useCallback } from 'react';
 
+import { Settings } from '../settings';
 import { Backend, DataSourceOptions, Edition, SecureJsonData } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
@@ -107,14 +108,7 @@ export const ConfigEditor = (props: Props) => {
   const { options } = props;
   const { jsonData, secureJsonFields } = options;
   const secureJsonData = options.secureJsonData || {};
-
-  if (!jsonData.edition) {
-    onEditionChange(cmkEditions[0]);
-  }
-
-  if (!jsonData.backend) {
-    onBackendChange(cmkBackends[0]);
-  }
+  const settings = new Settings(jsonData);
 
   return (
     <>
@@ -125,7 +119,7 @@ export const ConfigEditor = (props: Props) => {
             labelWidth={6}
             inputWidth={20}
             onChange={onUrlChange}
-            value={jsonData.url || ''}
+            value={settings.url || ''}
             tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
             data-test-id="checkmk-url"
           />
@@ -137,7 +131,7 @@ export const ConfigEditor = (props: Props) => {
                 width={32}
                 options={cmkEditions}
                 onChange={onEditionChange}
-                value={jsonData.edition}
+                value={settings.edition}
                 placeholder="Select your checkmk edition"
                 inputId="checkmk-edition"
               />
@@ -151,7 +145,7 @@ export const ConfigEditor = (props: Props) => {
                 width={32}
                 options={cmkBackends}
                 onChange={onBackendChange}
-                value={jsonData.backend}
+                value={settings.backend}
                 placeholder="Select your checkmk version"
                 inputId="checkmk-version"
               />
@@ -177,7 +171,7 @@ export const ConfigEditor = (props: Props) => {
             labelWidth={6}
             inputWidth={20}
             onChange={onUsernameChange}
-            value={jsonData.username || ''}
+            value={settings.username}
             tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
             data-test-id="checkmk-username"
           />
