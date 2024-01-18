@@ -12,6 +12,7 @@ import { MetricFindQuery, RequestSpec } from './RequestSpec';
 import RestApiBackend from './backend/rest';
 import { Backend } from './backend/types';
 import WebApiBackend from './backend/web';
+import { Settings } from './settings';
 import { Backend as BackendType, CmkQuery, DataSourceOptions, Edition, ResponseDataAutocomplete } from './types';
 import { AutoCompleteParams } from './ui/autocomplete';
 import { createCmkContext } from './utils';
@@ -20,11 +21,13 @@ import { WebApiResponse } from './webapi';
 export class DataSource extends DataSourceApi<CmkQuery> {
   webBackend: WebApiBackend;
   restBackend: RestApiBackend;
+  settings: Settings;
 
   constructor(private instanceSettings: DataSourceInstanceSettings<DataSourceOptions>) {
     super(instanceSettings);
     this.webBackend = new WebApiBackend(this);
     this.restBackend = new RestApiBackend(this);
+    this.settings = new Settings(instanceSettings.jsonData);
   }
 
   async query(dataQueryRequest: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
@@ -94,14 +97,12 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return this.instanceSettings.url;
   }
 
-  // TODO: Move config default values to a central place instead of scattering it in getEdition and getBackendType
-
   getEdition(): Edition {
-    return this.instanceSettings.jsonData.edition ?? 'RAW';
+    return this.settings.edition;
   }
 
   getBackendType(): BackendType {
-    return this.instanceSettings.jsonData.backend ?? 'rest';
+    return this.settings.backend;
   }
 
   getBackend(): Backend {
@@ -112,10 +113,6 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   }
 
   getUsername(): string {
-    const username = this.instanceSettings.jsonData.username;
-    if (typeof username === 'string') {
-      return username;
-    }
-    throw Error('Impossible');
+    return this.settings.username;
   }
 }

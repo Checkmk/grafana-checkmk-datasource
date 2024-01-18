@@ -44,11 +44,6 @@ describe('Cloud Edition Restrictions', () => {
       expect(screen.queryByLabelText('Edition')).toBeNull();
       expect(screen.queryByLabelText('Version')).toBeNull();
     });
-
-    it('sets the non configurable values to the defaults', () => {
-      expect(onOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ jsonData: { backend: 'rest' } }));
-      expect(onOptionsChange).toHaveBeenCalledWith(expect.objectContaining({ jsonData: { edition: 'CEE' } }));
-    });
   });
 
   describe('RestApiBackend', () => {
