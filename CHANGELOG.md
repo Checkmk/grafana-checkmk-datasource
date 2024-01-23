@@ -2,6 +2,11 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 3.2.2b1
+
+- Align defaults for datasource settings
+- Clarify error message on 404 on REST-API request
+
 ## 3.2.1
 
 - Dropped support for Grafana prior 9.5.15
