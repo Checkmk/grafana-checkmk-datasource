@@ -195,7 +195,7 @@ export default class RestApiBackend implements Backend {
     }
     return {
       status: 'success',
-      message: `Data source is working, reached version ${checkMkVersion} of checkmk`,
+      message: `Data source is working, reached version ${checkMkVersion} of Checkmk`,
       title: 'Success',
     };
   }
@@ -224,7 +224,7 @@ export default class RestApiBackend implements Backend {
       // but we may have a more detailed error message
       if (error.status === 404) {
         throw new Error(
-          'REST API graph endpoints are unavailable. Choose correct checkmk version in data source settings.'
+          'REST API graph endpoint is unavailable. Choose correct Checkmk edition and version in data source settings.'
         );
       }
 
