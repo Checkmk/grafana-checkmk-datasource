@@ -20,7 +20,7 @@ import {
   createWebApiRequestBody,
   createWebApiRequestSpecification,
 } from './../webapi';
-import { Backend, DatasourceOptions } from './types';
+import { BACKEND_TYPE, Backend, DatasourceOptions } from './types';
 import { validateRequestSpec } from './validate';
 
 export default class WebApiBackend implements Backend {
@@ -202,5 +202,9 @@ export default class WebApiBackend implements Backend {
     );
 
     return frame;
+  }
+
+  async getAutocompleteBackend(): Promise<BACKEND_TYPE> {
+    return BACKEND_TYPE.WEB;
   }
 }

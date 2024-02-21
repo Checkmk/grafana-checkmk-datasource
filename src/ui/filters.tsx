@@ -2,7 +2,6 @@ import React from 'react';
 
 import { DataSource } from '../DataSource';
 import { RequestSpec } from '../RequestSpec';
-import { ResponseDataAutocomplete } from '../types';
 import {
   CheckMkSelect,
   CheckMkSelectNegatable,
@@ -79,7 +78,7 @@ export const Filters = (props: FiltersProp): JSX.Element => {
       } else {
         return (async function () {
           // TODO: would have expected that this is dependent on the site, but does not look like that?
-          const response = await datasource.autocompleterRequest<ResponseDataAutocomplete>('ajax_vs_autocomplete.py', {
+          const response = await datasource.autocompleterRequest('ajax_vs_autocomplete.py', {
             ident: 'tag_groups_opt',
             params: { group_id: context.groupId, strict: true },
             value: prefix,
