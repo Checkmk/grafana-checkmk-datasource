@@ -248,7 +248,7 @@ export default class RestApiBackend implements Backend {
     const allowedEditions = new Set(['cce', 'cme']);
     if (process.env.BUILD_EDITION === 'CLOUD' && !allowedEditions.has(checkmkEdition || '')) {
       throw new Error(
-        'This Checkmk data source is only compatible with Checkmk Cloud Edition and Checmk Managed Services Edition, but you are trying to connect to another edition.'
+        'This Checkmk data source is only compatible with Checkmk Cloud and Checkmk MSP, but you are trying to connect to another edition.'
       );
     }
 
