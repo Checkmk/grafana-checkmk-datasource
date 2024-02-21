@@ -243,10 +243,11 @@ export default class RestApiBackend implements Backend {
       throw new Error('observable is undefined');
     }
 
-    // check for cloud edition header
-    if (result.headers.get('X-Checkmk-Edition') !== 'cce' && process.env.BUILD_EDITION === 'CLOUD') {
+    // check for cloud or managed edition header
+    const checkmk_edition = result.headers.get('X-Checkmk-Edition');
+    if (!['cee', 'cme'].includes(checkmk_edition || '') && process.env.BUILD_EDITION === 'CLOUD') {
       throw new Error(
-        '»Checkmk data source for Checkmk Cloud Edition« is only compatible with Checkmk Cloud Edition, but you are trying to connect to another edition.'
+        '»Checkmk data source for Checkmk commercial editions« is only compatible with Checkmk Cloud Edition or Checkmk Managed Edition, but you are trying to connect to another edition.'
       );
     }
 
