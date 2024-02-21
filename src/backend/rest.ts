@@ -16,9 +16,10 @@ import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@gr
 import { Aggregation, GraphType, MetricFindQuery } from 'RequestSpec';
 import * as process from 'process';
 
-import { CmkQuery } from '../types';
+import { CmkQuery, ResponseDataAutocomplete } from '../types';
 import { createCmkContext, replaceVariables, toLiveStatusQuery, updateMetricTitles, updateQuery } from '../utils';
-import { Backend, DatasourceOptions } from './types';
+import { WebApiResponse } from './../webapi';
+import { BACKEND_TYPE, Backend, DatasourceOptions } from './types';
 import { validateRequestSpec } from './validate';
 
 type RestApiError = {
@@ -85,6 +86,14 @@ type RestApiHostResponse = RestApiLivestatusResponse<{ name: string }>;
 
 type RestApiServiceResponse = RestApiLivestatusResponse<{ description: string }>;
 
+type RestApiAutocompleteResponseEntry = {
+  id: string;
+  value: string;
+};
+
+type RestApiAutocompleteResponse = {
+  choices: [RestApiAutocompleteResponseEntry];
+};
 export default class RestApiBackend implements Backend {
   datasource: DatasourceOptions;
 
@@ -361,5 +370,45 @@ export default class RestApiBackend implements Backend {
       // shows "no data" as expected.
       return new MutableDataFrame();
     }
+  }
+
+  async getAutocompleteBackend(): Promise<BACKEND_TYPE> {
+    return this.api<RestApiAutocompleteResponse>({
+      url: `/objects/autocomplete/sites`,
+      method: 'POST',
+      data: { value: '', parameters: {} },
+    })
+      .then(() => {
+        return BACKEND_TYPE.REST;
+      })
+      .catch(() => {
+        return BACKEND_TYPE.WEB;
+      });
+  }
+
+  async autocompleterRequest(
+    api_url = '',
+    data: unknown
+  ): Promise<FetchResponse<WebApiResponse<ResponseDataAutocomplete>>> {
+    const { ident, params: parameters, value } = data as { ident: string; value: unknown; params: unknown };
+
+    const response = await this.api<RestApiAutocompleteResponse>({
+      url: `/objects/autocomplete/${ident}`,
+      method: 'POST',
+      data: { value, parameters },
+    });
+
+    const choices = response?.data?.choices || [];
+
+    const new_data: WebApiResponse<ResponseDataAutocomplete> = {
+      result_code: 200,
+      severity: 'success',
+      result: {
+        choices: choices.map((element) => [element.id, element.value]),
+      },
+    };
+
+    const res: FetchResponse<WebApiResponse<ResponseDataAutocomplete>> = { ...response, data: new_data };
+    return res;
   }
 }

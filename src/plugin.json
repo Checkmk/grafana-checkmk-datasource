@@ -16,9 +16,18 @@
       "large": "img/checkmk_logo.svg"
     },
     "links": [
-      { "name": "Documentation", "url": "https://docs.checkmk.com/latest/en/grafana.html" },
-      { "name": "GitHub", "url": "https://github.com/Checkmk/grafana-checkmk-datasource" },
-      { "name": "Checkmk", "url": "https://Checkmk.com" }
+      {
+        "name": "Documentation",
+        "url": "https://docs.checkmk.com/latest/en/grafana.html"
+      },
+      {
+        "name": "GitHub",
+        "url": "https://github.com/Checkmk/grafana-checkmk-datasource"
+      },
+      {
+        "name": "Checkmk",
+        "url": "https://Checkmk.com"
+      }
     ],
     "screenshots": [
       {

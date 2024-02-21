@@ -10,7 +10,7 @@ import { replaceVariables } from 'utils';
 
 import { MetricFindQuery, RequestSpec } from './RequestSpec';
 import RestApiBackend from './backend/rest';
-import { Backend } from './backend/types';
+import { BACKEND_TYPE, Backend } from './backend/types';
 import WebApiBackend from './backend/web';
 import { Settings } from './settings';
 import { Backend as BackendType, CmkQuery, DataSourceOptions, Edition, ResponseDataAutocomplete } from './types';
@@ -22,12 +22,17 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   webBackend: WebApiBackend;
   restBackend: RestApiBackend;
   settings: Settings;
+  autocompleteBackend: BACKEND_TYPE | null = null;
 
   constructor(private instanceSettings: DataSourceInstanceSettings<DataSourceOptions>) {
     super(instanceSettings);
     this.webBackend = new WebApiBackend(this);
     this.restBackend = new RestApiBackend(this);
     this.settings = new Settings(instanceSettings.jsonData);
+  }
+
+  protected async setAutocompleteBackend() {
+    this.autocompleteBackend = await this.getBackend().getAutocompleteBackend();
   }
 
   async query(dataQueryRequest: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
@@ -37,7 +42,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return this.getBackend().query(dataQueryRequest);
   }
 
-  async metricFindQuery(query: MetricFindQuery, options?: any): Promise<MetricFindValue[]> {
+  async metricFindQuery(query: MetricFindQuery, options?: unknown): Promise<MetricFindValue[]> {
     if (query.objectType === 'site') {
       // rest-api site endpoint were added in 2.2.0 so we have to use the web-api here
       // TODO: clean up (remove filterSites from Backend) with end of 2.1.0
@@ -51,8 +56,17 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return this.getBackend().testDatasource();
   }
 
-  async autocompleterRequest<T>(api_url: string, data: unknown): Promise<FetchResponse<WebApiResponse<T>>> {
-    return this.webBackend.autocompleterRequest(api_url, data);
+  async autocompleterRequest(
+    api_url: string,
+    data: unknown
+  ): Promise<FetchResponse<WebApiResponse<ResponseDataAutocomplete>>> {
+    this.autocompleteBackend === null && (await this.setAutocompleteBackend());
+
+    if (this.autocompleteBackend === BACKEND_TYPE.WEB) {
+      return this.webBackend.autocompleterRequest(api_url, data);
+    }
+
+    return this.restBackend.autocompleterRequest(api_url, data);
   }
 
   async contextAutocomplete(
@@ -64,10 +78,13 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     if (ident === 'label' && this.getBackendType() === 'web') {
       // we have a 2.1.0 version without werk #15074 so label autocompleter is a special edge case
       // can be removed after we stop supporting 2.1.0
-      const response = await this.autocompleterRequest<Array<{ value: string }>>('ajax_autocomplete_labels.py', {
-        world: params.world,
-        search_label: prefix,
-      });
+      const response = await this.webBackend.autocompleterRequest<Array<{ value: string }>>(
+        'ajax_autocomplete_labels.py',
+        {
+          world: params.world,
+          search_label: prefix,
+        }
+      );
       return response.data.result.map((val: { value: string }) => ({
         value: val.value,
         label: val.value,
@@ -78,7 +95,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
       replaceVariables(partialRequestSpec),
       this.getBackendType() === 'rest' ? 'latest' : '2.1.0'
     );
-    const response = await this.autocompleterRequest<ResponseDataAutocomplete>('ajax_vs_autocomplete.py', {
+    const response = await this.autocompleterRequest('ajax_vs_autocomplete.py', {
       ident,
       value: prefix,
       params: {
