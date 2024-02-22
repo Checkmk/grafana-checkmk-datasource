@@ -2,9 +2,12 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
-## 3.2.2b1
-
+## 3.2.2
+- Support for Checkmk Managed Edition
 - Align defaults for datasource settings
+**If you use checkmk raw edition and a provisioned datasource or created
+the datasource with an very old version of this plugin** you have to take
+manual action. See commit message [b6aa9b](https://github.com/Checkmk/grafana-checkmk-datasource/commit/b6aa99bff9dc4ab522d0b4eecd826dd694fcd606 "b6aa9b")
 - Clarify error message on 404 on REST-API request
 
 ## 3.2.1
