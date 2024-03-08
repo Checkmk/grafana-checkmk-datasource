@@ -21,7 +21,7 @@ const Selectors = {
 
   AddDashboard: {
     add_new_panel_button: grafanaVersion >= 10 ? addNewPanelButtonV10 : addNewPanelButtonV9,
-    datasources_list: 'div[data-testid="data-sources-list"]',
+    datasources_list: 'div[data-testid="data-testid Data source list dropdown"]',
   },
 };
 
