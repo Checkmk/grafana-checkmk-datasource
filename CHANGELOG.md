@@ -2,6 +2,11 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 3.3.0
+- Support for new autocomplete endpoints
+- Rebranding of Checkmk commercial products 
+
+
 ## 3.2.2
 - Support for Checkmk Managed Edition
 - Align defaults for datasource settings
