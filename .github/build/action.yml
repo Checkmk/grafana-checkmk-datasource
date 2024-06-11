@@ -7,9 +7,6 @@ inputs:
     description: 'Boolean to specify if this build should be signed'
     required: true
 outputs:
-  changelog_path:
-    description: 'path to checklog'
-    value: '${{ steps.changelog.outputs.path }}'
   plugin_path:
     description: 'path to the plugin archive'
     value: '${{ steps.metadata.outputs.archive }}'
@@ -79,13 +76,6 @@ runs:
         echo "archive-checksum=${GRAFANA_PLUGIN_ARTIFACT_CHECKSUM}" >> $GITHUB_OUTPUT
 
         echo "github-tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
-
-    - name: Read changelog
-      shell: bash
-      id: changelog
-      run: |
-        awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
-        echo "path=release_notes.md" >> $GITHUB_OUTPUT
 
     - name: Check package version
       shell: bash
