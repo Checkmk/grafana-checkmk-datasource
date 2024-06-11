@@ -104,3 +104,15 @@ runs:
         zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
         md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
         echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+    - name: Upload plugin package
+      uses: actions/upload-artifact@v4
+      with:
+        name: '${{ steps.metadata.outputs.archive }}'
+        path: '${{ steps.metadata.outputs.archive }}'
+
+    - name: Upload plugin checksum
+      uses: actions/upload-artifact@v4
+      with:
+        name: '${{ steps.metadata.outputs.archive-checksum }}'
+        path: '${{ steps.metadata.outputs.archive-checksum }}'
