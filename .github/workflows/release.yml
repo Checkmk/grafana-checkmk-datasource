@@ -34,19 +34,28 @@ jobs:
           release: true
           signed: false
 
-      - uses: actions/download-artifact@v4
-        # download all artifacts
-        with:
+      - uses: actions/checkout@v4
 
-      - name: Create release
-        id: create_release
-        uses: ncipollo/release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: download all action artifacs
+        uses: actions/download-artifact@v4
         with:
-          bodyFile: ${{ steps.build-unsigned.changelog_path }}
+          merge-multiple: true
+
+      - name: Read changelog
+        shell: bash
+        run: |
+          awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > ${{ github.workspace }}-release_notes.md
+
+      - name: create release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ github.workspace }}-release_notes.md
           draft: true
-          artifacts: ${{ steps.build-signed.outputs.plugin_path }},${{ steps.build-signed.outputs.plugin_checksum_path }},${{ steps.build-unsigned.outputs.plugin_path }},${{ steps.build-unsigned.outputs.plugin_checksum_path }}
+          files: |
+            ${{ steps.build-signed.outputs.plugin_path }}
+            ${{ steps.build-signed.outputs.plugin_checksum_path }}
+            ${{ steps.build-unsigned.outputs.plugin_path }}
+            ${{ steps.build-unsigned.outputs.plugin_checksum_path }}
 
       - uses: adelynx/github-actions-nodemailer@v1.0.3
         with:
