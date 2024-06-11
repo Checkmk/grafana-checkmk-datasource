@@ -12,7 +12,7 @@ jobs:
   test-plugin-json:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
@@ -34,7 +34,7 @@ jobs:
       signed-plugin-name: '${{ steps.build-signed.outputs.plugin_path }}'
       unsigned-plugin-name: '${{ steps.build-unsigned.outputs.plugin_path }}'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -59,7 +59,7 @@ jobs:
         run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime
 
       - name: clean up repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build frontend unsigned
         id: build-unsigned
@@ -69,7 +69,7 @@ jobs:
           signed: false
 
       - name: clean up repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build frontend signed
         id: build-signed
@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download package from build job
         uses: actions/download-artifact@v4
