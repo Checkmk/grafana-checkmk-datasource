@@ -25,16 +25,6 @@ jobs:
           release: true
           signed: true
 
-      - name: Create release
-        id: create_release
-        uses: ncipollo/release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          body: ${{ steps.build-signed.changelog_path }}
-          draft: true
-          artifacts: ${{ steps.build-signed.outputs.plugin_path }},${{ steps.build-signed.outputs.plugin_checksum_path }}
-
       - uses: actions/checkout@v3
 
       - name: build unsigned
@@ -44,27 +34,19 @@ jobs:
           release: true
           signed: false
 
-      # TODO: use another action, this is deprecated and generates warnings
-      - name: Add unsigned plugin to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/download-artifact@v4
+        # download all artifacts
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.build-unsigned.outputs.plugin_path }}
-          asset_name: ${{ steps.build-unsigned.outputs.plugin_path }}
-          asset_content_type: text/plain
 
-      # TODO: use another action, this is deprecated and generates warnings
-      - name: Add unsigned checksum file to release
-        uses: actions/upload-release-asset@v1
+      - name: Create release
+        id: create_release
+        uses: ncipollo/release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.build-unsigned.outputs.plugin_checksum_path }}
-          asset_name: ${{ steps.build-unsigned.outputs.plugin_checksum_path }}
-          asset_content_type: text/plain
+          bodyFile: ${{ steps.build-unsigned.changelog_path }}
+          draft: true
+          artifacts: ${{ steps.build-signed.outputs.plugin_path }},${{ steps.build-signed.outputs.plugin_checksum_path }},${{ steps.build-unsigned.outputs.plugin_path }},${{ steps.build-unsigned.outputs.plugin_checksum_path }}
 
       - uses: adelynx/github-actions-nodemailer@v1.0.3
         with:
