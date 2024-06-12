@@ -233,7 +233,7 @@ export default class RestApiBackend implements Backend {
       // but we may have a more detailed error message
       if (error.status === 404) {
         throw new Error(
-          'REST API graph endpoint is unavailable. Choose correct Checkmk edition and version in data source settings.'
+          'REST API endpoint returned 404 (not found) error. Choose correct Checkmk edition and version in data source settings and make sure URL is correct.'
         );
       }
 
