@@ -7,9 +7,6 @@ inputs:
     description: 'Boolean to specify if this build should be signed'
     required: true
 outputs:
-  changelog_path:
-    description: 'path to checklog'
-    value: '${{ steps.changelog.outputs.path }}'
   plugin_path:
     description: 'path to the plugin archive'
     value: '${{ steps.metadata.outputs.archive }}'
@@ -80,13 +77,6 @@ runs:
 
         echo "github-tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
 
-    - name: Read changelog
-      shell: bash
-      id: changelog
-      run: |
-        awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > release_notes.md
-        echo "path=release_notes.md" >> $GITHUB_OUTPUT
-
     - name: Check package version
       shell: bash
       run: |
@@ -104,3 +94,15 @@ runs:
         zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
         md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
         echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+    - name: Upload plugin package
+      uses: actions/upload-artifact@v4
+      with:
+        name: '${{ steps.metadata.outputs.archive }}'
+        path: '${{ steps.metadata.outputs.archive }}'
+
+    - name: Upload plugin checksum
+      uses: actions/upload-artifact@v4
+      with:
+        name: '${{ steps.metadata.outputs.archive-checksum }}'
+        path: '${{ steps.metadata.outputs.archive-checksum }}'

@@ -8,7 +8,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
@@ -25,17 +25,7 @@ jobs:
           release: true
           signed: true
 
-      - name: Create release
-        id: create_release
-        uses: ncipollo/release-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          body: ${{ steps.build-signed.changelog_path }}
-          draft: true
-          artifacts: ${{ steps.build-signed.outputs.plugin_path }},${{ steps.build-signed.outputs.plugin_checksum_path }}
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: build unsigned
         id: build-unsigned
@@ -44,27 +34,28 @@ jobs:
           release: true
           signed: false
 
-      # TODO: use another action, this is deprecated and generates warnings
-      - name: Add unsigned files to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.build-unsigned.outputs.plugin_path }}
-          asset_name: ${{ steps.build-unsigned.outputs.plugin_path }}
-          asset_content_type: text/plain
+      - uses: actions/checkout@v4
 
-      # TODO: use another action, this is deprecated and generates warnings
-      - name: Add unsigned files to release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: download all action artifacs
+        uses: actions/download-artifact@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./${{ steps.build-unsigned.outputs.plugin_checksum_path }}
-          asset_name: ${{ steps.build-unsigned.outputs.plugin_checksum_path }}
-          asset_content_type: text/plain
+          merge-multiple: true
+
+      - name: Read changelog
+        shell: bash
+        run: |
+          awk '/^## / {s++} s == 1 {print}' CHANGELOG.md > ${{ github.workspace }}-release_notes.md
+
+      - name: create release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: ${{ github.workspace }}-release_notes.md
+          draft: true
+          files: |
+            ${{ steps.build-signed.outputs.plugin_path }}
+            ${{ steps.build-signed.outputs.plugin_checksum_path }}
+            ${{ steps.build-unsigned.outputs.plugin_path }}
+            ${{ steps.build-unsigned.outputs.plugin_checksum_path }}
 
       - uses: adelynx/github-actions-nodemailer@v1.0.3
         with:
