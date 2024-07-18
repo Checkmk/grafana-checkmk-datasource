@@ -15,6 +15,7 @@ import { Configuration } from 'webpack';
 import LiveReloadPlugin from 'webpack-livereload-plugin';
 
 const pluginJson = getPluginJson();
+const srcDir = path.join(__dirname, '..', '..','src');
 
 const config = async (env): Promise<Configuration> => {
   const baseConfig: Configuration = {
@@ -80,7 +81,7 @@ const config = async (env): Promise<Configuration> => {
             loader: 'swc-loader',
             options: {
               jsc: {
-                baseUrl: './src',
+                baseUrl: srcDir,
                 target: 'es2015',
                 loose: false,
                 parser: {

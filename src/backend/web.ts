@@ -5,6 +5,7 @@ import {
   MetricFindValue,
   MutableDataFrame,
   ScopedVars,
+  TestDataSourceResponse,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { MetricFindQuery } from 'RequestSpec';
@@ -32,7 +33,7 @@ export default class WebApiBackend implements Backend {
   async metricFindQuery(query: MetricFindQuery): Promise<MetricFindValue[]> {
     throw new Error('Not implemented. Use metricFindQuery from rest Backend, and filterSites from this backend.');
   }
-  async testDatasource(): Promise<unknown> {
+  async testDatasource(): Promise<TestDataSourceResponse> {
     return this.cmkRequest<unknown>({
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -62,7 +63,6 @@ export default class WebApiBackend implements Backend {
         return {
           status: 'success',
           message: 'Data source is working',
-          title: 'Success',
         };
       });
   }

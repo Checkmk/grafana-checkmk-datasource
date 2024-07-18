@@ -1,5 +1,4 @@
 import {
-  ArrayVector,
   DataQueryRequest,
   DataQueryResponse,
   DataQueryResponseData,
@@ -9,6 +8,7 @@ import {
   MetricFindValue,
   MutableDataFrame,
   ScopedVars,
+  TestDataSourceResponse,
   TimeRange,
   dateTime,
 } from '@grafana/data';
@@ -172,7 +172,7 @@ export default class RestApiBackend implements Backend {
     return await Promise.all(promises).then((data) => ({ data }));
   }
 
-  async testDatasource(): Promise<unknown> {
+  async testDatasource(): Promise<TestDataSourceResponse> {
     const result = await this.api<{ versions: { checkmk: string }; edition: string }>({
       url: '/version',
       method: 'GET',
@@ -202,11 +202,11 @@ export default class RestApiBackend implements Backend {
     if (!(await this.isAutomationUser(this.datasource.getUsername()))) {
       throw new Error('This data source must authenticate against Checkmk using an automation user.');
     }
+
     return {
       status: 'success',
       message: `Data source is working, reached version ${checkMkVersion} of Checkmk`,
-      title: 'Success',
-    };
+    } as TestDataSourceResponse      
   }
 
   async isAutomationUser(username: string): Promise<boolean> {
@@ -346,12 +346,12 @@ export default class RestApiBackend implements Backend {
       currentTime = dateTime(currentTime).add(step, 'seconds');
     }
 
-    const fields: Field[] = [{ name: 'Time', type: FieldType.time, values: new ArrayVector(timeValues), config: {} }];
+    const fields: Field[] = [{ name: 'Time', type: FieldType.time, values: timeValues, config: {} }];
     for (const curve of metrics) {
       fields.push({
         name: curve.title,
         type: FieldType.number,
-        values: new ArrayVector(curve.data_points),
+        values: curve.data_points,
         config: { color: { mode: 'fixed', fixedColor: curve.color } },
       });
     }
