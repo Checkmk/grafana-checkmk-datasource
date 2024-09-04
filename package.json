@@ -14,9 +14,9 @@
     "pretty": "prettier -w '{**/*,*}.{js,ts,jsx,tsx,json,yml}'",
     "server": "docker-compose up --build",
     "start": "npm run watch",
-    "sign": "npx --yes @grafana/sign-plugin@latest",    
+    "sign": "npx --yes @grafana/sign-plugin@latest",
     "e2e": "playwright test",
-    "e2e:ci": "npm run build && npm run e2e",
+    "e2e:ci": "playwright test",
     "e2e:debug": "playwright test --debug"
   },
   "author": "Checkmk",
