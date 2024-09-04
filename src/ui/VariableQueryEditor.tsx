@@ -1,5 +1,5 @@
 import { SelectableValue } from '@grafana/data';
-import { InlineFieldRow, Label, VerticalGroup } from '@grafana/ui';
+import { InlineFieldRow, Label, Stack } from '@grafana/ui';
 import { DataSource } from 'DataSource';
 import React from 'react';
 
@@ -65,9 +65,9 @@ export const VariableQueryEditor = function (props: VariableQueryProps) {
 
   return (
     <>
-      <VerticalGroup>
+      <Stack direction="column">
         <InlineFieldRow>
-          <VerticalGroup>
+          <Stack direction="column">
             <Label>Object type to query</Label>
             <CheckMkGenericAsyncSelect<ObjectType>
               showVariables={false}
@@ -82,9 +82,9 @@ export const VariableQueryEditor = function (props: VariableQueryProps) {
               requestSpec={query.filter}
               restrictedChildrenChoice={restrictFilter}
             />
-          </VerticalGroup>
+          </Stack>
         </InlineFieldRow>
-      </VerticalGroup>
+      </Stack>
     </>
   );
 };

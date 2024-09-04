@@ -1,6 +1,7 @@
 import { GraphType, RequestSpec } from '../../src/RequestSpec';
 import { Context, Params } from '../../src/types';
 import { replaceVariables, toLiveStatusQuery } from '../../src/utils';
+import { expect } from '@jest/globals';
 
 jest.mock('@grafana/runtime', () => ({
   ...(jest.requireActual('@grafana/runtime') as unknown as object),

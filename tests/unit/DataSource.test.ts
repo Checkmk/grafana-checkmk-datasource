@@ -1,4 +1,5 @@
 import { MutableDataFrame } from '@grafana/data';
+import { expect } from '@jest/globals';
 import { cloneDeep } from 'lodash';
 
 import { DataSource } from '../../src/DataSource';

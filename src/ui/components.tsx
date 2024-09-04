@@ -6,12 +6,11 @@ import {
   Button,
   Checkbox,
   Select as GrafanaSelect,
-  HorizontalGroup,
+  Stack,
   InlineField,
   InlineFieldRow,
   Input,
   Label,
-  VerticalGroup,
 } from '@grafana/ui';
 import { debounce, isNull } from 'lodash';
 import React, { JSXElementConstructor } from 'react';
@@ -221,7 +220,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
   };
 
   return (
-    <HorizontalGroup>
+    <Stack>
       <InlineField label={label} labelWidth={LABEL_WIDTH}>
         <CheckMkAsyncSelect
           inputId={`input_${props.label}`}
@@ -232,7 +231,7 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
         />
       </InlineField>
       <Checkbox label="Negate" value={value.negated} onChange={onNegateChange} />
-    </HorizontalGroup>
+    </Stack>
   );
 };
 
@@ -272,7 +271,7 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
   };
 
   return (
-    <HorizontalGroup>
+    <Stack>
       <InlineField label={label} labelWidth={LABEL_WIDTH}>
         <Input
           width={32}
@@ -284,7 +283,7 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
         />
       </InlineField>
       <Checkbox label="Negate" value={value.negated} onChange={onNegateChange} />
-    </HorizontalGroup>
+    </Stack>
   );
 };
 
@@ -329,7 +328,7 @@ export const GenericField = <T extends RequestSpecStringKeys>(props: GenericFiel
   };
 
   return (
-    <HorizontalGroup>
+    <Stack>
       <InlineField label={label} labelWidth={LABEL_WIDTH} tooltip={tooltip}>
         <>
           <Input
@@ -345,7 +344,7 @@ export const GenericField = <T extends RequestSpecStringKeys>(props: GenericFiel
           {children}
         </>
       </InlineField>
-    </HorizontalGroup>
+    </Stack>
   );
 };
 
@@ -379,7 +378,7 @@ const SingleTag = (props: {
   );
 
   return (
-    <HorizontalGroup>
+    <Stack>
       <Label>Host tag {props.index}: </Label>
       <CheckMkGenericAsyncSelect<string | undefined>
         onChange={(val) => {
@@ -402,7 +401,7 @@ const SingleTag = (props: {
         inputId={'tag'}
         autocompleter={tagAutocompleter}
       />
-    </HorizontalGroup>
+    </Stack>
   );
 };
 
@@ -418,7 +417,7 @@ export const HostTagFilter: React.FC<HostTagFilterProps> = (props) => {
   const { value, autocompleter, onChange } = props;
 
   return (
-    <VerticalGroup spacing="sm">
+    <Stack direction="column" gap={1}>
       {[...Array(3)].map((_, index) => (
         <SingleTag
           key={index}
@@ -432,7 +431,7 @@ export const HostTagFilter: React.FC<HostTagFilterProps> = (props) => {
           value={value !== undefined ? value[index] : undefined}
         />
       ))}
-    </VerticalGroup>
+    </Stack>
   );
 };
 
@@ -494,7 +493,7 @@ export interface OnlyActiveChildrenProps {
   showAddFilterDropdown?: boolean;
 }
 
-export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element => {
+export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): React.JSX.Element => {
   function isAllowedChild(child: keyof RequestSpec) {
     if (props.restrictedChildrenChoice === undefined) {
       return true;
@@ -554,7 +553,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element 
           />
         </InlineField>
       )}
-      <VerticalGroup>
+      <Stack direction="column">
         {props.children
           .filter((elem: ChildComponent) => {
             if (!React.isValidElement(elem)) {
@@ -565,7 +564,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element 
           .map((elem: ChildComponent) => {
             if (props.showRemoveButton === undefined || props.showRemoveButton === true) {
               return (
-                <HorizontalGroup key={getKey(elem)}>
+                <Stack key={getKey(elem)}>
                   <Button
                     icon="minus"
                     data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
@@ -583,13 +582,13 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): JSX.Element 
                     }
                   />
                   {elem}
-                </HorizontalGroup>
+                </Stack>
               );
             } else {
               return elem;
             }
           })}
-      </VerticalGroup>
+      </Stack>
     </InlineFieldRow>
   );
 };

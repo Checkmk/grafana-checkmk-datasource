@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import * as React from 'react';
 import selectEvent from 'react-select-event';
 
@@ -106,6 +106,11 @@ describe('QueryEditor RAW', () => {
     render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
     const input = screen.getByLabelText('Graph type');
+
+    await act(async () => {
+      await selectEvent.openMenu(input);
+    });
+
     await act(async () => {
       await selectEvent.select(input, 'Single metric', { container: document.body });
     });
@@ -126,11 +131,21 @@ describe('QueryEditor RAW', () => {
     render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
 
     const graphInput = screen.getByLabelText('Graph type');
+
+    await act(async () => {
+      await selectEvent.openMenu(graphInput);
+    });
+
     await act(async () => {
       await selectEvent.select(graphInput, graphType, { container: document.body });
     });
 
     const input = screen.getByLabelText(graphTypeTitle);
+
+    await act(async () => {
+      await selectEvent.openMenu(input);
+    });
+
     await act(async () => {
       await selectEvent.select(input, selectChoice, { container: document.body });
     });
@@ -167,6 +182,11 @@ describe('QueryEditor RAW', () => {
     contextAutocomplete.mockClear();
 
     const siteInput = screen.getByLabelText('Site');
+
+    await act(async () => {
+      await selectEvent.openMenu(siteInput);
+    });
+
     await act(async () => {
       await selectEvent.select(siteInput, 'Site One', { container: document.body });
     });
@@ -191,6 +211,11 @@ describe('QueryEditor RAW', () => {
     contextAutocomplete.mockClear();
 
     const hostInput = screen.getByLabelText('Hostname');
+
+    await act(async () => {
+      await selectEvent.openMenu(hostInput);
+    });
+
     await act(async () => {
       await selectEvent.select(hostInput, 'Hostname One', { container: document.body });
     });
@@ -209,9 +234,15 @@ describe('QueryEditor RAW', () => {
     contextAutocomplete.mockClear();
 
     const serviceInput = screen.getByLabelText('Service');
+
+    await act(async () => {
+      await selectEvent.openMenu(serviceInput);
+    });
+
     await act(async () => {
       await selectEvent.select(serviceInput, 'Service One', { container: document.body });
     });
+
     expect(contextAutocomplete).toHaveBeenCalledWith(
       'available_graphs',
       expect.anything(),
@@ -221,6 +252,11 @@ describe('QueryEditor RAW', () => {
     contextAutocomplete.mockClear();
 
     const graphInput = screen.getByLabelText('Predefined graph');
+
+    await act(async () => {
+      await selectEvent.openMenu(graphInput);
+    });
+
     await act(async () => {
       await selectEvent.select(graphInput, 'Graph One', { container: document.body });
     });
