@@ -8,7 +8,6 @@ let counter = 0;
 const animation = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 const getAnimation = () => animation[counter++ % animation.length];
 
-
 (async () => {
   requestContext = await request.newContext({
     baseURL: config.playwrightToCheckmkUrl,
@@ -183,11 +182,9 @@ const waitUntilCheckmkIsReady = async () => {
       maxRedirects: 0,
       failOnStatusCode: false,
     });
-    
+
     ready = response.ok();
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 
   if (ready) {
     console.log('🎉 Checkmk is ready');
@@ -196,7 +193,7 @@ const waitUntilCheckmkIsReady = async () => {
 
   await wait(5000);
   await waitUntilCheckmkIsReady();
-}
+};
 
 export default {
   deleteCmkAutomationUser,

@@ -30,7 +30,7 @@ export class DatasourceConfigPage {
     await this.page.locator(CMK_SELECTORS.SETUP_FORM.VERSION).press('>');
     await this.page.keyboard.press('Enter');
 
-    await this.page.click(GRAFANA_SELECTORS.DATASOURCE.SAVE_AND_TEST_BUTTON);    
+    await this.page.click(GRAFANA_SELECTORS.DATASOURCE.SAVE_AND_TEST_BUTTON);
   };
 }
 

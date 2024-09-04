@@ -5,6 +5,8 @@ import * as process from 'process';
 
 import RestApiBackend from '../../src/backend/rest';
 import { ConfigEditor } from '../../src/ui/ConfigEditor';
+import { DataSourceSettings } from '@grafana/data';
+import { DatasourceOptions } from '../../src/backend/types';
 
 jest.mock('@grafana/runtime', () => {
   return {
@@ -25,7 +27,7 @@ jest.mock('@grafana/runtime', () => {
 });
 
 describe('Cloud Edition Restrictions', () => {
-  const options = { jsonData: {}, secureJsonData: {} } as any;
+  const options = { jsonData: {}, secureJsonData: {} } as DataSourceSettings;
   const onOptionsChange = jest.fn();
 
   afterAll(() => {
@@ -53,7 +55,7 @@ describe('Cloud Edition Restrictions', () => {
       getUrl() {
         return 'http://no.where/';
       },
-    } as any;
+    } as DatasourceOptions;
 
     let subject: RestApiBackend;
 
