@@ -1,10 +1,9 @@
-import { SOURCE_DIR } from './constants';
 import fs from 'fs';
-import { glob } from 'glob';
+import process from 'process';
 import os from 'os';
 import path from 'path';
-import process from 'process';
-import util from 'util';
+import { glob } from 'glob';
+import { SOURCE_DIR } from './constants';
 
 export function isWSL() {
   if (process.platform !== 'linux') {
@@ -28,6 +27,11 @@ export function getPackageJson() {
 
 export function getPluginJson() {
   return require(path.resolve(process.cwd(), `${SOURCE_DIR}/plugin.json`));
+}
+
+export function getCPConfigVersion() {
+  const cprcJson = path.resolve(__dirname, '../', '.cprc.json');
+  return fs.existsSync(cprcJson) ? require(cprcJson).version : { version: 'unknown' };
 }
 
 export function hasReadme() {

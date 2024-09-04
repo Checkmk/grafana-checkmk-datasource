@@ -1,5 +1,5 @@
+import { lastValueFrom } from 'rxjs';
 import {
-  ArrayVector,
   DataQueryRequest,
   DataQueryResponse,
   DataQueryResponseData,
@@ -7,13 +7,14 @@ import {
   Field,
   FieldType,
   MetricFindValue,
-  MutableDataFrame,
   ScopedVars,
+  TestDataSourceResponse,
   TimeRange,
   dateTime,
+  toDataFrame,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
-import { Aggregation, GraphType, MetricFindQuery } from 'RequestSpec';
+import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
 import * as process from 'process';
 
 import { CmkQuery, ResponseDataAutocomplete } from '../types';
@@ -172,7 +173,7 @@ export default class RestApiBackend implements Backend {
     return await Promise.all(promises).then((data) => ({ data }));
   }
 
-  async testDatasource(): Promise<unknown> {
+  async testDatasource(): Promise<TestDataSourceResponse> {
     const result = await this.api<{ versions: { checkmk: string }; edition: string }>({
       url: '/version',
       method: 'GET',
@@ -202,11 +203,11 @@ export default class RestApiBackend implements Backend {
     if (!(await this.isAutomationUser(this.datasource.getUsername()))) {
       throw new Error('This data source must authenticate against Checkmk using an automation user.');
     }
+
     return {
       status: 'success',
       message: `Data source is working, reached version ${checkMkVersion} of Checkmk`,
-      title: 'Success',
-    };
+    } as TestDataSourceResponse;
   }
 
   async isAutomationUser(username: string): Promise<boolean> {
@@ -225,7 +226,7 @@ export default class RestApiBackend implements Backend {
     request.url = `${this.datasource.getUrl()}/rest/check_mk/api/1.0${request.url}`;
     let result;
     try {
-      result = await getBackendSrv().fetch<T>(request).toPromise();
+      result = await lastValueFrom(getBackendSrv().fetch<T>(request));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e) {
       const error = e as FetchError<RestApiError>;
@@ -338,7 +339,7 @@ export default class RestApiBackend implements Backend {
 
     updateMetricTitles(metrics, query, scopedVars);
 
-    const timeValues = [];
+    const timeValues: DateTime[] = [];
     let currentTime: DateTime = dateTime(time_range.start);
     const endTime: DateTime = dateTime(time_range.end);
     for (let i = 0; currentTime.isBefore(endTime) || currentTime.isSame(endTime); i++) {
@@ -346,17 +347,17 @@ export default class RestApiBackend implements Backend {
       currentTime = dateTime(currentTime).add(step, 'seconds');
     }
 
-    const fields: Field[] = [{ name: 'Time', type: FieldType.time, values: new ArrayVector(timeValues), config: {} }];
+    const fields: Field[] = [{ name: 'Time', type: FieldType.time, values: timeValues, config: {} }];
     for (const curve of metrics) {
       fields.push({
         name: curve.title,
         type: FieldType.number,
-        values: new ArrayVector(curve.data_points),
+        values: curve.data_points,
         config: { color: { mode: 'fixed', fixedColor: curve.color } },
       });
     }
 
-    const frame = new MutableDataFrame({
+    const frame = toDataFrame({
       refId: query.refId,
       fields,
     });
@@ -368,7 +369,7 @@ export default class RestApiBackend implements Backend {
       // this will result in a grafana note that suggests the graph should be
       // changed to a table. By returning an empty MutableDataFrame grafana
       // shows "no data" as expected.
-      return new MutableDataFrame();
+      return toDataFrame({});
     }
   }
 

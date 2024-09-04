@@ -4,6 +4,7 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   MetricFindValue,
+  TestDataSourceResponse,
 } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
 import { replaceVariables } from 'utils';
@@ -51,8 +52,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     // we use the rest backend for both web and rest backend, because those endpoints are already implement in 2.1.0
     return await this.restBackend.metricFindQuery(query);
   }
-
-  async testDatasource(): Promise<unknown> {
+  async testDatasource(): Promise<TestDataSourceResponse> {
     return this.getBackend().testDatasource();
   }
 
@@ -124,9 +124,9 @@ export class DataSource extends DataSourceApi<CmkQuery> {
 
   getBackend(): Backend {
     if (this.getBackendType() === 'web') {
-      return this.webBackend;
+      return this.webBackend as Backend;
     }
-    return this.restBackend;
+    return this.restBackend as Backend;
   }
 
   getUsername(): string {

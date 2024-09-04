@@ -1,5 +1,5 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { Button, Icon, InlineFieldRow, Toggletip, VerticalGroup } from '@grafana/ui';
+import { Button, Icon, InlineFieldRow, Stack, Toggletip } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
@@ -12,7 +12,7 @@ import { labelForRequestSpecKey } from './utils';
 
 type Props = QueryEditorProps<DataSource, CmkQuery, DataSourceOptions>;
 
-export const QueryEditor = (props: Props): JSX.Element => {
+export const QueryEditor = (props: Props): React.JSX.Element => {
   const { onChange, onRunQuery, datasource, query } = props;
   updateQuery(query);
   const rs = query.requestSpec || {};
@@ -163,7 +163,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
 
   if (editionMode === 'RAW') {
     return (
-      <VerticalGroup>
+      <Stack direction="column">
         <Filters
           requestSpec={requestSpec}
           restrictedChildrenChoice={['site', 'host_name', 'service']}
@@ -175,11 +175,11 @@ export const QueryEditor = (props: Props): JSX.Element => {
         {graphTypeSelect}
         {graphSelect}
         {labelField}
-      </VerticalGroup>
+      </Stack>
     );
   } else {
     return (
-      <VerticalGroup>
+      <Stack direction="column">
         <InlineFieldRow>
           <Filters requestSpec={requestSpec} datasource={datasource} onChange={setQFilters} />
         </InlineFieldRow>
@@ -193,7 +193,7 @@ export const QueryEditor = (props: Props): JSX.Element => {
         {graphTypeSelect}
         {graphSelect}
         {labelField}
-      </VerticalGroup>
+      </Stack>
     );
   }
 };

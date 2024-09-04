@@ -1,6 +1,7 @@
 // Due to the grafana/ui Icon component making fetch requests to
 // `/public/img/icon/<icon_name>.svg` we need to mock react-inlinesvg to prevent
 // the failed fetch requests from displaying errors in console.
+
 import React from 'react';
 
 type Callback = (...args: any[]) => void;
