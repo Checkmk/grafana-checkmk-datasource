@@ -96,9 +96,15 @@ class Handler(PatternMatchingEventHandler):
         self.seen_filenames = set()
 
     def on_modified(self, event):
+        self._process(event)
+
+    def on_closed(self, event):
+        self._process(event)
+
+    def _process (self, event):
         filename = event.src_path
         if filename in self.seen_filenames:
-            return
+            return        
         self.seen_filenames.add(filename)
         print(f"[GRRD] {filename}")
         modify_in_place(filename)
@@ -116,15 +122,16 @@ def main():
     observer = Observer()
     observer.schedule(
         Handler(patterns=["*.rrd"], ignore_directories=True),
-        "/omd/sites/cmk/var/check_mk/rrd/",
+        "/omd/sites/cmk/var/check_mk/rrd",
         recursive=True,
     )
     observer.start()
+    print("[GRRD] Watchdog started")
     try:
         while True:
             time.sleep(10)
     except KeyboardInterrupt:
-        print("graceful shutdown")
+        print("[GRRD] Graceful shutdown")
         observer.stop()
     observer.join()
 
