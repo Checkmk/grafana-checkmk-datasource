@@ -14,7 +14,6 @@ export default defineConfig<PluginOptions>({
     trace: 'on-first-retry',
     video: 'on',
     viewport: { width: 1920, height: 1080 },
-    
   },
   projects: [
     {

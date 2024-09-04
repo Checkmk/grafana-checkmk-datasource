@@ -1,4 +1,5 @@
 // @ts-check
+/*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
 import { test, expect } from '@playwright/test';
 import cmkRestAPI from '../lib/checkmk_rest_api';
 import grafanaRestAPI from '../lib/grafana_rest_api';
@@ -11,7 +12,7 @@ import { CMK_EDITION, GRAFANA_SELECTORS, GRAFANA_TEXT } from '../constants';
 const DATASOURCENAME0 = 'cmk_test_datasource_0';
 const DATASOURCENAME1 = 'cmk_test_datasource_1';
 
-test.describe.configure({ mode: 'serial' })
+test.describe.configure({ mode: 'serial' });
 
 test.describe('Datasource creation test', () => {
   test.beforeAll('Setup', async ({}, testInfo) => {
@@ -45,9 +46,8 @@ test.describe('Datasource creation test', () => {
     console.log('✅ Teardown complete');
   });
 
-
   test('Should display connection success message', async ({ page }) => {
-    await wait (500);
+    await wait(500);
     const datasourceConfigPage = new DatasourceConfigPage(page);
     await datasourceConfigPage.addCmkDatasource(
       config.grafanaToCheckMkUser,
@@ -57,11 +57,11 @@ test.describe('Datasource creation test', () => {
     );
 
     await expect(page.locator(GRAFANA_SELECTORS.DATASOURCE.SUCCESS)).toBeVisible();
-    await expect(page.getByText(GRAFANA_TEXT.DATASOURCE_IS_WORKING)).toBeVisible();    
+    await expect(page.getByText(GRAFANA_TEXT.DATASOURCE_IS_WORKING)).toBeVisible();
   });
 
   test('Should display an edition mismatch warning', async ({ page }) => {
-    await wait (500);
+    await wait(500);
     const datasourceConfigPage = new DatasourceConfigPage(page);
     await datasourceConfigPage.addCmkDatasource(
       config.grafanaToCheckMkUser,
@@ -72,5 +72,4 @@ test.describe('Datasource creation test', () => {
 
     await expect(page.getByText(GRAFANA_TEXT.EDITION_MISMATCH)).toBeVisible();
   });
-
 });
