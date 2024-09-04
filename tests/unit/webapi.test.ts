@@ -2,6 +2,7 @@ import { RequestSpec } from '../../src/RequestSpec';
 import { Context, Params } from '../../src/types';
 import { createCmkContext } from '../../src/utils';
 import { requestSpecFromLegacy } from '../../src/webapi';
+import { expect } from '@jest/globals';
 
 // representation of the query in grafana plugin
 const rs: RequestSpec = {

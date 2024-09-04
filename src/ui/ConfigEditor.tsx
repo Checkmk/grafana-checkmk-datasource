@@ -7,6 +7,8 @@ import { Backend, DataSourceOptions, Edition, SecureJsonData } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
+import * as process from 'process';
+
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends DataSourcePluginOptionsEditorProps<DataSourceOptions, SecureJsonData> {}
 

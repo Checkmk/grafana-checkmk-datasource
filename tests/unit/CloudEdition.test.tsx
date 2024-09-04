@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
 import * as React from 'react';
+import { expect, jest } from '@jest/globals';
+import * as process from 'process';
 
 import RestApiBackend from '../../src/backend/rest';
 import { ConfigEditor } from '../../src/ui/ConfigEditor';

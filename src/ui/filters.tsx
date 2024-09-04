@@ -18,7 +18,7 @@ interface FiltersProp extends Omit<OnlyActiveChildrenProps, 'children'> {
   onChange(value: Partial<RequestSpec>): void;
 }
 
-export const Filters = (props: FiltersProp): JSX.Element => {
+export const Filters = (props: FiltersProp): React.JSX.Element => {
   const { requestSpec, restrictedChildrenChoice, datasource, onChange } = props;
 
   const rs = requestSpec || {};

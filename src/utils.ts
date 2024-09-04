@@ -142,7 +142,7 @@ export function replaceVariables(
     return result;
   }
   (Object.keys(requestSpec) as Array<keyof Partial<RequestSpec>>).forEach(function <
-    T extends keyof Partial<RequestSpec>
+    T extends keyof Partial<RequestSpec>,
   >(key: T) {
     const value = requestSpec[key];
     if (value === undefined) {
