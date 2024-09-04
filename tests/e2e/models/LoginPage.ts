@@ -21,7 +21,7 @@ export class LoginPage {
     await this.page.locator(GRAFANA_SELECTORS.LOGIN.USERNAME_FIELD).fill(username);
     await this.page.locator(GRAFANA_SELECTORS.LOGIN.PASSWORD_FIELD).fill(password);
     await this.page.locator(GRAFANA_SELECTORS.LOGIN.LOGIN_BUTTON).click();
-    await wait (1000)
+    await wait(1000);
   }
 
   async logout() {

@@ -59,7 +59,7 @@ export const GRAFANA_SELECTORS = {
 
     APPLY_CHANGES_AND_SAVE_BUTTON: 'button[title="Apply changes and save dashboard"]',
     SAVE_DASHBOARD_TITLE: 'input[aria-label="Save dashboard title field"]',
-    SAVE_BUTTON: 'button[aria-label="Save dashboard button"]',    
+    SAVE_BUTTON: 'button[aria-label="Save dashboard button"]',
   },
 };
 

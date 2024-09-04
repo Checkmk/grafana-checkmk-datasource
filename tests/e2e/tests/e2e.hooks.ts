@@ -1,4 +1,5 @@
 // @ts-check
+/*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
 import { test } from '@playwright/test';
 import tests_config from '../config';
 import cmkRestAPI from '../lib/checkmk_rest_api';
@@ -14,34 +15,28 @@ export default function setHooks() {
       console.log('🔁 Retrying test. Skipping beforeAll hook');
       return;
     }
-    
-    test.setTimeout ( 300000 )
-    
+
+    test.setTimeout(300000);
+
     await cmkRestAPI.waitUntilCheckmkIsReady();
-    
-    test.setTimeout ( 0 )
+
+    test.setTimeout(0);
 
     await cmkRestAPI.deleteCmkAutomationUser(false);
     await cmkRestAPI.createCmkAutomationUser();
-    
-    await Promise.all([
-        cmkRestAPI.deleteHost(HOSTNAME0, false),
-        cmkRestAPI.deleteHost(HOSTNAME1, false)
-    ]);
 
-    await Promise.all([
-        cmkRestAPI.createHost(HOSTNAME0),
-        cmkRestAPI.createHost(HOSTNAME1)
-    ])
+    await Promise.all([cmkRestAPI.deleteHost(HOSTNAME0, false), cmkRestAPI.deleteHost(HOSTNAME1, false)]);
 
-    await cmkRestAPI.executeServiceDiscovery(HOSTNAME0, 'tabula_rasa')
-    await cmkRestAPI.executeServiceDiscovery(HOSTNAME1, 'tabula_rasa')
+    await Promise.all([cmkRestAPI.createHost(HOSTNAME0), cmkRestAPI.createHost(HOSTNAME1)]);
+
+    await cmkRestAPI.executeServiceDiscovery(HOSTNAME0, 'tabula_rasa');
+    await cmkRestAPI.executeServiceDiscovery(HOSTNAME1, 'tabula_rasa');
 
     await cmkRestAPI.activateChanges(tests_config.site);
-    await cmkRestAPI.waitForPendingServices (2000);
+    await cmkRestAPI.waitForPendingServices(2000);
 
-    test.setTimeout ( 30000 )
-    
+    test.setTimeout(30000);
+
     console.log('✅ Checkmk initialization complete');
   });
 
@@ -70,7 +65,7 @@ export default function setHooks() {
 
   test.beforeEach(async ({ page }) => {
     const loginPage = new LoginPage(page);
-    const dashboardPage = new DashboardPage (page);
+    const dashboardPage = new DashboardPage(page);
 
     await loginPage.logout();
     await loginPage.login(tests_config.grafanaUser, tests_config.grafanaPassword);
@@ -80,12 +75,12 @@ export default function setHooks() {
   });
 
   test.afterEach(async ({ page }) => {
-    const dashboardPage = new DashboardPage (page);
+    const dashboardPage = new DashboardPage(page);
     const loginPage = new LoginPage(page);
 
     await dashboardPage.saveDashboard();
     await loginPage.logout();
-    
+
     console.log(`✅ After test`);
   });
 
@@ -95,13 +90,13 @@ export default function setHooks() {
   });
 
   test.afterAll('Checkmk teardown', async () => {
-      // await Promise.all([
-      //     cmkRestAPI.deleteHost(HOSTNAME0), 
-      //     cmkRestAPI.deleteHost(HOSTNAME1), 
-      //     cmkRestAPI.deleteCmkAutomationUser()
-      // ]);
+    // await Promise.all([
+    //     cmkRestAPI.deleteHost(HOSTNAME0),
+    //     cmkRestAPI.deleteHost(HOSTNAME1),
+    //     cmkRestAPI.deleteCmkAutomationUser()
+    // ]);
 
-      // await cmkRestAPI.activateChanges(tests_config.site);
+    // await cmkRestAPI.activateChanges(tests_config.site);
     console.log('✅ Checkmk teardown complete');
   });
 }

@@ -3,9 +3,20 @@ import { test, expect } from '@playwright/test';
 import setHooks from './e2e.hooks';
 import DashboardPage from '../models/DashboardPage';
 import current_config from '../config';
-import { CMK_EDITION, CustomLabels, FilterTypes, GRAFANA_SELECTORS, GraphLegends, GraphTypes, HOSTNAME0, HOSTNAME1, Services, Sites } from '../constants';
+import {
+  CMK_EDITION,
+  CustomLabels,
+  FilterTypes,
+  GRAFANA_SELECTORS,
+  GraphLegends,
+  GraphTypes,
+  HOSTNAME0,
+  HOSTNAME1,
+  Services,
+  Sites,
+} from '../constants';
 
-test.describe.configure({ mode: 'serial' })
+test.describe.configure({ mode: 'serial' });
 
 test.describe('E2E tests', () => {
   setHooks();
@@ -14,7 +25,7 @@ test.describe('E2E tests', () => {
     test('time-usage panel by service (single host)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CEE);
-      
+
       await dashboardPage.addFilter(FilterTypes.HOSTNAME);
       await dashboardPage.filterByHostname(HOSTNAME0);
 
@@ -41,7 +52,7 @@ test.describe('E2E tests', () => {
       console.log('✅ time-usage panel by service (single host)');
     });
 
-    test('time-usage panel by service (multiple hosts)', async ({ page }) => {      
+    test('time-usage panel by service (multiple hosts)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CEE);
 
@@ -106,7 +117,6 @@ test.describe('E2E tests', () => {
       await dashboardPage.assertHoverSelectorsOff(2);
       await dashboardPage.assertHoverSelectorsOn(2);
 
-
       console.log('✅ RAM-used panel by host labels (multiple hosts, single metric)');
     });
 
@@ -119,7 +129,7 @@ test.describe('E2E tests', () => {
 
       await dashboardPage.addFilter(FilterTypes.HOSTNAME_REGEX);
       await dashboardPage.filterByHostnameRegex(`${HOSTNAME0}|${HOSTNAME1}`);
-      
+
       await dashboardPage.selectPredefinedGraphType(GraphTypes.RAM_USAGE);
 
       await dashboardPage.assertLegendElement(HOSTNAME0);
@@ -132,9 +142,9 @@ test.describe('E2E tests', () => {
       await dashboardPage.assertLegendElement('RAM usage');
 
       await dashboardPage.assertHoverSelectorsOff(1);
-      await dashboardPage.assertHoverSelectorsOn(1);      
+      await dashboardPage.assertHoverSelectorsOn(1);
 
-      console.log('✅ RAM-used panel by service regex and hostname regex')
+      console.log('✅ RAM-used panel by service regex and hostname regex');
     });
 
     test('Uptime panel by hostname', async ({ page }) => {
@@ -144,14 +154,15 @@ test.describe('E2E tests', () => {
       await dashboardPage.addFilter(FilterTypes.HOSTNAME);
       await dashboardPage.filterByHostname(HOSTNAME0);
 
-
       //Let's check the Uptime graph is not available on predefined graphs
-      await page.locator(`input[id="${GRAFANA_SELECTORS.DASHBOARD.PREDEFINED_GRAPH_FIELD_ID}"]`).fill(GraphTypes.UPTIME);
+      await page
+        .locator(`input[id="${GRAFANA_SELECTORS.DASHBOARD.PREDEFINED_GRAPH_FIELD_ID}"]`)
+        .fill(GraphTypes.UPTIME);
       await expect(page.locator(GRAFANA_SELECTORS.SPINNER).first()).not.toBeVisible();
-      await expect(page.getByText('No options found').first()).toBeVisible()
+      await expect(page.getByText('No options found').first()).toBeVisible();
       await page.keyboard.press('Escape');
 
-      await dashboardPage.selectSingleGraphType()
+      await dashboardPage.selectSingleGraphType();
       await dashboardPage.selectSingleMetricGraphType(GraphTypes.UPTIME);
 
       await dashboardPage.assertLegendElement('Uptime');
@@ -159,46 +170,43 @@ test.describe('E2E tests', () => {
       await dashboardPage.assertHoverSelectorsOff(1);
       await dashboardPage.assertHoverSelectorsOn(1);
 
-      console.log('✅ Uptime panel by hostname')
+      console.log('✅ Uptime panel by hostname');
     });
 
     test('Custom labels', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CEE);
 
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME)
+      await dashboardPage.addFilter(FilterTypes.HOSTNAME);
       await dashboardPage.filterByHostname(HOSTNAME0);
 
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE)
+      await dashboardPage.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
       await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
 
       // $label shoud return the same label
       await dashboardPage.setCustomLabel(CustomLabels.ORIGINAL);
-      await dashboardPage.refresGraph()
+      await dashboardPage.refresGraph();
       await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
-
 
       // $label + constant
       await dashboardPage.setCustomLabel(`${CustomLabels.ORIGINAL} - LMP`);
-      await dashboardPage.refresGraph()
+      await dashboardPage.refresGraph();
       await dashboardPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_USER_SPACE} - LMP`);
 
       // $label + $host_name
-      await dashboardPage.setCustomLabel(`${CustomLabels.ORIGINAL} - ${CustomLabels.HOSTNAME}`)
-      await dashboardPage.refresGraph()
+      await dashboardPage.setCustomLabel(`${CustomLabels.ORIGINAL} - ${CustomLabels.HOSTNAME}`);
+      await dashboardPage.refresGraph();
       await dashboardPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_USER_SPACE} - ${HOSTNAME0}`);
 
-      console.log('✅ Custom labels')
+      console.log('✅ Custom labels');
     });
-
   });
-
 
   test.describe('Raw edition tests', () => {
     test('time-usage panel by service (Single host)', async ({ page }, testInfo) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CRE);
-      
+
       const timeout = testInfo.timeout;
       test.setTimeout(10000);
       await dashboardPage.expectSpinners(false);
@@ -224,13 +232,13 @@ test.describe('E2E tests', () => {
 
       await expect(page.getByText("Could not find 'cmk_cpu_time_by_phase'").first()).toBeVisible();
 
-      console.log('✅ time-usage panel by service (Single host)')
+      console.log('✅ time-usage panel by service (Single host)');
     });
 
     test('Used-RAM panel by service (single host)', async ({ page }, testInfo) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CRE);
-      
+
       const timeout = testInfo.timeout;
       test.setTimeout(10000);
       await dashboardPage.expectSpinners(false);
@@ -245,9 +253,8 @@ test.describe('E2E tests', () => {
 
       await dashboardPage.assertHoverSelectorsOff(1);
       await dashboardPage.assertHoverSelectorsOn(1);
-      
-      console.log('✅ Used-RAM panel by service (single host)')
-    });
 
+      console.log('✅ Used-RAM panel by service (single host)');
+    });
   });
 });

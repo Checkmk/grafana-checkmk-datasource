@@ -1,4 +1,4 @@
-import { MutableDataFrame } from '@grafana/data';
+import { DataQueryRequest, DataSourceInstanceSettings, MutableDataFrame } from '@grafana/data';
 import { expect } from '@jest/globals';
 import { cloneDeep } from 'lodash';
 
@@ -6,7 +6,7 @@ import { DataSource } from '../../src/DataSource';
 import { RequestSpec } from '../../src/RequestSpec';
 import RestApiBackend from '../../src/backend/rest';
 import WebApiBackend from '../../src/backend/web';
-import { Edition } from '../../src/types';
+import { CmkQuery, DataSourceOptions, Edition } from '../../src/types';
 import { labelForRequestSpecKey } from '../../src/ui/utils';
 import * as utils from '../../src/utils';
 import { buildRequestBody, buildUrlWithParams } from '../../src/webapi';
@@ -85,7 +85,9 @@ describe.each([{ edition: 'RAW' }, { edition: 'CEE' }])(
         utils.replaceVariables.mockImplementation((rq) => rq);
 
         beforeEach(() => {
-          subject = new DataSource({ jsonData: { backend: backendConfig, edition: editionConfig.edition } } as any);
+          subject = new DataSource({
+            jsonData: { backend: backendConfig, edition: editionConfig.edition },
+          } as unknown as DataSourceInstanceSettings<DataSourceOptions>);
         });
 
         it.each(cases)(
@@ -102,7 +104,7 @@ describe.each([{ edition: 'RAW' }, { edition: 'CEE' }])(
                 },
               ],
               range: [1, 2],
-            } as any;
+            } as unknown as DataQueryRequest<CmkQuery>;
 
             const errorMessageRegex = fields
               .map((value) => labelForRequestSpecKey(value as keyof RequestSpec, requestSpec))
@@ -124,7 +126,7 @@ describe.each([{ edition: 'RAW' }, { edition: 'CEE' }])(
               },
             ],
             range: [1, 2],
-          } as any;
+          } as unknown as DataQueryRequest<CmkQuery>;
           await expect(subject.query(dataQueryRequest)).resolves.not.toThrow();
         });
       }

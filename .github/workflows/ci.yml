@@ -124,15 +124,13 @@ jobs:
       - name: run the e2e tests
         run: |
           docker compose rm -f
-          docker compose up --exit-code-from=cypress --pull always
+          docker compose up --exit-code-from=playwright --pull always
         working-directory: tests/
 
-      - name: upload cypress artifacts
+      - name: upload playwright artifacts
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: cypress
+          name: playwright
           retention-days: 1
-          path: |
-            tests/cypress/videos
-            tests/cypress/screenshots
+          path: tests/results
