@@ -1,0 +1,4 @@
+dist/
+playwright-report/
+tests/docker/
+tests/results/

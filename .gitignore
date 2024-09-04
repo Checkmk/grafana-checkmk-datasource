@@ -3,7 +3,7 @@ logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
+.pnpm-debug.log*
 
 node_modules/
 
@@ -24,15 +24,20 @@ dist/
 artifacts/
 work/
 ci/
-e2e-results/
+
+# e2e test directories
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
 
 # Editor
 .idea
 .vscode
 
-
-# cypress atrifacts
-tests/cypress/screenshots/
-tests/cypress/videos/
+# Editor
+.idea
+.vscode
 
 .eslintcache
