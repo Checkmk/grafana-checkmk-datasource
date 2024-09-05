@@ -19,7 +19,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: |
-        yarn install --frozen-lockfile
+        npm ci
         sudo apt-get install jq
 
     - name: Adapt version of plugin to indicate this is not a official release
@@ -46,16 +46,16 @@ runs:
     - name: Build signed plugin and test frontend
       shell: bash
       run: |
-        # yarn build script will adapt src/plugin.json via utils/plugin_json*.sh
-        yarn run build:cloud
-        yarn run sign
+        # npm run build script will adapt src/plugin.json via utils/plugin_json*.sh
+        npm run build:cloud
+        npm run sign
       if: ${{ inputs.signed == 'true'}}
 
     - name: Build unsigned plugin and test frontend
       shell: bash
       run: |
-        # yarn build script will adapt src/plugin.json via utils/plugin_json*.sh
-        yarn run build
+        # npm run build script will adapt src/plugin.json via utils/plugin_json*.sh
+        npm run build
       if: ${{ inputs.signed == 'false' }}
 
     - name: Get plugin metadata

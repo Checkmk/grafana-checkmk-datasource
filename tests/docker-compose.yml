@@ -19,6 +19,8 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: password
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: tribe-29-checkmk-datasource
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_AUTH_ANONYMOUS_ENABLED: 'true'
     extra_hosts:
       - checkmk.local:host-gateway
     ports:

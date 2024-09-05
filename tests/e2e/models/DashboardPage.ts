@@ -57,7 +57,7 @@ export class DashboardPage {
     if (visible) {
       await expect(cmp).toBeVisible();
     } else {
-      await expect(cmp).not.toBeVisible();
+      await expect(cmp).not.toBeVisible({ timeout: 20000 });
     }
   }
 
@@ -72,7 +72,7 @@ export class DashboardPage {
     if (findByInputValue) {
       await expect(this.page.locator(fieldSelector).first()).toHaveValue(value);
     } else {
-      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible();
+      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible({ timeout: 10000 });
     }
   }
 

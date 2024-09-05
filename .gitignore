@@ -36,8 +36,8 @@ playwright/.auth/
 .idea
 .vscode
 
-# Editor
-.idea
-.vscode
+# Local data
+.env
+local/
 
 .eslintcache

@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const site = process.env.CMK_SITE || 'cmk';
 
 const cfg = {
