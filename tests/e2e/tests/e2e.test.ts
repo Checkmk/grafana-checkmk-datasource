@@ -1,6 +1,5 @@
 // @ts-check
 import { test, expect } from '@playwright/test';
-import setHooks from './e2e.hooks';
 import DashboardPage from '../models/DashboardPage';
 import current_config from '../config';
 import {
@@ -19,7 +18,17 @@ import {
 test.describe.configure({ mode: 'serial' });
 
 test.describe('E2E tests', () => {
-  setHooks();
+  test.beforeEach(async ({ page }) => {
+    const dashboardPage = new DashboardPage(page);
+    await dashboardPage.addNewPanel();
+    console.log(`✅ New panel added`);
+  });
+
+  test.afterEach(async ({ page }) => {
+    const dashboardPage = new DashboardPage(page);
+    await dashboardPage.saveDashboard();
+    console.log(`✅ Dashboard saved`);
+  });
 
   test.describe('Commercial editions tests', () => {
     test('time-usage panel by service (single host)', async ({ page }) => {

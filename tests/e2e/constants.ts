@@ -1,6 +1,9 @@
 export const HOSTNAME0 = 'localhost_grafana0';
 export const HOSTNAME1 = 'localhost_grafana1';
 
+export const DATASOURCENAME0 = 'cmk_test_datasource_0';
+export const DATASOURCENAME1 = 'cmk_test_datasource_1';
+
 export const CMK_EDITION = {
   CRE: 'Raw Edition',
   CEE: 'Commercial editions',
