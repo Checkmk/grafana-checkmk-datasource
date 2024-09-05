@@ -37,23 +37,25 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install --immutable --prefer-offline
+        run: npm ci --prefer-offline
 
       - name: Run prettier
-        run: yarn prettier -c '{**/*,*}.{js,ts,jsx,tsx,json,yml}'
+        run: npm run pretty:check
 
       - name: Check types
-        run: yarn typecheck
+        run: npm run typecheck
+
       - name: Lint
-        run: yarn lint
+        run: npm run lint
+
       - name: Unit tests
-        run: yarn test:ci
+        run: npm run test:ci
 
       - name: Compatibility check
         run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime

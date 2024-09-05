@@ -12,6 +12,7 @@
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn run lint --fix",
     "pretty": "prettier -w '{**/*,*}.{js,ts,jsx,tsx,json,yml}'",
+    "pretty:check": "prettier -c '{**/*,*}.{js,ts,jsx,tsx,json,yml}'",
     "server": "docker-compose up --build",
     "start": "npm run watch",
     "sign": "npx --yes @grafana/sign-plugin@latest",

@@ -10,9 +10,7 @@
       "name": "Checkmk GmbH",
       "url": "https://github.com/Checkmk/"
     },
-    "keywords": [
-      "checkmk"
-    ],
+    "keywords": ["checkmk"],
     "logos": {
       "small": "img/checkmk_logo.svg",
       "large": "img/checkmk_logo.svg"
