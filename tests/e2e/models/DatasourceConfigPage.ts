@@ -1,6 +1,7 @@
-import { expect, type Page } from '@playwright/test';
-import { GRAFANA_SELECTORS, CMK_SELECTORS, CMK_EDITION, GRAFANA_TEXT } from '../constants.ts';
+import { type Page, expect } from '@playwright/test';
+
 import current_config from '../config';
+import { CMK_EDITION, CMK_SELECTORS, GRAFANA_SELECTORS, GRAFANA_TEXT } from '../constants.ts';
 
 export class DatasourceConfigPage {
   readonly page: Page;
@@ -21,7 +22,7 @@ export class DatasourceConfigPage {
     await this.page.click(GRAFANA_SELECTORS.DATASOURCE.CHECKMK_DATASOURCE_BUTTON);
 
     await this.page.locator(CMK_SELECTORS.SETUP_FORM.NAME).fill(dsName);
-    await this.page.locator(CMK_SELECTORS.SETUP_FORM.URL).fill(current_config.grafanaToCheckMkUrl);
+    await this.page.locator(CMK_SELECTORS.SETUP_FORM.URL).fill(current_config.grafanaToCheckMkUrl!);
     await this.page.locator(CMK_SELECTORS.SETUP_FORM.EDITION).fill(edition);
     await this.page.keyboard.press('Enter');
 

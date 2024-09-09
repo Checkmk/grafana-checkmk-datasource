@@ -1,4 +1,3 @@
-import { lastValueFrom } from 'rxjs';
 import {
   DataQueryRequest,
   DataQueryResponse,
@@ -14,9 +13,10 @@ import {
   toDataFrame,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
-import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
 import * as process from 'process';
+import { lastValueFrom } from 'rxjs';
 
+import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
 import { CmkQuery, ResponseDataAutocomplete } from '../types';
 import { createCmkContext, replaceVariables, toLiveStatusQuery, updateMetricTitles, updateQuery } from '../utils';
 import { WebApiResponse } from './../webapi';

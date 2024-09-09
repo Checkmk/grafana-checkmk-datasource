@@ -1,5 +1,6 @@
-import { PickByValue } from '../../src/RequestSpec';
 import { expect } from '@jest/globals';
+
+import { PickByValue } from '../../src/RequestSpec';
 
 type Test = PickByValue<{ foo: string; bar: number }, string>;
 const value: Test = { foo: '' };

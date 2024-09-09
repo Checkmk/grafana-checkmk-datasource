@@ -1,11 +1,13 @@
 // @ts-check
+
 /*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
-import { test, expect } from '@playwright/test';
-import grafanaRestAPI from '../lib/grafana_rest_api';
+import { expect, test } from '@playwright/test';
+
 import config from '../config';
-import DatasourceConfigPage from '../models/DatasourceConfigPage';
+import { CMK_EDITION, DATASOURCENAME0, DATASOURCENAME1, GRAFANA_SELECTORS, GRAFANA_TEXT } from '../constants';
+import grafanaRestAPI from '../lib/grafana_rest_api';
 import { wait } from '../lib/util';
-import { CMK_EDITION, GRAFANA_SELECTORS, GRAFANA_TEXT, DATASOURCENAME0, DATASOURCENAME1 } from '../constants';
+import DatasourceConfigPage from '../models/DatasourceConfigPage';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -18,8 +20,8 @@ test.describe('Datasource creation test', () => {
     await wait(500);
     const datasourceConfigPage = new DatasourceConfigPage(page);
     await datasourceConfigPage.addCmkDatasource(
-      config.grafanaToCheckMkUser,
-      config.grafanaToCheckMkPassword,
+      config.grafanaToCheckMkUser!,
+      config.grafanaToCheckMkPassword!,
       CMK_EDITION.CEE,
       DATASOURCENAME0
     );
@@ -32,8 +34,8 @@ test.describe('Datasource creation test', () => {
     await wait(500);
     const datasourceConfigPage = new DatasourceConfigPage(page);
     await datasourceConfigPage.addCmkDatasource(
-      config.grafanaToCheckMkUser,
-      config.grafanaToCheckMkPassword,
+      config.grafanaToCheckMkUser!,
+      config.grafanaToCheckMkPassword!,
       CMK_EDITION.CRE,
       DATASOURCENAME1
     );

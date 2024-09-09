@@ -1,6 +1,6 @@
 // @ts-check
-import { test, expect } from '@playwright/test';
-import DashboardPage from '../models/DashboardPage';
+import { expect, test } from '@playwright/test';
+
 import current_config from '../config';
 import {
   CMK_EDITION,
@@ -14,6 +14,7 @@ import {
   Services,
   Sites,
 } from '../constants';
+import DashboardPage from '../models/DashboardPage';
 
 test.describe.configure({ mode: 'serial' });
 

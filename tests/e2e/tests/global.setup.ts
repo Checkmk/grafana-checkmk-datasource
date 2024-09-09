@@ -1,10 +1,12 @@
 // @ts-check
+
 /*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
 import { test as setup } from '@playwright/test';
-import cmkRestAPI from '../lib/checkmk_rest_api';
-import grafanaRestApi from '../lib/grafana_rest_api';
+
 import tests_config from '../config';
 import { CMK_EDITION, HOSTNAME0, HOSTNAME1 } from '../constants';
+import cmkRestAPI from '../lib/checkmk_rest_api';
+import grafanaRestApi from '../lib/grafana_rest_api';
 
 setup('Set up Grafana and Checkmk', async ({}) => {
   console.log('▶️ Setting up Grafana');
@@ -12,15 +14,15 @@ setup('Set up Grafana and Checkmk', async ({}) => {
   await grafanaRestApi.deleteAllDatasources();
   await grafanaRestApi.createDatasource(
     CMK_EDITION.CEE,
-    tests_config.grafanaToCheckMkUrl,
-    tests_config.grafanaToCheckMkUser,
-    tests_config.grafanaToCheckMkPassword
+    tests_config.grafanaToCheckMkUrl!,
+    tests_config.grafanaToCheckMkUser!,
+    tests_config.grafanaToCheckMkPassword!
   );
   await grafanaRestApi.createDatasource(
     CMK_EDITION.CRE,
-    tests_config.grafanaToCheckMkUrl,
-    tests_config.grafanaToCheckMkUser,
-    tests_config.grafanaToCheckMkPassword
+    tests_config.grafanaToCheckMkUrl!,
+    tests_config.grafanaToCheckMkUser!,
+    tests_config.grafanaToCheckMkPassword!
   );
   console.log('✅ Grafana setup complete');
 
@@ -41,7 +43,7 @@ setup('Set up Grafana and Checkmk', async ({}) => {
   await cmkRestAPI.executeServiceDiscovery(HOSTNAME0, 'tabula_rasa');
   await cmkRestAPI.executeServiceDiscovery(HOSTNAME1, 'tabula_rasa');
 
-  await cmkRestAPI.activateChanges(tests_config.site);
+  await cmkRestAPI.activateChanges(tests_config.site!);
   await cmkRestAPI.waitForPendingServices(2000);
 
   console.log('✅ Checkmk initialization complete');

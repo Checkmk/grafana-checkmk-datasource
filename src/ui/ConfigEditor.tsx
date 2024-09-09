@@ -1,13 +1,12 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
 import { Alert, FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+import * as process from 'process';
 import React, { ChangeEvent, useCallback } from 'react';
 
 import { Settings } from '../settings';
 import { Backend, DataSourceOptions, Edition, SecureJsonData } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
-
-import * as process from 'process';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends DataSourcePluginOptionsEditorProps<DataSourceOptions, SecureJsonData> {}

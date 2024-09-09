@@ -1,6 +1,7 @@
 import { APIRequestContext, expect, request } from '@playwright/test';
-import { wait } from './util';
+
 import config from '../config';
+import { wait } from './util';
 
 let requestContext: APIRequestContext;
 
