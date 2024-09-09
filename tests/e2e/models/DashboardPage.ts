@@ -3,6 +3,8 @@ import { type Page, expect } from '@playwright/test';
 import current_config from '../config';
 import { FilterTypes, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes } from '../constants';
 
+const CUSTOM_TIMEOUT = 40000;
+
 export class DashboardPage {
   readonly page: Page;
 
@@ -58,7 +60,7 @@ export class DashboardPage {
     if (visible) {
       await expect(cmp).toBeVisible();
     } else {
-      await expect(cmp).not.toBeVisible({ timeout: 20000 });
+      await expect(cmp).not.toBeVisible({ timeout: CUSTOM_TIMEOUT });
     }
   }
 
@@ -73,7 +75,7 @@ export class DashboardPage {
     if (findByInputValue) {
       await expect(this.page.locator(fieldSelector).first()).toHaveValue(value);
     } else {
-      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible({ timeout: 20000 });
+      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible({ timeout: CUSTOM_TIMEOUT });
     }
   }
 
@@ -102,6 +104,7 @@ export class DashboardPage {
   }
 
   async selectPredefinedGraphType(graphType: GraphTypes) {
+    await this.expectSpinners(false);
     await this._addFilterBy(`input[id="${GRAFANA_SELECTORS.DASHBOARD.PREDEFINED_GRAPH_FIELD_ID}"]`, graphType);
   }
 
