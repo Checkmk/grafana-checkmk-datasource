@@ -1,6 +1,9 @@
 import { APIRequestContext, expect, request } from '@playwright/test';
+import { assert } from 'console';
+
 import config from '../config';
 import { CMK_EDITION } from '../constants';
+
 // import { wait } from './util';
 
 let requestContext: APIRequestContext;
@@ -9,8 +12,8 @@ let requestContext: APIRequestContext;
   requestContext = await request.newContext({
     baseURL: config.grafanaUrl,
     httpCredentials: {
-      username: config.grafanaUser,
-      password: config.grafanaPassword,
+      username: config.grafanaUser!,
+      password: config.grafanaPassword!,
       send: 'always',
     },
   });

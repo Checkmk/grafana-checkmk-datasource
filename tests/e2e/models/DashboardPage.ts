@@ -1,4 +1,5 @@
-import { expect, type Page } from '@playwright/test';
+import { type Page, expect } from '@playwright/test';
+
 import current_config from '../config';
 import { FilterTypes, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes } from '../constants';
 
@@ -72,7 +73,7 @@ export class DashboardPage {
     if (findByInputValue) {
       await expect(this.page.locator(fieldSelector).first()).toHaveValue(value);
     } else {
-      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible({ timeout: 10000 });
+      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible({ timeout: 20000 });
     }
   }
 

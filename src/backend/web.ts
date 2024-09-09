@@ -1,6 +1,4 @@
-import { lastValueFrom } from 'rxjs';
 import {
-  addRow,
   DataFrame,
   DataQueryRequest,
   DataQueryResponse,
@@ -8,11 +6,13 @@ import {
   MetricFindValue,
   ScopedVars,
   TestDataSourceResponse,
+  addRow,
   toDataFrame,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import { MetricFindQuery } from 'RequestSpec';
 import { defaults, get, isUndefined, zip } from 'lodash';
+import { lastValueFrom } from 'rxjs';
 
 import { CmkQuery, defaultQuery } from '../types';
 import { updateMetricTitles, updateQuery } from '../utils';

@@ -104,7 +104,7 @@ class Handler(PatternMatchingEventHandler):
     def _process (self, event):
         filename = event.src_path
         if filename in self.seen_filenames:
-            return        
+            return
         self.seen_filenames.add(filename)
         print(f"[GRRD] {filename}")
         modify_in_place(filename)

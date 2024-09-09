@@ -8,19 +8,19 @@ you are looking to use the plugin please head over to [README.md](README.md).
 1. Install dependencies
 
 ```BASH
-yarn install --immutable
+npm ci
 ```
 
 2. Build plugin in development mode or run in watch mode
 
 ```BASH
-yarn dev
+npm run dev
 ```
 
 3. Build plugin in production mode
 
 ```BASH
-yarn build
+npm run build
 ```
 
 ## Maintenance
@@ -28,7 +28,7 @@ yarn build
 Code formatting
 
 ```BASH
-yarn pretty
+npm run pretty
 ```
 
 Update dependencies
@@ -37,11 +37,9 @@ https://grafana.com/developers/plugin-tools/migration-guides/update-create-plugi
 
 ```BASH
 npx @grafana/create-plugin@latest update
-yarn install
-yarn upgrade
-yarn pretty
-cd tests
-yarn upgrade
+npm install
+npx npm-check-updates -i --format group
+npm run pretty
 ```
 
 ## Release
@@ -57,52 +55,85 @@ yarn upgrade
 ## E2E Tests
 
 There are serval ways to run the e2e tests.
-Make sure to have an up to date `dist/` folder using `yarn build`.
-
-### Local development use case
-
-```BASH
-cd tests/
-docker compose up -d checkmk grafana
-yarn run cypress open
-```
-
-This will show you a nice interactive GUI to run and debug your E2E tests.
-See the official [docs](https://docs.cypress.io/guides/overview/why-cypress) for more information.
+Make sure to have an up to date `dist/` folder using `npm run build`.
 
 ### No Interactivity use case (e.g. CI)
 
 ```BASH
 cd tests/
-docker compose up --exit-code-from=cypress
+docker compose up --exit-code-from=playwright
 ```
 
 This will run all tests without any further interaction necessary.
+
+
+### Local development use case
+
+Please, note that you need to set serval environment variables as described for [No docker use case](#No-docker-use-case)
+
+```BASH
+cd tests/
+docker compose up -d checkmk grafana
+cd ..
+npm run e2e
+```
+
+You can run the tests on the console by runing 
+
+```BASH
+npm run e2e
+
+# Or you can run it in debug mode
+npm run e2e:debug
+```
+
+Or you can launch a nice interactive GUI to run and debug your E2E tests
+by running 
+
+```BASH
+npm run e2e:gui
+```
+
+See the official [docs](https://playwright.dev/docs/intro) for more information.
 
 ### No docker use case
 
 If you don't want to or can't use docker at all, make sure you have a Grafana and a CheckMK instance running somewhere.
 The Plugin you want to test needs to be installed in you Grafana instance.
 
-You also need to set serval environment variables.
+First you need to install the Playwright dependencies:
+```BASH
+npx playwright install --with-deps
+```
 
-| Variable                    | Description                                  |
-| --------------------------- | -------------------------------------------- |
-| CYPRESS_baseUrl             | The URL to your Grafana instance             |
-| CYPRESS_grafanaUsername     | The username used to log into Grafana        |
-| CYPRESS_grafanaPassword     | the password used to log into Grafana        |
-| CYPRESS_grafanaToCheckmkUrl | The url from which grafana can reach CheckMK |
-| CYPRESS_cypressToCheckmkUrl | The url from which cypress can reach CheckMK |
-| CYPRESS_cmkUsername         | The username of a CheckMK admin              |
-| CYPRESS_cmkPassword         | The password of that CheckMK admin           |
+You also need to set serval environment variables. You can export them or define them in a .env file
+
+| Variable                    | Description                                     | Example                      |
+| --------------------------- | ----------------------------------------------- | ---------------------------- |
+| CMK_SITE                    | Checkmk site name                               | cmk                          |
+| CMK_ADMIN                   | Administrator user name for Checkmk             | cmkadmin                     |
+| CMK_AUTOMATION              | Automation user name for Checkmk                | automation                   |
+| CMK_PASSWORD                | Password CMK_ADMIN and CMK_AUTOMATION           | my_secret                    |
+| PLAYWRIGHT_TO_CHECKMK_URL   | URL for connecting Playwright to Checkmk        | http://127.0.0.1:12345/cmk/  |
+| PLAYWRIGHT_TO_GRAFANA_URL   | URL for connecting Playwright to Grafana        | http://127.0.0.1:3003/       |
+| GRAFANA_USER                | User name for connecting to Grafana's Rest API  | grafana_user                 |
+| GRAFANA_PASSWORD            | Password for GRAFANA_USERNAME                   | my_other_secret              |
+| GRAFANA_TO_CHECKMK_URL      | URL for connecting Grafana to Checkmk           | http://checkmk:5000/cmk/     |
+| GRAFANA_TO_CHECKMK_USER     | Checkmk user name to access the Rest API        | automation                   |
+| GRAFANA_TO_CHECKMK_PASSWORD | Password for GRAFANA_TO_CHECKMK_USER            | my_secret                    |
+
 
 If everything is set up, just start cypress the usual way.
 
 ```BASH
-yarn run cypress open
+# Automatic run
+npm run e2e
 
-# or if you just want to see the results
-yarn run cypress run
+# or if you want to run it on debug mode
+npm run e2e:debug
+
+# or if you want to run it with the fancy web interface
+npm run e2e:gui
 ```
 
 Please note that the test have side effects on your Grafana and CheckMK instance,

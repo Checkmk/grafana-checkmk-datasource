@@ -6,11 +6,11 @@ import {
   Button,
   Checkbox,
   Select as GrafanaSelect,
-  Stack,
   InlineField,
   InlineFieldRow,
   Input,
   Label,
+  Stack,
 } from '@grafana/ui';
 import { debounce, isNull } from 'lodash';
 import React, { JSXElementConstructor } from 'react';

@@ -1,12 +1,12 @@
-import { render } from '@testing-library/react';
-import * as React from 'react';
+import { DataSourceSettings } from '@grafana/data';
 import { expect, jest } from '@jest/globals';
+import { render } from '@testing-library/react';
 import * as process from 'process';
+import * as React from 'react';
 
 import RestApiBackend from '../../src/backend/rest';
-import { ConfigEditor } from '../../src/ui/ConfigEditor';
-import { DataSourceSettings } from '@grafana/data';
 import { DatasourceOptions } from '../../src/backend/types';
+import { ConfigEditor } from '../../src/ui/ConfigEditor';
 
 jest.mock('@grafana/runtime', () => {
   return {
