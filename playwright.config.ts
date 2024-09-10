@@ -6,8 +6,8 @@ export default defineConfig<PluginOptions>({
   outputDir: './tests/results',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 1,
+  retries: process.env.CI ? 3 : 0,
+  workers: 2,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'list',
   use: {

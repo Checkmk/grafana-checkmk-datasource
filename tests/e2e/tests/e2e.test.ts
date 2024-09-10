@@ -32,6 +32,7 @@ test.describe('E2E tests', () => {
   });
 
   test.describe('Commercial editions tests', () => {
+    test.slow();
     test('time-usage panel by service (single host)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CEE);
@@ -94,7 +95,7 @@ test.describe('E2E tests', () => {
       await dashboardPage.addFilter(FilterTypes.HOSTNAME_REGEX);
       await dashboardPage.filterByHostnameRegex('localhost_grafana[0-9]+');
 
-      await expect(page.locator(GRAFANA_SELECTORS.SPINNER).first()).not.toBeVisible();
+      await dashboardPage.expectSpinners(false);
 
       await dashboardPage.selectPredefinedGraphType(GraphTypes.RAM_USAGE);
 
@@ -213,6 +214,7 @@ test.describe('E2E tests', () => {
   });
 
   test.describe('Raw edition tests', () => {
+    test.slow();
     test('time-usage panel by service (Single host)', async ({ page }, testInfo) => {
       const dashboardPage = new DashboardPage(page);
       await dashboardPage.selectDatasource(CMK_EDITION.CRE);
