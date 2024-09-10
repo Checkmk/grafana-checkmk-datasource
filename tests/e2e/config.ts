@@ -2,11 +2,9 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const site = process.env.CMK_SITE;
-
 const cfg = {
   //Checkmk
-  site: site,
+  site: process.env.CMK_SITE,
   cmkUser: process.env.CMK_ADMIN,
   cmkPassword: process.env.CMK_PASSWORD,
   automationUser: process.env.CMK_AUTOMATION,

@@ -3,7 +3,7 @@ import { type Page, expect } from '@playwright/test';
 import current_config from '../config';
 import { FilterTypes, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes } from '../constants';
 
-const CUSTOM_TIMEOUT = 40000;
+const CUSTOM_TIMEOUT = 30000;
 
 export class DashboardPage {
   readonly page: Page;
