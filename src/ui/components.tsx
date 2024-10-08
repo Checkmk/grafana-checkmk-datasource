@@ -538,57 +538,61 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): React.JSX.El
   }
 
   return (
-    <InlineFieldRow>
-      {(props.showAddFilterDropdown === undefined || props.showAddFilterDropdown === true) && (
-        <InlineField label="Filter" labelWidth={8}>
-          <GrafanaSelect
-            width={32}
-            options={availableComponentsOptions()}
-            // We know that the `value` prop will always be defined since `availableComponentsOptions` returns
-            // an array of type `{value: string; label: string}`.
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
-            value={{ label: 'Add Filter' }}
-            inputId="input_add_filter"
-          />
-        </InlineField>
-      )}
-      <Stack direction="column">
-        {props.children
-          .filter((elem: ChildComponent) => {
-            if (!React.isValidElement(elem)) {
-              return false;
-            }
-            return activeComponents.includes(getKey(elem));
-          })
-          .map((elem: ChildComponent) => {
-            if (props.showRemoveButton === undefined || props.showRemoveButton === true) {
-              return (
-                <Stack key={getKey(elem)}>
-                  <Button
-                    icon="minus"
-                    data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
-                    variant="secondary"
-                    onClick={() =>
-                      setActiveComponents((c) => {
-                        if (!React.isValidElement(elem)) {
-                          return c;
-                        }
-                        const result = [...c];
-                        result.splice(result.indexOf(elem.props.requestSpecKey), 1);
-                        elem.props.onChange(undefined);
-                        return result;
-                      })
-                    }
-                  />
-                  {elem}
-                </Stack>
-              );
-            } else {
-              return elem;
-            }
-          })}
-      </Stack>
-    </InlineFieldRow>
+    <Stack direction="column">
+      <InlineFieldRow>
+        {(props.showAddFilterDropdown === undefined || props.showAddFilterDropdown === true) && (
+          <InlineField label="Filter" labelWidth={8}>
+            <GrafanaSelect
+              width={32}
+              options={availableComponentsOptions()}
+              // We know that the `value` prop will always be defined since `availableComponentsOptions` returns
+              // an array of type `{value: string; label: string}`.
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
+              value={{ label: 'Add Filter' }}
+              inputId="input_add_filter"
+            />
+          </InlineField>
+        )}
+      </InlineFieldRow>
+      <InlineFieldRow>
+        <Stack direction="column">
+          {props.children
+            .filter((elem: ChildComponent) => {
+              if (!React.isValidElement(elem)) {
+                return false;
+              }
+              return activeComponents.includes(getKey(elem));
+            })
+            .map((elem: ChildComponent) => {
+              if (props.showRemoveButton === undefined || props.showRemoveButton === true) {
+                return (
+                  <Stack key={getKey(elem)}>
+                    <Button
+                      icon="minus"
+                      data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
+                      variant="secondary"
+                      onClick={() =>
+                        setActiveComponents((c) => {
+                          if (!React.isValidElement(elem)) {
+                            return c;
+                          }
+                          const result = [...c];
+                          result.splice(result.indexOf(elem.props.requestSpecKey), 1);
+                          elem.props.onChange(undefined);
+                          return result;
+                        })
+                      }
+                    />
+                    {elem}
+                  </Stack>
+                );
+              } else {
+                return elem;
+              }
+            })}
+        </Stack>
+      </InlineFieldRow>
+    </Stack>
   );
 };
