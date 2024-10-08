@@ -2,17 +2,17 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
-## 3.4.0 - Beta 1
+## 3.4.0 - Beta 2
 - Updated error message when Rest API cannot be found
 - Switched from yarn to npm
 - Updated dependencies to latest versions
 - Updated unit tests
 - Migrated end-to-end tests to Playwright
-- Updated documentation 
+- Updated documentation
 
 ## 3.3.0
 - Support for new autocomplete endpoints
-- Rebranding of Checkmk commercial products 
+- Rebranding of Checkmk commercial products
 
 
 ## 3.2.2
