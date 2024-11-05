@@ -60,9 +60,9 @@ export const GRAFANA_SELECTORS = {
 
     REFRESH_GRAPH_BUTTON: 'button[data-testid="data-testid RefreshPicker run button"]',
 
-    APPLY_CHANGES_AND_SAVE_BUTTON: 'button[title="Apply changes and save dashboard"]',
+    APPLY_CHANGES_AND_SAVE_BUTTON: 'button[data-testid="data-testid Save dashboard button"]',
     SAVE_DASHBOARD_TITLE: 'input[aria-label="Save dashboard title field"]',
-    SAVE_BUTTON: 'button[aria-label="Save dashboard button"]',
+    SAVE_BUTTON: 'button[data-testid="data-testid Save dashboard drawer button"]',
   },
 };
 
