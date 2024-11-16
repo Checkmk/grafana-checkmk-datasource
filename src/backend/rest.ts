@@ -199,6 +199,11 @@ export default class RestApiBackend implements Backend {
         'The data source specified the Checkmk Raw Edition, but a Checkmk commercial edition was detected. Some functionality may not be available. Choose commercial editions in the data source settings to enable all features.'
       );
     }
+    if (result.data.edition === 'cse') {
+      throw new Error(
+        'The data source specifed is Checkmk Cloud (Saas). The grafana plugin is currently not supported for that edition.'
+      );
+    }
     // The REST API would be ok with other users, but the autocompleter are not
     if (!(await this.isAutomationUser(this.datasource.getUsername()))) {
       throw new Error('This data source must authenticate against Checkmk using an automation user.');
