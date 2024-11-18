@@ -270,3 +270,18 @@ test.describe('E2E tests', () => {
     });
   });
 });
+
+test.describe('General tests', () => {
+  test.slow();
+  test('Variables get rendered', async ({ page }) => {
+    const customVariableName = 'MyVariable';
+    const dashboardPage = new DashboardPage(page);
+    await dashboardPage.goToNewDashboardSettings();
+    await dashboardPage.addNewVariable(customVariableName);
+    await dashboardPage.saveDashboard();
+    await dashboardPage.goBackToDashboard();
+    await dashboardPage.addVisualization();
+    await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+    await dashboardPage.assertAggregationVariableExists(customVariableName);
+  });
+});
