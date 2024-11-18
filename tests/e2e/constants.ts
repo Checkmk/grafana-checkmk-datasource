@@ -40,6 +40,7 @@ export const GRAFANA_SELECTORS = {
     HOST_LABEL_FILTER_FIELD_ID: 'input_host_label',
     REMOVE_FILTER: (f: string) => `button[data-test-id="cmk-oac-minus-button-${f}"]`,
 
+    AGGREGATION_FIELD_ID: 'input_Aggregation',
     HOST_NAME_FILTER_FIELD_ID: 'input_Hostname',
     SERVICE_FILTER_FIELD_ID: 'input_Service',
     HOSTNAME_REGEX_FILTER_FIELD: 'input[data-test-id="host_name_regex-filter-input"]',
@@ -63,6 +64,13 @@ export const GRAFANA_SELECTORS = {
     APPLY_CHANGES_AND_SAVE_BUTTON: 'button[data-testid="data-testid Save dashboard button"]',
     SAVE_DASHBOARD_TITLE: 'input[aria-label="Save dashboard title field"]',
     SAVE_BUTTON: 'button[data-testid="data-testid Save dashboard drawer button"]',
+
+    SETTINGS_BUTTON: 'button[data-testid="data-testid Dashboard settings"]',
+    VARIABLES_TAB: 'a[data-testid="data-testid Tab Variables"]',
+    ADD_VARIABLE_BUTTON: 'button[data-testid="data-testid Call to action button Add variable"]',
+    VARIABLE_NAME_INPUT: 'input[data-testid="data-testid Variable editor Form Name field"]',
+    BACK_TO_DASHBOARD_BUTTON: 'button[data-testid="data-testid Back to dashboard button"]',
+    ADD_VISUALIZATION_BUTTON: 'button[data-testid="data-testid Create new panel button"]',
   },
 };
 

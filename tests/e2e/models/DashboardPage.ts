@@ -146,5 +146,33 @@ export class DashboardPage {
   async refresGraph() {
     await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.REFRESH_GRAPH_BUTTON).click();
   }
+
+  async goToNewDashboardSettings() {
+    await this.page.goto(current_config.grafanaUrl + 'dashboard/new');
+    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.SETTINGS_BUTTON).click();
+  }
+
+  async addNewVariable(variableName: string) {
+    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.VARIABLES_TAB).click();
+    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.ADD_VARIABLE_BUTTON).click();
+    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.VARIABLE_NAME_INPUT).fill(variableName);
+  }
+
+  async goBackToDashboard() {
+    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.BACK_TO_DASHBOARD_BUTTON).click();
+  }
+
+  async addVisualization() {
+    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.ADD_VISUALIZATION_BUTTON).click();
+  }
+
+  async assertAggregationVariableExists(variableName: string) {
+    const fieldSelector = `input[id="${GRAFANA_SELECTORS.DASHBOARD.AGGREGATION_FIELD_ID}"]`;
+    await this.page.locator(fieldSelector).fill(variableName);
+    await this.expectSpinners(false);
+    await this.page.keyboard.press('Enter');
+    await this.expectSpinners(false);
+    await expect(this.page.getByText(variableName).first()).toBeVisible();
+  }
 }
 export default DashboardPage;

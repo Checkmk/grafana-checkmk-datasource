@@ -83,9 +83,10 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
         const data = await autocompleter(inputValue);
         if (showVariables !== false) {
           for (const variable of getTemplateSrv().getVariables()) {
+            const variableId = variable?.id || variable.name;
             data.splice(0, 0, {
-              value: `$${variable.id}` as Value,
-              label: `$${variable.id}`,
+              value: `$${variableId}` as Value,
+              label: `$${variableId}`,
               isGrafanaVariable: true,
             });
           }
