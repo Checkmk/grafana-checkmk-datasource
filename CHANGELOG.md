@@ -2,6 +2,9 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 3.4.1
+- Fix issue with user defined variables
+
 ## 3.4.0
 - Updated error message when Rest API cannot be found
 - Switched from yarn to npm
