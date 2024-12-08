@@ -1,5 +1,7 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { Alert, FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+import { Alert, FieldSet, InlineField, LegacyForms, Select, SecureSocksProxySettings } from '@grafana/ui';
+import { config } from '@grafana/runtime';
+
 import * as process from 'process';
 import React, { ChangeEvent, useCallback } from 'react';
 
@@ -27,6 +29,7 @@ const cmkBackends: Array<SelectableValue<Backend>> = [
 ];
 
 export const ConfigEditor = (props: Props) => {
+
   const onUrlChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>): void => {
       const { onOptionsChange, options } = props;
@@ -106,6 +109,21 @@ export const ConfigEditor = (props: Props) => {
     });
   }, [props]);
 
+  const onProxyChange = useCallback((): void => {
+      const { onOptionsChange,options } = props;
+      const enableSecureSocksProxy = options.jsonData.enableSecureSocksProxy;
+      onOptionsChange({
+        ...options,
+        jsonData: {
+          ...options.jsonData,
+          enableSecureSocksProxy,
+        },
+      });
+    },
+    [props]
+  );
+
+
   const { options } = props;
   const { jsonData, secureJsonFields } = options;
   const secureJsonData = options.secureJsonData || {};
@@ -125,6 +143,10 @@ export const ConfigEditor = (props: Props) => {
             data-test-id="checkmk-url"
           />
         </div>
+        {config.secureSocksDSProxyEnabled && (
+        <SecureSocksProxySettings options={options} onOptionsChange={onProxyChange} />
+      )}
+
         {process.env.BUILD_EDITION !== 'CLOUD' ? (
           <>
             <InlineField label="Edition" labelWidth={12}>
@@ -192,6 +214,7 @@ export const ConfigEditor = (props: Props) => {
           />
         </div>
       </FieldSet>
+
     </>
   );
 };
