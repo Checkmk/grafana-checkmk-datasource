@@ -11,7 +11,7 @@ export default defineConfig<PluginOptions>({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'list',
   use: {
-    trace: 'on-first-retry',
+    trace: 'on',
     video: 'on',
     viewport: { width: 1920, height: 1080 },
   },
