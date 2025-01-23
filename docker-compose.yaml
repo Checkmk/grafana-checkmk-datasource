@@ -11,6 +11,8 @@ services:
         development: ${DEVELOPMENT:-false}
     ports:
       - 3000:3000/tcp
+    extra_hosts:
+      - checkmk.local:host-gateway
     volumes:
       - ./dist:/var/lib/grafana/plugins/tribe-29-checkmk-datasource
       - ./provisioning:/etc/grafana/provisioning
