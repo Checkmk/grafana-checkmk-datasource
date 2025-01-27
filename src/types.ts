@@ -67,6 +67,7 @@ export interface DataSourceOptions extends DataSourceJsonData {
   username?: string;
   edition?: Edition;
   backend?: Backend;
+  enableSecureSocksProxy?: boolean;
 }
 
 /**
