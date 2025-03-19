@@ -21,6 +21,18 @@ describe('CheckMkAsyncSelect', () => {
     return [];
   });
 
+  beforeAll(() => {
+    window.IntersectionObserver = jest.fn(() => ({
+      observe: jest.fn(),
+      unobserve: jest.fn(),
+      disconnect: jest.fn(),
+      root: null,
+      rootMargin: '',
+      thresholds: [],
+      takeRecords: jest.fn(),
+    }));
+  });
+
   it("uses the specific options if the default ones don't include the value", async () => {
     await act(async () => {
       await render(

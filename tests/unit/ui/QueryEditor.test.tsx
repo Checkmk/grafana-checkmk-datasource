@@ -16,6 +16,18 @@ jest.mock('@grafana/runtime', () => ({
   getTemplateSrv: () => mockTemplateSrv,
 }));
 
+beforeAll(() => {
+  window.IntersectionObserver = jest.fn(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+    takeRecords: jest.fn(),
+    root: null,
+    rootMargin: '',
+    thresholds: [],
+  }));
+});
+
 const completions: Record<string, Array<{ value: string; label: string }>> = {
   sites: [
     { value: 'site_1', label: 'Site One' },
