@@ -19,8 +19,8 @@ import { lastValueFrom } from 'rxjs';
 import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
 import { CmkQuery, ResponseDataAutocomplete } from '../types';
 import { createCmkContext, replaceVariables, toLiveStatusQuery, updateMetricTitles, updateQuery } from '../utils';
-import { WebApiResponse } from './../webapi';
-import { BACKEND_TYPE, Backend, DatasourceOptions } from './types';
+import { type WebApiResponse } from './../types';
+import { Backend, DatasourceOptions } from './types';
 import { validateRequestSpec } from './validate';
 
 type RestApiError = {
@@ -179,15 +179,8 @@ export default class RestApiBackend implements Backend {
       method: 'GET',
     });
     const checkMkVersion: string = result.data.versions.checkmk;
-    if (checkMkVersion.startsWith('2.0') || checkMkVersion.startsWith('1.')) {
-      throw new Error(
-        `A Checkmk version below 2.1.0 is not supported for this plugin, but you can set the backend to the '< 2.2' version and use at your own risk.`
-      );
-    }
-    if (checkMkVersion.startsWith('2.1')) {
-      throw new Error(
-        `Checkmk version 2.1.0 has been detected, but this plugin is configured to use version 2.2.0 and above. Please set the backend option to '< 2.2'.`
-      );
+    if (checkMkVersion.startsWith('2.0') || checkMkVersion.startsWith('2.1') || checkMkVersion.startsWith('1.')) {
+      throw new Error(`A Checkmk version below 2.2.0 is not supported for this plugin.`);
     }
     if (this.datasource.getEdition() !== 'RAW' && result.data.edition === 'cre') {
       throw new Error(
@@ -378,20 +371,6 @@ export default class RestApiBackend implements Backend {
       // shows "no data" as expected.
       return toDataFrame({});
     }
-  }
-
-  async getAutocompleteBackend(): Promise<BACKEND_TYPE> {
-    return this.api<RestApiAutocompleteResponse>({
-      url: `/objects/autocomplete/sites`,
-      method: 'POST',
-      data: { value: '', parameters: {} },
-    })
-      .then(() => {
-        return BACKEND_TYPE.REST;
-      })
-      .catch(() => {
-        return BACKEND_TYPE.WEB;
-      });
   }
 
   async autocompleterRequest(

@@ -1,10 +1,10 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { Alert, FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+import { FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
 import * as process from 'process';
 import React, { ChangeEvent, useCallback } from 'react';
 
 import { Settings } from '../settings';
-import { Backend, DataSourceOptions, Edition, SecureJsonData } from '../types';
+import { DataSourceOptions, Edition, SecureJsonData } from '../types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
@@ -19,11 +19,6 @@ interface EditionOption {
 const cmkEditions: EditionOption[] = [
   { value: 'CEE', label: 'Commercial editions' },
   { value: 'RAW', label: 'Raw Edition' },
-];
-
-const cmkBackends: Array<SelectableValue<Backend>> = [
-  { value: 'rest', label: '>= 2.2' },
-  { value: 'web', label: '< 2.2' },
 ];
 
 export const ConfigEditor = (props: Props) => {
@@ -47,20 +42,6 @@ export const ConfigEditor = (props: Props) => {
         edition: value,
       };
       onOptionsChange({ ...options, jsonData });
-    },
-    [props]
-  );
-
-  const onBackendChange = useCallback(
-    ({ value }: SelectableValue<Backend>): void => {
-      const { onOptionsChange, options } = props;
-      onOptionsChange({
-        ...options,
-        jsonData: {
-          ...options.jsonData,
-          backend: value,
-        },
-      });
     },
     [props]
   );
@@ -137,29 +118,6 @@ export const ConfigEditor = (props: Props) => {
                 inputId="checkmk-edition"
               />
             </InlineField>
-            <InlineField
-              label="Version"
-              labelWidth={12}
-              tooltip="Choose the appropriate version for your Checkmk installation"
-            >
-              <Select
-                width={32}
-                options={cmkBackends}
-                onChange={onBackendChange}
-                value={settings.backend}
-                placeholder="Select your checkmk version"
-                inputId="checkmk-version"
-              />
-            </InlineField>
-            {jsonData.backend === 'web' && (
-              <Alert title="Feature degration warning" severity="warning">
-                Note that versions older than 2.1.0 are not officially supported:
-                <ul>
-                  <li>- Version 2.0.0 may work, but not all features are available.</li>
-                  <li>- Version 1.6.0 and earlier will not work at all.</li>
-                </ul>
-              </Alert>
-            )}
           </>
         ) : (
           <></>

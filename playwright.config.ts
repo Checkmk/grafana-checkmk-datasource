@@ -11,8 +11,9 @@ export default defineConfig<PluginOptions>({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'list',
   use: {
-    trace: 'on',
-    video: 'on',
+    trace: 'retain-on-failure',
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
     viewport: { width: 1920, height: 1080 },
   },
   projects: [

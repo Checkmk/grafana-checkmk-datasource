@@ -4,10 +4,10 @@ export const HOSTNAME1 = 'localhost_grafana1';
 export const DATASOURCENAME0 = 'cmk_test_datasource_0';
 export const DATASOURCENAME1 = 'cmk_test_datasource_1';
 
-export const CMK_EDITION = {
-  CRE: 'Raw Edition',
-  CEE: 'Commercial editions',
-};
+export enum CmkEdition {
+  CRE = 'Raw Edition',
+  CEE = 'Commercial editions',
+}
 
 export const GRAFANA_SELECTORS = {
   SPINNER: 'div[data-testid="Spinner"]',
@@ -81,7 +81,6 @@ export const CMK_SELECTORS = {
     EDITION: 'input[id="checkmk-edition"]',
     USERNAME: '[data-test-id="checkmk-username"]',
     PASSWORD: '[data-test-id="checkmk-password"]',
-    VERSION: '[id="checkmk-version"]',
   },
 };
 

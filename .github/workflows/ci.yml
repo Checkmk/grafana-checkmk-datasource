@@ -46,7 +46,7 @@ jobs:
         run: npm ci --prefer-offline
 
       - name: Run prettier
-        run: npm run pretty:check
+        run: npm run pretty
 
       - name: Check types
         run: npm run typecheck
