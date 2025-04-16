@@ -1,7 +1,7 @@
 import { type Page, expect } from '@playwright/test';
 
 import current_config from '../config';
-import { CMK_EDITION, CMK_SELECTORS, GRAFANA_SELECTORS, GRAFANA_TEXT } from '../constants.ts';
+import { CMK_SELECTORS, CmkEdition, GRAFANA_SELECTORS, GRAFANA_TEXT } from '../constants.ts';
 
 export class DatasourceConfigPage {
   readonly page: Page;
@@ -14,7 +14,7 @@ export class DatasourceConfigPage {
     await this.page.goto(current_config.grafanaUrl + 'connections/datasources/new');
   }
 
-  addCmkDatasource = async (cmkUser: string, cmkPassword: string, edition: string, name: string | null) => {
+  addCmkDatasource = async (cmkUser: string, cmkPassword: string, edition: CmkEdition, name: string | null) => {
     await this.goto();
 
     const dsName = name || `Checkmk ${edition}`;
@@ -28,7 +28,6 @@ export class DatasourceConfigPage {
 
     await this.page.locator(CMK_SELECTORS.SETUP_FORM.USERNAME).fill(cmkUser);
     await this.page.locator(CMK_SELECTORS.SETUP_FORM.PASSWORD).fill(cmkPassword);
-    await this.page.locator(CMK_SELECTORS.SETUP_FORM.VERSION).press('>');
     await this.page.keyboard.press('Enter');
 
     await this.page.click(GRAFANA_SELECTORS.DATASOURCE.SAVE_AND_TEST_BUTTON);

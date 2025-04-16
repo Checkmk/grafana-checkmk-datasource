@@ -4,7 +4,7 @@
 import { test as setup } from '@playwright/test';
 
 import tests_config from '../config';
-import { CMK_EDITION, HOSTNAME0, HOSTNAME1 } from '../constants';
+import { CmkEdition, HOSTNAME0, HOSTNAME1 } from '../constants';
 import cmkRestAPI from '../lib/checkmk_rest_api';
 import grafanaRestApi from '../lib/grafana_rest_api';
 
@@ -13,13 +13,13 @@ setup('Set up Grafana and Checkmk', async ({}) => {
 
   await grafanaRestApi.deleteAllDatasources();
   await grafanaRestApi.createDatasource(
-    CMK_EDITION.CEE,
+    CmkEdition.CEE,
     tests_config.grafanaToCheckMkUrl!,
     tests_config.grafanaToCheckMkUser!,
     tests_config.grafanaToCheckMkPassword!
   );
   await grafanaRestApi.createDatasource(
-    CMK_EDITION.CRE,
+    CmkEdition.CRE,
     tests_config.grafanaToCheckMkUrl!,
     tests_config.grafanaToCheckMkUser!,
     tests_config.grafanaToCheckMkPassword!

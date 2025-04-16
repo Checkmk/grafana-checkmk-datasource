@@ -39,7 +39,7 @@ https://grafana.com/developers/plugin-tools/migration-guides/update-create-plugi
 npx @grafana/create-plugin@latest update
 npm install
 npx npm-check-updates -i --format group
-npm run pretty
+npm run pretty:fix
 ```
 
 ## Release

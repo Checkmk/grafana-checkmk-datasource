@@ -18,7 +18,7 @@ To make use of the plugin, you need to take care the correct versions are instal
 
 - **Grafana 9.5.15 or higher** Current and previous major version of Grafana
 - **Checkmk Cloud or Checkmk MSP 2.2.0 or higher** for the signed plugin available from [Grafana][6]
-- **Checkmk 2.1.0 or higher** for the unsigned plugin available from [Github][8]
+- **Checkmk 2.2.0 or higher** for the unsigned plugin available from [Github][8]
 
 ## Installing the plug-in
 

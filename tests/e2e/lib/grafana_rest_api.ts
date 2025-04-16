@@ -2,7 +2,7 @@ import { APIRequestContext, expect, request } from '@playwright/test';
 import { assert } from 'console';
 
 import config from '../config';
-import { CMK_EDITION } from '../constants';
+import { CmkEdition } from '../constants';
 
 // import { wait } from './util';
 
@@ -19,10 +19,9 @@ let requestContext: APIRequestContext;
   });
 })();
 
-const createDatasource = async (edition: string, url: string, username: string, password: string) => {
+const createDatasource = async (edition: CmkEdition, url: string, username: string, password: string) => {
   const apiUrl = 'api/datasources';
 
-  const name = edition === CMK_EDITION.CEE ? CMK_EDITION.CEE : CMK_EDITION.CRE;
   const backend = 'rest';
 
   const response = await requestContext.post(apiUrl, {
@@ -31,10 +30,10 @@ const createDatasource = async (edition: string, url: string, username: string, 
       access: 'proxy',
       basicAuth: false,
 
-      name: name,
+      name: edition,
       jsonData: {
         backend: backend,
-        edition: edition === CMK_EDITION.CEE ? 'CEE' : 'RAW',
+        edition: edition === CmkEdition.CEE ? 'CEE' : 'RAW',
         url: url,
         username: username,
       },
@@ -45,7 +44,7 @@ const createDatasource = async (edition: string, url: string, username: string, 
   });
 
   expect(response.ok()).toBeTruthy();
-  console.log(`📊 ${name} datasource created`);
+  console.log(`📊 ${edition} datasource created`);
 };
 
 const deleteAllDatasources = async () => {

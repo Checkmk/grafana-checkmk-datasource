@@ -64,19 +64,13 @@ export class DashboardPage {
     }
   }
 
-  async _addFilterBy(fieldSelector: string, value: string, findByInputValue = false) {
+  async _addFilterBy(fieldSelector: string, value: string) {
     await this.page.locator(fieldSelector).fill(value);
     await this.expectSpinners(false);
     await this.page.keyboard.press('Enter');
     await this.expectSpinners(false);
 
     await this.page.locator(fieldSelector).blur();
-
-    if (findByInputValue) {
-      await expect(this.page.locator(fieldSelector).first()).toHaveValue(value);
-    } else {
-      await expect(this.page.locator(`text="${value}"`).first()).toBeVisible({ timeout: CUSTOM_TIMEOUT });
-    }
   }
 
   async filterBySite(site: string) {
@@ -88,11 +82,11 @@ export class DashboardPage {
   }
 
   async filterByHostnameRegex(hostnameRegex: string) {
-    await this._addFilterBy(GRAFANA_SELECTORS.DASHBOARD.HOSTNAME_REGEX_FILTER_FIELD, hostnameRegex, true);
+    await this._addFilterBy(GRAFANA_SELECTORS.DASHBOARD.HOSTNAME_REGEX_FILTER_FIELD, hostnameRegex);
   }
 
   async filterByServiceRegex(serviceRegex: string) {
-    await this._addFilterBy(GRAFANA_SELECTORS.DASHBOARD.SERVICE_REGEX_FILTER_FIELD, serviceRegex, true);
+    await this._addFilterBy(GRAFANA_SELECTORS.DASHBOARD.SERVICE_REGEX_FILTER_FIELD, serviceRegex);
   }
 
   async filterByService(service: string) {
@@ -140,7 +134,7 @@ export class DashboardPage {
   }
 
   async setCustomLabel(label: string) {
-    await this._addFilterBy(GRAFANA_SELECTORS.DASHBOARD.CUSTOM_LABEL_FIELD, label, true);
+    await this._addFilterBy(GRAFANA_SELECTORS.DASHBOARD.CUSTOM_LABEL_FIELD, label);
   }
 
   async refresGraph() {

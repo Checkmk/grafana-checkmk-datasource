@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test';
 
 import current_config from '../config';
 import {
-  CMK_EDITION,
+  CmkEdition,
   CustomLabels,
   FilterTypes,
   GRAFANA_SELECTORS,
@@ -35,7 +35,7 @@ test.describe('E2E tests', () => {
     test.slow();
     test('time-usage panel by service (single host)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.HOSTNAME);
       await dashboardPage.filterByHostname(HOSTNAME0);
@@ -65,7 +65,7 @@ test.describe('E2E tests', () => {
 
     test('time-usage panel by service (multiple hosts)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.SERVICE);
       await dashboardPage.filterByService(Services.CHECK_MK);
@@ -87,7 +87,7 @@ test.describe('E2E tests', () => {
 
     test('RAM-used panel by service regex (multiple hosts)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.SERVICE_REGEX);
       await dashboardPage.filterByServiceRegex('Memory');
@@ -110,7 +110,7 @@ test.describe('E2E tests', () => {
 
     test('RAM-used panel by host labels (multiple hosts, single metric)', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.HOST_LABELS);
       await dashboardPage.filterByHostLabel(`cmk/site:${current_config.site}`);
@@ -133,7 +133,7 @@ test.describe('E2E tests', () => {
 
     test('RAM-used panel by service regex and hostname regex', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.SERVICE_REGEX);
       await dashboardPage.filterByServiceRegex('Memory');
@@ -160,7 +160,7 @@ test.describe('E2E tests', () => {
 
     test('Uptime panel by hostname', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.HOSTNAME);
       await dashboardPage.filterByHostname(HOSTNAME0);
@@ -186,7 +186,7 @@ test.describe('E2E tests', () => {
 
     test('Custom labels', async ({ page }) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+      await dashboardPage.selectDatasource(CmkEdition.CEE);
 
       await dashboardPage.addFilter(FilterTypes.HOSTNAME);
       await dashboardPage.filterByHostname(HOSTNAME0);
@@ -217,7 +217,7 @@ test.describe('E2E tests', () => {
     test.slow();
     test('time-usage panel by service (Single host)', async ({ page }, testInfo) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CRE);
+      await dashboardPage.selectDatasource(CmkEdition.CRE);
 
       const timeout = testInfo.timeout;
       test.setTimeout(10000);
@@ -249,7 +249,7 @@ test.describe('E2E tests', () => {
 
     test('Used-RAM panel by service (single host)', async ({ page }, testInfo) => {
       const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CMK_EDITION.CRE);
+      await dashboardPage.selectDatasource(CmkEdition.CRE);
 
       const timeout = testInfo.timeout;
       test.setTimeout(10000);
@@ -281,7 +281,7 @@ test.describe('General tests', () => {
     await dashboardPage.saveDashboard();
     await dashboardPage.goBackToDashboard();
     await dashboardPage.addVisualization();
-    await dashboardPage.selectDatasource(CMK_EDITION.CEE);
+    await dashboardPage.selectDatasource(CmkEdition.CEE);
     await dashboardPage.assertAggregationVariableExists(customVariableName);
   });
 });

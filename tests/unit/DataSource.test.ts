@@ -4,12 +4,11 @@ import { cloneDeep } from 'lodash';
 
 import { DataSource } from '../../src/DataSource';
 import { RequestSpec } from '../../src/RequestSpec';
+import { buildRequestBody, buildUrlWithParams } from '../../src/api_utils';
 import RestApiBackend from '../../src/backend/rest';
-import WebApiBackend from '../../src/backend/web';
 import { CmkQuery, DataSourceOptions, Edition } from '../../src/types';
 import { labelForRequestSpecKey } from '../../src/ui/utils';
 import * as utils from '../../src/utils';
-import { buildRequestBody, buildUrlWithParams } from '../../src/webapi';
 
 jest.mock('../../src/utils');
 
@@ -51,6 +50,7 @@ const fullExampleRequestSpec: RequestSpec = {
     negated: false,
   },
   graph: 'Load Average',
+  label: undefined,
 };
 
 const getRequiredFields = (edition: Edition): Array<keyof RequestSpec> => {
@@ -64,72 +64,60 @@ const getRequiredFields = (edition: Edition): Array<keyof RequestSpec> => {
 describe.each([{ edition: 'RAW' }, { edition: 'CEE' }])(
   'Query Validation in Edition $edition',
   (editionConfig: { edition: Edition }) => {
-    describe.each([{ backend: 'rest' }, { backend: 'web' }])(
-      'with backend $backend',
-      (backendConfig: { backend: string }) => {
-        let subject: DataSource;
-        const requiredFields = getRequiredFields(editionConfig.edition);
-        const cases = allSubsets(requiredFields)
-          .filter((arr) => arr.length > 0)
-          .map((arr) => arr.sort())
-          .map((value) => ({ fields: value }));
+    const requiredFields = getRequiredFields(editionConfig.edition);
+    const cases = allSubsets(requiredFields)
+      .filter((arr) => arr.length > 0)
+      .map((arr) => arr.sort())
+      .map((value) => ({ fields: value }));
 
-        jest
-          .spyOn(RestApiBackend.prototype, 'getSingleGraph')
-          .mockImplementation(() => Promise.resolve('It did succeed, sadly.'));
+    jest
+      .spyOn(RestApiBackend.prototype, 'getSingleGraph')
+      .mockImplementation(() => Promise.resolve('It did succeed, sadly.'));
 
-        jest
-          .spyOn(WebApiBackend.prototype, 'getGraphQuery')
-          .mockImplementation(() => Promise.resolve(new MutableDataFrame()));
+    utils.replaceVariables.mockImplementation((rq) => rq);
 
-        utils.replaceVariables.mockImplementation((rq) => rq);
+    const subject = new DataSource({
+      jsonData: { edition: editionConfig.edition },
+    } as unknown as DataSourceInstanceSettings<DataSourceOptions>);
 
-        beforeEach(() => {
-          subject = new DataSource({
-            jsonData: { backend: backendConfig, edition: editionConfig.edition },
-          } as unknown as DataSourceInstanceSettings<DataSourceOptions>);
-        });
+    it.each(cases)(
+      'throws an informative error if the required fields $fields are missing in a query',
+      async ({ fields }) => {
+        const requestSpec = cloneDeep(fullExampleRequestSpec);
+        for (const key of fields) {
+          delete requestSpec[key];
+        }
+        const dataQueryRequest = {
+          targets: [
+            {
+              requestSpec,
+            },
+          ],
+          range: [1, 2],
+        } as unknown as DataQueryRequest<CmkQuery>;
 
-        it.each(cases)(
-          'throws an informative error if the required fields $fields are missing in a query',
-          async ({ fields }) => {
-            const requestSpec = cloneDeep(fullExampleRequestSpec);
-            for (const key of fields) {
-              delete requestSpec[key];
-            }
-            const dataQueryRequest = {
-              targets: [
-                {
-                  requestSpec,
-                },
-              ],
-              range: [1, 2],
-            } as unknown as DataQueryRequest<CmkQuery>;
+        const errorMessageRegex = fields
+          .map((value) => labelForRequestSpecKey(value as keyof RequestSpec, requestSpec))
+          .join(', ');
 
-            const errorMessageRegex = fields
-              .map((value) => labelForRequestSpecKey(value as keyof RequestSpec, requestSpec))
-              .join(', ');
-
-            // make sure this test doesn't fail pass on a resolved promise
-            expect.assertions(1);
-            await expect(subject.query(dataQueryRequest)).rejects.toThrow(errorMessageRegex);
-          }
-        );
-
-        it('validates even if site is an empty string', async () => {
-          const requestSpec = cloneDeep(fullExampleRequestSpec);
-          requestSpec['site'] = '';
-          const dataQueryRequest = {
-            targets: [
-              {
-                requestSpec,
-              },
-            ],
-            range: [1, 2],
-          } as unknown as DataQueryRequest<CmkQuery>;
-          await expect(subject.query(dataQueryRequest)).resolves.not.toThrow();
-        });
+        // make sure this test doesn't fail pass on a resolved promise
+        expect.assertions(1);
+        await expect(subject.query(dataQueryRequest)).rejects.toThrow(errorMessageRegex);
       }
     );
+
+    it('validates even if site is an empty string', async () => {
+      const requestSpec = cloneDeep(fullExampleRequestSpec);
+      requestSpec['site'] = '';
+      const dataQueryRequest = {
+        targets: [
+          {
+            requestSpec,
+          },
+        ],
+        range: [1, 2],
+      } as unknown as DataQueryRequest<CmkQuery>;
+      await expect(subject.query(dataQueryRequest)).resolves.not.toThrow();
+    });
   }
 );

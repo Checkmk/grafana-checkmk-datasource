@@ -88,3 +88,9 @@ export enum LabelVariableNames {
   SERVICE = '$filter_service',
   SERVICE_IN_GROUP = '$filter_service_in_group',
 }
+
+export interface WebApiResponse<Result> {
+  result_code: number;
+  result: Result;
+  severity: string | undefined;
+}
