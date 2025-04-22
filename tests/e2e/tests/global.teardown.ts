@@ -9,12 +9,7 @@ import cmkRestAPI from '../lib/checkmk_rest_api';
 import grafanaRestApi from '../lib/grafana_rest_api';
 
 teardown('Teardown Grafana and Checkmk', async ({}) => {
-  console.log('▶️ Tearing down Grafana');
   await grafanaRestApi.deleteAllDatasources();
-
-  console.log('✅ Grafana teardown complete');
-
-  console.log('▶️ Tearing down Checkmk');
 
   await Promise.all([
     cmkRestAPI.deleteHost(HOSTNAME0),
@@ -23,5 +18,4 @@ teardown('Teardown Grafana and Checkmk', async ({}) => {
   ]);
 
   await cmkRestAPI.activateChanges(tests_config.site!);
-  console.log('✅ Checkmk teardown complete');
 });

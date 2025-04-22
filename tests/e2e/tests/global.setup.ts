@@ -1,50 +1,84 @@
-// @ts-check
+import { expect, test } from '@grafana/plugin-e2e';
 
-/*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
-import { test as setup } from '@playwright/test';
-
-import tests_config from '../config';
-import { CmkEdition, HOSTNAME0, HOSTNAME1 } from '../constants';
+import config from '../config';
+import { CmkEdition, GRAFANA_TEXT, HOSTNAME0, HOSTNAME1, TESTDATASOURCENAME0, TESTDATASOURCENAME1 } from '../constants';
 import cmkRestAPI from '../lib/checkmk_rest_api';
 import grafanaRestApi from '../lib/grafana_rest_api';
+import { CmkDataSourceConfigPage } from '../pom/CmkDataSourceConfigPage';
 
-setup('Set up Grafana and Checkmk', async ({}) => {
-  console.log('▶️ Setting up Grafana');
+const PLUGIN_ID = 'tribe-29-checkmk-datasource';
 
-  await grafanaRestApi.deleteAllDatasources();
-  await grafanaRestApi.createDatasource(
-    CmkEdition.CEE,
-    tests_config.grafanaToCheckMkUrl!,
-    tests_config.grafanaToCheckMkUser!,
-    tests_config.grafanaToCheckMkPassword!
-  );
-  await grafanaRestApi.createDatasource(
-    CmkEdition.CRE,
-    tests_config.grafanaToCheckMkUrl!,
-    tests_config.grafanaToCheckMkUser!,
-    tests_config.grafanaToCheckMkPassword!
-  );
-  console.log('✅ Grafana setup complete');
+test.describe('Initialization', () => {
+  test('Early setup', async () => {
+    test.slow();
+    await grafanaRestApi.deleteAllDatasources();
 
-  console.log('▶️ Setting up Checkmk');
+    await cmkRestAPI.waitUntilCheckmkIsReady();
 
-  setup.setTimeout(0);
-  await cmkRestAPI.waitUntilCheckmkIsReady();
+    await cmkRestAPI.deleteCmkAutomationUser(false);
+    await cmkRestAPI.createCmkAutomationUser();
 
-  setup.setTimeout(300000);
+    await Promise.all([cmkRestAPI.deleteHost(HOSTNAME0, false), cmkRestAPI.deleteHost(HOSTNAME1, false)]);
+    await Promise.all([cmkRestAPI.createHost(HOSTNAME0), cmkRestAPI.createHost(HOSTNAME1)]);
 
-  await cmkRestAPI.deleteCmkAutomationUser(false);
-  await cmkRestAPI.createCmkAutomationUser();
+    await cmkRestAPI.executeServiceDiscovery(HOSTNAME0, 'tabula_rasa');
+    await cmkRestAPI.executeServiceDiscovery(HOSTNAME1, 'tabula_rasa');
 
-  await Promise.all([cmkRestAPI.deleteHost(HOSTNAME0, false), cmkRestAPI.deleteHost(HOSTNAME1, false)]);
+    await cmkRestAPI.activateChanges(config.site!);
+  });
 
-  await Promise.all([cmkRestAPI.createHost(HOSTNAME0), cmkRestAPI.createHost(HOSTNAME1)]);
+  test.describe('Data source creation', () => {
+    test('Should display connection success message', async ({ createDataSourceConfigPage, page, selectors }) => {
+      const datasourcePage = new CmkDataSourceConfigPage(page, selectors);
+      const configPage = await datasourcePage.addCmkDatasource(
+        createDataSourceConfigPage,
+        PLUGIN_ID,
+        config.grafanaToCheckMkUrl!,
+        config.grafanaToCheckMkUser!,
+        config.grafanaToCheckMkPassword!,
+        CmkEdition.CEE,
+        TESTDATASOURCENAME0
+      );
 
-  await cmkRestAPI.executeServiceDiscovery(HOSTNAME0, 'tabula_rasa');
-  await cmkRestAPI.executeServiceDiscovery(HOSTNAME1, 'tabula_rasa');
+      await expect(configPage.getByGrafanaSelector(selectors.pages.DataSource.alert)).toContainText(
+        GRAFANA_TEXT.DATASOURCE_IS_WORKING
+      );
+    });
 
-  await cmkRestAPI.activateChanges(tests_config.site!);
-  await cmkRestAPI.waitForPendingServices(2000);
+    test('Should display an edition mismatch warning', async ({ createDataSourceConfigPage, page, selectors }) => {
+      const datasourcePage = new CmkDataSourceConfigPage(page, selectors);
+      const configPage = await datasourcePage.addCmkDatasource(
+        createDataSourceConfigPage,
+        PLUGIN_ID,
+        config.grafanaToCheckMkUrl!,
+        config.grafanaToCheckMkUser!,
+        config.grafanaToCheckMkPassword!,
+        CmkEdition.CRE,
+        TESTDATASOURCENAME1
+      );
 
-  console.log('✅ Checkmk initialization complete');
+      await expect(configPage.getByGrafanaSelector(selectors.pages.DataSource.alert)).toContainText(
+        GRAFANA_TEXT.EDITION_MISMATCH
+      );
+    });
+  });
+
+  test('Remaining setup', async () => {
+    await grafanaRestApi.deleteAllDatasources();
+    await grafanaRestApi.createDatasource(
+      CmkEdition.CEE,
+      config.grafanaToCheckMkUrl!,
+      config.grafanaToCheckMkUser!,
+      config.grafanaToCheckMkPassword!
+    );
+    await grafanaRestApi.createDatasource(
+      CmkEdition.CRE,
+      config.grafanaToCheckMkUrl!,
+      config.grafanaToCheckMkUser!,
+      config.grafanaToCheckMkPassword!
+    );
+
+    test.setTimeout(0);
+    await cmkRestAPI.waitForPendingServices(2000);
+  });
 });

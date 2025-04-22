@@ -1,4 +1,5 @@
-import { type Page, expect } from '@playwright/test';
+import { expect } from '@grafana/plugin-e2e';
+import { Page } from '@playwright/test';
 
 import current_config from '../config';
 import { FilterTypes, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes } from '../constants';
@@ -6,9 +7,7 @@ import { FilterTypes, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes } from '../con
 const CUSTOM_TIMEOUT = 30000;
 
 export class DashboardPage {
-  readonly page: Page;
-
-  constructor(page: Page) {
+  constructor(readonly page: Page) {
     this.page = page;
   }
 
@@ -123,7 +122,7 @@ export class DashboardPage {
   async assertHoverSelectorsOn(nSelectors: number) {
     const locator = this.page.locator(GRAFANA_SELECTORS.DASHBOARD.PANEL_HOVER);
     const box = await locator.boundingBox();
-    await this.page.mouse.click(box!.x + box!.width - 20, box!.y + box!.height / 6);
+    await this.page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 6);
 
     await expect(this.page.locator(GRAFANA_SELECTORS.DASHBOARD.PLOTTED_HOVER_ON)).toHaveCount(nSelectors);
     await this.assertHoverSelectorsOff(0);
