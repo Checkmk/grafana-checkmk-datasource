@@ -2,6 +2,13 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 4.0.0 - Beta.1
+- Removed signed plugin restrictions: The signed plugin works now with all checkmk editions, including raw edition
+- Dropped support for unsigned plugin: Please migrate to the signed plugin
+- Dropped support for Checkmk prior to 2.2.0: Checkmk 2.1.0 reached EOL 2024-11-24
+- Updated documentation
+- Updated dependencies to latest versions
+
 ## 3.4.1
 - Fix issue with user defined variables
 
