@@ -2,7 +2,7 @@ version: '3.0'
 
 services:
   grafana:
-    container_name: 'tribe-29-checkmk-datasource'
+    container_name: 'checkmk-cloud-datasource'
     build:
       context: ./.config
       args:
@@ -14,14 +14,14 @@ services:
     extra_hosts:
       - checkmk.local:host-gateway
     volumes:
-      - ./dist:/var/lib/grafana/plugins/tribe-29-checkmk-datasource
+      - ./dist:/var/lib/grafana/plugins/checkmk-cloud-datasource
       - ./provisioning:/etc/grafana/provisioning
       - .:/root/checkmk-cmkgrafanadatasource2-datasource
 
     environment:
       NODE_ENV: development
-      GF_LOG_FILTERS: plugin.tribe-29-checkmk-datasource:debug
+      GF_LOG_FILTERS: plugin.checkmk-cloud-datasource:debug
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: tribe-29-checkmk-datasource
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: checkmk-cloud-datasource
 

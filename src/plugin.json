@@ -1,18 +1,16 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "Checkmk data source for Checkmk Cloud & MSP",
+  "name": "Checkmk data source",
   "id": "checkmk-cloud-datasource",
   "metrics": true,
   "info": {
-    "description": "Checkmk data source for Checkmk Cloud or Checkmk MSP 2.2.0 or higher",
+    "description": "Checkmk data source for Checkmk 2.2.0 or higher",
     "author": {
       "name": "Checkmk GmbH",
       "url": "https://github.com/Checkmk/"
     },
-    "keywords": [
-      "checkmk"
-    ],
+    "keywords": ["checkmk"],
     "logos": {
       "small": "img/checkmk_logo.svg",
       "large": "img/checkmk_logo.svg"

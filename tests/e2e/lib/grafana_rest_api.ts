@@ -26,7 +26,7 @@ const createDatasource = async (edition: CmkEdition, url: string, username: stri
 
   const response = await requestContext.post(apiUrl, {
     data: {
-      type: 'tribe-29-checkmk-datasource',
+      type: 'checkmk-cloud-datasource',
       access: 'proxy',
       basicAuth: false,
 

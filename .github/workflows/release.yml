@@ -27,15 +27,6 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: build unsigned
-        id: build-unsigned
-        uses: ./.github/build/
-        with:
-          release: true
-          signed: false
-
-      - uses: actions/checkout@v4
-
       - name: download all action artifacs
         uses: actions/download-artifact@v4
         with:
@@ -54,8 +45,6 @@ jobs:
           files: |
             ${{ steps.build-signed.outputs.plugin_path }}
             ${{ steps.build-signed.outputs.plugin_checksum_path }}
-            ${{ steps.build-unsigned.outputs.plugin_path }}
-            ${{ steps.build-unsigned.outputs.plugin_checksum_path }}
 
       - uses: adelynx/github-actions-nodemailer@v1.0.3
         with:
