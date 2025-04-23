@@ -3,8 +3,8 @@
   "version": "3.4.1",
   "description": "Datasource for checkmk",
   "scripts": {
-    "build": "bash utils/plugin_json_to_unsigned.sh && webpack -c ./webpack.config.ts --env production",
-    "build:cloud": "bash utils/plugin_json_to_cloud.sh && BUILD_EDITION=CLOUD webpack -c ./webpack.config.ts --env production",
+    "build": "webpack -c ./webpack.config.ts --env production",
+    "build:cloud": "webpack -c ./webpack.config.ts --env production",
     "dev": "webpack -w -c ./webpack.config.ts --env development",
     "test": "jest --watch --onlyChanged",
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
@@ -19,7 +19,8 @@
     "e2e": "playwright test",
     "e2e:ci": "playwright test",
     "e2e:debug": "playwright test --debug",
-    "e2e:gui": "playwright test --ui"
+    "e2e:gui": "playwright test --ui",
+    "e2e:show-trace": "playwright show-trace"
   },
   "author": "Checkmk",
   "license": "Apache-2.0",

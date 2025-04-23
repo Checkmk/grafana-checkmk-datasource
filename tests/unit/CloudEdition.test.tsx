@@ -1,6 +1,6 @@
 import { DataSourceSettings } from '@grafana/data';
 import { expect, jest } from '@jest/globals';
-import { render } from '@testing-library/react';
+import { RenderResult, render } from '@testing-library/react';
 import * as process from 'process';
 import * as React from 'react';
 
@@ -31,22 +31,19 @@ describe('Cloud Edition Restrictions', () => {
   const onOptionsChange = jest.fn();
 
   afterAll(() => {
-    delete process.env.BUILD_EDITION;
     jest.resetModules();
     jest.restoreAllMocks();
   });
 
   describe('ConfigEditor', () => {
-    let screen;
+    let screen: RenderResult;
 
     beforeAll(() => {
-      process.env.BUILD_EDITION = 'CLOUD';
       screen = render(<ConfigEditor options={options} onOptionsChange={onOptionsChange} />);
     });
 
-    it("doesn't render the version and edition dropdowns", () => {
-      expect(screen.queryByLabelText('Edition')).toBeNull();
-      expect(screen.queryByLabelText('Version')).toBeNull();
+    it('always render the edition dropdown', () => {
+      expect(screen.queryByLabelText('Edition')).not.toBeNull();
     });
   });
 
@@ -60,7 +57,6 @@ describe('Cloud Edition Restrictions', () => {
     let subject: RestApiBackend;
 
     beforeAll(() => {
-      process.env.BUILD_EDITION = 'CLOUD';
       subject = new RestApiBackend(mockDatasource);
     });
 

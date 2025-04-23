@@ -13,7 +13,6 @@ import {
   toDataFrame,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
-import * as process from 'process';
 import { lastValueFrom } from 'rxjs';
 
 import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
@@ -254,12 +253,6 @@ export default class RestApiBackend implements Backend {
     // CSE is never supported
     if (checkmkEdition === 'cse') {
       throw new Error('Cannot query data from Checkmk Cloud (SaaS).');
-    }
-    const allowedEditions = new Set(['cce', 'cme']);
-    if (process.env.BUILD_EDITION === 'CLOUD' && !allowedEditions.has(checkmkEdition || '')) {
-      throw new Error(
-        'This Checkmk data source is only compatible with Checkmk Cloud and Checkmk MSP, but you are trying to connect to another edition.'
-      );
     }
 
     return result;
