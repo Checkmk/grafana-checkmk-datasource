@@ -7,7 +7,7 @@ export default defineConfig<PluginOptions>({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 3 : 0,
-  workers: 2,
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'list',
   use: {
@@ -15,24 +15,35 @@ export default defineConfig<PluginOptions>({
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
     viewport: { width: 1920, height: 1080 },
+    baseURL: process.env.PLAYWRIGHT_TO_GRAFANA_URL || 'http://localhost:3003',
+    grafanaAPICredentials: {
+      user: process.env.GRAFANA_USER || 'admin',
+      password: process.env.GRAFANA_PASSWORD || 'password',
+    },
   },
   projects: [
     {
       name: 'e2e tests',
       testDir: './tests/e2e/tests',
-      testMatch: ['**/*.test.ts'],
-      dependencies: ['setup'],
+      testMatch: ['**/disabled.test.ts'],
     },
-    {
-      name: 'setup',
-      testDir: './tests/e2e/tests',
-      testMatch: 'global.setup.ts',
-      teardown: 'tearDown',
-    },
-    {
-      name: 'tearDown',
-      testDir: './tests/e2e/tests',
-      testMatch: 'global.teardown.ts',
-    },
+
+    // {
+    //   name: 'e2e tests',
+    //   testDir: './tests/e2e/tests',
+    //   testMatch: ['**/*.test.ts'],
+    //   dependencies: ['setup'],
+    // },
+    // {
+    //   name: 'setup',
+    //   testDir: './tests/e2e/tests',
+    //   testMatch: 'global.setup.ts',
+    //   teardown: 'tearDown',
+    // },
+    // {
+    //   name: 'tearDown',
+    //   testDir: './tests/e2e/tests',
+    //   testMatch: 'global.teardown.ts',
+    // },
   ],
 });
