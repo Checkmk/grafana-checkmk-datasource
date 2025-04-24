@@ -10,6 +10,10 @@ on:
 
 jobs:
   build:
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
     runs-on: ubuntu-latest
     outputs:
       signed-plugin-name: '${{ steps.build-signed.outputs.plugin_path }}'
