@@ -2,6 +2,9 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 4.0.0 - Beta.2
+- Bug fixing
+
 ## 4.0.0 - Beta.1
 - Removed signed plugin restrictions: The signed plugin works now with all checkmk editions, including raw edition
 - Dropped support for unsigned plugin: Please migrate to the signed plugin
