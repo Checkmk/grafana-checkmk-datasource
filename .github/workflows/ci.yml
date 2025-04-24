@@ -82,7 +82,7 @@ jobs:
 
       - name: Validate plugin
         run: |
-          plugincheck2 -config ./plugin-validator/config/default.yaml checkmk-cloud-datasource-*.zip
+          plugincheck2 -config ./plugin-validator/config/publishing.yaml checkmk-cloud-datasource-*.zip
 
   e2e:
     runs-on: ubuntu-latest
