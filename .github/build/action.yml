@@ -13,6 +13,10 @@ outputs:
   plugin_checksum_path:
     description: 'checksum of plugin archive'
     value: '${{ steps.metadata.outputs.archive-checksum }}'
+permissions:
+  id-token: write
+  contents: read
+  attestations: write
 runs:
   using: 'composite'
   steps:
@@ -76,6 +80,12 @@ runs:
         zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
         md5sum ${{ steps.metadata.outputs.archive }} > ${{ steps.metadata.outputs.archive-checksum }}
         echo "checksum=$(cat ./${{ steps.metadata.outputs.archive-checksum }} | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+    - name: Generate artifact attestation
+      id: attestation
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-path: '${{ steps.metadata.outputs.archive }}'
 
     - name: Upload plugin package
       uses: actions/upload-artifact@v4
