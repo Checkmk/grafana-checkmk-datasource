@@ -362,7 +362,10 @@ export default class RestApiBackend implements Backend {
       // this will result in a grafana note that suggests the graph should be
       // changed to a table. By returning an empty MutableDataFrame grafana
       // shows "no data" as expected.
-      return toDataFrame({});
+      return toDataFrame({
+        refId: query.refId,
+        fields: [],
+      });
     }
   }
 
