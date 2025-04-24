@@ -33,30 +33,12 @@ runs:
         mv ./package.new.json ./package.json
       if: ${{ inputs.release == 'false' }}
 
-    - name: Adapt README.md
-      shell: bash
-      run: |
-        OLD_NAME="Checkmk data source"
-        NEW_NAME="Checkmk data source for Checkmk Cloud Edition"
-        # make sure we can actually find and replace OLD_NAME in README.md
-        grep "$OLD_NAME" README.md
-        sed "s/$OLD_NAME/$NEW_NAME/g" -i README.md
-      if: ${{ inputs.signed == 'true' }}
-
     - name: Build signed plugin and test frontend
       shell: bash
       run: |
-        # npm run build script will adapt src/plugin.json via utils/plugin_json*.sh
-        npm run build:cloud
+        npm run build
         npm run sign
       if: ${{ inputs.signed == 'true'}}
-
-    - name: Build unsigned plugin and test frontend
-      shell: bash
-      run: |
-        # npm run build script will adapt src/plugin.json via utils/plugin_json*.sh
-        npm run build
-      if: ${{ inputs.signed == 'false' }}
 
     - name: Get plugin metadata
       shell: bash
