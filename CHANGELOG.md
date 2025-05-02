@@ -2,7 +2,7 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 ## 4.0.1
-- Updated github actions
+- Updated GitHub Actions
 
 
 ## 4.0.0
