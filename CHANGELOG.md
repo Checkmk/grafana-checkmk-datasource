@@ -1,6 +1,9 @@
 # Changelog
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
+## 4.0.1
+- Updated github actions
+
 
 ## 4.0.0
 - Removed signed plugin restrictions: The signed plugin works now with all Checkmk editions, including Raw Edition
