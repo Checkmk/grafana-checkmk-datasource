@@ -1,9 +1,12 @@
 # Changelog
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
+
+## 4.0.2
+- Dropped support for Grafana prior 10.4.18
+
 ## 4.0.1
 - Updated GitHub Actions
-
 
 ## 4.0.0
 - Removed signed plugin restrictions: The signed plugin works now with all Checkmk editions, including Raw Edition
