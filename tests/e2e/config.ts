@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 
-dotenv.config();
-
-const cfg = {
+export const current_config = {
   //Checkmk
   site: process.env.CMK_SITE,
   cmkUser: process.env.CMK_ADMIN,
@@ -23,4 +21,4 @@ const cfg = {
   grafanaToCheckMkUrl: process.env.GRAFANA_TO_CHECKMK_URL,
 };
 
-export default cfg;
+export default current_config;

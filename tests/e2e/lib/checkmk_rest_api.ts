@@ -196,6 +196,33 @@ const waitUntilCheckmkIsReady = async () => {
   await waitUntilCheckmkIsReady();
 };
 
+const waitUntilAutomationIsReady = async () => {
+  console.log(`⌛ Waiting for automation user to be ready ${getAnimation()}`);
+
+  let ready = false;
+
+  try {
+    const response = await requestContext.get('check_mk/api/1.0/version', {
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${config.automationUser} ${config.automationPassword}`,
+      },
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+
+    ready = response.ok();
+  } catch (error) {}
+
+  if (ready) {
+    console.log('🎉 Automation user is ready');
+    return;
+  }
+
+  await wait(5000);
+  await waitUntilAutomationIsReady();
+};
+
 export default {
   deleteCmkAutomationUser,
   createCmkAutomationUser,
@@ -208,5 +235,6 @@ export default {
   waitForDiscovery,
   waitForPendingServices,
 
+  waitUntilAutomationIsReady,
   waitUntilCheckmkIsReady,
 };
