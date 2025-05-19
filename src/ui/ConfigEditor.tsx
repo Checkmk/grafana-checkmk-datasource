@@ -102,7 +102,7 @@ export const ConfigEditor = (props: Props) => {
             onChange={onUrlChange}
             value={settings.url || ''}
             tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
-            data-testid="checkmk-url"
+            data-test-id="checkmk-url"
           />
         </div>
         <InlineField label="Edition" labelWidth={12}>
@@ -113,7 +113,7 @@ export const ConfigEditor = (props: Props) => {
             value={settings.edition}
             placeholder="Select your checkmk edition"
             inputId="checkmk-edition"
-            data-testid="checkmk-edition"
+            data-test-id="checkmk-edition"
           />
         </InlineField>
       </FieldSet>
@@ -126,7 +126,7 @@ export const ConfigEditor = (props: Props) => {
             onChange={onUsernameChange}
             value={settings.username}
             tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
-            data-testid="checkmk-username"
+            data-test-id="checkmk-username"
           />
         </div>
         <div className="gf-form">
@@ -140,7 +140,7 @@ export const ConfigEditor = (props: Props) => {
             onReset={onResetSecret}
             onChange={onSecretChange}
             tooltip="You can find the secret for your user in your checkmk server under Users."
-            data-testid="checkmk-password"
+            data-test-id="checkmk-password"
           />
         </div>
       </FieldSet>

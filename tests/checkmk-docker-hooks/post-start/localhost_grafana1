@@ -1,0 +1,293 @@
+<<<check_mk>>>
+Version: 2.3.0p30
+AgentOS: linux
+Hostname: 4cc724a09d0e
+AgentDirectory: /etc/check_mk
+DataDirectory: /var/lib/check_mk_agent
+SpoolDirectory: /var/lib/check_mk_agent/spool
+PluginsDirectory: /usr/lib/check_mk_agent/plugins
+LocalDirectory: /usr/lib/check_mk_agent/local
+OSType: linux
+OSName: Ubuntu
+OSVersion: 22.04
+OSPlatform: ubuntu
+FailedPythonReason: 
+SSHClient: 
+<<<checkmk_agent_plugins_lnx:sep(0)>>>
+pluginsdir /usr/lib/check_mk_agent/plugins
+localdir /usr/lib/check_mk_agent/local
+<<<labels:sep(0)>>>
+{"cmk/device_type":"container"}
+<<<nfsmounts_v2:sep(0)>>>
+<<<cifsmounts>>>
+<<<mounts>>>
+/dev/mapper/vgubuntu-root /docker-entrypoint.d ext4 rw,relatime,errors=remount-ro 0 0
+/dev/mapper/vgubuntu-root /etc/resolv.conf ext4 rw,relatime,errors=remount-ro 0 0
+/dev/mapper/vgubuntu-root /etc/hostname ext4 rw,relatime,errors=remount-ro 0 0
+/dev/mapper/vgubuntu-root /etc/hosts ext4 rw,relatime,errors=remount-ro 0 0
+<<<ps_lnx>>>
+[time]
+1748010871
+[processes]
+[header] CGROUP USER VSZ RSS TIME ELAPSED PID COMMAND
+- root 4468 3072 00:00:00 03:22 1 /bin/bash /docker-entrypoint.sh
+- cmk 46684 27108 00:00:00 02:59 2045 python3 /omd/sites/cmk/bin/mknotifyd
+- cmk 249340 3208 00:00:00 02:59 2049 /omd/sites/cmk/bin/rrdcached -t 4 -w 3600 -z 1800 -f 7200 -s cmk -m 660 -l unix:/omd/sites/cmk/tmp/run/rrdcached.sock -p /omd/sites/cmk/tmp/rrdcached.pid -j /omd/sites/cmk/var/rrdcached -o /omd/sites/cmk/var/log/rrdcached.log
+- cmk 1807912 14840 00:00:00 02:59 2071 /omd/sites/cmk/bin/cmc /omd/sites/cmk/var/check_mk/core/config.pb
+- cmk 169320 118220 00:00:02 02:59 2095 python3 /omd/sites/cmk/bin/cmk --create-rrd --keepalive
+- cmk 164728 111840 00:00:02 02:59 2097 python3 /omd/sites/cmk/bin/cmk --handle-alerts --keepalive
+- cmk 22492 8960 00:00:00 02:59 2101 /omd/sites/cmk/lib/cmc/checkhelper
+- cmk 22492 8960 00:00:00 02:59 2102 /omd/sites/cmk/lib/cmc/checkhelper
+- cmk 22492 8960 00:00:00 02:59 2103 /omd/sites/cmk/lib/cmc/checkhelper
+- cmk 22492 8960 00:00:00 02:59 2104 /omd/sites/cmk/lib/cmc/checkhelper
+- cmk 22492 9216 00:00:00 02:59 2105 /omd/sites/cmk/lib/cmc/checkhelper
+- cmk 173644 119220 00:00:02 02:59 2106 python3 /omd/sites/cmk/bin/cmk --checker
+- cmk 173308 118592 00:00:02 02:59 2107 python3 /omd/sites/cmk/bin/cmk --checker
+- cmk 173308 118876 00:00:02 02:59 2108 python3 /omd/sites/cmk/bin/cmk --checker
+- cmk 173288 119628 00:00:02 02:59 2109 python3 /omd/sites/cmk/bin/cmk --checker
+- cmk 163636 111960 00:00:02 02:59 2110 python3 /omd/sites/cmk/bin/cmk --keepalive --real-time-checks
+- cmk 58840 48004 00:00:00 02:59 2111 python3 /omd/sites/cmk/bin/fetcher
+- cmk 56732 45916 00:00:00 02:59 2112 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43388 00:00:00 02:59 2113 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43348 00:00:00 02:59 2114 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43464 00:00:00 02:59 2115 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43756 00:00:00 02:59 2116 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43052 00:00:00 02:59 2117 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43320 00:00:00 02:59 2118 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43236 00:00:00 02:59 2119 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43088 00:00:00 02:59 2120 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43376 00:00:00 02:59 2121 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43148 00:00:00 02:59 2122 python3 /omd/sites/cmk/bin/fetcher
+- cmk 53504 43496 00:00:00 02:59 2123 python3 /omd/sites/cmk/bin/fetcher
+- cmk 114964 62296 00:00:00 02:59 2124 python3 /omd/sites/cmk/bin/cmk --notify --keepalive
+- cmk 5120 2432 00:00:00 02:59 2125 /omd/sites/cmk/lib/cmc/icmpsender 8 0 1000
+- cmk 11168 6016 00:00:00 02:59 2126 /omd/sites/cmk/lib/cmc/icmpreceiver
+- cmk 18528 6988 00:00:00 02:58 2157 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- cmk 18504 3540 00:00:00 02:58 2160 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- cmk 306012 240224 00:00:05 02:58 2161 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- cmk 134224 36024 00:00:00 02:56 2181 dcd
+- cmk 71696 13720 00:00:00 02:56 2187 /omd/sites/cmk/bin/redis-server unixsocket:/omd/sites/cmk/tmp/run/redis
+- root 13784 2308 00:00:00 02:56 2237 /usr/sbin/xinetd -pidfile /run/xinetd.pid -stayalive -inetd_compat -inetd_ipv6
+- cmk 291412 20356 00:00:00 02:53 2333 python3 -u /docker-entrypoint.d/post-start/generate_random_rrd_data.py
+- root 3888 2304 00:00:00 02:53 2337 cron -f
+- cmk 301276 235596 00:00:03 02:47 2339 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- cmk 302876 238156 00:00:04 02:45 2349 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- cmk 300308 234976 00:00:02 02:40 2361 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- cmk 300468 235588 00:00:02 02:28 2399 /usr/sbin/apache2 -f /omd/sites/cmk/etc/apache/apache.conf
+- root 4628 3584 00:00:00 01:00 4054 bash
+- root 6244 3584 00:00:00 00:04 5135 su - cmk
+- cmk 5048 3840 00:00:00 00:04 5136 -bash
+- cmk 164764 112288 00:00:01 00:01 5353 python3 /omd/sites/cmk/bin/cmk -d localhost_grafana0
+- root 5840 3968 00:00:00 00:00 5354 /bin/bash /usr/bin/check_mk_agent
+- root 5972 3048 00:00:00 00:00 5372 /bin/bash /usr/bin/check_mk_agent
+- root 5840 2792 00:00:00 00:00 5373 /bin/bash /usr/bin/check_mk_agent
+- root 3352 1664 00:00:00 00:00 5375 cat
+- root 5972 2536 00:00:00 00:00 5394 /bin/bash /usr/bin/check_mk_agent
+- root 7484 3072 00:00:00 00:00 5395 ps ax -ww -o cgroup:512,user:32,vsz,rss,cputime,etime,pid,command
+- root 3236 1536 00:00:00 00:00 5396 tr -s 
+<<<docker_container_mem_cgroupv2>>>
+anon 2264248320
+file 112795648
+kernel 44306432
+kernel_stack 1523712
+pagetables 10227712
+sec_pagetables 0
+percpu 23256
+sock 0
+vmalloc 28672
+shmem 1236992
+zswap 0
+zswapped 0
+file_mapped 1236992
+file_dirty 0
+file_writeback 0
+swapcached 0
+anon_thp 0
+file_thp 0
+shmem_thp 0
+inactive_anon 0
+active_anon 2265436160
+inactive_file 111054848
+active_file 503808
+unevictable 0
+slab_reclaimable 24968784
+slab_unreclaimable 7045344
+slab 32014128
+workingset_refault_anon 0
+workingset_refault_file 0
+workingset_activate_anon 0
+workingset_activate_file 0
+workingset_restore_anon 0
+workingset_restore_file 0
+workingset_nodereclaim 0
+pgscan 0
+pgsteal 0
+pgscan_kswapd 0
+pgscan_direct 0
+pgscan_khugepaged 0
+pgsteal_kswapd 0
+pgsteal_direct 0
+pgsteal_khugepaged 0
+pgfault 4428911
+pgmajfault 22
+pgrefill 0
+pgactivate 0
+pgdeactivate 0
+pglazyfree 2888
+pglazyfreed 0
+zswpin 0
+zswpout 0
+zswpwb 0
+thp_fault_alloc 0
+thp_collapse_alloc 0
+thp_swpout 0
+thp_swpout_fallback 0
+memory.current 2423181312
+memory.max max
+MemTotal:       32283652 kB
+<<<docker_container_cpu_cgroupv2>>>
+uptime 19046.73 277623.83
+num_cpus 16
+usage_usec 167252322
+user_usec 145724607
+system_usec 21527715
+core_sched.force_idle_usec 0
+nr_periods 0
+nr_throttled 0
+throttled_usec 0
+nr_bursts 0
+burst_usec 0
+<<<uptime>>>
+203
+<<<lnx_if:sep(58)>>>
+    lo:  149570    1357    0    0    0     0          0         0   149570    1357    0    0    0     0       0          0
+  eth0:  902969    4982    0    0    0     0          0         0  4992774    7246    0    0    0     0       0          0
+[lo]
+Address: 00:00:00:00:00:00
+[eth0]
+Speed: 10000Mb/s
+Address: 3e:f1:7b:8a:a3:c5
+<<<tcp_conn_stats>>>
+06 8
+0A 3
+05 1
+01 3
+<<<docker_container_diskstat_cgroupv2>>>
+[time]
+1748010871
+[io.stat]
+259:0 rbytes=3108864 wbytes=0 rios=456 wios=1 dbytes=0 dios=0
+252:0 rbytes=3108864 wbytes=82128896 rios=456 wios=619 dbytes=0 dios=0
+252:1 rbytes=3108864 wbytes=130256896 rios=456 wios=2229 dbytes=0 dios=0
+[names]
+dm-0 252:0
+dm-1 252:1
+dm-2 252:2
+loop0 7:0
+loop1 7:1
+loop10 7:10
+loop11 7:11
+loop12 7:12
+loop13 7:13
+loop14 7:14
+loop15 7:15
+loop16 7:16
+loop17 7:17
+loop18 7:18
+loop19 7:19
+loop2 7:2
+loop20 7:20
+loop21 7:21
+loop22 7:22
+loop23 7:23
+loop24 7:24
+loop25 7:25
+loop26 7:26
+loop3 7:3
+loop4 7:4
+loop5 7:5
+loop6 7:6
+loop7 7:7
+loop8 7:8
+loop9 7:9
+nvme0n1 259:0
+<<<md>>>
+Personalities : 
+unused devices: <none>
+<<<vbox_guest>>>
+<<<postfix_mailq>>>
+[[[default]]]
+QUEUE_deferred 4 0
+QUEUE_active 4 0
+<<<postfix_mailq_status:sep(58)>>>
+default:the Postfix mail system is not running
+<<<livestatus_status:sep(59)>>>
+[cmk]
+accept_passive_host_checks;accept_passive_service_checks;average_latency_checker;average_latency_fetcher;average_latency_generic;average_latency_real_time;average_runnable_jobs_checker;average_runnable_jobs_fetcher;cached_log_messages;carbon_bytes_sent;carbon_bytes_sent_rate;carbon_overflows;carbon_overflows_rate;carbon_queue_usage;carbon_queue_usage_rate;check_external_commands;check_host_freshness;check_service_freshness;connections;connections_rate;core_pid;edition;enable_event_handlers;enable_flap_detection;enable_notifications;execute_host_checks;execute_service_checks;external_command_buffer_max;external_command_buffer_slots;external_command_buffer_usage;external_commands;external_commands_rate;forks;forks_rate;has_event_handlers;helper_usage_checker;helper_usage_fetcher;helper_usage_generic;helper_usage_real_time;host_checks;host_checks_rate;influxdb_bytes_sent;influxdb_bytes_sent_rate;influxdb_overflows;influxdb_overflows_rate;influxdb_queue_usage;influxdb_queue_usage_rate;interval_length;last_command_check;last_log_rotation;license_usage_history;livechecks;livechecks_rate;livestatus_active_connections;livestatus_overflows;livestatus_overflows_rate;livestatus_queued_connections;livestatus_threads;livestatus_usage;livestatus_version;log_messages;log_messages_rate;max_long_output_size;metrics_count;metrics_count_rate;mk_inventory_last;nagios_pid;neb_callbacks;neb_callbacks_rate;num_hosts;num_queued_alerts;num_queued_notifications;num_services;obsess_over_hosts;obsess_over_services;perf_data_count;perf_data_count_rate;process_performance_data;program_start;program_version;requests;requests_rate;rrdcached_bytes_sent;rrdcached_bytes_sent_rate;rrdcached_overflows;rrdcached_overflows_rate;rrdcached_queue_usage;rrdcached_queue_usage_rate;service_checks;service_checks_rate;state_file_created
+1;1;0;0.183919;1.50074;0;0;0;0;0;0;0;0;5e-05;2.37841e-08;1;1;1;133;0.239807;2071;cloud;1;1;1;1;1;4;0;0;8;0.00323558;0;0;0;0;0;5.68633e-06;0;58;0.411926;0;0;0;0;0;0;60;0;1748010692;LQ't#$x~}Qi Qb]_Q[ Q9:DE@CJQi ,LQ:?DE2?460:5Qi Q6_7c`d3d\7f2f\cbd5\g`4g\dg3ga563ad33Q[ QD:E6092D9Qi Q`hcf6a357h3g3ehb5fb6c32g2b_bhfeg24e`_d5ee2b44ga7haca6d2beb6_7h4dQ[ QG6CD:@?Qi Qa]b]_Ab_]446Q[ Q65:E:@?Qi Q446Q[ QA=2E7@C>Qi Q&3F?EF aa]_c]d {%$Q[ Q:D04>2Qi 72=D6[ QD2>A=60E:>6Qi `fcfhdgc__[ QE:>6K@?6Qi Q&%rQ[ Q?F>09@DEDQi _[ Q?F>09@DED04=@F5Qi _[ Q?F>09@DED0D925@HQi _[ Q?F>09@DED06I4=F565Qi _[ Q?F>0D6CG:46DQi _[ Q?F>0D6CG:46D04=@F5Qi _[ Q?F>0D6CG:46D0D925@HQi _[ Q?F>0D6CG:46D06I4=F565Qi _[ Q?F>0DJ?E96E:40E6DEDQi _[ Q?F>0DJ?E96E:40E6DED06I4=F565Qi _[ Q6IE6?D:@?0?E@AQi 72=D6N.N;1;0.000475682;1;0;0;0;20;1.72656e-05;2.3.0p30;28;0.00387208;2000;177;0.405494;1748010759;2071;0;0;1;0;0;17;0;0;22;0.0498076;1;1748010758;Check_MK 2.3.0p30;361;0.706454;1192;17.9002;0;0;0.0004;6.00677e-06;29;0.0629731;0
+<<<livestatus_ssl_certs:sep(124)>>>
+[cmk]
+/omd/sites/cmk/etc/ssl/ca.pem|2063543472
+/omd/sites/cmk/etc/ssl/sites/cmk.pem|2063543473
+<<<mkeventd_status:sep(0)>>>
+<<<cmk_site_statistics:sep(59)>>>
+[cmk]
+1;0;0;0
+17;0;0;0;0;0
+<<<job>>>
+<<<omd_status:cached(1748010813,60)>>>
+[cmk]
+mknotifyd 0
+rrdcached 0
+cmc 0
+apache 0
+dcd 0
+redis 0
+crontab 0
+OVERALL 0
+<<<mknotifyd:sep(0)>>>
+1748010871
+[cmk]
+Version:         2.3.0p30
+Updated:         1748010853 (2025-05-23 14:34:13)
+Started:         1748010691 (2025-05-23 14:31:31, 161 sec ago)
+Configuration:   1748010691 (2025-05-23 14:31:31, 161 sec ago)
+Listening FD:    None
+
+Spool:           New
+Count:           0
+Oldest:          -
+Youngest:        -
+
+Spool:           Deferred
+Count:           0
+Oldest:          -
+Youngest:        -
+
+Spool:           Corrupted
+Count:           0
+Oldest:          -
+Youngest:        -
+<<<omd_apache:sep(124)>>>
+[cmk]
+
+<<<omd_diskusage:sep(0)>>>
+[site cmk]
+106884741	/omd/sites/cmk
+70380	/omd/sites/cmk/var/log
+37591168	/omd/sites/cmk/var/check_mk/rrd
+20480	/omd/sites/cmk/var/pnp4nagios/
+167365	/omd/sites/cmk/tmp/
+335883	/omd/sites/cmk/local/
+58445923	/omd/sites/cmk/var/check_mk/agents/
+0 /omd/sites/cmk/var/mkeventd/history/
+562321	/omd/sites/cmk/var/check_mk/core/
+9946	/omd/sites/cmk/var/check_mk/inventory_archive/
+<<<omd_info:sep(59)>>>
+[versions]
+version;number;edition;demo
+2.3.0p30.cce;2.3.0p30;cce;0
+[sites]
+site;used_version;autostart
+cmk;2.3.0p30.cce;1
+<<<local:sep(0)>>>

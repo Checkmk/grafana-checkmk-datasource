@@ -1,50 +1,27 @@
-// @ts-check
+import { expect, test } from '@grafana/plugin-e2e';
 
-/*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
-import { test as setup } from '@playwright/test';
-
-import tests_config from '../config';
+import config from '../config';
 import { CmkEdition, HOSTNAME0, HOSTNAME1 } from '../constants';
 import cmkRestAPI from '../lib/checkmk_rest_api';
 import grafanaRestApi from '../lib/grafana_rest_api';
 
-setup('Set up Grafana and Checkmk', async ({}) => {
-  console.log('▶️ Setting up Grafana');
-
+test('Setup Granana', async () => {
+  test.slow();
   await grafanaRestApi.deleteAllDatasources();
-  await grafanaRestApi.createDatasource(
+  const ceeDataSourcePromise = grafanaRestApi.createDatasource(
     CmkEdition.CEE,
-    tests_config.grafanaToCheckMkUrl!,
-    tests_config.grafanaToCheckMkUser!,
-    tests_config.grafanaToCheckMkPassword!
+    config.grafanaToCheckMkUrl!,
+    config.grafanaToCheckMkUser!,
+    config.grafanaToCheckMkPassword!
   );
-  await grafanaRestApi.createDatasource(
+  const rawDataSourcePromise = grafanaRestApi.createDatasource(
     CmkEdition.CRE,
-    tests_config.grafanaToCheckMkUrl!,
-    tests_config.grafanaToCheckMkUser!,
-    tests_config.grafanaToCheckMkPassword!
+    config.grafanaToCheckMkUrl!,
+    config.grafanaToCheckMkUser!,
+    config.grafanaToCheckMkPassword!
   );
-  console.log('✅ Grafana setup complete');
 
-  console.log('▶️ Setting up Checkmk');
+  const waitForCheckmkPromise = cmkRestAPI.waitUntilAutomationIsReady();
 
-  setup.setTimeout(0);
-  await cmkRestAPI.waitUntilCheckmkIsReady();
-
-  setup.setTimeout(300000);
-
-  await cmkRestAPI.deleteCmkAutomationUser(false);
-  await cmkRestAPI.createCmkAutomationUser();
-
-  await Promise.all([cmkRestAPI.deleteHost(HOSTNAME0, false), cmkRestAPI.deleteHost(HOSTNAME1, false)]);
-
-  await Promise.all([cmkRestAPI.createHost(HOSTNAME0), cmkRestAPI.createHost(HOSTNAME1)]);
-
-  await cmkRestAPI.executeServiceDiscovery(HOSTNAME0, 'tabula_rasa');
-  await cmkRestAPI.executeServiceDiscovery(HOSTNAME1, 'tabula_rasa');
-
-  await cmkRestAPI.activateChanges(tests_config.site!);
-  await cmkRestAPI.waitForPendingServices(2000);
-
-  console.log('✅ Checkmk initialization complete');
+  await Promise.all([ceeDataSourcePromise, rawDataSourcePromise, waitForCheckmkPromise]);
 });

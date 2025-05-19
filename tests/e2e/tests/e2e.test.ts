@@ -1,287 +1,217 @@
 // @ts-check
-import { expect, test } from '@playwright/test';
+import { expect, test } from '@grafana/plugin-e2e';
 
-import current_config from '../config';
-import {
-  CmkEdition,
-  CustomLabels,
-  FilterTypes,
-  GRAFANA_SELECTORS,
-  GraphLegends,
-  GraphTypes,
-  HOSTNAME0,
-  HOSTNAME1,
-  Services,
-  Sites,
-} from '../constants';
-import DashboardPage from '../models/DashboardPage';
+import config from '../config';
+import { CustomLabels, FilterTypes, GraphLegends, Graphs, HOSTNAME0, HOSTNAME1, Services, Sites } from '../constants';
+import { CmkRawQueryEditorPage } from '../pom/CMKRawQueryEditorPage';
+import { CmkCEEQueryEditorPage } from '../pom/CmkCEEQueryEditorPage';
 
-test.describe.configure({ mode: 'serial' });
+test.describe('Comercial editions tests', () => {
+  test('time-usage panel by service (single host)', async ({ panelEditPage, page, selectors }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
 
-test.describe('E2E tests', () => {
-  test.beforeEach(async ({ page }) => {
-    const dashboardPage = new DashboardPage(page);
-    await dashboardPage.addNewPanel();
-    console.log(`✅ New panel added`);
+    await panelPage.filterByHostname(HOSTNAME0);
+    await panelPage.filterByService(Services.CHECK_MK);
+
+    await panelPage.selectPredefinedGraph(Graphs.TIME_BY_PHASE);
+
+    await panelPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
+    await panelPage.assertLegendElement(GraphLegends.CPU_TIME_IN_OS);
+    await panelPage.assertLegendElement(GraphLegends.TIME_SPENT_WAITING_FOR_CHECKMK);
+    await panelPage.assertLegendElement(GraphLegends.TOTAL_EXECUTION_TIME);
+
+    await expect(page.getByText('Type to trigger search').first()).not.toBeVisible();
+
+    await panelPage.removeFilter(FilterTypes.HOSTNAME);
+    await panelPage.removeFilter(FilterTypes.SERVICE);
+
+    await panelPage.addFilter(FilterTypes.SERVICE);
+    await expect(page.getByText('Type to trigger search').first()).toBeVisible();
+
+    await panelPage.savePanel();
   });
 
-  test.afterEach(async ({ page }) => {
-    const dashboardPage = new DashboardPage(page);
-    await dashboardPage.saveDashboard();
-    console.log(`✅ Dashboard saved`);
+  test('time-usage panel by service (multiple hosts)', async ({ page, selectors, panelEditPage }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
+
+    await panelPage.filterByService(Services.CHECK_MK);
+    await panelPage.filterByHostnameRegex('localhost_grafana[0-9]+');
+
+    await panelPage.selectPredefinedGraph(Graphs.TIME_BY_PHASE);
+
+    for (const host of [HOSTNAME0, HOSTNAME1]) {
+      await panelPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_USER_SPACE}, ${host}`);
+      await panelPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_OS}, ${host}`);
+    }
+
+    await panelPage.savePanel();
   });
 
-  test.describe('Commercial editions tests', () => {
-    test.slow();
-    test('time-usage panel by service (single host)', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
+  test('RAM-used panel by service regex (multiple hosts)', async ({ page, selectors, panelEditPage }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
 
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME);
-      await dashboardPage.filterByHostname(HOSTNAME0);
+    await panelPage.filterByService(Services.MEMORY_REGEX);
+    await panelPage.filterByHostnameRegex('localhost_grafana[0-9]+');
 
-      await dashboardPage.addFilter(FilterTypes.SERVICE);
-      await dashboardPage.filterByService(Services.CHECK_MK);
+    await panelPage.expectSpinners(false);
 
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
+    await panelPage.selectPredefinedGraph(Graphs.RAM_USAGE);
 
-      await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
-      await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_OS);
-      await dashboardPage.assertLegendElement(GraphLegends.TIME_SPENT_WAITING_FOR_CHECKMK);
-      await dashboardPage.assertLegendElement(GraphLegends.TOTAL_EXECUTION_TIME);
+    await panelPage.assertLegendElement(HOSTNAME0);
+    await panelPage.assertLegendElement(HOSTNAME1);
 
-      await dashboardPage.assertHoverSelectorsOff(4);
-      await dashboardPage.assertHoverSelectorsOn(4);
-
-      await expect(page.getByText('Type to trigger search').first()).not.toBeVisible();
-      await dashboardPage.removeFilter(FilterTypes.HOSTNAME);
-      await dashboardPage.removeFilter(FilterTypes.SERVICE);
-      await dashboardPage.addFilter(FilterTypes.SERVICE);
-
-      await expect(page.getByText('Type to trigger search').first()).toBeVisible();
-
-      console.log('✅ time-usage panel by service (single host)');
-    });
-
-    test('time-usage panel by service (multiple hosts)', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
-
-      await dashboardPage.addFilter(FilterTypes.SERVICE);
-      await dashboardPage.filterByService(Services.CHECK_MK);
-
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME_REGEX);
-      await dashboardPage.filterByHostnameRegex('localhost_grafana[0-9]+');
-
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
-
-      for (const host of [HOSTNAME0, HOSTNAME1]) {
-        await dashboardPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_USER_SPACE}, ${host}`);
-        await dashboardPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_OS}, ${host}`);
-      }
-
-      await dashboardPage.assertHoverSelectorsOff(8);
-      await dashboardPage.assertHoverSelectorsOn(8);
-      console.log('✅ time-usage panel by service (multiple hosts)');
-    });
-
-    test('RAM-used panel by service regex (multiple hosts)', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
-
-      await dashboardPage.addFilter(FilterTypes.SERVICE_REGEX);
-      await dashboardPage.filterByServiceRegex('Memory');
-
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME_REGEX);
-      await dashboardPage.filterByHostnameRegex('localhost_grafana[0-9]+');
-
-      await dashboardPage.expectSpinners(false);
-
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.RAM_USAGE);
-
-      await dashboardPage.assertLegendElement(HOSTNAME0);
-      await dashboardPage.assertLegendElement(HOSTNAME1);
-
-      await dashboardPage.assertHoverSelectorsOff(2);
-      await dashboardPage.assertHoverSelectorsOn(2);
-
-      console.log('✅ RAM-used panel by service regex (multiple hosts)');
-    });
-
-    test('RAM-used panel by host labels (multiple hosts, single metric)', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
-
-      await dashboardPage.addFilter(FilterTypes.HOST_LABELS);
-      await dashboardPage.filterByHostLabel(`cmk/site:${current_config.site}`);
-
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME_REGEX);
-      await dashboardPage.filterByHostnameRegex('localhost_grafana[0-9]+');
-
-      await dashboardPage.selectSingleGraphType();
-
-      await dashboardPage.selectSingleMetricGraphType(GraphTypes.RAM_USAGE);
-
-      await dashboardPage.assertLegendElement(HOSTNAME0);
-      await dashboardPage.assertLegendElement(HOSTNAME1);
-
-      await dashboardPage.assertHoverSelectorsOff(2);
-      await dashboardPage.assertHoverSelectorsOn(2);
-
-      console.log('✅ RAM-used panel by host labels (multiple hosts, single metric)');
-    });
-
-    test('RAM-used panel by service regex and hostname regex', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
-
-      await dashboardPage.addFilter(FilterTypes.SERVICE_REGEX);
-      await dashboardPage.filterByServiceRegex('Memory');
-
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME_REGEX);
-      await dashboardPage.filterByHostnameRegex(`${HOSTNAME0}|${HOSTNAME1}`);
-
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.RAM_USAGE);
-
-      await dashboardPage.assertLegendElement(HOSTNAME0);
-      await dashboardPage.assertLegendElement(HOSTNAME1);
-
-      await dashboardPage.assertHoverSelectorsOff(2);
-      await dashboardPage.assertHoverSelectorsOn(2);
-
-      await dashboardPage.filterByHostnameRegex(HOSTNAME0);
-      await dashboardPage.assertLegendElement('RAM usage');
-
-      await dashboardPage.assertHoverSelectorsOff(1);
-      await dashboardPage.assertHoverSelectorsOn(1);
-
-      console.log('✅ RAM-used panel by service regex and hostname regex');
-    });
-
-    test('Uptime panel by hostname', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
-
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME);
-      await dashboardPage.filterByHostname(HOSTNAME0);
-
-      //Let's check the Uptime graph is not available on predefined graphs
-      await page
-        .locator(`input[id="${GRAFANA_SELECTORS.DASHBOARD.PREDEFINED_GRAPH_FIELD_ID}"]`)
-        .fill(GraphTypes.UPTIME);
-      await expect(page.locator(GRAFANA_SELECTORS.SPINNER).first()).not.toBeVisible();
-      await expect(page.getByText('No options found').first()).toBeVisible();
-      await page.keyboard.press('Escape');
-
-      await dashboardPage.selectSingleGraphType();
-      await dashboardPage.selectSingleMetricGraphType(GraphTypes.UPTIME);
-
-      await dashboardPage.assertLegendElement('Uptime');
-
-      await dashboardPage.assertHoverSelectorsOff(1);
-      await dashboardPage.assertHoverSelectorsOn(1);
-
-      console.log('✅ Uptime panel by hostname');
-    });
-
-    test('Custom labels', async ({ page }) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CEE);
-
-      await dashboardPage.addFilter(FilterTypes.HOSTNAME);
-      await dashboardPage.filterByHostname(HOSTNAME0);
-
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
-      await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
-
-      // $label shoud return the same label
-      await dashboardPage.setCustomLabel(CustomLabels.ORIGINAL);
-      await dashboardPage.refresGraph();
-      await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
-
-      // $label + constant
-      await dashboardPage.setCustomLabel(`${CustomLabels.ORIGINAL} - LMP`);
-      await dashboardPage.refresGraph();
-      await dashboardPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_USER_SPACE} - LMP`);
-
-      // $label + $host_name
-      await dashboardPage.setCustomLabel(`${CustomLabels.ORIGINAL} - ${CustomLabels.HOSTNAME}`);
-      await dashboardPage.refresGraph();
-      await dashboardPage.assertLegendElement(`${GraphLegends.CPU_TIME_IN_USER_SPACE} - ${HOSTNAME0}`);
-
-      console.log('✅ Custom labels');
-    });
+    await panelPage.savePanel();
   });
 
-  test.describe('Raw edition tests', () => {
-    test.slow();
-    test('time-usage panel by service (Single host)', async ({ page }, testInfo) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CRE);
+  test('RAM-used panel by host labels (multiple hosts, single metric)', async ({ page, selectors, panelEditPage }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
 
-      const timeout = testInfo.timeout;
-      test.setTimeout(10000);
-      await dashboardPage.expectSpinners(false);
-      test.setTimeout(timeout);
+    await panelPage.filterByHostLabel(`cmk/site:${config.site}`);
+    await panelPage.filterByHostnameRegex('localhost_grafana[0-9]+');
 
-      await dashboardPage.filterBySite(Sites.ALL_SITES);
-      await dashboardPage.filterByHostname(HOSTNAME0);
-      await dashboardPage.filterByService(Services.CHECK_MK);
+    await panelPage.selectSingleMetricGraphType();
+    await panelPage.selectSingleMetricGraph(Graphs.RAM_USAGE);
 
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.TIME_BY_PHASE);
+    await panelPage.assertLegendElement(HOSTNAME0);
+    await panelPage.assertLegendElement(HOSTNAME1);
 
-      await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
-      await dashboardPage.assertLegendElement(GraphLegends.CPU_TIME_IN_OS);
-      await dashboardPage.assertLegendElement(GraphLegends.TIME_SPENT_WAITING_FOR_CHECKMK);
-      await dashboardPage.assertLegendElement(GraphLegends.TOTAL_EXECUTION_TIME);
+    await panelPage.savePanel();
+  });
 
-      await dashboardPage.assertHoverSelectorsOff(4);
-      await dashboardPage.assertHoverSelectorsOn(4);
+  test('RAM-used panel by service regex and hostname regex', async ({ page, selectors, panelEditPage }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
 
-      await expect(page.getByText("Could not find 'cmk_cpu_time_by_phase'").first()).not.toBeVisible();
+    await panelPage.filterByServiceRegex(Services.MEMORY_REGEX);
+    await panelPage.filterByHostnameRegex(`${HOSTNAME0}|${HOSTNAME1}`);
 
-      await dashboardPage.filterByService(Services.MEMORY_REGEX);
+    await panelPage.selectPredefinedGraph(Graphs.RAM_USAGE);
 
-      await expect(page.getByText("Could not find 'cmk_cpu_time_by_phase'").first()).toBeVisible();
+    await panelPage.assertLegendElement(HOSTNAME0);
+    await panelPage.assertLegendElement(HOSTNAME1);
 
-      console.log('✅ time-usage panel by service (Single host)');
-    });
+    await panelPage.removeFilter(FilterTypes.HOSTNAME_REGEX);
+    await panelPage.filterByHostnameRegex(HOSTNAME0);
 
-    test('Used-RAM panel by service (single host)', async ({ page }, testInfo) => {
-      const dashboardPage = new DashboardPage(page);
-      await dashboardPage.selectDatasource(CmkEdition.CRE);
+    await panelPage.assertLegendElement('RAM usage');
 
-      const timeout = testInfo.timeout;
-      test.setTimeout(10000);
-      await dashboardPage.expectSpinners(false);
-      test.setTimeout(timeout);
+    await panelPage.savePanel();
+  });
 
-      await dashboardPage.filterBySite(Sites.ALL_SITES);
-      await dashboardPage.filterByHostname(HOSTNAME0);
-      await dashboardPage.filterByService(Services.MEMORY_REGEX);
+  test('Uptime panel by hostname', async ({ page, selectors, panelEditPage }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
 
-      await dashboardPage.selectPredefinedGraphType(GraphTypes.RAM_USAGE);
-      await dashboardPage.assertLegendElement(GraphLegends.RAM_USAGE);
+    await panelPage.filterByHostname(HOSTNAME0);
 
-      await dashboardPage.assertHoverSelectorsOff(1);
-      await dashboardPage.assertHoverSelectorsOn(1);
+    //Let's check the "Up hosts" graph is not available on predefined graphs
+    await panelPage.expectSpinners(false);
+    const locator = page.getByLabel('Predefined graph');
+    await locator.fill(Graphs.HOSTS_UP);
+    await panelPage.expectSpinners(false);
+    await expect(page.getByText('No options found').first()).toBeVisible();
+    await page.keyboard.press('Escape');
 
-      console.log('✅ Used-RAM panel by service (single host)');
-    });
+    await panelPage.selectSingleMetricGraphType();
+    await panelPage.selectSingleMetricGraph(Graphs.UPTIME);
+
+    await panelPage.assertLegendElement('Uptime');
+
+    await panelPage.savePanel();
+  });
+
+  test('Custom labels', async ({ page, selectors, panelEditPage }) => {
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
+
+    await panelPage.filterByHostname(HOSTNAME0);
+
+    await panelPage.selectPredefinedGraph(Graphs.RAM_USAGE);
+
+    // Default label
+    await panelPage.assertLegendElement(GraphLegends.RAM_USAGE);
+
+    // $label shoud return the same label
+    await panelPage.setCustomLabel(CustomLabels.ORIGINAL);
+    await panelPage.refreshGraph();
+    await panelPage.assertLegendElement(GraphLegends.RAM_USAGE);
+
+    // $label + constant
+    await panelPage.setCustomLabel(`${CustomLabels.ORIGINAL} - LMP`);
+    await panelPage.refreshGraph();
+    await panelPage.assertLegendElement(`${GraphLegends.RAM_USAGE} - LMP`);
+
+    // $label + $host_name
+    await panelPage.setCustomLabel(`${CustomLabels.ORIGINAL} - ${CustomLabels.HOSTNAME}`);
+    await panelPage.refreshGraph();
+    await panelPage.assertLegendElement(`${GraphLegends.RAM_USAGE} - ${HOSTNAME0}`);
+
+    await panelPage.savePanel();
+  });
+});
+
+test.describe('RAW edition tests', () => {
+  test.slow();
+
+  test('time-usage panel by service (Single host)', async ({ page, selectors, panelEditPage }, testInfo) => {
+    const panelPage = new CmkRawQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
+
+    const timeout = testInfo.timeout;
+    test.setTimeout(10000);
+    await panelPage.expectSpinners(false);
+    test.setTimeout(timeout);
+
+    await panelPage.filterBySite(Sites.ALL_SITES);
+    await panelPage.filterByHostname(HOSTNAME0);
+    await panelPage.filterByService(Services.CHECK_MK);
+
+    await panelPage.selectPredefinedGraph(Graphs.TIME_BY_PHASE);
+
+    await panelPage.assertLegendElement(GraphLegends.CPU_TIME_IN_USER_SPACE);
+    await panelPage.assertLegendElement(GraphLegends.CPU_TIME_IN_OS);
+    await panelPage.assertLegendElement(GraphLegends.TIME_SPENT_WAITING_FOR_CHECKMK);
+    await panelPage.assertLegendElement(GraphLegends.TOTAL_EXECUTION_TIME);
+
+    await expect(page.getByText("Could not find 'cmk_cpu_time_by_phase'").first()).not.toBeVisible();
+
+    await panelPage.filterByService(Services.MEMORY_REGEX);
+
+    await expect(page.getByText("Could not find 'cmk_cpu_time_by_phase'").first()).toBeVisible();
+
+    await panelPage.savePanel();
+  });
+
+  test('Used-RAM panel by service (single host)', async ({ page, selectors, panelEditPage }, testInfo) => {
+    const panelPage = new CmkRawQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanel();
+
+    const timeout = testInfo.timeout;
+    test.setTimeout(10000);
+    await panelPage.expectSpinners(false);
+    test.setTimeout(timeout);
+
+    await panelPage.filterBySite(Sites.ALL_SITES);
+    await panelPage.filterByHostname(HOSTNAME0);
+    await panelPage.filterByService(Services.MEMORY_REGEX);
+
+    await panelPage.selectPredefinedGraph(Graphs.RAM_USAGE);
+    await panelPage.assertLegendElement(GraphLegends.RAM_USAGE);
+
+    await panelPage.savePanel();
   });
 });
 
 test.describe('General tests', () => {
   test.slow();
-  test('Variables get rendered', async ({ page }) => {
+  test('Variables get rendered', async ({ page, selectors, panelEditPage }) => {
     const customVariableName = 'MyVariable';
-    const dashboardPage = new DashboardPage(page);
-    await dashboardPage.goToNewDashboardSettings();
-    await dashboardPage.addNewVariable(customVariableName);
-    await dashboardPage.saveDashboard();
-    await dashboardPage.goBackToDashboard();
-    await dashboardPage.addVisualization();
-    await dashboardPage.selectDatasource(CmkEdition.CEE);
-    await dashboardPage.assertAggregationVariableExists(customVariableName);
+    const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
+    await panelPage.addPanelWithVariable('myVariable');
+    await panelPage.assertAggregationVariableExists(customVariableName);
   });
 });

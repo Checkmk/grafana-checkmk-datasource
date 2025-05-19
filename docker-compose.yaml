@@ -1,5 +1,3 @@
-version: '3.0'
-
 services:
   grafana:
     container_name: 'checkmk-cloud-datasource'
@@ -16,7 +14,7 @@ services:
     volumes:
       - ./dist:/var/lib/grafana/plugins/checkmk-cloud-datasource
       - ./provisioning:/etc/grafana/provisioning
-      - .:/root/checkmk-cmkgrafanadatasource2-datasource
+      - .:/root/checkmk-cloud-datasource
 
     environment:
       NODE_ENV: development

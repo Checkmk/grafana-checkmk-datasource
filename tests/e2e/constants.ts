@@ -1,8 +1,8 @@
 export const HOSTNAME0 = 'localhost_grafana0';
 export const HOSTNAME1 = 'localhost_grafana1';
 
-export const DATASOURCENAME0 = 'cmk_test_datasource_0';
-export const DATASOURCENAME1 = 'cmk_test_datasource_1';
+export const TESTDATASOURCENAME0 = 'cmk_test_datasource_0';
+export const TESTDATASOURCENAME1 = 'cmk_test_datasource_1';
 
 export enum CmkEdition {
   CRE = 'Raw Edition',
@@ -11,6 +11,7 @@ export enum CmkEdition {
 
 export const GRAFANA_SELECTORS = {
   SPINNER: 'div[data-testid="Spinner"]',
+  SELECT_LOADING_MESSAGE: '[class*="grafana-select-loading-message"]',
 
   LOGIN: {
     USERNAME_FIELD: 'input[name="user"]',
@@ -38,6 +39,7 @@ export const GRAFANA_SELECTORS = {
 
     FILTER_FIELD: '#input_add_filter',
     HOST_LABEL_FILTER_FIELD_ID: 'input_host_label',
+    REMOVE_FILTER_TEST_ID_PREFIX: 'cmk-oac-minus-button-',
     REMOVE_FILTER: (f: string) => `button[data-test-id="cmk-oac-minus-button-${f}"]`,
 
     AGGREGATION_FIELD_ID: 'input_Aggregation',
@@ -51,13 +53,11 @@ export const GRAFANA_SELECTORS = {
     PREDEFINED_GRAPH_FIELD_ID: 'input_Predefined_graph',
     SINGLE_METRIC_GRAPH_FIELD_ID: 'input_Single_metric',
     PANEL_CONTENT_SELECTOR: '[class$="panel-content"]',
-    PANEL_HOVER: '[class="u-over"]',
-    PLOTTED_HOVER_OFF: '[class="u-cursor-pt u-off"]',
-    PLOTTED_HOVER_ON: '[class="u-cursor-pt"]',
+    GRAPH_SERIES_BULLET: '[class$="LegendLabel"]',
 
     REMOVE_FILTER_BY_SERVICE_BUTTON: '[data-test-id="cmk-oac-minus-button-Service"]',
 
-    CUSTOM_LABEL_FIELD: 'input[data-test-id="custom-label-field"]',
+    CUSTOM_LABEL_FIELD: 'custom-label-field',
 
     REFRESH_GRAPH_BUTTON: 'button[data-testid="data-testid RefreshPicker run button"]',
 
@@ -104,11 +104,15 @@ export enum Services {
   MEMORY_REGEX = 'Memory',
 }
 
-export enum GraphTypes {
+export enum Graphs {
   TIME_BY_PHASE = 'Time usage by phase',
   RAM_USAGE = 'RAM usage',
   UPTIME = 'Uptime',
+  HOSTS_UP = 'Up hosts',
+  CPU_UTILIZATION = 'CPU utilization',
+}
 
+export enum GraphTypes {
   PREDEFINED = 'Predefined graph',
   SINGLE_METRIC = 'Single metric',
 }
@@ -123,6 +127,7 @@ export enum GraphLegends {
   TIME_SPENT_WAITING_FOR_CHECKMK = 'Time spent waiting for Checkmk agent',
   TOTAL_EXECUTION_TIME = 'Total execution time',
   RAM_USAGE = 'Ram usage',
+  CPU_UTILIZATION = 'CPU utilization',
 }
 
 export enum CustomLabels {

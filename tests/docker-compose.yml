@@ -1,6 +1,6 @@
 services:
   checkmk:
-    image: checkmk/check-mk-cloud:2.3.0-latest
+    image: checkmk/check-mk-cloud:${GRAFANA_VERSION:-2.3.0-latest}
     container_name: checkmk
     ports:
       - '12345:5000'
@@ -21,6 +21,10 @@ services:
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: checkmk-cloud-datasource
       GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
       GF_AUTH_ANONYMOUS_ENABLED: 'true'
+      # Logging
+      GF_LOG_FILTERS: plugin.checkmk-cloud-datasource:debug
+      GF_DATAPROXY_LOGGING: 1
+
     extra_hosts:
       - checkmk.local:host-gateway
     ports:
