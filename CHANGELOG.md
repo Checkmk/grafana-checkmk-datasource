@@ -2,6 +2,9 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 4.0.3
+- Updated dependencies
+
 ## 4.0.2
 - Dropped support for Grafana prior 10.4.18
 
