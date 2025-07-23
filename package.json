@@ -1,6 +1,6 @@
 {
   "name": "tribe-29-checkmk-datasource",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Datasource for checkmk",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
