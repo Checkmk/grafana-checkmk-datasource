@@ -21,10 +21,13 @@ jobs:
             });
             return data.jobs[0].html_url
           result-encoding: string
-      - uses: adelynx/github-actions-nodemailer@v1.0.3
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v6
         with:
-          host: ${{ secrets.NOTIFICATION_SMTP_SERVER }}
-          port: 465
+          server_address: ${{ secrets.NOTIFICATION_SMTP_SERVER }}
+          server_port: 465
+          secure: true
+          ignore_cert: false
           username: '${{ secrets.NOTIFICATION_SMTP_USER }}'
           password: '${{ secrets.NOTIFICATION_SMTP_PASSWORD }}'
           from: 'Grafana notifications <${{ secrets.NOTIFICATION_SMTP_USER }}>'
@@ -38,3 +41,6 @@ jobs:
             <li><strong>More information</strong>: ${{ steps.job-url.outputs.result }}</li>
             </ul>
             <p>Thank you!</p>
+
+          #nodemailerlog: false
+          #nodemailerdebug: false
