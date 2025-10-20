@@ -4,7 +4,6 @@
 # conditions defined in the file COPYING, which is part of this source code package.
 
 import argparse
-import glob
 import json
 import logging
 import os
@@ -15,7 +14,7 @@ import textwrap
 import time
 from http.client import HTTPConnection
 from pathlib import Path
-from typing import Dict, Iterator, List, Mapping, NamedTuple, Sequence, TypedDict, Union
+from typing import Dict, List, Mapping, NamedTuple, Sequence, TypedDict, Union
 
 import requests
 
