@@ -19,13 +19,14 @@ from typing import Dict, Iterator, List, Mapping, NamedTuple, Sequence, TypedDic
 
 import requests
 
-CMK_ADMIN="cmkadmin"
-CMK_PASS="abskjfdalkdhjbld"
-CMK_AUITOMATION_USER="automation"
-CMK_SITE="cmk"
-CMK_PORT=5000
-HOME_DIR=os.path.dirname(os.path.abspath(__file__))
-HOSTNAME=["localhost_grafana0", "localhost_grafana1"]
+CMK_ADMIN = "cmkadmin"
+CMK_PASS = "abskjfdalkdhjbld"
+CMK_AUITOMATION_USER = "automation"
+CMK_SITE = "cmk"
+CMK_PORT = 5000
+HOME_DIR = os.path.dirname(os.path.abspath(__file__))
+HOSTNAME = ["localhost_grafana0", "localhost_grafana1"]
+
 
 class BulkHost(NamedTuple):
     name: str
@@ -213,7 +214,6 @@ class API:
         self._session.headers["Accept"] = "application/json"
         self._version = self.version()
 
-
     def _version_le_230(self) -> bool:
         return bool(re.match("^(2.3.0|2.2.0|2.1.0|2.0.0)", self._version))
 
@@ -264,7 +264,7 @@ class API:
         resp = self._session.get(url, timeout=5)
         return resp
 
-    def _delete (self, url: str) -> None:
+    def _delete(self, url: str) -> None:
         if not url.startswith("http://"):
             url = f"{self._base_url}{url}"
         try:
@@ -272,9 +272,8 @@ class API:
 
         except:
             ...
-            
-        return resp
 
+        return resp
 
     def version(self) -> str:
         resp = self._get("/version")
@@ -291,14 +290,12 @@ class API:
                     "auth_type": "automation",
                     "secret": secret,
                 },
-                "roles": ["admin"],                
+                "roles": ["admin"],
             },
         ).json()
 
     def delete_automation_user(self, username: str) -> None:
-        self._delete(
-            f"/objects/user_config/{username}"
-        )
+        self._delete(f"/objects/user_config/{username}")
 
     def create_folder(self, folder_name: str, folder_title: str) -> Dict[str, str]:
         return self._post(
@@ -310,9 +307,10 @@ class API:
             },
         ).json()
 
-    def delete_folder (self, folder_path: str) -> None:
-        return self._delete(f"/objects/folder_config/~{folder_path}?delete_mode=recursive")
-
+    def delete_folder(self, folder_path: str) -> None:
+        return self._delete(
+            f"/objects/folder_config/~{folder_path}?delete_mode=recursive"
+        )
 
     def get_folder(self, folder_name: str) -> Union[Dict[str, str], None]:
         resp = self._get(f"/objects/folder_config/~{folder_name}")
@@ -393,9 +391,7 @@ class API:
                     if self._version_le_230()
                     else result["extensions"]["status"]["log_info"]["JobProgressUpdate"]
                 )
-                printer.info(
-                    printer.indent("\n".join(logs_progress))
-                )
+                printer.info(printer.indent("\n".join(logs_progress)))
 
                 logs_result = (
                     result["extensions"]["logs"]["result"]
@@ -446,10 +442,11 @@ class API:
                 if not data["extensions"]["is_running"]:
                     for change in data["extensions"]["changes"]:
                         printer.print(
-                            printer.indent(f'{change["user_id"]} {change["text"]}')
+                            printer.indent(f"{change['user_id']} {change['text']}")
                         )
                     break
             time.sleep(1)
+
 
 def parse() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser = argparse.ArgumentParser(
@@ -471,9 +468,9 @@ def parse() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     return parser, args
 
 
-def create_automation_user (username: str, password: str, api: API, printer: Printer):
+def create_automation_user(username: str, password: str, api: API, printer: Printer):
     printer.headline("## automation user")
-        
+
     printer.info(printer.indent("delete current automation user if exists"))
     api.delete_automation_user(username)
 
@@ -486,7 +483,6 @@ def create_automation_user (username: str, password: str, api: API, printer: Pri
 
 def main() -> None:
     parser, args = parse()
-    
 
     level = sum(args.level)
     if level >= 1:
@@ -498,7 +494,7 @@ def main() -> None:
 
     printer = Printer(level)
 
-    source_files = [ Path(HOME_DIR +'/' + hostname) for hostname in HOSTNAME ]
+    source_files = [Path(HOME_DIR + "/" + hostname) for hostname in HOSTNAME]
     site = Site(CMK_SITE, True)
     api = API(site)
 
@@ -518,7 +514,8 @@ def main() -> None:
 
     create_from(create_config, source_files, api, site, printer)
 
-    create_automation_user (CMK_AUITOMATION_USER, CMK_PASS, api, printer)
+    create_automation_user(CMK_AUITOMATION_USER, CMK_PASS, api, printer)
+
 
 if __name__ == "__main__":
     main()
