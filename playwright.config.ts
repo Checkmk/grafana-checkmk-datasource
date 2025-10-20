@@ -1,5 +1,8 @@
 import type { PluginOptions } from '@grafana/plugin-e2e';
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
+import { dirname } from 'path';
+
+const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
 export default defineConfig<PluginOptions>({
   testDir: './tests/e2e/tests',
@@ -23,15 +26,23 @@ export default defineConfig<PluginOptions>({
     baseURL: process.env.PLAYWRIGHT_TO_GRAFANA_URL || 'http://localhost:3003',
     grafanaAPICredentials: {
       user: process.env.GRAFANA_USER || 'admin',
-      password: process.env.GRAFANA_PASSWORD || 'password',
+      password: process.env.GRAFANA_PASSWORD || 'admin',
     },
   },
   projects: [
     {
+      name: 'auth',
+      testDir: pluginE2eAuth,
+      testMatch: [/.*\.js/],
+    },
+    {
       name: 'tests',
       testDir: './tests/e2e/tests',
       testMatch: ['**/*.test.ts'],
-      dependencies: ['setup'],
+      use: {
+        storageState: 'playwright/.auth/admin.json',
+      },
+      dependencies: ['setup', 'auth'],
     },
     {
       name: 'setup',
