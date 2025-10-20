@@ -26,6 +26,8 @@ CMK_PORT = 5000
 HOME_DIR = os.path.dirname(os.path.abspath(__file__))
 HOSTNAME = ["localhost_grafana0", "localhost_grafana1"]
 
+TIMEOUT = 110
+
 
 class BulkHost(NamedTuple):
     name: str
@@ -250,7 +252,7 @@ class API:
             f"{self._base_url}{url}",
             json=data,
             headers=headers,
-            timeout=5,
+            timeout=TIMEOUT,
         )
         if check_status_code and resp.status_code != requests.codes.ok:
             raise RuntimeError(resp.json())
@@ -260,14 +262,14 @@ class API:
         # this feels a bit hackish... introduced because links are absolute urls
         if not url.startswith("http://"):
             url = f"{self._base_url}{url}"
-        resp = self._session.get(url, timeout=5)
+        resp = self._session.get(url, timeout=TIMEOUT)
         return resp
 
     def _delete(self, url: str) -> None:
         if not url.startswith("http://"):
             url = f"{self._base_url}{url}"
         try:
-            resp = self._session.delete(url, timeout=5)
+            resp = self._session.delete(url, timeout=TIMEOUT)
 
         except:
             ...
