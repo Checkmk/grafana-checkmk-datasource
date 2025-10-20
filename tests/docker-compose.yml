@@ -17,10 +17,8 @@ services:
       GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
       GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: 'false'
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: password
+      GF_SECURITY_ADMIN_PASSWORD: admin
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: checkmk-cloud-datasource
-      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
-      GF_AUTH_ANONYMOUS_ENABLED: 'true'
       # Logging
       GF_LOG_FILTERS: plugin.checkmk-cloud-datasource:debug
       GF_DATAPROXY_LOGGING: 1
@@ -44,7 +42,7 @@ services:
       - PLAYWRIGHT_TO_CHECKMK_URL=http://checkmk:5000/cmk/
       - PLAYWRIGHT_TO_GRAFANA_URL=http://grafana:3000/
       - GRAFANA_USER=admin
-      - GRAFANA_PASSWORD=password
+      - GRAFANA_PASSWORD=admin
       - GRAFANA_TO_CHECKMK_USER=automation
       - GRAFANA_TO_CHECKMK_PASSWORD=abskjfdalkdhjbld
       - GRAFANA_TO_CHECKMK_URL=http://checkmk:5000/cmk/
