@@ -4,8 +4,6 @@ import { assert } from 'console';
 import config from '../config';
 import { CmkEdition } from '../constants';
 
-// import { wait } from './util';
-
 let requestContext: APIRequestContext;
 
 (async () => {

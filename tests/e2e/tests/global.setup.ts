@@ -1,4 +1,4 @@
-import { expect, test } from '@grafana/plugin-e2e';
+import { test } from '@grafana/plugin-e2e';
 
 import config from '../config';
 import { CmkEdition, HOSTNAME0, HOSTNAME1 } from '../constants';

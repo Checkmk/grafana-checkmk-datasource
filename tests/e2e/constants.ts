@@ -96,6 +96,9 @@ export enum FilterTypes {
   HOST_LABELS = 'Host labels',
   SERVICE = 'Service',
   SERVICE_REGEX = 'Service regex',
+  HOST_IN_GROUP = 'Host in group',
+  HOST_TAGS = 'Host tags',
+  SERVICE_IN_GROUP = 'Service in group',
 }
 
 export enum Services {
@@ -110,6 +113,7 @@ export enum Graphs {
   UPTIME = 'Uptime',
   HOSTS_UP = 'Up hosts',
   CPU_UTILIZATION = 'CPU utilization',
+  CPU_TIME_IN_USER_SPACE = 'CPU time in user space',
 }
 
 export enum GraphTypes {
