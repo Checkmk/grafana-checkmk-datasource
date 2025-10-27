@@ -1,6 +1,6 @@
 services:
   checkmk:
-    image: checkmk/check-mk-cloud:${GRAFANA_VERSION:-2.3.0-latest}
+    image: checkmk/${CHECKMK_IMAGE:-check-mk-cloud}:${CHECKMK_VERSION:-2.4.0-latest}
     container_name: checkmk
     ports:
       - '12345:5000'
