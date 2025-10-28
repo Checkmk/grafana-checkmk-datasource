@@ -1,5 +1,4 @@
 // @ts-check
-
 /*eslint no-empty-pattern: ["error", { "allowObjectPatternsAsParameters": true }]*/
 import { test } from '@playwright/test';
 
