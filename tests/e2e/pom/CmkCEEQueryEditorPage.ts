@@ -19,10 +19,10 @@ export class CmkCEEQueryEditorPage extends CmkQueryEditorPage {
 
   async filterByHostname(hostname: string) {
     await this.addFilter(FilterTypes.HOSTNAME);
-    await this.page.getByLabel(FilterTypes.HOSTNAME).fill(hostname);
+    await this.page.getByLabel(FilterTypes.HOSTNAME, { exact: true }).fill(hostname);
     await this.expectSpinners(false);
     await this.page.keyboard.press('Enter');
-    await this.page.getByLabel(FilterTypes.HOSTNAME).blur();
+    await this.page.getByLabel(FilterTypes.HOSTNAME, { exact: true }).blur();
     await this.expectSpinners(false);
   }
 
@@ -48,7 +48,7 @@ export class CmkCEEQueryEditorPage extends CmkQueryEditorPage {
 
   async filterByService(service: Services) {
     await this.addFilter(FilterTypes.SERVICE);
-    await this.page.getByLabel('Service').fill(service);
+    await this.page.getByLabel('Service', { exact: true }).fill(service);
     await this.expectSpinners(false);
     await this.page.keyboard.press('Enter');
     await this.expectSpinners(false);
@@ -56,7 +56,7 @@ export class CmkCEEQueryEditorPage extends CmkQueryEditorPage {
 
   async filterByHostLabel(label: string) {
     await this.addFilter(FilterTypes.HOST_LABELS);
-    await this.page.getByLabel(FilterTypes.HOST_LABELS).fill(label);
+    await this.page.getByLabel(FilterTypes.HOST_LABELS, { exact: true }).fill(label);
     await this.expectSpinners(false);
     await this.page.keyboard.press('Enter');
     await this.expectSpinners(false);
@@ -72,7 +72,7 @@ export class CmkCEEQueryEditorPage extends CmkQueryEditorPage {
     if (testId) {
       component = this.page.getByTestId(testId);
     } else {
-      component = this.page.getByLabel(filter);
+      component = this.page.getByLabel(filter, { exact: true });
     }
 
     await expect(component).toBeVisible();
