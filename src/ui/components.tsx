@@ -573,6 +573,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): React.JSX.El
                       icon="minus"
                       data-test-id={'cmk-oac-minus-button-' + getLabel(elem)}
                       variant="secondary"
+                      aria-label={getLabel(elem)}
                       onClick={() =>
                         setActiveComponents((c) => {
                           if (!React.isValidElement(elem)) {

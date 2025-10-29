@@ -462,6 +462,10 @@ def parse() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
         default=[0],
         help="more verbose",
     )
+
+    parser.add_argument ("--skip-initial-setup", action="store_true")
+    parser.add_argument ("--skip-automation-user-creation", action="store_true")
+
     subparsers = parser.add_subparsers()
 
     args = parser.parse_args()
@@ -499,23 +503,34 @@ def main() -> None:
     site = Site(CMK_SITE, True)
     api = API(site)
 
-    create_config = CreateConfig(
-        folder_name="grafana",
-        folder_title="grafana",
-        rule_name="datasource_programs",
-        rule_value="'cat ~/var/check_mk/agent_output/$HOSTNAME$'",
-        source_folder="agent_output",
-        host_attributes={
-            "tag_agent": "cmk-agent",
-        },
-        source_destination="~/var/check_mk/agent_output/{host_name}",
-    )
+    if args.skip_initial_setup:
+        printer.info ("Skipping creating folder, hosts, rules and discovering services")
 
-    api.delete_folder(create_config.folder_name)
+    else: 
+        create_config = CreateConfig(
+            folder_name="grafana",
+            folder_title="grafana",
+            rule_name="datasource_programs",
+            rule_value="'cat ~/var/check_mk/agent_output/$HOSTNAME$'",
+            source_folder="agent_output",
+            host_attributes={
+                "tag_agent": "cmk-agent",
+            },
+            source_destination="~/var/check_mk/agent_output/{host_name}",
+        )
 
-    create_from(create_config, source_files, api, site, printer)
+        api.delete_folder(create_config.folder_name)
 
-    create_automation_user(CMK_AUITOMATION_USER, CMK_PASS, api, printer)
+        create_from(create_config, source_files, api, site, printer)
+
+        if args.skip_automation_user_creation:
+            api.activate_changes(printer)
+
+    if args.skip_automation_user_creation:
+        printer.info ("Skipping automation user creation")
+
+    else: 
+        create_automation_user(CMK_AUITOMATION_USER, CMK_PASS, api, printer)
 
 
 if __name__ == "__main__":
