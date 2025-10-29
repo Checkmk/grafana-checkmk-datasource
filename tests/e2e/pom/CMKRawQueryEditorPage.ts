@@ -30,7 +30,7 @@ export class CmkRawQueryEditorPage extends CmkQueryEditorPage {
   }
 
   async _filterBy(fieldLabel: string, value: string) {
-    await this.page.getByLabel(fieldLabel).fill(value);
+    await this.page.getByLabel(fieldLabel, { exact: true }).fill(value);
     await this.expectSpinners(false);
     await this.page.keyboard.press('Enter');
     await this.expectSpinners(false);

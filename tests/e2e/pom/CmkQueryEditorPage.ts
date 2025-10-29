@@ -63,7 +63,7 @@ export class CmkQueryEditorPage extends CmkBasePage {
 
   async _selectGraph(componentLabel: string, graph: Graphs) {
     await wait(1000);
-    const locator = this.page.getByLabel(componentLabel);
+    const locator = this.page.getByLabel(componentLabel, { exact: true });
     await this.expectSpinners(false);
     await locator.fill(graph);
     await this.expectSpinners(false);
