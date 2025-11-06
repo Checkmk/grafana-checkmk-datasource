@@ -1,3 +1,5 @@
+import { EditionFamilyLabel } from '../../src/edition';
+
 export const HOSTNAME0 = 'localhost_grafana0';
 export const HOSTNAME1 = 'localhost_grafana1';
 
@@ -5,8 +7,8 @@ export const TESTDATASOURCENAME0 = 'cmk_test_datasource_0';
 export const TESTDATASOURCENAME1 = 'cmk_test_datasource_1';
 
 export enum CmkEdition {
-  CRE = 'Raw Edition',
-  CEE = 'Commercial editions',
+  CRE = EditionFamilyLabel.COMMUNITY,
+  CEE = EditionFamilyLabel.COMMERCIAL,
 }
 
 export const GRAFANA_SELECTORS = {

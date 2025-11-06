@@ -7,6 +7,7 @@ import {
   TestDataSourceResponse,
 } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
+import { EditionFamily, getEditionFamily } from 'edition';
 import { replaceVariables } from 'utils';
 
 import { MetricFindQuery, RequestSpec } from './RequestSpec';
@@ -81,5 +82,9 @@ export class DataSource extends DataSourceApi<CmkQuery> {
 
   getUsername(): string {
     return this.settings.username;
+  }
+
+  getEditionFamily(): EditionFamily {
+    return getEditionFamily(this.settings.edition);
   }
 }

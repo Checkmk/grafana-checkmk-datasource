@@ -154,7 +154,7 @@ test.describe('Comercial editions tests', () => {
   });
 });
 
-test.describe('RAW edition tests', () => {
+test.describe('Community edition tests', () => {
   test.slow();
 
   test('time-usage panel by service (Single host)', async ({ page, selectors, panelEditPage }, testInfo) => {

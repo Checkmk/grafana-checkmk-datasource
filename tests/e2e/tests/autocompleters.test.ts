@@ -63,7 +63,7 @@ test.describe('Comercial editions tests', () => {
   });
 });
 
-test.describe('Raw edition tests', () => {
+test.describe('Community edition tests', () => {
   test.slow();
   test('Filtering autocompleters', async ({ panelEditPage, page, selectors }) => {
     const panelPage = new CmkRawQueryEditorPage(page, selectors, panelEditPage);

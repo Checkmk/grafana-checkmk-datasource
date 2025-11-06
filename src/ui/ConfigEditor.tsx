@@ -1,5 +1,6 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
 import { FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+import { EditionFamilyLabel } from 'edition';
 import React, { ChangeEvent, useCallback } from 'react';
 
 import { Settings } from '../settings';
@@ -16,8 +17,8 @@ interface EditionOption {
 }
 
 const cmkEditions: EditionOption[] = [
-  { value: 'CEE', label: 'Commercial editions' },
-  { value: 'RAW', label: 'Raw Edition' },
+  { value: 'CEE', label: EditionFamilyLabel.COMMERCIAL },
+  { value: 'RAW', label: EditionFamilyLabel.COMMUNITY },
 ];
 
 export const ConfigEditor = (props: Props) => {

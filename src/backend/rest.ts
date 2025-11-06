@@ -13,6 +13,7 @@ import {
   toDataFrame,
 } from '@grafana/data';
 import { BackendSrvRequest, FetchError, FetchResponse, getBackendSrv } from '@grafana/runtime';
+import { EditionFamily, getEditionFamily, isCloudEdition } from 'edition';
 import { lastValueFrom } from 'rxjs';
 
 import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
@@ -181,17 +182,23 @@ export default class RestApiBackend implements Backend {
     if (checkMkVersion.startsWith('2.0') || checkMkVersion.startsWith('2.1') || checkMkVersion.startsWith('1.')) {
       throw new Error(`A Checkmk version below 2.2.0 is not supported for this plugin.`);
     }
-    if (this.datasource.getEdition() !== 'RAW' && result.data.edition === 'cre') {
+    if (
+      this.datasource.getEditionFamily() !== EditionFamily.COMMUNITY &&
+      getEditionFamily(result.data.edition) === EditionFamily.COMMUNITY
+    ) {
       throw new Error(
-        'The data source specified the Checkmk commercial editions, but Checkmk Raw Edition was detected. Choose the raw edition in the data source settings.'
+        'The data source specified the Checkmk commercial editions, but Checkmk Community Edition was detected. Choose the Community Edition in the data source settings.'
       );
     }
-    if (this.datasource.getEdition() === 'RAW' && result.data.edition !== 'cre') {
+    if (
+      this.datasource.getEditionFamily() === EditionFamily.COMMUNITY &&
+      getEditionFamily(result.data.edition) !== EditionFamily.COMMUNITY
+    ) {
       throw new Error(
-        'The data source specified the Checkmk Raw Edition, but a Checkmk commercial edition was detected. Some functionality may not be available. Choose commercial editions in the data source settings to enable all features.'
+        'The data source specified the Checkmk Community Edition, but a Checkmk commercial edition was detected. Some functionality may not be available. Choose commercial editions in the data source settings to enable all features.'
       );
     }
-    if (result.data.edition === 'cse') {
+    if (isCloudEdition(result.data.edition)) {
       throw new Error('Detected Checkmk Cloud (SaaS). Can not query data from Checkmk Cloud (SaaS).');
     }
     // The REST API would be ok with other users, but the autocompleter are not
@@ -251,7 +258,7 @@ export default class RestApiBackend implements Backend {
     // check for cloud edition header
     const checkmkEdition = result.headers.get('X-Checkmk-Edition');
     // CSE is never supported
-    if (checkmkEdition === 'cse') {
+    if (checkmkEdition && isCloudEdition(checkmkEdition)) {
       throw new Error('Cannot query data from Checkmk Cloud (SaaS).');
     }
 
@@ -264,7 +271,6 @@ export default class RestApiBackend implements Backend {
     // our api only supports a single chart/query per api call.
     updateQuery(query);
 
-    // prepare data required by cre and cee
     if (
       query.requestSpec === undefined ||
       (query.requestSpec.graph_type !== 'single_metric' && query.requestSpec.graph_type !== 'predefined_graph') ||
@@ -290,8 +296,8 @@ export default class RestApiBackend implements Backend {
     }
 
     let response: FetchResponse<RestApiGraphResponse>;
-    if (this.datasource.getEdition() === 'RAW') {
-      // send request for cre
+    if (this.datasource.getEditionFamily() === EditionFamily.COMMUNITY) {
+      // send request for community edition
       if (
         query.requestSpec.site === undefined ||
         query.requestSpec.host_name === undefined ||
@@ -315,7 +321,7 @@ export default class RestApiBackend implements Backend {
         data: request,
       });
     } else {
-      // send request for cee
+      // send request for commercial editions
       const request: RestApiFilterRequest = {
         filter: createCmkContext(query.requestSpec),
         aggregation: query.requestSpec.aggregation,
