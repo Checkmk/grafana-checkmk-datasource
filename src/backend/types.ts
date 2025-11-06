@@ -1,4 +1,5 @@
 import { DataQueryRequest, DataQueryResponse, MetricFindValue, TestDataSourceResponse } from '@grafana/data';
+import { EditionFamily } from 'edition';
 
 import { MetricFindQuery } from '../RequestSpec';
 import { CmkQuery, Edition } from '../types';
@@ -14,4 +15,5 @@ export interface DatasourceOptions {
   getEdition: () => Edition;
   getUrl: () => string | undefined;
   getUsername(): string;
+  getEditionFamily: () => EditionFamily;
 }

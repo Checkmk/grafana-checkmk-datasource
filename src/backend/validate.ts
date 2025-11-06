@@ -1,3 +1,5 @@
+import { EditionFamily, getEditionFamily } from 'edition';
+
 import { RequestSpec } from '../RequestSpec';
 import { Edition } from '../types';
 import { labelForRequestSpecKey } from '../ui/utils';
@@ -11,7 +13,7 @@ const missingRequiredFields = (rq: Partial<RequestSpec>, edition: Edition): stri
     result.push('graph');
   }
 
-  if (edition === 'RAW') {
+  if (getEditionFamily(edition) === EditionFamily.COMMUNITY) {
     if (rq.site === undefined) {
       result.push('site');
     }
