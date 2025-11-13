@@ -1,12 +1,11 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
-import { FieldSet, InlineField, LegacyForms, Select } from '@grafana/ui';
+/* Select is deprecated, but Combobox is still alpha, so no changes for now */
+import { FieldSet, InlineField, Input, SecretInput, Select } from '@grafana/ui';
 import { EditionFamilyLabel } from 'edition';
 import React, { ChangeEvent, useCallback } from 'react';
 
 import { Settings } from '../settings';
 import { DataSourceOptions, Edition, SecureJsonData } from '../types';
-
-const { SecretFormField, FormField } = LegacyForms;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends DataSourcePluginOptionsEditorProps<DataSourceOptions, SecureJsonData> {}
@@ -96,19 +95,23 @@ export const ConfigEditor = (props: Props) => {
     <>
       <FieldSet label="Monitoring Site">
         <div className="gf-form">
-          <FormField
+          <InlineField
             label="URL"
-            labelWidth={6}
-            inputWidth={20}
-            onChange={onUrlChange}
-            value={settings.url || ''}
+            labelWidth={12}
             tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
-            data-test-id="checkmk-url"
-          />
+          >
+            <Input
+              label="URL"
+              width={40}
+              onChange={onUrlChange}
+              value={settings.url || ''}
+              data-test-id="checkmk-url"
+            />
+          </InlineField>
         </div>
         <InlineField label="Edition" labelWidth={12}>
           <Select
-            width={32}
+            width={40}
             options={cmkEditions}
             onChange={onEditionChange}
             value={settings.edition}
@@ -120,29 +123,37 @@ export const ConfigEditor = (props: Props) => {
       </FieldSet>
       <FieldSet label="Authentication">
         <div className="gf-form">
-          <FormField
+          <InlineField
             label="Username"
-            labelWidth={6}
-            inputWidth={20}
-            onChange={onUsernameChange}
-            value={settings.username}
+            labelWidth={12}
             tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
-            data-test-id="checkmk-username"
-          />
+          >
+            <Input
+              label="Username"
+              width={40}
+              onChange={onUsernameChange}
+              value={settings.username}
+              data-test-id="checkmk-username"
+            />
+          </InlineField>
         </div>
         <div className="gf-form">
-          <SecretFormField
-            isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
-            value={secureJsonData.secret || ''}
+          <InlineField
             label="Secret"
-            placeholder=""
-            labelWidth={6}
-            inputWidth={20}
-            onReset={onResetSecret}
-            onChange={onSecretChange}
+            labelWidth={12}
             tooltip="You can find the secret for your user in your checkmk server under Users."
-            data-test-id="checkmk-password"
-          />
+          >
+            <SecretInput
+              isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
+              value={secureJsonData.secret || ''}
+              label="Secret"
+              placeholder=""
+              width={40}
+              onReset={onResetSecret}
+              onChange={onSecretChange}
+              data-test-id="checkmk-password"
+            />
+          </InlineField>
         </div>
       </FieldSet>
     </>
