@@ -1,26 +1,6 @@
 import { GraphType, NegatableOption, RequestSpec, TagValue } from './RequestSpec';
-import { Context, Edition, Params } from './types';
-import { aggregationToPresentation, createCmkContext, presentationToAggregation } from './utils';
-
-export interface WebApiCurve {
-  title: string;
-  rrddata: Array<{
-    i: number;
-    d: Record<string, unknown>;
-  }>;
-}
-export interface WebAPiGetGraphResult {
-  start_time: number;
-  end_time: number;
-  step: number;
-  curves: WebApiCurve[];
-}
-
-export interface WebApiResponse<Result> {
-  result_code: number;
-  result: Result;
-  severity: string | undefined;
-}
+import { Context, Params } from './types';
+import { presentationToAggregation } from './utils';
 
 function transform_negated(
   context_property: Record<string, string | undefined> | undefined,
@@ -86,69 +66,7 @@ export function requestSpecFromLegacy(context: Context, params: Params): Partial
   }
 
   rs.graph_type = graphModeToGraphType(params.graphMode);
-  if (rs.graph_type === 'single_metric') {
-    rs.graph = params.graph_name;
-  } else {
-    rs.graph = params.graph_name; // TODO: make this happen!
-  }
+  rs.graph = params.graph_name;
   rs.aggregation = presentationToAggregation(params.presentation);
   return rs;
-}
-
-export function createWebApiRequestSpecification(
-  requestSpec: Partial<RequestSpec>,
-  edition: Edition
-): [string, Record<string, unknown>] {
-  if (edition === 'RAW') {
-    const specification: Record<string, unknown> = {};
-    if (requestSpec.graph_type === 'single_metric') {
-      specification.graph_id = 'METRIC_' + requestSpec.graph;
-    } else {
-      specification.graph_name = requestSpec.graph;
-    }
-    return [
-      'template',
-      {
-        site: requestSpec.site,
-        host_name: requestSpec.host_name,
-        service_description: requestSpec.service,
-        ...specification,
-      },
-    ];
-  }
-  const context = createCmkContext(requestSpec);
-  let graph_template: string | undefined = undefined;
-  if (requestSpec.graph && requestSpec.graph !== '') {
-    if (requestSpec.graph_type === 'single_metric') {
-      graph_template = 'METRIC_' + requestSpec.graph;
-    } else {
-      graph_template = requestSpec.graph;
-    }
-  }
-
-  if (requestSpec.aggregation === undefined) {
-    throw new Error('web api: aggregation not defined!');
-  }
-
-  return [
-    'combined',
-    {
-      context: context,
-      datasource: 'services',
-      single_infos: ['host'],
-      graph_template: graph_template,
-      presentation: aggregationToPresentation(requestSpec.aggregation),
-    },
-  ];
-}
-
-export const buildUrlWithParams = (url: string, params: Record<string, string>): string =>
-  url + '?' + new URLSearchParams(params).toString();
-export const buildRequestBody = (data: unknown): string => `request=${JSON.stringify(data)}`;
-
-export function createWebApiRequestBody(context: [string, Record<string, unknown>], timeRange: number[]) {
-  return {
-    specification: context,
-    data_range: { time_range: timeRange },
-  };
 }

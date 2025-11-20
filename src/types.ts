@@ -75,9 +75,9 @@ export interface DataSourceOptions extends DataSourceJsonData {
 export interface SecureJsonData {
   secret?: string;
 }
-
+export type AutocompleterEntry = [string, string];
 export interface ResponseDataAutocomplete {
-  choices: Array<[string, string]>;
+  choices: AutocompleterEntry[];
 }
 
 export enum LabelVariableNames {
@@ -87,10 +87,4 @@ export enum LabelVariableNames {
   HOST_IN_GROUP = '$filter_host_in_group',
   SERVICE = '$filter_service',
   SERVICE_IN_GROUP = '$filter_service_in_group',
-}
-
-export interface WebApiResponse<Result> {
-  result_code: number;
-  result: Result;
-  severity: string | undefined;
 }

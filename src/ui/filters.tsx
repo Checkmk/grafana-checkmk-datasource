@@ -1,3 +1,4 @@
+import { SelectableValue } from '@grafana/data';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
@@ -72,22 +73,27 @@ export const Filters = (props: FiltersProp): React.JSX.Element => {
     [datasource, qSite]
   );
   const hostTagAutocompleter = React.useCallback(
-    (prefix: string, mode: 'groups' | 'choices', context: Record<string, unknown>) => {
+    async (
+      prefix: string,
+      mode: 'groups' | 'choices',
+      context: Record<string, unknown>
+    ): Promise<Array<SelectableValue<string>>> => {
       if (mode === 'groups') {
-        return datasource.contextAutocomplete('tag_groups', { site: qSite, ...context }, prefix, { strict: true });
+        return await datasource.contextAutocomplete('tag_groups', { site: qSite, ...context }, prefix, {
+          strict: true,
+        });
       } else {
-        return (async function () {
-          // TODO: would have expected that this is dependent on the site, but does not look like that?
-          const response = await datasource.autocompleterRequest('ajax_vs_autocomplete.py', {
-            ident: 'tag_groups_opt',
-            params: { group_id: context.groupId, strict: true },
-            value: prefix,
-          });
-          return response.data.result.choices.map(([value, label]: [string, string]) => ({
-            value,
-            label,
-          }));
-        })();
+        const options = await datasource.autocompleterRequest({
+          ident: 'tag_groups_opt',
+          params: { group_id: context.groupId, strict: true },
+          value: prefix,
+        });
+
+        return options.map(([value, label]: [string, string]) => ({
+          value,
+          label,
+          isDisabled: value === null,
+        }));
       }
     },
     [datasource, qSite]
