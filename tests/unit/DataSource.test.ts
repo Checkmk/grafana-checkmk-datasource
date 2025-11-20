@@ -4,22 +4,12 @@ import { cloneDeep } from 'lodash';
 
 import { DataSource } from '../../src/DataSource';
 import { RequestSpec } from '../../src/RequestSpec';
-import { buildRequestBody, buildUrlWithParams } from '../../src/api_utils';
 import RestApiBackend from '../../src/backend/rest';
 import { CmkQuery, DataSourceOptions, Edition } from '../../src/types';
 import { labelForRequestSpecKey } from '../../src/ui/utils';
 import * as utils from '../../src/utils';
 
 jest.mock('../../src/utils');
-
-describe('URL conversions', () => {
-  it('Params', () => {
-    expect(buildUrlWithParams('hi', { A: '5', TE: 'TTI' })).toBe('hi?A=5&TE=TTI');
-  });
-  it('Request body', () => {
-    expect(buildRequestBody({ spec: ['comb', { site: 'heute' }] })).toBe('request={"spec":["comb",{"site":"heute"}]}');
-  });
-});
 
 // from https://stackoverflow.com/questions/42773836/how-to-find-all-subsets-of-a-set-in-javascript-powerset-of-array
 const allSubsets = (values: string[]): string[][] =>

@@ -6,14 +6,13 @@ import {
   MetricFindValue,
   TestDataSourceResponse,
 } from '@grafana/data';
-import { FetchResponse } from '@grafana/runtime';
 import { EditionFamily, getEditionFamily } from 'edition';
 import { replaceVariables } from 'utils';
 
 import { MetricFindQuery, RequestSpec } from './RequestSpec';
 import RestApiBackend from './backend/rest';
 import { Settings } from './settings';
-import { CmkQuery, DataSourceOptions, Edition, ResponseDataAutocomplete, type WebApiResponse } from './types';
+import { AutocompleterEntry, CmkQuery, DataSourceOptions, Edition } from './types';
 import { AutoCompleteParams } from './ui/autocomplete';
 import { createCmkContext } from './utils';
 
@@ -42,11 +41,8 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return this.restBackend.testDatasource();
   }
 
-  async autocompleterRequest(
-    api_url: string,
-    data: unknown
-  ): Promise<FetchResponse<WebApiResponse<ResponseDataAutocomplete>>> {
-    return this.restBackend.autocompleterRequest(api_url, data);
+  async autocompleterRequest(data: unknown): Promise<AutocompleterEntry[]> {
+    return this.restBackend.autocompleterRequest(data);
   }
 
   async contextAutocomplete(
@@ -57,7 +53,7 @@ export class DataSource extends DataSourceApi<CmkQuery> {
   ): Promise<Array<{ value: string; label: string; isDisabled: boolean }>> {
     const context = createCmkContext(replaceVariables(partialRequestSpec));
 
-    const response = await this.autocompleterRequest('ajax_vs_autocomplete.py', {
+    const response = await this.autocompleterRequest({
       ident,
       value: prefix,
       params: {
@@ -65,7 +61,8 @@ export class DataSource extends DataSourceApi<CmkQuery> {
         context,
       },
     });
-    return response.data.result.choices.map(([value, label]: [string, string]) => ({
+
+    return response.map(([value, label]: [string, string]) => ({
       value,
       label,
       isDisabled: value === null,

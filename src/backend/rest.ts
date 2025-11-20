@@ -17,9 +17,8 @@ import { EditionFamily, getEditionFamily, isCloudEdition } from 'edition';
 import { lastValueFrom } from 'rxjs';
 
 import { Aggregation, GraphType, MetricFindQuery } from '../RequestSpec';
-import { CmkQuery, ResponseDataAutocomplete } from '../types';
+import { AutocompleterEntry, CmkQuery } from '../types';
 import { createCmkContext, replaceVariables, toLiveStatusQuery, updateMetricTitles, updateQuery } from '../utils';
-import { type WebApiResponse } from './../types';
 import { Backend, DatasourceOptions } from './types';
 import { validateRequestSpec } from './validate';
 
@@ -375,10 +374,7 @@ export default class RestApiBackend implements Backend {
     }
   }
 
-  async autocompleterRequest(
-    api_url = '',
-    data: unknown
-  ): Promise<FetchResponse<WebApiResponse<ResponseDataAutocomplete>>> {
+  async autocompleterRequest(data: unknown): Promise<AutocompleterEntry[]> {
     const { ident, params: parameters, value } = data as { ident: string; value: unknown; params: unknown };
 
     const response = await this.api<RestApiAutocompleteResponse>({
@@ -389,15 +385,6 @@ export default class RestApiBackend implements Backend {
 
     const choices = response?.data?.choices || [];
 
-    const new_data: WebApiResponse<ResponseDataAutocomplete> = {
-      result_code: 200,
-      severity: 'success',
-      result: {
-        choices: choices.map((element) => [element.id, element.value]),
-      },
-    };
-
-    const res: FetchResponse<WebApiResponse<ResponseDataAutocomplete>> = { ...response, data: new_data };
-    return res;
+    return choices.map((element) => [element.id, element.value]);
   }
 }

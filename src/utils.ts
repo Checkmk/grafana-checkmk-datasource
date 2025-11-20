@@ -3,7 +3,7 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { isUndefined } from 'lodash';
 
 import { Aggregation, FiltersRequestSpec, NegatableOption, RequestSpec, TagValue } from './RequestSpec';
-import { WebApiCurve, requestSpecFromLegacy } from './api_utils';
+import { requestSpecFromLegacy } from './api_utils';
 import { MetricResponse } from './backend/rest';
 import { CmkQuery, LabelVariableNames } from './types';
 import { Presentation } from './ui/autocomplete';
@@ -261,7 +261,7 @@ export function toLiveStatusQuery(filter: Partial<FiltersRequestSpec>, table: 'h
   };
 }
 
-type GrapResponse = WebApiCurve | MetricResponse;
+type GrapResponse = MetricResponse;
 
 export function updateMetricTitles(metrics: GrapResponse[], query: CmkQuery, scopedVars: ScopedVars = {}) {
   const titleTemplate = query.requestSpec?.label || LabelVariableNames.ORIGINAL;
