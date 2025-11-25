@@ -198,7 +198,7 @@ export default class RestApiBackend implements Backend {
       );
     }
     if (isCloudEdition(result.data.edition)) {
-      throw new Error('Detected Checkmk Cloud (SaaS). Can not query data from Checkmk Cloud (SaaS).');
+      throw new Error('Detected Checkmk Cloud. Can not query data from Checkmk Cloud.');
     }
     // The REST API would be ok with other users, but the autocompleter are not
     if (!(await this.isAutomationUser(this.datasource.getUsername()))) {
@@ -256,9 +256,9 @@ export default class RestApiBackend implements Backend {
 
     // check for cloud edition header
     const checkmkEdition = result.headers.get('X-Checkmk-Edition');
-    // CSE is never supported
+    // Cloud is never supported
     if (checkmkEdition && isCloudEdition(checkmkEdition)) {
-      throw new Error('Cannot query data from Checkmk Cloud (SaaS).');
+      throw new Error('Cannot query data from Checkmk Cloud.');
     }
 
     return result;
