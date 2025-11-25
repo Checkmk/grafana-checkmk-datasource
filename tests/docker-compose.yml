@@ -1,6 +1,6 @@
 services:
   checkmk:
-    image: checkmk/${CHECKMK_IMAGE:-check-mk-cloud}:${CHECKMK_VERSION:-2.4.0-latest}
+    image: checkmk/${CHECKMK_IMAGE:-check-mk-ultimate}:${CHECKMK_VERSION:-master-daily}
     container_name: checkmk
     ports:
       - '12345:5000'
