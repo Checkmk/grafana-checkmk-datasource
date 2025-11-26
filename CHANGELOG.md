@@ -2,6 +2,12 @@
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
 
+## 4.1.0-beta.1
+- Updated dependencies
+- Removed code for unsupported Checkmk versions
+- Updated test suite
+- Added support for the new Checkmk editions names
+
 ## 4.0.3
 - Updated dependencies
 
