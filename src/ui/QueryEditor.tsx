@@ -76,11 +76,7 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
       let params = {};
       if (datasource.getEdition() === 'RAW') {
         ident = qGraphType === 'single_metric' ? 'monitored_metrics' : 'available_graphs';
-        params = { strict: 'with_source' };
-        // 2.1.0 changed { strict: 'with_source' } to:
-        // strict: true,
-        // show_independent_of_context: false,
-        // but the defaults for missing values seem to be in our favour.
+        params = { strict: true, show_independent_of_context: false };
       } else {
         ident = 'combined_graphs';
         params = {
