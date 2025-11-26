@@ -60,7 +60,7 @@ export const defaultQuery: Partial<CmkQuery> = {
 };
 
 export type Edition = 'CEE' | 'RAW';
-export type Backend = 'web' | 'rest';
+export type Backend = 'rest';
 
 export interface DataSourceOptions extends DataSourceJsonData {
   url?: string;
