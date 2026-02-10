@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
   schedule:
-    - cron: '38 0 * * *' # every day at randint(0, 60) minutes after midnight
+    - cron: '38 3 * * *' # every day at randint(0, 60) minutes after 3
 
 jobs:
   build:
