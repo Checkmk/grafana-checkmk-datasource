@@ -8,7 +8,7 @@ services:
       - ./checkmk-docker-hooks:/docker-entrypoint.d
 
   grafana:
-    image: grafana/grafana-oss:${GRAFANA_VERSION:-latest}
+    image: grafana/grafana-oss:${GRAFANA_VERSION:-12.4.2}
     container_name: grafana
     volumes:
       - ../dist:/var/lib/grafana/plugins/grafana-checkmk-datasource
