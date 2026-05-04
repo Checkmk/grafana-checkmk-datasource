@@ -94,21 +94,13 @@ export const ConfigEditor = (props: Props) => {
   return (
     <>
       <FieldSet label="Monitoring Site">
-        <div className="gf-form">
-          <InlineField
-            label="URL"
-            labelWidth={12}
-            tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
-          >
-            <Input
-              label="URL"
-              width={40}
-              onChange={onUrlChange}
-              value={settings.url || ''}
-              data-test-id="checkmk-url"
-            />
-          </InlineField>
-        </div>
+        <InlineField
+          label="URL"
+          labelWidth={12}
+          tooltip="Which Checkmk Server to connect to. (Example: https://checkmk.server/site)"
+        >
+          <Input label="URL" width={40} onChange={onUrlChange} value={settings.url || ''} data-test-id="checkmk-url" />
+        </InlineField>
         <InlineField label="Edition" labelWidth={12}>
           <Select
             width={40}
@@ -122,39 +114,35 @@ export const ConfigEditor = (props: Props) => {
         </InlineField>
       </FieldSet>
       <FieldSet label="Authentication">
-        <div className="gf-form">
-          <InlineField
+        <InlineField
+          label="Username"
+          labelWidth={12}
+          tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
+        >
+          <Input
             label="Username"
-            labelWidth={12}
-            tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
-          >
-            <Input
-              label="Username"
-              width={40}
-              onChange={onUsernameChange}
-              value={settings.username}
-              data-test-id="checkmk-username"
-            />
-          </InlineField>
-        </div>
-        <div className="gf-form">
-          <InlineField
+            width={40}
+            onChange={onUsernameChange}
+            value={settings.username}
+            data-test-id="checkmk-username"
+          />
+        </InlineField>
+        <InlineField
+          label="Secret"
+          labelWidth={12}
+          tooltip="You can find the secret for your user in your checkmk server under Users."
+        >
+          <SecretInput
+            isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
+            value={secureJsonData.secret || ''}
             label="Secret"
-            labelWidth={12}
-            tooltip="You can find the secret for your user in your checkmk server under Users."
-          >
-            <SecretInput
-              isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
-              value={secureJsonData.secret || ''}
-              label="Secret"
-              placeholder=""
-              width={40}
-              onReset={onResetSecret}
-              onChange={onSecretChange}
-              data-test-id="checkmk-password"
-            />
-          </InlineField>
-        </div>
+            placeholder=""
+            width={40}
+            onReset={onResetSecret}
+            onChange={onSecretChange}
+            data-test-id="checkmk-password"
+          />
+        </InlineField>
       </FieldSet>
     </>
   );
