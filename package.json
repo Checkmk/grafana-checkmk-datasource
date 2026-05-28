@@ -25,13 +25,6 @@
   },
   "author": "Checkmk",
   "license": "Apache-2.0",
-  "overrides": {
-    "copy-webpack-plugin": {
-      "schema-utils": {
-        "ajv": ">=8.18.0"
-      }
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@grafana/eslint-config": "^8.2.0",
