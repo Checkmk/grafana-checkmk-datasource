@@ -50,10 +50,12 @@ jobs:
             ${{ steps.build-signed.outputs.plugin_path }}
             ${{ steps.build-signed.outputs.plugin_checksum_path }}
 
-      - uses: adelynx/github-actions-nodemailer@v1.0.3
+      - uses: dawidd6/action-send-mail@v6
         with:
-          host: ${{ secrets.NOTIFICATION_SMTP_SERVER }}
-          port: 465
+          server_address: ${{ secrets.NOTIFICATION_SMTP_SERVER }}
+          server_port: 465
+          secure: true
+          ignore_cert: false
           username: '${{ secrets.NOTIFICATION_SMTP_USER }}'
           password: '${{ secrets.NOTIFICATION_SMTP_PASSWORD }}'
           from: 'Grafana notifications <${{ secrets.NOTIFICATION_SMTP_USER }}>'
