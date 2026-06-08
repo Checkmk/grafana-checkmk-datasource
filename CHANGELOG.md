@@ -1,6 +1,10 @@
 # Changelog
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
+## 4.1.1
+- Updated dependencies
+- Pinned grafana test image version
+- Fixed deprecation warnings
 
 ## 4.1.0
 - Updated dependencies
