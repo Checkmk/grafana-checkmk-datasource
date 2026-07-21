@@ -8,7 +8,7 @@ services:
       - ./checkmk-docker-hooks:/docker-entrypoint.d
 
   grafana:
-    image: grafana/grafana-oss:${GRAFANA_VERSION:-12.4.2}
+    image: grafana/grafana-oss:${GRAFANA_VERSION:-latest}
     container_name: grafana
     volumes:
       - ../dist:/var/lib/grafana/plugins/grafana-checkmk-datasource
@@ -16,9 +16,12 @@ services:
       GF_ANALYTICS_REPORTING_ENABLED: 'false'
       GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
       GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: 'false'
+      GF_NEWS_NEWS_FEED_ENABLED: 'false'
+      GF_ANALYTICS_FEEDBACK_LINKS_ENABLED: 'false'
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: checkmk-cloud-datasource
+      GF_AUTH_TOKEN_ROTATION_INTERVAL_MINUTES: '1440' # our faked local storage can not be updated
       # Logging
       GF_LOG_FILTERS: plugin.checkmk-cloud-datasource:debug
       GF_DATAPROXY_LOGGING: 1

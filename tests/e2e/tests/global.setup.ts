@@ -8,6 +8,7 @@ import grafanaRestApi from '../lib/grafana_rest_api';
 test('Setup Granana', async () => {
   test.slow();
   await grafanaRestApi.deleteAllDatasources();
+  await grafanaRestApi.deleteAllDashboards();
   const ceeDataSourcePromise = grafanaRestApi.createDatasource(
     CmkEdition.CEE,
     config.grafanaToCheckMkUrl!,

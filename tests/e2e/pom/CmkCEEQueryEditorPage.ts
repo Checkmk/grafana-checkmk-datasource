@@ -1,21 +1,11 @@
-import { E2ESelectorGroups, PanelEditPage, expect } from '@grafana/plugin-e2e';
-import { Locator, Page } from '@playwright/test';
+import { expect } from '@grafana/plugin-e2e';
+import { Locator } from '@playwright/test';
 
 import { CmkEdition, FilterTypes, GRAFANA_SELECTORS, Services } from '../constants';
 import { CmkQueryEditorPage } from './CmkQueryEditorPage';
 
 export class CmkCEEQueryEditorPage extends CmkQueryEditorPage {
   protected _edition: CmkEdition = CmkEdition.CEE;
-
-  constructor(
-    readonly page: Page,
-    readonly selectors: E2ESelectorGroups,
-    readonly grafanaPanelEditPage: PanelEditPage
-  ) {
-    super(page);
-    this.grafanaPanelEditPage = grafanaPanelEditPage;
-    this.selectors = selectors;
-  }
 
   async filterByHostname(hostname: string) {
     await this.addFilter(FilterTypes.HOSTNAME);

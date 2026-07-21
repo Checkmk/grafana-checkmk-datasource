@@ -49,6 +49,22 @@ const deleteAllDatasources = async () => {
   await deleteDatasourcesByName();
 };
 
+const deleteAllDashboards = async () => {
+  const response = await requestContext.get('api/search?type=dash-db', { failOnStatusCode: false });
+  expect(response.status()).toBe(200);
+
+  const dashboards = await response.json();
+  let count = 0;
+  for (const dashboard of dashboards) {
+    const deleteResponse = await requestContext.delete(`api/dashboards/uid/${dashboard.uid}`, {
+      failOnStatusCode: false,
+    });
+    expect(deleteResponse.ok()).toBeTruthy();
+    count++;
+  }
+  console.log(`📊 ${count} dashboards removed`);
+};
+
 const deleteDatasourcesByName = async (names: string[] | null = null) => {
   const url = 'api/datasources';
   let count = 0;
@@ -72,5 +88,6 @@ const deleteDatasourcesByName = async (names: string[] | null = null) => {
 export default {
   createDatasource,
   deleteAllDatasources,
+  deleteAllDashboards,
   deleteDatasourcesByName,
 };

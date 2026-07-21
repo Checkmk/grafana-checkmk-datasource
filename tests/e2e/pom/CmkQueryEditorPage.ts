@@ -1,6 +1,6 @@
-import { expect } from '@grafana/plugin-e2e';
+import { E2ESelectorGroups, PanelEditPage, expect } from '@grafana/plugin-e2e';
+import { Page } from '@playwright/test';
 
-import current_config from '../config';
 import { CmkEdition, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes, Graphs } from '../constants';
 import { wait } from '../lib/util';
 import { CmkBasePage } from './CmkBasePage';
@@ -8,21 +8,22 @@ import { CmkBasePage } from './CmkBasePage';
 export class CmkQueryEditorPage extends CmkBasePage {
   protected _edition: CmkEdition | null = null;
 
-  async addPanel() {
-    await this.page.goto(current_config.grafanaUrl + 'dashboard/new');
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.ADD_NEW_DASHBOARD_BUTTON).click();
+  constructor(
+    readonly page: Page,
+    readonly selectors: E2ESelectorGroups,
+    readonly grafanaPanelEditPage: PanelEditPage
+  ) {
+    super(page);
+  }
 
+  async addPanel() {
     await this._selectDataSource();
   }
 
   async _selectDataSource() {
-    await this.page
-      .locator(GRAFANA_SELECTORS.DASHBOARD.DATASOURCES_LIST)
-      .locator('button')
-      .filter({ hasText: this._edition! })
-      .click();
-
-    await expect(this.page.getByText(this._edition!)).toBeVisible();
+    await this.grafanaPanelEditPage.getByGrafanaSelector(this.selectors.components.DataSourcePicker.container).click();
+    await this.page.keyboard.type(this._edition!);
+    await this.page.keyboard.press('Enter');
   }
 
   async savePanel(name: string | null = null) {
@@ -93,28 +94,6 @@ export class CmkQueryEditorPage extends CmkBasePage {
     await expect(
       this.page.locator(GRAFANA_SELECTORS.DASHBOARD.PANEL_CONTENT_SELECTOR).filter({ hasText: legend })
     ).toBeVisible();
-  }
-
-  async addPanelWithVariable(variableName: string) {
-    await this.gotoSettingsPage();
-    await this._addNewVariable(variableName);
-    await this.savePanel();
-
-    // Go back to the dashoard and add a new panel
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.BACK_TO_DASHBOARD_BUTTON).click();
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.ADD_VISUALIZATION_BUTTON).click();
-    await this._selectDataSource();
-  }
-
-  async gotoSettingsPage() {
-    await this.page.goto(current_config.grafanaUrl + 'dashboard/new');
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.SETTINGS_BUTTON).click();
-  }
-
-  async _addNewVariable(variableName: string) {
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.VARIABLES_TAB).click();
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.ADD_VARIABLE_BUTTON).click();
-    await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.VARIABLE_NAME_INPUT).fill(variableName);
   }
 
   async assertAggregationVariableExists(variableName: string) {

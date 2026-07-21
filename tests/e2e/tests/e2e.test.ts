@@ -2,7 +2,17 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
 import config from '../config';
-import { CustomLabels, FilterTypes, GraphLegends, Graphs, HOSTNAME0, HOSTNAME1, Services, Sites } from '../constants';
+import {
+  CustomLabels,
+  FilterTypes,
+  GRAFANA_SELECTORS,
+  GraphLegends,
+  Graphs,
+  HOSTNAME0,
+  HOSTNAME1,
+  Services,
+  Sites,
+} from '../constants';
 import { CmkRawQueryEditorPage } from '../pom/CMKRawQueryEditorPage';
 import { CmkCEEQueryEditorPage } from '../pom/CmkCEEQueryEditorPage';
 
@@ -208,10 +218,24 @@ test.describe('Community edition tests', () => {
 
 test.describe('General tests', () => {
   test.slow();
-  test('Variables get rendered', async ({ page, selectors, panelEditPage }) => {
-    const customVariableName = 'MyVariable';
+  test('Variables get rendered', async ({ variableEditPage, gotoDashboardPage, page, selectors }) => {
+    // Add a dashboard variable through the real UI. Checkmk is the default
+    // datasource, so the plugin's VariableQueryEditor renders in this form.
+    await variableEditPage
+      .getByGrafanaSelector(selectors.pages.Dashboard.Settings.Variables.Edit.General.generalNameInputV2)
+      .fill('myVariable');
+
+    // Save so the variable persists, then reopen the dashboard and add a panel.
+    await page.locator(GRAFANA_SELECTORS.DASHBOARD.APPLY_CHANGES_AND_SAVE_BUTTON).click();
+    await page.locator(GRAFANA_SELECTORS.DASHBOARD.SAVE_DASHBOARD_TITLE).fill('e2e variables');
+    await page.locator(GRAFANA_SELECTORS.DASHBOARD.SAVE_BUTTON).click();
+    await page.waitForURL(/\/d\//);
+
+    const uid = new URL(page.url()).pathname.split('/')[2];
+    const dashboardPage = await gotoDashboardPage({ uid });
+    const panelEditPage = await dashboardPage.addPanel();
     const panelPage = new CmkCEEQueryEditorPage(page, selectors, panelEditPage);
-    await panelPage.addPanelWithVariable('myVariable');
-    await panelPage.assertAggregationVariableExists(customVariableName);
+    await panelPage.addPanel();
+    await panelPage.assertAggregationVariableExists('MyVariable');
   });
 });

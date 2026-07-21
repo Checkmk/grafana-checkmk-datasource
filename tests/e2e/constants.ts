@@ -35,8 +35,6 @@ export const GRAFANA_SELECTORS = {
   },
 
   DASHBOARD: {
-    ADD_NEW_DASHBOARD_BUTTON: 'button[data-testid="data-testid Create new panel button"]',
-    DATASOURCES_LIST: 'div[data-testid="data-testid Data source list dropdown"]',
     DATASOURCE_INPUT: 'data-testid="data-testid Select a data source"',
 
     FILTER_FIELD: '#input_add_filter',
@@ -66,13 +64,6 @@ export const GRAFANA_SELECTORS = {
     APPLY_CHANGES_AND_SAVE_BUTTON: 'button[data-testid="data-testid Save dashboard button"]',
     SAVE_DASHBOARD_TITLE: 'input[aria-label="Save dashboard title field"]',
     SAVE_BUTTON: 'button[data-testid="data-testid Save dashboard drawer button"]',
-
-    SETTINGS_BUTTON: 'button[data-testid="data-testid Dashboard settings"]',
-    VARIABLES_TAB: 'a[data-testid="data-testid Tab Variables"]',
-    ADD_VARIABLE_BUTTON: 'button[data-testid="data-testid Call to action button Add variable"]',
-    VARIABLE_NAME_INPUT: 'input[data-testid="data-testid Variable editor Form Name field"]',
-    BACK_TO_DASHBOARD_BUTTON: 'button[data-testid="data-testid Back to dashboard button"]',
-    ADD_VISUALIZATION_BUTTON: 'button[data-testid="data-testid Create new panel button"]',
   },
 };
 
