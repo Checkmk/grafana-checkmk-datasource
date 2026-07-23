@@ -1,5 +1,6 @@
 import { E2ESelectorGroups, PanelEditPage, expect } from '@grafana/plugin-e2e';
 import { Page } from '@playwright/test';
+import { v4 as uuidv4 } from 'uuid';
 
 import { CmkEdition, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes, Graphs } from '../constants';
 import { wait } from '../lib/util';
@@ -28,7 +29,7 @@ export class CmkQueryEditorPage extends CmkBasePage {
 
   async savePanel(name: string | null = null) {
     if (name == null) {
-      name = 'Test Dashboard ' + Math.floor(Math.random() * 1000).toString();
+      name = 'Test Dashboard ' + uuidv4();
     }
 
     await this.page.locator(GRAFANA_SELECTORS.DASHBOARD.APPLY_CHANGES_AND_SAVE_BUTTON).click();
