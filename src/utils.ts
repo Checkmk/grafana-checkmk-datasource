@@ -78,6 +78,7 @@ export function createCmkContext(requestSpec: Partial<RequestSpec>): Record<stri
 
 export function updateQuery(query: CmkQuery): void {
   // convert legacy query (context/params) to new requestSpec interface
+  /* eslint-disable @typescript-eslint/no-deprecated */
   if (query.context !== undefined && query.params !== undefined) {
     // we need to replace the object in place, in order to remove the context
     // and params properties, otherwise both requestSpec and context/params are defined.
@@ -85,6 +86,7 @@ export function updateQuery(query: CmkQuery): void {
     delete query.context;
     delete query.params;
   }
+  /* eslint-enable @typescript-eslint/no-deprecated */
 }
 
 export function presentationToAggregation(presentation: Presentation): Aggregation {
