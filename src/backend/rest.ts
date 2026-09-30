@@ -336,6 +336,10 @@ export default class RestApiBackend implements Backend {
     const { time_range, step, metrics } = response.data;
 
     updateMetricTitles(metrics, query, scopedVars);
+    const metricColorSource =
+      query.metricColorSource === undefined || query.metricColorSource === 'default'
+        ? this.datasource.getMetricColorSource()
+        : query.metricColorSource;
 
     const timeValues: DateTime[] = [];
     let currentTime: DateTime = dateTime(time_range.start);
@@ -352,7 +356,7 @@ export default class RestApiBackend implements Backend {
         type: FieldType.number,
         values: curve.data_points,
         config:
-          this.datasource.getMetricColorSource() === 'checkmk'
+          metricColorSource === 'checkmk'
             ? { color: { mode: 'fixed', fixedColor: curve.color } }
             : {},
       });
