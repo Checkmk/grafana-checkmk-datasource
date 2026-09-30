@@ -225,6 +225,15 @@ test.describe('General tests', () => {
       .getByGrafanaSelector(selectors.pages.Dashboard.Settings.Variables.Edit.General.generalNameInputV2)
       .fill('myVariable');
 
+    // The default query lists all hosts. Running it goes through
+    // CmkVariableSupport, so the preview proves the variable resolves.
+    await variableEditPage.runQuery();
+    await expect(
+      variableEditPage
+        .getByGrafanaSelector(selectors.pages.Dashboard.Settings.Variables.Edit.General.previewOfValuesOption)
+        .filter({ hasText: HOSTNAME0 })
+    ).toBeVisible();
+
     // Save so the variable persists, then reopen the dashboard and add a panel.
     await page.locator(GRAFANA_SELECTORS.DASHBOARD.APPLY_CHANGES_AND_SAVE_BUTTON).click();
     await page.locator(GRAFANA_SELECTORS.DASHBOARD.SAVE_DASHBOARD_TITLE).fill('e2e variables');
