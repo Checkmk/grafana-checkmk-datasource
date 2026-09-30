@@ -45,6 +45,13 @@ describe('Cloud Edition Restrictions', () => {
     it('always render the edition dropdown', () => {
       expect(screen.queryByLabelText('Edition')).not.toBeNull();
     });
+
+    it('defaults metric colors to Checkmk', () => {
+      render(<ConfigEditor options={options} onOptionsChange={onOptionsChange} />);
+
+      expect(screen.getByLabelText('Colors')).toBeInTheDocument();
+      expect(screen.getByText('Checkmk')).toBeInTheDocument();
+    });
   });
 
   describe('RestApiBackend', () => {

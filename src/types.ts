@@ -45,6 +45,7 @@ export interface Params {
 
 export interface CmkQuery extends DataQuery {
   requestSpec: Partial<RequestSpec>;
+  metricColorSource?: MetricColorSourceOverride;
   /**
    * @deprecated legacy interface context should not be used, use requestSpec
    */
@@ -61,12 +62,15 @@ export const defaultQuery: Partial<CmkQuery> = {
 
 export type Edition = 'CEE' | 'RAW';
 export type Backend = 'rest';
+export type MetricColorSource = 'checkmk' | 'grafana';
+export type MetricColorSourceOverride = 'default' | MetricColorSource;
 
 export interface DataSourceOptions extends DataSourceJsonData {
   url?: string;
   username?: string;
   edition?: Edition;
   backend?: Backend;
+  metricColorSource?: MetricColorSource;
 }
 
 /**

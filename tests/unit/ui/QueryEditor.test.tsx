@@ -135,6 +135,21 @@ describe('QueryEditor RAW', () => {
     expect(onRunQuery).toHaveBeenCalledTimes(1);
   });
 
+  it('sets the metric color source override', async () => {
+    render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
+
+    const input = screen.getByLabelText('Colors');
+    await act(async () => {
+      await selectEvent.openMenu(input);
+    });
+    await act(async () => {
+      await selectEvent.select(input, 'Grafana', { container: document.body });
+    });
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ metricColorSource: 'grafana' }));
+    expect(onRunQuery).toHaveBeenCalledTimes(1);
+  });
+
   it.each`
     graphType             | graphTypeTitle        | selectChoice    | graphValue
     ${'Predefined graph'} | ${'Predefined graph'} | ${'Graph One'}  | ${'graph_1'}

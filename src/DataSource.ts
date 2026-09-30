@@ -12,7 +12,7 @@ import { replaceVariables } from 'utils';
 import { MetricFindQuery, RequestSpec } from './RequestSpec';
 import RestApiBackend from './backend/rest';
 import { Settings } from './settings';
-import { AutocompleterEntry, CmkQuery, DataSourceOptions, Edition } from './types';
+import { AutocompleterEntry, CmkQuery, DataSourceOptions, Edition, MetricColorSource } from './types';
 import { AutoCompleteParams } from './ui/autocomplete';
 import { createCmkContext } from './utils';
 
@@ -79,6 +79,10 @@ export class DataSource extends DataSourceApi<CmkQuery> {
 
   getUsername(): string {
     return this.settings.username;
+  }
+
+  getMetricColorSource(): MetricColorSource {
+    return this.settings.metricColorSource;
   }
 
   getEditionFamily(): EditionFamily {

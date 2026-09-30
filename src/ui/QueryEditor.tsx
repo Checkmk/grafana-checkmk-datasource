@@ -1,10 +1,10 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { Button, Icon, InlineFieldRow, Stack, Toggletip } from '@grafana/ui';
+import { Button, Icon, InlineField, InlineFieldRow, Select, Stack, Toggletip } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
 import { Aggregation, GraphType, RequestSpec } from '../RequestSpec';
-import { CmkQuery, DataSourceOptions, LabelVariableNames } from '../types';
+import { CmkQuery, DataSourceOptions, LabelVariableNames, MetricColorSourceOverride } from '../types';
 import { aggregationToPresentation, updateQuery } from '../utils';
 import { CheckMkSelect, GenericField } from './components';
 import { Filters } from './filters';
@@ -20,6 +20,9 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
   const [qGraphType, setQGraphType] = React.useState(rs.graph_type || 'predefined_graph');
   const [qGraph, setQGraph] = React.useState(rs.graph);
   const [qLabel, setQLabel] = React.useState(rs.label);
+  const [qMetricColorSource, setQMetricColorSource] = React.useState<MetricColorSourceOverride>(
+    query.metricColorSource ?? 'default'
+  );
 
   const filters: Partial<RequestSpec> = {
     // make sure to only include keys filters should change, otherwise they could
@@ -50,10 +53,11 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
 
   // TODO: not sure if this is a dirty hack or a great solution:
   // https://beta.reactjs.org/apis/react/useState#storing-information-from-previous-renders
-  const [prevCount, setPrevCount] = React.useState(JSON.stringify(requestSpec));
-  if (prevCount !== JSON.stringify(requestSpec)) {
-    setPrevCount(JSON.stringify(requestSpec));
-    onChange({ ...query, requestSpec: requestSpec });
+  const queryConfiguration = { requestSpec, metricColorSource: qMetricColorSource };
+  const [previousConfiguration, setPreviousConfiguration] = React.useState(JSON.stringify(queryConfiguration));
+  if (previousConfiguration !== JSON.stringify(queryConfiguration)) {
+    setPreviousConfiguration(JSON.stringify(queryConfiguration));
+    onChange({ ...query, ...queryConfiguration });
     onRunQuery();
   }
 
@@ -69,6 +73,28 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
     { value: 'predefined_graph', label: 'Predefined graph' },
     { value: 'single_metric', label: 'Single metric' },
   ];
+
+  const metricColorSourceOptions: Array<SelectableValue<MetricColorSourceOverride>> = [
+    { value: 'default', label: 'Default' },
+    { value: 'grafana', label: 'Grafana' },
+    { value: 'checkmk', label: 'Checkmk' },
+  ];
+
+  const metricColorSourceSelect = (
+    <InlineField
+      label="Colors"
+      labelWidth={12}
+      tooltip="Default uses the color source configured for this data source."
+    >
+      <Select
+        width={24}
+        options={metricColorSourceOptions}
+        value={qMetricColorSource}
+        onChange={({ value }) => setQMetricColorSource(value ?? 'default')}
+        inputId="checkmk-metric-color-source"
+      />
+    </InlineField>
+  );
 
   const graphAutocompleter = React.useCallback(
     (prefix: string) => {
@@ -171,6 +197,7 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
         {graphTypeSelect}
         {graphSelect}
         {labelField}
+        {metricColorSourceSelect}
       </Stack>
     );
   } else {
@@ -189,6 +216,7 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
         {graphTypeSelect}
         {graphSelect}
         {labelField}
+        {metricColorSourceSelect}
       </Stack>
     );
   }
