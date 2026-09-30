@@ -61,12 +61,14 @@ export const defaultQuery: Partial<CmkQuery> = {
 
 export type Edition = 'CEE' | 'RAW';
 export type Backend = 'rest';
+export type MetricColorSource = 'checkmk' | 'grafana';
 
 export interface DataSourceOptions extends DataSourceJsonData {
   url?: string;
   username?: string;
   edition?: Edition;
   backend?: Backend;
+  metricColorSource?: MetricColorSource;
 }
 
 /**

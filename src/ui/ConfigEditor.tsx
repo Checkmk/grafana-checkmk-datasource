@@ -5,7 +5,7 @@ import { EditionFamilyLabel } from 'edition';
 import React, { ChangeEvent, useCallback } from 'react';
 
 import { Settings } from '../settings';
-import { DataSourceOptions, Edition, SecureJsonData } from '../types';
+import { DataSourceOptions, Edition, MetricColorSource, SecureJsonData } from '../types';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends DataSourcePluginOptionsEditorProps<DataSourceOptions, SecureJsonData> {}
@@ -15,9 +15,19 @@ interface EditionOption {
   label: string;
 }
 
+interface MetricColorSourceOption {
+  value: MetricColorSource;
+  label: string;
+}
+
 const cmkEditions: EditionOption[] = [
   { value: 'CEE', label: EditionFamilyLabel.COMMERCIAL },
   { value: 'RAW', label: EditionFamilyLabel.COMMUNITY },
+];
+
+const metricColorSources: MetricColorSourceOption[] = [
+  { value: 'checkmk', label: 'Checkmk' },
+  { value: 'grafana', label: 'Grafana' },
 ];
 
 export const ConfigEditor = (props: Props) => {
@@ -51,6 +61,18 @@ export const ConfigEditor = (props: Props) => {
       const jsonData = {
         ...options.jsonData,
         username: event.target.value,
+      };
+      onOptionsChange({ ...options, jsonData });
+    },
+    [props]
+  );
+
+  const onMetricColorSourceChange = useCallback(
+    ({ value }: SelectableValue<MetricColorSource>): void => {
+      const { onOptionsChange, options } = props;
+      const jsonData = {
+        ...options.jsonData,
+        metricColorSource: value,
       };
       onOptionsChange({ ...options, jsonData });
     },
@@ -141,6 +163,22 @@ export const ConfigEditor = (props: Props) => {
             onReset={onResetSecret}
             onChange={onSecretChange}
             data-test-id="checkmk-password"
+          />
+        </InlineField>
+      </FieldSet>
+      <FieldSet label="Visualization">
+        <InlineField
+          label="Colors"
+          labelWidth={12}
+          tooltip="Use Checkmk colors as fixed metric colors, or let Grafana panel color schemes and thresholds determine the colors."
+        >
+          <Select
+            width={40}
+            options={metricColorSources}
+            onChange={onMetricColorSourceChange}
+            value={settings.metricColorSource}
+            inputId="checkmk-metric-color-source"
+            data-test-id="checkmk-metric-color-source"
           />
         </InlineField>
       </FieldSet>

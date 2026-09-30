@@ -2,7 +2,7 @@ import { DataQueryRequest, DataQueryResponse, MetricFindValue, TestDataSourceRes
 import { EditionFamily } from 'edition';
 
 import { MetricFindQuery } from '../RequestSpec';
-import { CmkQuery, Edition } from '../types';
+import { CmkQuery, Edition, MetricColorSource } from '../types';
 
 export interface Backend {
   query: (options: DataQueryRequest<CmkQuery>) => Promise<DataQueryResponse>;
@@ -15,5 +15,6 @@ export interface DatasourceOptions {
   getEdition: () => Edition;
   getUrl: () => string | undefined;
   getUsername(): string;
+  getMetricColorSource(): MetricColorSource;
   getEditionFamily: () => EditionFamily;
 }

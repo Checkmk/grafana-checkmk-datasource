@@ -1,4 +1,4 @@
-import { DataSourceOptions, Edition } from './types';
+import { DataSourceOptions, Edition, MetricColorSource } from './types';
 
 export class Settings {
   protected settings: DataSourceOptions;
@@ -18,5 +18,9 @@ export class Settings {
 
   get username(): string {
     return this.settings.username ?? '';
+  }
+
+  get metricColorSource(): MetricColorSource {
+    return this.settings.metricColorSource ?? 'checkmk';
   }
 }

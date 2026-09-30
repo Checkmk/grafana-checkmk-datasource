@@ -351,7 +351,10 @@ export default class RestApiBackend implements Backend {
         name: curve.title,
         type: FieldType.number,
         values: curve.data_points,
-        config: { color: { mode: 'fixed', fixedColor: curve.color } },
+        config:
+          this.datasource.getMetricColorSource() === 'checkmk'
+            ? { color: { mode: 'fixed', fixedColor: curve.color } }
+            : {},
       });
     }
 
