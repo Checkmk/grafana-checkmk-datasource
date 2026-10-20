@@ -2,7 +2,7 @@ import { E2ESelectorGroups, PanelEditPage, expect } from '@grafana/plugin-e2e';
 import { Page } from '@playwright/test';
 import { v4 as uuidv4 } from 'uuid';
 
-import { CmkEdition, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes, Graphs } from '../constants';
+import { CMK_TEXT, CmkEdition, GRAFANA_SELECTORS, GRAFANA_TEXT, GraphTypes, Graphs } from '../constants';
 import { wait } from '../lib/util';
 import { CmkBasePage } from './CmkBasePage';
 
@@ -17,14 +17,38 @@ export class CmkQueryEditorPage extends CmkBasePage {
     super(page);
   }
 
-  async addPanel() {
-    await this._selectDataSource();
+  async addPanel(dataSourceName: string = this._edition!) {
+    await this._selectDataSource(dataSourceName);
   }
 
-  async _selectDataSource() {
+  async _selectDataSource(dataSourceName: string) {
     await this.grafanaPanelEditPage.getByGrafanaSelector(this.selectors.components.DataSourcePicker.container).click();
-    await this.page.keyboard.type(this._edition!);
+    await this.page.keyboard.type(dataSourceName);
     await this.page.keyboard.press('Enter');
+  }
+
+  async replaceQuery() {
+    await this.grafanaPanelEditPage
+      .getByGrafanaSelector(this.selectors.components.QueryEditorRow.actionButton('Remove query'))
+      .click();
+    await this.grafanaPanelEditPage.getByGrafanaSelector(this.selectors.components.QueryTab.addQuery).click();
+    await this.expectSpinners(false);
+  }
+
+  metricColorsSwitch() {
+    return this.page.getByLabel(CMK_TEXT.APPLY_CHECKMK_METRIC_COLORS);
+  }
+
+  async setCheckmkMetricColors(apply: boolean) {
+    await this.metricColorsSwitch().setChecked(apply, { force: true });
+    await this.expectSpinners(false);
+  }
+
+  firstSeriesIcon() {
+    return this.page
+      .locator(GRAFANA_SELECTORS.DASHBOARD.PANEL_CONTENT_SELECTOR)
+      .locator(GRAFANA_SELECTORS.DASHBOARD.SERIES_ICON)
+      .first();
   }
 
   async savePanel(name: string | null = null) {

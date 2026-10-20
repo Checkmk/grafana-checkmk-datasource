@@ -345,13 +345,14 @@ export default class RestApiBackend implements Backend {
       currentTime = dateTime(currentTime).add(step, 'seconds');
     }
 
+    const applyCheckmkMetricColors = query.applyCheckmkMetricColors ?? true;
     const fields: Field[] = [{ name: 'Time', type: FieldType.time, values: timeValues, config: {} }];
     for (const curve of metrics) {
       fields.push({
         name: curve.title,
         type: FieldType.number,
         values: curve.data_points,
-        config: { color: { mode: 'fixed', fixedColor: curve.color } },
+        config: applyCheckmkMetricColors ? { color: { mode: 'fixed', fixedColor: curve.color } } : {},
       });
     }
 

@@ -1,6 +1,9 @@
 # Changelog
 
 [//]: # 'The ci will use the first section starting with `##` as release notes.'
+## 4.2.0
+- Added the query editor switch "Apply Checkmk metric colors". On, Checkmk colors each series by what it measures, as before. Off, Grafana picks the colors from the panel's color scheme. A data source setting sets the switch's initial value for new queries; existing panels keep Checkmk colors.
+
 ## 4.1.1
 - Updated dependencies
 - Pinned grafana test image version

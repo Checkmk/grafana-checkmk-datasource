@@ -1,7 +1,7 @@
 import { E2ESelectorGroups, PluginFixture } from '@grafana/plugin-e2e';
 import { type Page, expect } from '@playwright/test';
 
-import { CmkEdition } from '../constants';
+import { CMK_TEXT, CmkEdition } from '../constants';
 import { CmkBasePage } from './CmkBasePage';
 
 export class CmkDataSourceConfigPage extends CmkBasePage {
@@ -19,7 +19,8 @@ export class CmkDataSourceConfigPage extends CmkBasePage {
     cmkUser: string,
     cmkPassword: string,
     edition: CmkEdition,
-    name: string
+    name: string,
+    applyCheckmkMetricColorsByDefault = true
   ) => {
     const configPage = await builder({ type: datasourceId, name: name });
     await this.page.getByTestId('checkmk-url').fill(url);
@@ -30,6 +31,9 @@ export class CmkDataSourceConfigPage extends CmkBasePage {
 
     await this.page.getByTestId('checkmk-username').fill(cmkUser);
     await this.page.getByTestId('checkmk-password').fill(cmkPassword);
+    await this.page
+      .getByLabel(CMK_TEXT.APPLY_CHECKMK_METRIC_COLORS)
+      .setChecked(applyCheckmkMetricColorsByDefault, { force: true });
 
     await configPage.getByGrafanaSelector(this.selectors.pages.DataSource.saveAndTest).click();
     await expect(configPage.getByGrafanaSelector(this.selectors.pages.DataSource.alert)).toBeVisible();
