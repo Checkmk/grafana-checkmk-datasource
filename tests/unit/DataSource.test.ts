@@ -111,3 +111,19 @@ describe.each([{ edition: 'RAW' }, { edition: 'CEE' }])(
     });
   }
 );
+
+describe('Default query', () => {
+  it('applies Checkmk metric colors if the data source has no default', () => {
+    const subject = new DataSource({ jsonData: {} } as DataSourceInstanceSettings<DataSourceOptions>);
+
+    expect(subject.getDefaultQuery()).toEqual({ applyCheckmkMetricColors: true });
+  });
+
+  it('does not apply Checkmk metric colors if the data source default is off', () => {
+    const subject = new DataSource({
+      jsonData: { applyCheckmkMetricColorsByDefault: false },
+    } as DataSourceInstanceSettings<DataSourceOptions>);
+
+    expect(subject.getDefaultQuery()).toEqual({ applyCheckmkMetricColors: false });
+  });
+});

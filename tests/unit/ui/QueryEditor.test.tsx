@@ -135,6 +135,18 @@ describe('QueryEditor RAW', () => {
     expect(onRunQuery).toHaveBeenCalledTimes(1);
   });
 
+  it('turns off Checkmk metric colors', async () => {
+    render(<QueryEditor datasource={mockDatasource} query={query} onRunQuery={onRunQuery} onChange={onChange} />);
+
+    const metricColors = screen.getByLabelText('Apply Checkmk metric colors');
+    expect(metricColors).toBeChecked();
+
+    fireEvent.click(metricColors);
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ applyCheckmkMetricColors: false }));
+    expect(onRunQuery).toHaveBeenCalledTimes(1);
+  });
+
   it.each`
     graphType             | graphTypeTitle        | selectChoice    | graphValue
     ${'Predefined graph'} | ${'Predefined graph'} | ${'Graph One'}  | ${'graph_1'}

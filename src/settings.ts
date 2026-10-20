@@ -19,4 +19,8 @@ export class Settings {
   get username(): string {
     return this.settings.username ?? '';
   }
+
+  get applyCheckmkMetricColorsByDefault(): boolean {
+    return this.settings.applyCheckmkMetricColorsByDefault ?? true;
+  }
 }

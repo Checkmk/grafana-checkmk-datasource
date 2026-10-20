@@ -1,6 +1,6 @@
 import { DataSourcePluginOptionsEditorProps, SelectableValue } from '@grafana/data';
 /* Select is deprecated, but Combobox is still alpha, so no changes for now */
-import { FieldSet, InlineField, Input, SecretInput, Select } from '@grafana/ui';
+import { FieldSet, InlineField, InlineSwitch, Input, SecretInput, Select } from '@grafana/ui';
 import { EditionFamilyLabel } from 'edition';
 import React, { ChangeEvent, useCallback } from 'react';
 
@@ -39,6 +39,18 @@ export const ConfigEditor = (props: Props) => {
       const jsonData = {
         ...options.jsonData,
         edition: value,
+      };
+      onOptionsChange({ ...options, jsonData });
+    },
+    [props]
+  );
+
+  const onMetricColorsDefaultChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>): void => {
+      const { onOptionsChange, options } = props;
+      const jsonData = {
+        ...options.jsonData,
+        applyCheckmkMetricColorsByDefault: event.target.checked,
       };
       onOptionsChange({ ...options, jsonData });
     },
@@ -141,6 +153,18 @@ export const ConfigEditor = (props: Props) => {
             onReset={onResetSecret}
             onChange={onSecretChange}
             data-test-id="checkmk-password"
+          />
+        </InlineField>
+      </FieldSet>
+      <FieldSet label="Query editor defaults">
+        <InlineField
+          label="Apply Checkmk metric colors"
+          tooltip="Initial value of 'Apply Checkmk metric colors' in new queries. On: Checkmk colors each series by what it measures. Off: Grafana picks the colors from the panel's color scheme. Existing queries keep their own setting."
+        >
+          <InlineSwitch
+            id="checkmk-metric-colors-default"
+            value={settings.applyCheckmkMetricColorsByDefault}
+            onChange={onMetricColorsDefaultChange}
           />
         </InlineField>
       </FieldSet>

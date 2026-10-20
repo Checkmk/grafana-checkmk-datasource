@@ -26,6 +26,10 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     this.settings = new Settings(instanceSettings.jsonData);
   }
 
+  getDefaultQuery(): Partial<CmkQuery> {
+    return { applyCheckmkMetricColors: this.settings.applyCheckmkMetricColorsByDefault };
+  }
+
   async query(dataQueryRequest: DataQueryRequest<CmkQuery>): Promise<DataQueryResponse> {
     for (const target of dataQueryRequest.targets) {
       target.requestSpec = replaceVariables(target.requestSpec, dataQueryRequest.scopedVars);

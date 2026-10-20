@@ -46,6 +46,11 @@ export interface Params {
 export interface CmkQuery extends DataQuery {
   requestSpec: Partial<RequestSpec>;
   /**
+   * Whether Checkmk colors each series by what it measures. If false, Grafana picks the colors from the panel's
+   * color scheme. Missing means true.
+   */
+  applyCheckmkMetricColors?: boolean;
+  /**
    * @deprecated legacy interface context should not be used, use requestSpec
    */
   context?: Context;
@@ -67,6 +72,10 @@ export interface DataSourceOptions extends DataSourceJsonData {
   username?: string;
   edition?: Edition;
   backend?: Backend;
+  /**
+   * Initial value of applyCheckmkMetricColors in new queries. Missing means true.
+   */
+  applyCheckmkMetricColorsByDefault?: boolean;
 }
 
 /**

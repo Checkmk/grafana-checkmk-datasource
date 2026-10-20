@@ -5,6 +5,7 @@ export const HOSTNAME1 = 'localhost_grafana1';
 
 export const TESTDATASOURCENAME0 = 'cmk_test_datasource_0';
 export const TESTDATASOURCENAME1 = 'cmk_test_datasource_1';
+export const TESTDATASOURCENAME2 = 'cmk_test_datasource_2';
 
 export enum CmkEdition {
   CRE = EditionFamilyLabel.COMMUNITY,
@@ -54,6 +55,7 @@ export const GRAFANA_SELECTORS = {
     SINGLE_METRIC_GRAPH_FIELD_ID: 'input_Single_metric',
     PANEL_CONTENT_SELECTOR: '[class$="panel-content"]',
     GRAPH_SERIES_BULLET: '[class$="LegendLabel"]',
+    SERIES_ICON: '[data-testid="series-icon"]',
 
     REMOVE_FILTER_BY_SERVICE_BUTTON: '[data-test-id="cmk-oac-minus-button-Service"]',
 
@@ -82,6 +84,13 @@ export const GRAFANA_TEXT = {
   EDITION_MISMATCH: 'Choose commercial editions in the data source settings to enable all features',
   DASHBOARD_SAVED: 'Dashboard saved',
 };
+
+export const CMK_TEXT = {
+  APPLY_CHECKMK_METRIC_COLORS: 'Apply Checkmk metric colors',
+};
+
+// green, the first color of Grafana's classic palette
+export const GRAFANA_FIRST_SERIES_COLOR = 'rgb(115, 191, 105)';
 
 export enum FilterTypes {
   HOSTNAME = 'Hostname',

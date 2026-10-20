@@ -1,5 +1,5 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { Button, Icon, InlineFieldRow, Stack, Toggletip } from '@grafana/ui';
+import { Button, Icon, InlineField, InlineFieldRow, InlineSwitch, Stack, Toggletip } from '@grafana/ui';
 import React from 'react';
 
 import { DataSource } from '../DataSource';
@@ -157,6 +157,24 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
     ></GenericField>
   );
 
+  const onMetricColorsChange = (event: React.FormEvent<HTMLInputElement>): void => {
+    onChange({ ...query, applyCheckmkMetricColors: event.currentTarget.checked });
+    onRunQuery();
+  };
+
+  const metricColorsSwitch = (
+    <InlineField
+      label="Apply Checkmk metric colors"
+      tooltip="On: Checkmk colors each series by what it measures, e.g. CPU load is blue (the panel's color scheme has no effect). Off: Grafana picks the colors from the panel's color scheme."
+    >
+      <InlineSwitch
+        id={`checkmk-metric-colors-${query.refId}`}
+        value={query.applyCheckmkMetricColors ?? true}
+        onChange={onMetricColorsChange}
+      />
+    </InlineField>
+  );
+
   if (editionMode === 'RAW') {
     return (
       <Stack direction="column">
@@ -171,6 +189,7 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
         {graphTypeSelect}
         {graphSelect}
         {labelField}
+        {metricColorsSwitch}
       </Stack>
     );
   } else {
@@ -189,6 +208,7 @@ export const QueryEditor = (props: Props): React.JSX.Element => {
         {graphTypeSelect}
         {graphSelect}
         {labelField}
+        {metricColorsSwitch}
       </Stack>
     );
   }
