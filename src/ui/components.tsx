@@ -63,6 +63,13 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
   const [options, setOptions] = React.useState([] as Array<SelectableValue<Value>>);
   const [counter, setCounter] = React.useState(0);
   const [autocompleteError, setAutocompleteError] = React.useState('');
+  const [prevDeps, setPrevDeps] = React.useState({ autocompleter, label });
+
+  if (prevDeps.autocompleter !== autocompleter || prevDeps.label !== label) {
+    setPrevDeps({ autocompleter, label });
+    setOptions([]);
+    setCounter((c) => c + 1);
+  }
 
   function getPlaceholder() {
     if (autocompleteError !== '') {
@@ -119,11 +126,6 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
     [autocompleter, value, showVariables]
   );
 
-  React.useEffect(() => {
-    setOptions([]);
-    setCounter((c) => c + 1);
-  }, [autocompleter, label]);
-
   const changed = (newValue: SelectableValue<Value>) => {
     if (newValue.value === undefined) {
       throw new Error('Please report this error!');
@@ -150,7 +152,7 @@ export const CheckMkGenericAsyncSelect = function <Value extends string | (strin
       defaultOptions={true}
       // there seems to be no official way to re-trigger the async select field
       // but there are many hacks: https://github.com/JedWatson/react-select/issues/1581
-      key={`${Math.max(1, counter)}`} // ignore the first update
+      key={`${counter}`}
       loadOptions={loadOptions}
       width={width || 32}
       value={findValueInOptions(options, value)}
