@@ -27,8 +27,7 @@
   "license": "Apache-2.0",
   "overrides": {
     "uuid": ">=11.1.1",
-    "dompurify": "3.3.2",
-    "react-data-grid": "7.0.0-beta.56"
+    "dompurify": "3.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -93,11 +92,11 @@
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
-    "@grafana/data": "^12.4.2",
-    "@grafana/i18n": "^12.4.2",
-    "@grafana/runtime": "^12.4.2",
-    "@grafana/schema": "^12.4.2",
-    "@grafana/ui": "^12.4.2",
+    "@grafana/data": "^12.4.13",
+    "@grafana/i18n": "^12.4.13",
+    "@grafana/runtime": "^12.4.13",
+    "@grafana/schema": "^12.4.13",
+    "@grafana/ui": "^12.4.13",
     "process": "^0.11.10",
     "react": "18.3.1",
     "react-dom": "18.3.1",
