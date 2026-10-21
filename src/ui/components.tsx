@@ -213,13 +213,11 @@ export const CheckMkSelectNegatable = <T extends RequestSpecNegatableOptionKeys>
     if (newValue === undefined) {
       throw 'this is an internal error, please report';
     }
-    value.value = newValue;
-    onChange(value);
+    onChange({ ...value, value: newValue });
   };
 
   const onNegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    value.negated = event.target.checked;
-    onChange(value);
+    onChange({ ...value, negated: event.target.checked });
   };
 
   return (
