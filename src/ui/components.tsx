@@ -252,23 +252,22 @@ export const Filter = <T extends RequestSpecNegatableOptionKeys>(props: FilterPr
       : { ...props.value };
   const [textValue, setTextValue] = React.useState(value !== undefined ? value.value : '');
 
-  const debouncedOnChange = React.useMemo(
-    () =>
-      debounce((newValue) => {
-        onChange(newValue);
-      }, 1000),
-    [onChange]
+  // created once, so that onNegateChange can cancel a pending call even if onChange changed since
+  const [debouncedOnChange] = React.useState(() =>
+    debounce((callback: (value: NegatableOption) => void, newValue: NegatableOption) => {
+      callback(newValue);
+    }, 1000)
   );
 
   const onValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTextValue(event.target.value); // update text input
-    value.value = event.target.value; // update value of this closure
-    debouncedOnChange(value); // only the last debounce call comes through
+    setTextValue(event.target.value);
+    debouncedOnChange(onChange, { ...value, value: event.target.value });
   };
 
   const onNegateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    value.negated = event.target.checked;
-    onChange(value);
+    // a pending text change would otherwise overwrite the negation with its stale copy
+    debouncedOnChange.cancel();
+    onChange({ value: textValue, negated: event.target.checked });
   };
 
   return (
