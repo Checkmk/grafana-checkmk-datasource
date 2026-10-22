@@ -14,6 +14,5 @@ export interface Backend {
 export interface DatasourceOptions {
   getEdition: () => Edition;
   getUrl: () => string | undefined;
-  getUsername(): string;
   getEditionFamily: () => EditionFamily;
 }
