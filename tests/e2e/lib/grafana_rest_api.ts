@@ -85,8 +85,21 @@ const deleteDatasourcesByName = async (names: string[] | null = null) => {
   console.log(`📊 ${count} datasources removed`);
 };
 
+const proxyRequest = async (datasourceName: string, method: string, path: string, data?: unknown) => {
+  const dsResponse = await requestContext.get(`api/datasources/name/${encodeURIComponent(datasourceName)}`);
+  expect(dsResponse.ok()).toBeTruthy();
+  const { uid } = await dsResponse.json();
+
+  return await requestContext.fetch(`api/datasources/proxy/uid/${uid}/${path}`, {
+    method,
+    data,
+    failOnStatusCode: false,
+  });
+};
+
 export default {
   createDatasource,
+  proxyRequest,
   deleteAllDatasources,
   deleteAllDashboards,
   deleteDatasourcesByName,

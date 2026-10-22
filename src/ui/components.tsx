@@ -547,7 +547,7 @@ export const OnlyActiveChildren = (props: OnlyActiveChildrenProps): React.JSX.El
               options={availableComponentsOptions()}
               // We know that the `value` prop will always be defined since `availableComponentsOptions` returns
               // an array of type `{value: string; label: string}`.
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
               onChange={(value) => setActiveComponents((c) => [...c, value.value!])}
               value={{ label: 'Add Filter' }}
               inputId="input_add_filter"
