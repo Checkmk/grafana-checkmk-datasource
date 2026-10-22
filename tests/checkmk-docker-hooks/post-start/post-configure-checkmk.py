@@ -291,7 +291,7 @@ class API:
                     "auth_type": "automation",
                     "secret": secret,
                 },
-                "roles": ["admin"],
+                "roles": ["guest"],
             },
         ).json()
 

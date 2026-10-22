@@ -81,10 +81,6 @@ export class DataSource extends DataSourceApi<CmkQuery> {
     return this.settings.edition;
   }
 
-  getUsername(): string {
-    return this.settings.username;
-  }
-
   getEditionFamily(): EditionFamily {
     return getEditionFamily(this.settings.edition);
   }

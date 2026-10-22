@@ -7,7 +7,6 @@ import React, { ChangeEvent, useCallback } from 'react';
 import { Settings } from '../settings';
 import { DataSourceOptions, Edition, SecureJsonData } from '../types';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Props extends DataSourcePluginOptionsEditorProps<DataSourceOptions, SecureJsonData> {}
 
 interface EditionOption {
@@ -129,7 +128,7 @@ export const ConfigEditor = (props: Props) => {
         <InlineField
           label="Username"
           labelWidth={12}
-          tooltip="A checkmk monitoring user. Don't use 'automation' user, because it has admin rights."
+          tooltip="A Checkmk automation user used only for this data source. Give it a role without write or setup permissions, for example 'guest'."
         >
           <Input
             label="Username"
@@ -142,7 +141,7 @@ export const ConfigEditor = (props: Props) => {
         <InlineField
           label="Secret"
           labelWidth={12}
-          tooltip="You can find the secret for your user in your checkmk server under Users."
+          tooltip="The automation secret of the user. You can set it in Checkmk under Setup > Users."
         >
           <SecretInput
             isConfigured={(secureJsonFields && secureJsonFields.secret) as boolean}
