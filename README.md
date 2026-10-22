@@ -5,8 +5,8 @@
 [![Checkmk data source](https://img.shields.io/badge/dynamic/json?color=blue&label=Checkmk%20data%20source&query=%24.version&url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fcheckmk-cloud-datasource)](https://grafana.com/grafana/plugins/checkmk-cloud-datasource)
 [![CI](https://github.com/Checkmk/grafana-checkmk-datasource/actions/workflows/ci.yml/badge.svg?branch=main&event=schedule)](https://github.com/Checkmk/grafana-checkmk-datasource/actions/workflows/ci.yml?query=event%3Aschedule)
 
-
 ![Checkmk Grafana Data Source Plugin](https://github.com/checkmk/grafana-checkmk-datasource/raw/ebf24142922ccce5cc5649aa4809d1c19d55958f/grafana-checkmk-datasource.png)
+
 ## Introduction
 
 This [data source][2] plugin for [Grafana][1] allows to address Checkmk as source and to display individual metrics in Grafana.
@@ -25,7 +25,6 @@ The plug-in can be installed from the [Grafana marketplace][6] or by using the `
 ```bash
 grafana-cli plugins install checkmk-cloud-datasource
 ```
-
 
 ## Official documentation
 

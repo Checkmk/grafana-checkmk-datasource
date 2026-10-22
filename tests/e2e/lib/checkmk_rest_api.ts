@@ -31,7 +31,7 @@ const createCmkAutomationUser = async () => {
     data: {
       username: config.automationUser,
       fullname: config.automationUser,
-      roles: ['admin'],
+      roles: ['guest'],
       auth_option: {
         auth_type: 'automation',
         secret: config.automationPassword,

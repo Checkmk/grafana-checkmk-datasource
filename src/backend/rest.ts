@@ -64,17 +64,6 @@ type RestApiFilterRequest = {
   filter: unknown;
 } & CommonRequest;
 
-type RestApiSiteConnectionResponse = {
-  value: Array<{
-    extensions: {
-      basic_settings: {
-        alias: string;
-        site_id: string;
-      };
-    };
-  }>;
-};
-
 type RestApiLivestatusResponse<T> = {
   value: Array<{
     id: string;
@@ -102,18 +91,8 @@ export default class RestApiBackend implements Backend {
   }
 
   async listSites(): Promise<MetricFindValue[]> {
-    const query = {};
-    const response = await this.api<RestApiSiteConnectionResponse>({
-      url: '/domain-types/site_connection/collections/all',
-      method: 'GET',
-      params: {
-        query: JSON.stringify(query),
-      },
-    });
-    return response.data.value.map((element) => {
-      const bs = element.extensions.basic_settings;
-      return { text: bs.alias, value: bs.site_id, expandable: false };
-    });
+    const choices = await this.autocompleterRequest({ ident: 'sites', value: '', params: { strict: true } });
+    return choices.map(([siteId, alias]) => ({ text: alias, value: siteId, expandable: false }));
   }
 
   async listHosts(query: MetricFindQuery): Promise<MetricFindValue[]> {
@@ -200,22 +179,11 @@ export default class RestApiBackend implements Backend {
     if (isCloudEdition(result.data.edition)) {
       throw new Error('Detected Checkmk Cloud. Can not query data from Checkmk Cloud.');
     }
-    // The REST API would be ok with other users, but the autocompleter are not
-    if (!(await this.isAutomationUser(this.datasource.getUsername()))) {
-      throw new Error('This data source must authenticate against Checkmk using an automation user.');
-    }
 
     return {
       status: 'success',
       message: `Data source is working, reached version ${checkMkVersion} of Checkmk`,
     } as TestDataSourceResponse;
-  }
-
-  async isAutomationUser(username: string): Promise<boolean> {
-    const response = await this.api<{ extensions: { auth_option: { auth_type: string } } }>({
-      url: `/objects/user_config/${username}`,
-    });
-    return response.data['extensions']['auth_option']['auth_type'] === 'automation';
   }
 
   async api<T>(request: BackendSrvRequest): Promise<FetchResponse<T>> {
@@ -228,7 +196,6 @@ export default class RestApiBackend implements Backend {
     let result;
     try {
       result = await lastValueFrom(getBackendSrv().fetch<T>(request));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e) {
       const error = e as FetchError<RestApiError>;
       // grafana error handling is only showing status code and status message,
