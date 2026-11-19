@@ -61,7 +61,6 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "fork-ts-checker-webpack-plugin": "^9.1.0",
-    "glob": "^11.0.3",
     "identity-obj-proxy": "3.0.0",
     "imports-loader": "^5.0.0",
     "intersection-observer": "^0.12.2",
@@ -88,7 +87,7 @@
     "webpack-virtual-modules": "^0.6.2"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "dependencies": {
     "@emotion/css": "^11.13.5",
