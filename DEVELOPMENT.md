@@ -45,6 +45,7 @@ npm run pretty:fix
 ## Release
 
 - update dependencies
+- run the validator via `bash utils/validator.sh`
 - create pull request:
   - adapt version in package.json to `X.Y.Z`
   - add section in CHANGELOG.md: `## X.Y.Z`
